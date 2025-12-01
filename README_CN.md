@@ -80,9 +80,9 @@ FlagOS 项目包含多个专业化的代码仓库：
 
 | 渠道 | 目的 | 联系方式 |
 |------|------|--------|
-| 📧 **邮箱** | 一般咨询和沟通 | contact@flagos.io |
-| 📱 **微信公众号** | 更新和新闻 | FlagOpen |
-| 📺 **微信视频号** | 视频更新和公告 | FlagOpen |
+| 📧 **邮箱** | 一般咨询和沟通 | qgzhu@flagos.io |
+| 📱 **微信公众号** | 更新和新闻 | 智源FlagOpen |
+| 📺 **微信视频号** | 视频更新和公告 | 智源FlagOpen |
 | 💬 **GitHub Discussions** | 技术讨论和问答 | [即将推出] |
 | 📋 **邮件列表** | 公告和社区更新 | [即将推出] |
 
@@ -90,7 +90,6 @@ FlagOS 项目包含多个专业化的代码仓库：
 
 我们致力于为所有社区成员提供热情和包容的环境。所有参与者都应遵守我们的行为准则：
 
-- **[Code of Conduct](CODE_OF_CONDUCT.MD)** (English)
 - **[行为准则](CODE_OF_CONDUCT_CN.MD)** (中文)
 
 通过参与本社区，您同意遵守这些标准，并帮助我们维持一个尊重和高效的环境。
@@ -142,8 +141,7 @@ community/
 ├── CONTRIBUTING_CN.md          # 贡献指南（中文）
 ├── CODE_OF_CONDUCT.MD          # 社区行为准则（英文）
 ├── CODE_OF_CONDUCT_CN.MD       # 社区行为准则（中文）
-├── LICENSE                     # Apache License 2.0
-└── profile/                    # GitHub 个人资料自定义
+└── LICENSE                     # Apache License 2.0
 ```
 
 ## 许可证

@@ -80,9 +80,8 @@ Stay connected and engage with the FlagOS community:
 
 | Channel | Purpose | Contact |
 |---------|---------|---------|
-| 📧 **Email** | General inquiries and communication | contact@flagos.io |
-| 📱 **WeChat Official Account** | Updates and news | FlagOpen |
-| 📺 **WeChat Channels** | Video updates and announcements | FlagOpen |
+| 📧 **Email** | General inquiries and communication | qgzhu@flagos.io |
+| 📱 **WeChat Official Account** | Updates and news | 智源FlagOpen |
 | 💬 **GitHub Discussions** | Technical discussions and Q&A | [Coming Soon] |
 | 📋 **Mailing List** | Announcements and community updates | [Coming Soon] |
 
@@ -91,7 +90,6 @@ Stay connected and engage with the FlagOS community:
 We are committed to providing a welcoming and inclusive environment for all community members. All participants are expected to adhere to our Code of Conduct:
 
 - **[Code of Conduct](CODE_OF_CONDUCT.MD)** (English)
-- **[行为准则](CODE_OF_CONDUCT_CN.MD)** (中文)
 
 By participating in this community, you agree to uphold these standards and help us maintain a respectful and productive environment.
 
@@ -142,8 +140,7 @@ community/
 ├── CONTRIBUTING_CN.md          # Contribution guidelines (Chinese)
 ├── CODE_OF_CONDUCT.MD          # Community code of conduct (English)
 ├── CODE_OF_CONDUCT_CN.MD       # Community code of conduct (Chinese)
-├── LICENSE                     # Apache License 2.0
-└── profile/                    # GitHub profile customization
+└── LICENSE                     # Apache License 2.0
 ```
 
 ## License
