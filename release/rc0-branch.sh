@@ -52,6 +52,7 @@ RC0_BRANCH["flagaudio"]="v0.2-rc0"
 RC0_BRANCH["flagattention"]="v0.3-rc0"
 RC0_BRANCH["vllm-plugin-fl"]="v0.2.0-rc0"
 RC0_BRANCH["kernelgen"]="v2.1.0-rc0"
+RC0_BRANCH["kernelgenbench"]="v0.1.0-rc0"
 RC0_BRANCH["skills"]="v1.1.0-rc0"
 RC0_BRANCH["sglang-plugin-fl"]="v0.1.0-rc0"
 RC0_BRANCH["pytorch-plugin-fl"]="v0.1.0-rc0"
@@ -67,7 +68,7 @@ MODULES=(
   "flagtree" "flagcx" "flaggems" "flagfft" "flagsparse" "flagdnn" "flagblas"
   "flagtensor" "flagaudio" "flagattention" "pytorch-plugin-fl" "vllm-plugin-fl"
   "sglang-plugin-fl" "transformerengine-fl" "megatron-lm-fl" "verl-fl"
-  "flagscale" "flagquantum" "flagos-robo" "kernelgen" "flagrelease" "skills"
+  "flagscale" "flagquantum" "flagos-robo" "kernelgen" "kernelgenbench" "flagrelease" "skills"
 )
 for m in "${MODULES[@]}"; do
   DEFAULT_BRANCH[$m]="main"

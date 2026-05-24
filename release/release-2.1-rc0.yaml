@@ -196,6 +196,13 @@ repositories:
     # 分支: v2.1.0-rc0
     # 当前版本: v2.0.0 / 默认分支: main
 
+  kernelgenbench:
+    type: git
+    url: https://github.com/flagos-ai/KernelGenBench.git
+    version: v0.1.0-rc0.1
+    # 分支: v0.1.0-rc0
+    # 当前版本: 无 tag / 默认分支: main
+
   flagrelease:
     type: git
     url: https://github.com/flagos-ai/flagrelease.git
