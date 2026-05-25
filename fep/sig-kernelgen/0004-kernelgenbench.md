@@ -68,14 +68,6 @@ The `device_manager.py` module automatically detects the current hardware platfo
 | SOTA Agent | `bash agent_bench/test_autokernel.sh` / `test_ako4all.sh` / `test_cuda_optimized_skill.sh` | All three agent methods run successfully and produce results |
 | Device detection | `agent_bench/device_manager.py` | All platforms auto-detected, correct templates loaded |
 
-### Performance Verification
-
-| Metric | Requirement |
-|--------|-------------|
-| Pass@1 rate | aten dataset >= 60% |
-| Pass@10 rate | aten dataset >= 80% |
-| Generated kernel speedup | Average speedup >= 1.0x vs PyTorch eager |
-
 ### Compatibility Verification
 
 | Platform | Verification |
