@@ -20,6 +20,10 @@ Merge early and iterate — you do not need to fill every section before the fir
 
 **Target Version:** FlagOS X.Y
 
+**Cross-SIG Dependencies:**
+
+<!-- Other SIGs / Features this FEP depends on. Leave empty if none. -->
+
 ---
 
 ## Summary
@@ -49,6 +53,13 @@ Merge early and iterate — you do not need to fill every section before the fir
 ## Design Details
 
 <!-- (Optional) Implementation details, API changes, architecture diagrams. -->
+
+## Acceptance Criteria
+
+<!-- Completion conditions in checklist format. -->
+
+- [ ] Criteria 1
+- [ ] Criteria 2
 
 ## Test Plan
 
