@@ -1,4 +1,4 @@
-# FEP-NNNN: Distributed Quantum Statevector Simulator
+# FEP-NNNN: FlagQuantum - Distributed Quantum Statevector Simulator
 
 **Status:** `Implemented`
 
