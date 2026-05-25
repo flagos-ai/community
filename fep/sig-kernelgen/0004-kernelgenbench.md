@@ -1,4 +1,4 @@
-# FEP-NNNN: KernelGenBench - Multi-Chip Triton Kernel Generation Benchmark
+# FEP-0004: KernelGenBench - Multi-Chip Triton Kernel Generation Benchmark
 
 **Status:** `Implementable`
 
