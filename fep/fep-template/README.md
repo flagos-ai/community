@@ -24,13 +24,19 @@ Merge early and iterate — you do not need to fill every section before the fir
 
 ## Summary
 
+A short paragraph explaining what this feature does and its scope.
+
 <!-- One paragraph describing what this feature does. -->
 
 ## Motivation
 
+Why we need this feature and the problem it solves.
+
 <!-- Why should we do this? What problem does it solve? -->
 
 ### Goals
+
+What this feature aims to achieve.
 
 <!-- Concrete goals. -->
 
@@ -38,23 +44,33 @@ Merge early and iterate — you do not need to fill every section before the fir
 
 ### Non-Goals
 
+What is explicitly out of scope.
+
 <!-- Explicitly out of scope, to set boundaries. -->
 
 -
 
 ## Proposal
 
+The high-level approach: how the feature works from a user perspective.
+
 <!-- What is the user-visible change? How will it be used? -->
 
 ## Design Details
+
+Implementation-level details such as API changes, data flow, or architecture diagrams. Optional for simple features.
 
 <!-- (Optional) Implementation details, API changes, architecture diagrams. -->
 
 ## Test Plan
 
+How to verify the feature works correctly. Include functional, performance, and compatibility checks where relevant.
+
 <!-- How will this feature be verified? -->
 
 ## Packaging
+
+How to build and package the feature. Include build commands, packaging format, and platform requirements.
 
 <!-- How to build and package this feature? Provide build commands or script. -->
 
@@ -67,9 +83,13 @@ Merge early and iterate — you do not need to fill every section before the fir
 
 ## Alternatives
 
+Other approaches considered and why they were not chosen. Optional for straightforward features.
+
 <!-- (Optional) Other approaches considered and why they were not chosen. -->
 
 ## Related PRs
+
+All implementation PRs tracked as a checklist.
 
 <!-- Track implementation PRs here as a checklist. -->
 
@@ -79,5 +99,7 @@ Merge early and iterate — you do not need to fill every section before the fir
 -->
 
 ## Implementation History
+
+Key milestones and dates recorded after merge.
 
 <!-- Record key milestones and dates after merge. -->
