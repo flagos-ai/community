@@ -7,7 +7,7 @@ NNNN = PR number, title = short hyphenated description.
 Status is marked at the top of the document:
   **Status:** `Provisional` | `Implementable` | `Implemented` | `Deferred` | `Rejected`
 
-Merge early and iterate — you do not need to fill every section before the first PR.
+Merge early and iterate — fill the required sections before the first PR; others can follow later.
 -->
 
 **Status:** `Provisional`
@@ -24,9 +24,9 @@ Merge early and iterate — you do not need to fill every section before the fir
 
 ## Summary
 
-A short paragraph explaining what this feature does and its scope.
+**(Required)** A short paragraph explaining what this feature does, its scope, and a link to the relevant GitHub repository.
 
-<!-- One paragraph describing what this feature does. -->
+<!-- One paragraph describing what this feature does and linking to the repo. -->
 
 ## Motivation
 
@@ -36,7 +36,7 @@ Why we need this feature and the problem it solves.
 
 ### Goals
 
-What this feature aims to achieve.
+**(Required)** What this feature aims to achieve.
 
 <!-- Concrete goals. -->
 
@@ -64,13 +64,13 @@ Implementation-level details such as API changes, data flow, or architecture dia
 
 ## Test Plan
 
-How to verify the feature works correctly. Include functional, performance, and compatibility checks where relevant.
+**(Required)** How to verify the feature works correctly. Include functional, performance, and compatibility checks where relevant.
 
 <!-- How will this feature be verified? -->
 
 ## Packaging
 
-How to build and package the feature. Include build commands, packaging format, and platform requirements.
+**(Required)** How to build and package the feature. Include build commands, packaging format, and platform requirements.
 
 <!-- How to build and package this feature? Provide build commands or script. -->
 
