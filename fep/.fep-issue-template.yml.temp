@@ -38,7 +38,7 @@ body:
         - sig-embodied
         - sig-ai4s
         - sig-benchmark
-        - sig-skills
+        - sig-agent
         - sig-tools
         - sig-edge
         - sig-architecture

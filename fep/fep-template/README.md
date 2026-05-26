@@ -4,6 +4,8 @@
 Copy this template into the target sig-* directory, naming it NNNN-title.md.
 NNNN = PR number, title = short hyphenated description.
 
+**All content must be written in English.**
+
 Status is marked at the top of the document:
   **Status:** `Provisional` | `Implementable` | `Implemented` | `Deferred` | `Rejected`
 

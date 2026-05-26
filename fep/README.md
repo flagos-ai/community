@@ -21,7 +21,7 @@ stored under `fep/sig-*/`, submitted and reviewed via PR.
 | `sig-embodied` | FlagOS-Robo |
 | `sig-ai4s` | FlagQuantum |
 | `sig-benchmark` | FlagPerf |
-| `sig-skills` | Skills |
+| `sig-agent` | Skills |
 | `sig-tools` | FlagRelease |
 | `sig-edge` | Edge-side hardware — Arm CPU, mobile NPU, IoT devices |
 | `sig-architecture` | Cross-cutting features, process changes |
@@ -65,7 +65,7 @@ in the problem space and willingness to review.
 
 ### 1. Create the FEP Document
 
-Copy `fep-template/README.md` to `fep/sig-xxx/title-slug.md`.
+Copy the [FEP template](fep-template/README.md) to `fep/sig-xxx/title-slug.md`.
 
 - `title-slug` is a short hyphenated English description
 - Minimum content to start: Summary + Motivation. Everything else can follow later.
