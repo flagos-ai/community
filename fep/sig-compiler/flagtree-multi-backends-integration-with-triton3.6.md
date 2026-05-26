@@ -1,6 +1,6 @@
-# FEP-NNNN: FlagTree - Multi-Backend Integration with Triton 3.6
+# FEP-0013: FlagTree - Multi-Backend Integration with Triton 3.6
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Created:** 2026-05-26
 
