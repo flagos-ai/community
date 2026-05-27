@@ -4,7 +4,7 @@
 
 **Created:** 2026-05-27
 
-**Owner:** @flagos-ai
+**Owner:** @Dongxu-H
 
 **SIG:** sig-kernelgen
 
@@ -105,8 +105,8 @@ KernelGen v2.1 now supports 7 hardware platforms. Supported capabilities across 
 ### Installation
 
 ```bash
-# Install skill for Claude Code
-npx skills add flagos-ai/skills --skill kernelgen -a claude-code
+# Install skill
+npx skills add flagos-ai/skills --skill kernelgen
 ```
 
 ### Platform Requirements
@@ -143,13 +143,6 @@ npx skills add flagos-ai/skills --skill kernelgen -a claude-code
 
 ---
 
-## Related PRs
-
-- [ ] flagos-ai/kernelgen#xxx — Sunrise backend integration
-- [ ] flagos-ai/kernelgen#xxx — TLE experimental support
-- [ ] flagos-ai/skills#xxx — KernelGen skill updates for v2.1
-
----
 
 ## Implementation History
 
