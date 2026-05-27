@@ -166,7 +166,7 @@ Backend builds that need a vendor SDK pull a prebuilt base image from the FlagOS
 
 ### Platform matrix
 
-Platform requirements are declared per repository in `MANIFEST.yaml`. The baseline matrix that Wave 1 actually pre-builds and validates is **Ubuntu 24.04** (Debian) and **Fedora 43** (RPM), on `amd64`. Other distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler, and so on) are out of scope for this baseline; adapting and validating them is owned by the FlagOS SIG set up within the relevant distribution's own community (FlagOS maintains packaging SIGs in several upstream distribution communities), or by a downstream packager — not by this FEP's Wave 1. Repositories additionally declare, where relevant:
+Platform requirements are declared per repository in `MANIFEST.yaml`. The baseline matrix that Wave 1 actually pre-builds and validates is **Ubuntu 24.04** (Debian) and **Fedora 43** (RPM), on `amd64`. Other distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler, and so on) are out of scope for this baseline; adapting and validating them is owned by the FlagOS SIG set up within the relevant distribution's own community (FlagOS maintains packaging SIGs in the openKylin and openEuler communities), or by a downstream packager — not by this FEP's Wave 1. Repositories additionally declare, where relevant:
 
 - Python version (and whether the package is `noarch` or ABI-specific).
 - CUDA, ROCm, MACA, Ascend, or other vendor SDK version.
