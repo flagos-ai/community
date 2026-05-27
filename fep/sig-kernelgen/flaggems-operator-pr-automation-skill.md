@@ -1,4 +1,4 @@
-# FEP-NNNN: FlagGems Operator PR Automation Skill
+# FEP-0016: FlagGems Operator PR Automation Skill
 
 **Status:** `Provisional`
 
@@ -134,7 +134,7 @@ Requirements:
 
 ## Related PRs
 
-- [ ] flagos-ai/community#NNNN — FEP document (this PR)
+- [ ] flagos-ai/community#16 — FEP document (this PR)
 
 ## Implementation History
 
