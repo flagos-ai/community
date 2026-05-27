@@ -14,7 +14,7 @@
 
 ## Summary
 
-This FEP proposes a unified package integration process for FlagOS repositories, covering build metadata, package naming, CI artifacts, release publishing, and acceptance checks across the FlagOS project family. The baseline deliverable for each repository is a pair of distribution packages — a Debian `.deb` and an RPM `.rpm` — published to the shared FlagOS Nexus repository, with container images reserved for builds that need a vendor SDK. The initial scope includes the public FlagOS repositories under https://github.com/flagos-ai, including FlagGems, FlagTree, FlagScale, FlagCX, FlagPerf, FlagAttention, KernelGen, FlagBLAS, FlagDNN, FlagFFT, FlagSparse, FlagTensor, FlagAudio, FlagQuantum, FlagOS-Robo, and the `*-FL` framework/plugin repositories (the `-FL` suffix marks FlagOS-maintained forks of upstream frameworks and their plugins).
+This FEP proposes a unified package integration process for FlagOS repositories, covering build metadata, package naming, CI artifacts, release publishing, and acceptance checks across the FlagOS project family. The baseline deliverable for each repository is a pair of distribution packages — a Debian `.deb` and an RPM `.rpm` — published to the shared FlagOS Nexus repository; Python projects additionally ship a `pip`-installable wheel on PyPI as a first-class channel, and container images are reserved for builds that need a vendor SDK. The initial scope includes the public FlagOS repositories under https://github.com/flagos-ai, including FlagGems, FlagTree, FlagScale, FlagCX, FlagPerf, FlagAttention, KernelGen, FlagBLAS, FlagDNN, FlagFFT, FlagSparse, FlagTensor, FlagAudio, FlagQuantum, FlagOS-Robo, and the `*-FL` framework/plugin repositories (the `-FL` suffix marks FlagOS-maintained forks of upstream frameworks and their plugins).
 
 ## Motivation
 
@@ -166,7 +166,7 @@ Backend builds that need a vendor SDK pull a prebuilt base image from the FlagOS
 
 ### Platform matrix
 
-Platform requirements are declared per repository in `MANIFEST.yaml`. The baseline matrix that Wave 1 actually pre-builds and validates is **Ubuntu 24.04** (Debian) and **Fedora 43** (RPM), on `amd64`. Other distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler, and so on) are out of scope for this baseline; adapting and validating them is owned by the corresponding distribution SIG or downstream packager, not by this FEP's Wave 1. Repositories additionally declare, where relevant:
+Platform requirements are declared per repository in `MANIFEST.yaml`. The baseline matrix that Wave 1 actually pre-builds and validates is **Ubuntu 24.04** (Debian) and **Fedora 43** (RPM), on `amd64`. Other distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler, and so on) are out of scope for this baseline; adapting and validating them is owned by the FlagOS SIG set up within the relevant distribution's own community (FlagOS maintains packaging SIGs in several upstream distribution communities), or by a downstream packager — not by this FEP's Wave 1. Repositories additionally declare, where relevant:
 
 - Python version (and whether the package is `noarch` or ABI-specific).
 - CUDA, ROCm, MACA, Ascend, or other vendor SDK version.
@@ -185,6 +185,13 @@ sudo apt-get update
 sudo apt-get install libflagcx-nvidia libflagcx-nvidia-dev
 ```
 
+Python projects additionally publish their wheel to PyPI, so users who prefer `pip` are served without adding the FlagOS APT/YUM source:
+
+```bash
+# Any platform (Python projects)
+pip install flag-gems
+```
+
 ### Reference implementation
 
 The FlagCX packaging work ([FlagCX#476](https://github.com/flagos-ai/FlagCX/pull/476)) is the reference for the native-library path: it defines backend-specific `libflagcx-nvidia`/`libflagcx-metax` packages via Debian build profiles, ships both `.deb` and `.rpm`, and publishes to FlagOS Nexus. FlagGems ([FlagGems#3418](https://github.com/flagos-ai/FlagGems/pull/3418)) is the reference for the pure-Python multi-backend path.
@@ -201,7 +208,7 @@ Each repository package integration PR must include checks for the goals above:
 - Backend check: hardware-specific packages build and install for each claimed backend, or document the unsupported backend.
 - Version check: the package version matches the source release tag and follows the `X.Y.Z-N` scheme defined in [Versioning](#versioning).
 - Compatibility check: package versions align with the target FlagOS release matrix.
-- Artifact check: PR builds upload artifacts and tagged builds publish release artifacts.
+- Artifact check: PR builds upload artifacts and tagged builds publish release artifacts (Nexus `.deb`/`.rpm`, and the PyPI wheel for Python projects).
 - Uninstall or conflict check: packages either co-install cleanly or declare explicit conflicts.
 
 Examples:
@@ -261,3 +268,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 
 - 2026-05-25: Initial draft prepared for discussion.
 - 2026-05-26: Revised against the eleven open Wave 1 packaging PRs. Added RPM as a baseline format alongside Debian, replaced the proposed `./packaging/build.sh` interface with the actual `packaging/{debian,rpm}/build-helpers/build-<slug>.sh` layout, defined the verified platform matrix (Ubuntu 24.04, Fedora 43), specified FlagOS Nexus as the publish target, added versioning and ownership-record (`MANIFEST.yaml`) rules, listed canonical backend suffixes, populated concrete Wave assignments and PR links, and corrected the Python smoke test to use `importlib.util.find_spec`.
+- 2026-05-27: Clarified that a `pip`-installable PyPI wheel is a first-class channel for Python projects (aligned Summary, Publishing, and the artifact check). Scoped non-baseline distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler) to the FlagOS SIG within each distribution's own community or a downstream packager. Removed `vllm-FL`/`sglang-FL`, which do not exist, from the SIG and Wave tables. Documented the `python3-` naming derivation (import name with underscores converted to hyphens).
