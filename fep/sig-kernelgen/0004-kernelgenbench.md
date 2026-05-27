@@ -41,6 +41,12 @@ After installing via `pip install kernelgenbench`, users can:
 3. Automatically run correctness validation (compared against PyTorch reference)
 4. Output pass rate and performance reports
 
+### Distribution
+
+- Provide wheel (.whl) packages for easy installation
+- Build command: `python setup.py bdist_wheel` or `pip wheel .`
+- Per-platform requirements files under `requirements/` (following FlagGems convention)
+
 ## Design Details
 
 ### Architecture
