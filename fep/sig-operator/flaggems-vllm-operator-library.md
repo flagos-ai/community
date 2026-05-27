@@ -1,4 +1,4 @@
-# FEP: FlagGems-vllm - vLLM-Oriented Operator Library for FlagOS
+# FEP: FlagGems-vllm - High-Performance Fused Operator Library for vLLM
 
 **Status:** `Provisional`
 
@@ -14,20 +14,21 @@
 
 ## Summary
 
-FlagGems-vllm is a high-performance operator library for vLLM-oriented inference workloads in the FlagOS ecosystem. It extracts and maintains the vLLM-relevant fused and non-fused operators from FlagGems in a dedicated repository, providing Triton-based implementations, multi-backend adaptation hooks, accuracy tests, and benchmark coverage for operators used by vLLM and related FlagOS inference integrations. Repository: https://github.com/flagos-ai/FlagGems-vllm
+FlagGems-vllm is a high-performance fused operator library for vLLM inference workloads in the FlagOS ecosystem. It provides Triton-based fused kernels and vLLM-facing operator implementations for performance-critical paths such as MoE routing, cache update, rotary embedding, FP8 quantization, sequence packing, and DeepSeek V4 attention helpers. The repository maintains these fused operators together with multi-backend adaptation hooks, accuracy tests, and benchmark coverage. Repository: https://github.com/flagos-ai/FlagGems-vllm
 
 ## Motivation
 
-FlagGems contains a broad collection of general-purpose PyTorch and fused operators, while vLLM inference workloads require a narrower and faster-moving operator subset such as MoE routing, cache update, rotary embedding, FP8 quantization, MLA/DeepSeek-specific kernels, and sequence pack/unpack helpers. Keeping all vLLM-facing kernels only in the main FlagGems repository makes it harder to align with vLLM release cadence, test against vLLM-specific reference implementations, and maintain a lightweight dependency boundary for framework integration.
+vLLM inference workloads are dominated by short, performance-critical operator sequences that benefit from fusion: routing tokens for MoE execution, updating KV caches, applying rotary embedding, quantizing intermediate tensors to FP8, packing or unpacking sequence layouts, and preparing DeepSeek-style attention metadata. Implementing these paths as isolated general-purpose operators leaves extra memory traffic and launch overhead on the critical path.
 
-FlagGems-vllm addresses this by providing a dedicated operator repository for the vLLM path. The repository keeps the implementation style and runtime conventions inherited from FlagGems, while organizing the operator surface, tests, and benchmarks around vLLM usage.
+FlagGems-vllm addresses this by providing a dedicated high-performance fused operator library for the vLLM path. It keeps the implementation style and runtime conventions inherited from FlagGems, while organizing the operator surface, tests, and benchmarks around fused kernels that directly serve vLLM inference and related FlagOS framework integrations.
 
 ### Goals
 
-- Provide a dedicated home for vLLM-oriented FlagGems operators under `flagos-ai/FlagGems-vllm`.
-- Maintain Triton implementations for commonly used vLLM fused and non-fused operators, including MoE, cache, rotary embedding, FP8 quantization, and DeepSeek V4 attention helper kernels.
+- Provide a dedicated home for high-performance vLLM fused operators under `flagos-ai/FlagGems-vllm`.
+- Maintain Triton fused kernels for performance-critical vLLM paths, including MoE, cache update, rotary embedding, FP8 quantization, sequence pack/unpack, and DeepSeek V4 attention helper kernels.
+- Reduce launch overhead and memory traffic by combining adjacent vLLM inference operations where practical.
 - Keep API compatibility with the FlagGems operator style where practical, while exposing a `flaggems_vllm` Python package for direct use.
-- Provide accuracy tests for each migrated operator against PyTorch, vLLM, or equivalent reference implementations.
+- Provide accuracy tests for each fused operator against PyTorch, vLLM, or equivalent reference implementations.
 - Provide benchmark coverage following the FlagGems-vllm benchmark conventions for kernel-level and operator-level performance checks.
 - Support future multi-backend adaptation using the same runtime specialization model as the FlagOS operator stack.
 
@@ -35,13 +36,13 @@ FlagGems-vllm addresses this by providing a dedicated operator repository for th
 
 - It is not a replacement for vLLM itself or for `vllm-plugin-FL`.
 - It does not implement model serving, scheduling, request routing, or distributed inference orchestration.
-- It does not own general-purpose FlagGems operators that are unrelated to vLLM workloads.
+- It does not own general-purpose FlagGems operators that are unrelated to vLLM workloads or fused inference paths.
 - It does not define new model architectures; it only provides operator implementations used by framework integrations.
 - It does not guarantee that every upstream vLLM custom op is immediately reimplemented; coverage is expanded according to FlagOS inference requirements.
 
 ## Proposal
 
-FlagGems-vllm provides a standalone Python package named `flaggems_vllm`. Users and framework integrations can install it and call operators directly from `flaggems_vllm.ops` or from the package top level.
+FlagGems-vllm provides a standalone Python package named `flaggems_vllm`. Users and framework integrations can install it and call high-performance fused operators directly from `flaggems_vllm.ops` or from the package top level.
 
 Example direct use:
 
@@ -69,14 +70,14 @@ sorted_ids, expert_ids, num_tokens_post_pad = flaggems_vllm.ops.moe_align_block_
 )
 ```
 
-The repository should track the vLLM-facing operator subset from FlagGems. When new vLLM-related kernels are merged into FlagGems, they should be mirrored into FlagGems-vllm together with:
+The repository should track the vLLM-facing fused operator subset from FlagGems. When new vLLM-related fused kernels are merged into FlagGems, they should be mirrored into FlagGems-vllm together with:
 
 1. the operator implementation under `src/flaggems_vllm/ops/`,
 2. package exports in `src/flaggems_vllm/ops/__init__.py`,
 3. accuracy tests under `tests/`, and
 4. benchmark cases under `benchmark/`.
 
-This keeps FlagGems as the main operator development repository while allowing FlagGems-vllm to serve as the smaller framework-facing package for vLLM-related integration work.
+This keeps FlagGems as the main operator development repository while allowing FlagGems-vllm to serve as the smaller, performance-focused fused operator package for vLLM-related integration work.
 
 ## Design Details
 
@@ -106,15 +107,15 @@ FlagGems-vllm/
 `-- pyproject.toml
 ```
 
-### Operator Scope
+### Fused Operator Scope
 
-The initial and ongoing operator scope includes:
+The initial and ongoing fused operator scope includes:
 
-- MoE routing and execution helpers, such as `moe_align_block_size`, `moe_sum`, `grouped_topk`, and fused expert kernels.
-- Cache update and layout helpers, such as `reshape_and_cache`, `reshape_and_cache_flash`, `concat_and_cache_mla`, and vLLM MLA cache kernels.
-- Activation and normalization fused kernels used by inference models, such as `silu_and_mul`, `gelu_and_mul`, `fused_add_rms_norm`, and `skip_layer_norm`.
-- Attention-related kernels, including sparse attention, FlashMLA helpers, rotary embedding, sequence pack/unpack, and DeepSeek V4 attention helper kernels.
-- Quantization-related kernels used by vLLM inference paths, including FP8 quantization helpers and FP8-oriented fused kernels.
+- MoE routing and execution fusion, such as `moe_align_block_size`, `moe_sum`, `grouped_topk`, and fused expert kernels.
+- Cache update and layout fusion, such as `reshape_and_cache`, `reshape_and_cache_flash`, `concat_and_cache_mla`, and vLLM MLA cache kernels.
+- Activation and normalization fusion used by inference models, such as `silu_and_mul`, `gelu_and_mul`, `fused_add_rms_norm`, and `skip_layer_norm`.
+- Attention-related fusion, including sparse attention, FlashMLA helpers, rotary embedding, sequence pack/unpack, and DeepSeek V4 attention helper kernels.
+- Quantization-related fusion used by vLLM inference paths, including FP8 quantization helpers and FP8-oriented fused kernels.
 
 ### Runtime and Backend Adaptation
 
@@ -128,7 +129,7 @@ This design allows the same operator API to be used across supported hardware ba
 
 ### Testing and Benchmarking
 
-Each migrated operator should include:
+Each migrated fused operator should include:
 
 - an accuracy test under `tests/` using PyTorch, vLLM, or a local reference implementation,
 - a benchmark under `benchmark/` following the existing `GenericBenchmark` conventions where applicable,
@@ -167,7 +168,7 @@ Package metadata:
 | Goal | Verification Method |
 |------|---------------------|
 | Dedicated package import | Run `python -c "import flaggems_vllm; import flaggems_vllm.ops"` after installation. |
-| Operator API availability | Verify exported symbols from `flaggems_vllm.ops.__all__` include the migrated vLLM-facing operators. |
+| Fused operator API availability | Verify exported symbols from `flaggems_vllm.ops.__all__` include the migrated vLLM-facing fused operators. |
 | Accuracy coverage | Run `pytest -q tests --collect-only` and targeted tests such as `pytest -q tests/test_moe_align_block_size.py --quick`. |
 | DeepSeek V4 helper coverage | Run the DeepSeek V4 attention helper tests when the matching CUDA/vLLM reference environment is available. |
 | Benchmark coverage | Run benchmark collection with `pytest -q benchmark --collect-only` and targeted benchmarks with `--level core --iter 1 --warmup 1`. |
