@@ -18,9 +18,9 @@ FlagGems-vllm is a high-performance fused operator library for vLLM inference wo
 
 ## Motivation
 
-vLLM inference workloads are dominated by short, performance-critical operator sequences that benefit from fusion: routing tokens for MoE execution, updating KV caches, applying rotary embedding, quantizing intermediate tensors to FP8, packing or unpacking sequence layouts, and preparing DeepSeek-style attention metadata. Implementing these paths as isolated general-purpose operators leaves extra memory traffic and launch overhead on the critical path.
+The primary motivation of FlagGems-vllm is to improve vLLM inference performance by providing fused operator implementations for performance-critical execution paths. vLLM workloads frequently execute short operator sequences for MoE routing, KV cache update, rotary embedding, FP8 quantization, sequence layout conversion, and DeepSeek-style attention metadata preparation. Fusing these operations reduces kernel launch overhead, lowers memory traffic, and improves end-to-end inference throughput.
 
-FlagGems-vllm addresses this by providing a dedicated high-performance fused operator library for the vLLM path. It keeps the implementation style and runtime conventions inherited from FlagGems, while organizing the operator surface, tests, and benchmarks around fused kernels that directly serve vLLM inference and related FlagOS framework integrations.
+Another motivation is to prepare a unified operator layer for future multi-chip backend support. FlagOS targets diverse accelerator platforms, and vLLM-facing fused operators should be maintained with a consistent API, test suite, benchmark methodology, and backend adaptation mechanism. FlagGems-vllm keeps the implementation style and runtime conventions inherited from FlagGems while organizing the operator surface around fused kernels that can evolve from CUDA-first implementations to multiple chip backends over time.
 
 ### Goals
 
