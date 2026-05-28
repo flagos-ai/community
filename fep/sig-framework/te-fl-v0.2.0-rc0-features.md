@@ -103,19 +103,13 @@ Related PRs: #48, #58, #60.
 
 **(Required)**
 
-### Build from source (CUDA platform)
+### Build from source
 
 ```bash
-export NVTE_PYTORCH_FORCE_BUILD=TRUE
-pip install wheel packaging ninja pybind11
-python setup.py bdist_wheel --dist-dir=dist
-pip install dist/transformer_engine*.whl
-```
-
-### Build via CI script
-
-```bash
-bash .github/actions/build-pytorch-wheel/build.sh
+git clone https://github.com/flagos-ai/TransformerEngine-FL.git
+cd TransformerEngine-FL
+git checkout release/v0.2.0-rc0
+pip install --no-build-isolation .
 ```
 
 ### MetaX platform setup
@@ -124,9 +118,8 @@ bash .github/actions/build-pytorch-wheel/build.sh
 bash .github/scripts/setup_metax.sh
 ```
 
-### Packaging format
+### Requirements
 
-- **Format:** Python wheel (`.whl`)
 - **Python:** >= 3.8
 - **CUDA:** >= 12.1 (for CUDA platform)
 - **PyTorch:** >= 2.1
@@ -148,15 +141,8 @@ bash .github/scripts/setup_metax.sh
 # Clone and install
 git clone https://github.com/flagos-ai/TransformerEngine-FL.git
 cd TransformerEngine-FL
-git checkout main
-
-# Install dependencies
-pip install wheel packaging ninja pybind11 pytest
-
-# Build and install
-export NVTE_PYTORCH_FORCE_BUILD=TRUE
-python setup.py bdist_wheel --dist-dir=dist
-pip install dist/transformer_engine*.whl
+git checkout release/v0.2.0-rc0
+pip install --no-build-isolation .
 ```
 
 ### Component Setup
@@ -170,11 +156,7 @@ pip install dist/transformer_engine*.whl
 
 | Module | Test Command | Expected Result |
 |--------|-------------|-----------------|
-| Upstream sync (V2.14) — plugin API compatibility | `python -m pytest tests/pytorch/ -v` | All tests pass |
-| KunlunXin backend — flash attention | `python -m pytest tests/pytorch/ -k "kunlunxin"` (requires KunlunXin hardware) | All tests pass |
-| ENFLAME backend — flash attention | `python -m pytest tests/pytorch/ -k "enflame"` (requires ENFLAME hardware) | All tests pass |
-| FlagOS grouped GEMM — forward/backward | `python -m pytest transformer_engine/plugin/tests/ -v` | All tests pass |
-| CI/CD workflows — MetaX | Trigger `.github/workflows/all_tests_metax.yml` via FlagCICD | Workflow passes |
+| All features | `python transformer_engine/plugin/tests/run_all_tests.py` | All tests pass |
 
 ### Performance Verification
 
