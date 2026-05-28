@@ -43,10 +43,27 @@ This proposal implements Qwen3.6 validation by adding four new model cases (35B-
 ## Packaging
 
 This feature relies on existing vllm-plugin-FL packaging and environment setup.
+All commands in this section are intended to run inside the container started in the Test Plan.
+
+### Container Setup
+
+```bash
+docker pull vllm/vllm-openai:v0.20.0-cu130-ubuntu2404
+docker run -itd \
+    --name perf \
+    --entrypoint /bin/bash \
+    --gpus all \
+    --ipc=host \
+    --privileged \
+    --net host \
+    --shm-size 512g \
+    -v /path/to/models:/models \
+    vllm/vllm-openai:v0.20.0-cu130-ubuntu2404
+```
 
 ### Build and Package
 
-1. Install build dependencies and FlagGems:
+1. Inside the container, install build dependencies and FlagGems:
 
 ```bash
 pip install -U scikit-build-core==0.11 pybind11 ninja cmake
@@ -64,10 +81,16 @@ cd vllm-plugin-FL
 pip install --no-build-isolation .
 ```
 
-3. Install required dependencies for tests:
+3. Install vllm:
 
 ```bash
-pip install pytest pytest-cov pytest-json-report pytest-timeout requests "modelscope>=1.18.1"
+pip install vllm==0.20.2
+```
+
+4. Download models
+```bash
+modelscope download --model Qwen/Qwen3.6-27B --local_dir /models/Qwen3.6-27B
+modelscope download --model Qwen/Qwen3.6-35B-A3B --local_dir /models/Qwen3.6-35B-A3B
 ```
 
 ## Test Plan
@@ -80,50 +103,12 @@ The test plan below is required for NVIDIA.
 
 ### Image Acquisition
 
-NVIDIA platform image:
-
-```bash
-docker pull vllm/vllm-openai:v0.20.0-cu130-ubuntu2404
-```
-
 Record image source explicitly in CI logs, including:
 
 - image name/tag
 - vllm-plugin-FL commit
 - vLLM version
 
-### Package Installation
-
-NVIDIA container startup:
-
-```bash
-docker run -itd \
-    --name perf \
-    --entrypoint /bin/bash \
-    --gpus all \
-    --ipc=host \
-    --privileged \
-    --net host \
-    --shm-size 512g \
-    -v /path/to/models:/models \
-    vllm/vllm-openai:v0.20.0-cu130-ubuntu2404
-```
-
-Inside container:
-
-```bash
-git clone https://github.com/flagos-ai/vllm-plugin-FL
-cd vllm-plugin-FL
-pip install vllm==0.20.2
-pip install --no-build-isolation .
-pip install -U scikit-build-core==0.11 pybind11 ninja cmake
-pip install pytest pytest-cov pytest-json-report pytest-timeout requests "modelscope>=1.18.1"
-```
-
-Expected result:
-
-- All installation commands exit with code 0.
-- `python -c "import vllm_fl; print('ok')"` prints `ok`.
 
 ### Component Setup and Running (Unified Case)
 
@@ -245,9 +230,3 @@ Pass criteria:
 
 - Both combinations pass both the text test case and image test case.
 - No model load failure, no multimodal parsing error, and no empty generation.
-
-## Related PRs
-
-- [ ] flagos-ai/vllm-plugin-FL#TBD - Add qwen3_6 model YAMLs (text + image)
-- [ ] flagos-ai/vllm-plugin-FL#TBD - Add/extend NVIDIA platform test matrix
-- [ ] flagos-ai/vllm-plugin-FL#TBD - Add CI jobs for qwen3_6 on NVIDIA

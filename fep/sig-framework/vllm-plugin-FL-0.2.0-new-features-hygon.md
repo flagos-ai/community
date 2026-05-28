@@ -43,62 +43,12 @@ This proposal implements Qwen3.6 validation by adding four new model cases (35B-
 ## Packaging
 
 This feature relies on existing vllm-plugin-FL packaging and environment setup.
+All commands in this section are intended to run inside the container started in the Test Plan.
 
-### Build and Package
-
-1. Install build dependencies and FlagGems:
-
-```bash
-pip install -U scikit-build-core==0.11 pybind11 ninja cmake
-git clone https://github.com/flagos-ai/FlagGems
-cd FlagGems
-git checkout 1dab11ab1a6671e3132528492d2cc193e78af8f4
-pip install --no-build-isolation .
-
-```
-
-2. Clone and install vllm-plugin-FL:
-
-```bash
-git clone https://github.com/flagos-ai/vllm-plugin-FL
-
-cd vllm-plugin-FL
-pip install --no-build-isolation .
-```
-
-3. Install required dependencies for tests:
-
-```bash
-pip install pytest pytest-cov pytest-json-report pytest-timeout requests "modelscope>=1.18.1"
-```
-
-## Test Plan
-
-The test plan below is required for Hygon.
-
-### Environment Matrix
-
-- Platform: Hygon
-
-### Image Acquisition
-
-Hygon platform image:
+### Container Setup
 
 ```bash
 docker pull harbor.sourcefind.cn:5443/dcu/admin/base/custom:vllm0.20.0-ubuntu22.04-dtk26.04-py3.10-MiniCPM-V-4.6
-```
-
-Record image source explicitly in test logs, including:
-
-- image name/tag
-- vllm-plugin-FL commit
-- vLLM version
-
-### Package Installation
-
-Hygon container startup:
-
-```bash
 docker run \
     --name perf \
     --network=host \
@@ -115,21 +65,48 @@ docker run \
     /bin/bash
 ```
 
-Inside container:
+### Build and Package
+
+1. Inside the container, install build dependencies and FlagGems:
+
+```bash
+pip install -U scikit-build-core==0.11 pybind11 ninja cmake
+git clone https://github.com/flagos-ai/FlagGems
+cd FlagGems
+git checkout 1dab11ab1a6671e3132528492d2cc193e78af8f4
+pip install --no-build-isolation .
+```
+
+2. Clone and install vllm-plugin-FL:
 
 ```bash
 git clone https://github.com/flagos-ai/vllm-plugin-FL
 cd vllm-plugin-FL
-pip install vllm==0.20.2
 pip install --no-build-isolation .
-pip install -U scikit-build-core==0.11 pybind11 ninja cmake
-pip install pytest pytest-cov pytest-json-report pytest-timeout requests "modelscope>=1.18.1"
 ```
 
-Expected result:
+3. Download models
+```bash
+modelscope download --model Qwen/Qwen3.6-27B --local_dir /models/Qwen3.6-27B
+modelscope download --model Qwen/Qwen3.6-35B-A3B --local_dir /models/Qwen3.6-35B-A3B
+```
 
-- All installation commands exit with code 0.
-- `python -c "import vllm_fl; print('ok')"` prints `ok`.
+## Test Plan
+
+The test plan below is required for Hygon.
+
+### Environment Matrix
+
+- Platform: Hygon
+
+### Image Acquisition
+
+Record image source explicitly in test logs, including:
+
+- image name/tag
+- vllm-plugin-FL commit
+- vLLM version
+
 
 ### Component Setup and Running (Unified Case)
 
@@ -251,8 +228,3 @@ Pass criteria:
 
 - Both combinations pass both the text test case and image test case.
 - No model load failure, no multimodal parsing error, and no empty generation.
-
-## Related PRs
-
-- [ ] flagos-ai/vllm-plugin-FL#TBD - Add qwen3_6 model YAMLs (text + image)
-- [ ] flagos-ai/vllm-plugin-FL#TBD - Add/extend Hygon platform test matrix
