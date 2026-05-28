@@ -1,4 +1,4 @@
-# FEP: sglang-plugin-FL — Multi-Chip Inference Plugin for SGLang
+# FEP: sglang-plugin-FL 0.1.0 Multi-Chip Inference Plugin for SGLang (NVIDIA)
 
 **Status:** `Provisional`
 
@@ -25,8 +25,8 @@ This plugin provides a non-intrusive adaptation layer that enables SGLang to run
 ### Goals
 
 - Provide a three-layer non-intrusive adaptation for SGLang covering ATen operators, fused kernels, and distributed communication.
-- Support verified end-to-end inference for models including Qwen3.6-27B, Qwen3.6-35B-A3B, and Qwen2.5-14B-Instruct.
-- Enable multi-chip deployment on NVIDIA CUDA and Huawei Ascend with a unified vendor integration interface.
+- Support verified end-to-end inference on NVIDIA for models including Qwen3.6-27B, Qwen3.6-35B-A3B, and Qwen2.5-14B-Instruct.
+- Validate the full plugin pipeline on NVIDIA CUDA platform.
 - Share the dispatch system and vendor backend implementations with vllm-plugin-FL for cross-framework code reuse.
 
 ## Proposal
@@ -79,14 +79,13 @@ Users can configure backend selection via YAML config files or `SGLANG_FL_*` env
 
 Chip vendors integrate by implementing a backend class and `register_ops.py` under `dispatch/backends/vendor/`. The plugin auto-discovers vendor backends at startup. The same vendor implementations work across both sglang-plugin-FL and vllm-plugin-FL.
 
-Currently supported vendor backends:
+Currently supported vendor backend for this FEP:
 
 | Vendor | Hardware Detection |
 |--------|-------------------|
 | NVIDIA CUDA | `sgl_kernel` importable |
-| Huawei Ascend | `torch_npu` importable |
 
-### Verified Models
+### Verified Models (NVIDIA)
 
 | Model | TP | Status |
 |-------|-----|--------|
@@ -141,9 +140,15 @@ export FLAGCX_PATH="$PWD"
 
 ## Test Plan
 
+The test plan below is required for NVIDIA.
+
+### Environment Matrix
+
+- Platform: NVIDIA
+
 ### Image Acquisition
 
-Use the official vLLM CUDA base image (or equivalent SGLang-compatible image):
+NVIDIA platform image:
 
 ```bash
 docker pull vllm/vllm-openai:v0.20.0-cu130-ubuntu
