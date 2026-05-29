@@ -25,8 +25,9 @@ This plugin provides a non-intrusive adaptation layer that enables SGLang to run
 ### Goals
 
 - Provide a three-layer non-intrusive adaptation for SGLang covering ATen operators, fused kernels, and distributed communication.
-- Support verified end-to-end inference on NVIDIA for models including Qwen3.6-27B, Qwen3.6-35B-A3B, and Qwen2.5-14B-Instruct.
-- Validate the full plugin pipeline on NVIDIA CUDA platform.
+- Support verified end-to-end inference on NVIDIA for models including Qwen3.6-27B, Qwen3.6-35B-A3B, and Qwen2.5-14B-Instruct, covering both text and multimodal (VL) modalities.
+- Validate concurrent inference (16-way parallel requests) for text, VL, and mixed workloads.
+- Validate the full plugin pipeline on NVIDIA CUDA platform with comprehensive dispatch unit tests.
 - Share the dispatch system and vendor backend implementations with vllm-plugin-FL for cross-framework code reuse.
 
 ## Proposal
@@ -87,11 +88,13 @@ Currently supported vendor backend for this FEP:
 
 ### Verified Models (NVIDIA)
 
-| Model | TP | Status |
-|-------|-----|--------|
-| Qwen3.6-27B (Hybrid Attention + FLA + MoE) | tp=1 | Verified |
-| Qwen3.6-35B-A3B (MoE, 256 experts) | tp=1 | Verified |
-| Qwen2.5-14B-Instruct | tp=8 | Verified |
+| Model | TP | Modality | Status |
+|-------|-----|----------|--------|
+| Qwen3.6-27B (Hybrid Attention + FLA + MoE) | tp=1 | Text + VL | Verified |
+| Qwen3.6-35B-A3B (MoE, 256 experts) | tp=1 | Text + VL | Verified |
+| Qwen2.5-14B-Instruct | tp=8 | Text | Verified |
+
+All models support 16-way concurrent inference (text, VL, and mixed modes).
 
 ## Packaging
 
@@ -176,7 +179,7 @@ python -m sglang.launch_server \
 
 ### Test Commands and Expected Results
 
-**1. Single-GPU inference (Qwen2.5-0.5B-Instruct)**
+**1. Single-GPU text inference (Qwen2.5-0.5B-Instruct)**
 
 ```bash
 python -m sglang.launch_server \
@@ -199,7 +202,39 @@ curl -s http://localhost:30000/v1/chat/completions \
 
 Expected: Server starts successfully; API returns a valid JSON response with coherent generated text listing prime numbers (2, 3, 5, 7, 11).
 
-**2. Multi-GPU inference (Qwen2.5-14B-Instruct, tp=8)**
+**2. Text + VL offline inference (Qwen3.6-27B)**
+
+```bash
+MODEL_PATH=/models/Qwen3.6-27B python examples/qwen3_6_27b_offline_inference.py
+```
+
+Expected: Text prompts return correct answers (e.g., "50" for US states, "Paris" for France capital). VL prompts correctly identify image content (e.g., "red" for red_square.jpg, "cat" for cat.jpg, "7" for digit_seven.png).
+
+**3. Text + VL offline inference (Qwen3.6-35B-A3B)**
+
+```bash
+MODEL_PATH=/models/Qwen3.6-35B-A3B python examples/qwen3_6_35b_a3b_offline_inference.py
+```
+
+Expected: Same as test 2 — text and VL outputs are correct.
+
+**4. 16-way concurrent inference (Qwen3.6-27B)**
+
+```bash
+MODEL_PATH=/models/Qwen3.6-27B python examples/qwen3_6_27b_concurrent.py --mode all
+```
+
+Expected: All 16 concurrent requests complete successfully in text, VL, and mixed modes. Per-request latency statistics are printed. All responses pass correctness checks.
+
+**5. 16-way concurrent inference (Qwen3.6-35B-A3B)**
+
+```bash
+MODEL_PATH=/models/Qwen3.6-35B-A3B python examples/qwen3_6_35b_a3b_concurrent.py --mode all
+```
+
+Expected: Same as test 4 — all concurrent modes pass on the MoE model.
+
+**6. Multi-GPU inference (Qwen2.5-14B-Instruct, tp=8)**
 
 ```bash
 python -m sglang.launch_server \
@@ -210,7 +245,23 @@ python -m sglang.launch_server \
 
 Expected: Server starts with 8 GPUs; inference produces correct results with tensor-parallel communication via CommunicatorFL.
 
-**3. Dispatch log verification**
+**7. Dispatch unit tests**
+
+```bash
+cd sglang-plugin-FL
+pytest tests/unit_tests/dispatch/ -v
+```
+
+Expected: All dispatch unit tests pass, covering:
+- `test_types`: OpImpl, BackendImplKind, BackendPriority, match_token
+- `test_registry`: register/get/dedup/clear/snapshot/thread safety
+- `test_policy`: SelectionPolicy, PolicyManager, context managers, YAML config
+- `test_manager`: resolve/cache/call fallback/fork reset/singleton
+- `test_call_op`: call_op/resolve_op API, builtin_ops registration
+- `test_fork_safety`: real os.fork() cache/reinit/parent/epoch
+- `test_env_policy`: SGLANG_FL_PREFER/STRICT/DENY_VENDORS/ALLOW_VENDORS/PER_OP/CONFIG
+
+**8. Dispatch log verification**
 
 ```bash
 SGLANG_FL_DISPATCH_LOG=/tmp/dispatch.log \
@@ -229,7 +280,7 @@ Expected: Log shows all three fused ops dispatched to the flagos backend:
 [OOT-DISPATCH] RotaryEmbedding → flagos(flagos)
 ```
 
-**4. Plugin disabled baseline**
+**9. Plugin disabled baseline**
 
 ```bash
 SGLANG_PLUGINS="__none__" python -m sglang.launch_server \
@@ -241,8 +292,10 @@ Expected: Server starts using vanilla SGLang CUDA path without the plugin; confi
 
 ## Related PRs
 
-- [ ] flagos-ai/sglang-plugin-FL — initial plugin implementation
+- [x] [flagos-ai/sglang-plugin-FL#9](https://github.com/flagos-ai/sglang-plugin-FL/pull/9) — Add concurrent inference examples with text/VL/mixed modes
+- [x] [flagos-ai/sglang-plugin-FL#11](https://github.com/flagos-ai/sglang-plugin-FL/pull/11) — Add dispatch unit tests
 
 ## Implementation History
 
 - 2026-05-27: FEP created
+- 2026-05-29: Added multimodal (VL) inference, 16-way concurrent inference tests (PR #9), and dispatch unit tests (PR #11)
