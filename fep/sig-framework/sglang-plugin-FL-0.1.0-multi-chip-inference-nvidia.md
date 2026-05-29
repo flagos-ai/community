@@ -292,6 +292,7 @@ Expected: Server starts using vanilla SGLang CUDA path without the plugin; confi
 
 ## Related PRs
 
+- [x] [flagos-ai/sglang-plugin-FL#1](https://github.com/flagos-ai/sglang-plugin-FL/pull/1) — Initial implementation of sglang-plugin-FL (three-layer OOT plugin)
 - [x] [flagos-ai/sglang-plugin-FL#9](https://github.com/flagos-ai/sglang-plugin-FL/pull/9) — Add concurrent inference examples with text/VL/mixed modes
 - [x] [flagos-ai/sglang-plugin-FL#11](https://github.com/flagos-ai/sglang-plugin-FL/pull/11) — Add dispatch unit tests
 
