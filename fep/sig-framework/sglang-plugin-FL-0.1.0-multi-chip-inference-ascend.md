@@ -169,7 +169,7 @@ Expected: engine starts on NPU with `attention_backend=ascend`, `dtype=bfloat16`
 ```bash
 MODEL_PATH=/models/Qwen3.6-35B-A3B TP_SIZE=4 \
 SGLANG_FL_FLAGOS_BLACKLIST=count_nonzero,index_put_,_index_put_impl_,cumsum,fill_scalar_,argmax,index,add_,conv1d \
-  python sglang-plugin-FL/examples/qwen3_6_35b_a3b_smoke_test.py
+  python sglang-plugin-FL/examples/qwen3_6_35b_a3b_concurrent.py
 ```
 
 Expected: all modes (text, text-concurrent, vl, vl-concurrent, mixed-concurrent) pass; latency stats printed; no scheduling or dispatch errors.
