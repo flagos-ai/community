@@ -125,14 +125,14 @@ repositories:
   pytorch-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/PyTorch-Plugin-FL.git
-    version: v0.1.0-rc0.post1
+    version: v0.1.0-rc0.1
     # 分支: v0.1.0-rc0
     # 当前版本: 无 tag / 默认分支: main
 
   vllm-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/vllm-plugin-FL.git
-    version: v0.2.0-rc0.1
+    version: v0.2.0-rc0.post1
     # 分支: v0.2.0-rc0
     # 当前版本: v0.1.1+vllm0.13.0 / 默认分支: main
 
