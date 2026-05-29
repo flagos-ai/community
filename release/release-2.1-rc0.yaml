@@ -125,7 +125,7 @@ repositories:
   pytorch-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/PyTorch-Plugin-FL.git
-    version: v0.1.0-rc0.1
+    version: v0.1.0-rc0.post1
     # 分支: v0.1.0-rc0
     # 当前版本: 无 tag / 默认分支: main
 
