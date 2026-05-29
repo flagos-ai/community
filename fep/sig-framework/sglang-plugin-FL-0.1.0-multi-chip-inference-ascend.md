@@ -30,51 +30,7 @@ Running `Qwen3.6-27B` (hybrid attention + FLA + MoE) and `Qwen3.6-35B-A3B` (256-
 
 From a user perspective, usage is unchanged. On an Ascend NPU host, the same `pip install sglang-plugin-FL` is sufficient; the plugin auto-detects NPU via `flag_gems` `DeviceDetector`, registers the Ascend vendor backend, and dispatches the new ops to the ported NPU implementations.
 
-## Design Details
-
-### Architecture
-
-The plugin uses the same three-layer architecture, with the vendor.ascend backend handling op dispatch for Ascend NPU and NPU-specific KV pool routing wired through `PlatformFL`.
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                       SGLang Runtime                         │
-├──────────────────────────────────────────────────────────────┤
-│  Layer 1: ATen Ops (flag_gems.enable → PyTorch dispatch)     │
-├──────────────────────────────────────────────────────────────┤
-│  Layer 2: SGLang Fused Ops (AROUND hook on dispatch_forward) │
-│    → flagos (FlagGems) | vendor.ascend (NPU) | ref           │
-├──────────────────────────────────────────────────────────────┤
-│  Layer 3: Communication (AROUND hooks on GroupCoordinator)   │
-│    → CommunicatorFL (FlagCX / hccl)                          │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Vendor Backend Ops (Ascend)
-
-Implementations are ported from SGLang's `hardware_backend/npu/` into `dispatch/backends/vendor/ascend/`, preserving the original logic.
-
-| Op | Ported from (SGLang upstream) |
-|----|-------------------------------|
-| `gemma_rms_norm` | `torch_npu.npu_gemma_rms_norm` / `sgl_kernel_npu.add_gemma_rms_norm` (fused-add variant) |
-| `mrotary_embedding` | `torch_npu.npu_mrope`; falls back to `forward_native` when `head_dim > 4096` |
-| `topk` | `sglang.srt.hardware_backend.npu.moe.topk.fused_topk_npu` |
-| `fused_moe` | `npu_moe_init_routing_v2` + `npu_grouped_matmul` + `npu_moe_finalize_routing` |
-| `chunk_gated_delta_rule` | `sgl_kernel_npu.chunk_gated_delta_rule_npu` |
-
-All ops are registered at `BackendPriority.VENDOR` (priority=100): `flagos`(150) > `vendor.ascend`(100) > `reference`(50).
-
-### Platform Layer NPU Routing
-
-`PlatformFL` routes to NPU-native classes from SGLang upstream when `device_type == "npu"`:
-
-| Method | Returns on NPU |
-|--------|----------------|
-| `get_mha_kv_pool_cls` | `NPUMHATokenToKVPool` |
-| `get_mla_kv_pool_cls` / `get_nsa_kv_pool_cls` | `NPUMLATokenToKVPool` |
-| `get_paged_allocator_cls` | `NPUPagedTokenToKVPoolAllocator` |
-
-### Verified Models (Ascend NPU)
+## Verified Models (Ascend NPU)
 
 | Model | TP | Status |
 |-------|-----|--------|
@@ -264,4 +220,4 @@ Expected: the five ops land on `vendor.ascend`:
 
 ## Implementation History
 
-- 2026-05-28: FEP created
+- 2026-05-29: FEP created
