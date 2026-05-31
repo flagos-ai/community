@@ -61,9 +61,11 @@ def parse_manifest(filepath):
                     default_branch = "master"
 
             if url and version and branch:
+                # 统一转 SSH，避免 cron 环境下 HTTPS 认证失败
+                ssh_url = re.sub(r"https://github\.com/", "git@github.com:", url)
                 repos.append({
                     "name": name,
-                    "url": url,
+                    "url": ssh_url,
                     "version": version,
                     "branch": branch,
                     "default_branch": default_branch,
