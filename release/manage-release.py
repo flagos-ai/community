@@ -39,16 +39,13 @@ def parse_manifest(filepath):
 
     current_repo = None
     for i, line in enumerate(lines):
-        # Match top-level repo key (indented 2 spaces, ends with colon)
         repo_match = re.match(r"^  (\S+):\s*$", line)
         if repo_match:
             name = repo_match.group(1)
-            # Scan forward for url, version, and branch comment
             url = version = branch = None
             default_branch = "main"
             for j in range(i + 1, min(i + 30, len(lines))):
                 l = lines[j]
-                # Stop at next top-level key
                 if re.match(r"^  \S+:\s*$", l) and not l.startswith("    "):
                     break
                 if "url:" in l and url is None:
@@ -61,7 +58,6 @@ def parse_manifest(filepath):
                     default_branch = "master"
 
             if url and version and branch:
-                # 统一转 SSH，避免 cron 环境下 HTTPS 认证失败
                 ssh_url = re.sub(r"https://github\.com/", "git@github.com:", url)
                 repos.append({
                     "name": name,
@@ -76,26 +72,26 @@ def parse_manifest(filepath):
     return repos
 
 
-def run(cmd, cwd=None, check=True):
-    """Run a shell command, return stdout."""
+def run(cmd, cwd=None):
+    """Run a shell command. Returns (stdout, returncode)."""
     result = subprocess.run(
         cmd, shell=True, cwd=cwd, capture_output=True, text=True
     )
-    if check and result.returncode != 0:
-        print(f"  ✗ 命令失败: {cmd}")
-        print(f"    stderr: {result.stderr.strip()}")
-        sys.exit(1)
     return result.stdout.strip(), result.returncode
 
 
 def process_repo(repo, workdir, dry_run=False):
-    """Clone, create branch, and tag a single repo."""
+    """Clone, create branch, and tag a single repo.
+
+    Returns True on success, False on any failure (so caller can continue).
+    """
     name = repo["name"]
     url = repo["url"]
     version = repo["version"]
     branch = repo["branch"]
     default_branch = repo["default_branch"]
     repodir = os.path.join(workdir, name)
+    failures = []
 
     print(f"\n{'='*60}")
     print(f"📦 {name}")
@@ -106,19 +102,32 @@ def process_repo(repo, workdir, dry_run=False):
     if os.path.isdir(repodir):
         print(f"  📂 仓库已存在，fetch 最新...")
         if not dry_run:
-            run("git fetch --all --prune", cwd=repodir)
-            run(f"git checkout {default_branch}", cwd=repodir)
-            run(f"git pull origin {default_branch}", cwd=repodir)
+            _, rc = run("git fetch --all --prune", cwd=repodir)
+            if rc != 0:
+                print(f"  ⚠ fetch 失败，删除后重新 clone")
+                import shutil
+                shutil.rmtree(repodir)
+                os.makedirs(workdir, exist_ok=True)
+                _, rc = run(f"git clone {url} {repodir}")
+                if rc != 0:
+                    failures.append("clone")
+                    return False
+            else:
+                run(f"git checkout {default_branch}", cwd=repodir)
+                run(f"git pull origin {default_branch}", cwd=repodir)
     else:
         print(f"  ⬇ clone {url}")
         if not dry_run:
             os.makedirs(workdir, exist_ok=True)
-            run(f"git clone {url} {repodir}")
+            _, rc = run(f"git clone {url} {repodir}")
+            if rc != 0:
+                failures.append("clone")
+                return False
 
     # --- Create branch ---
     branch_exists = False
     if not dry_run:
-        out, _ = run(f"git branch -r", cwd=repodir, check=False)
+        out, _ = run(f"git branch -r", cwd=repodir)
         branch_exists = any(f"origin/{branch}" in line for line in out.splitlines())
 
     if branch_exists:
@@ -126,26 +135,51 @@ def process_repo(repo, workdir, dry_run=False):
     else:
         print(f"  🌿 创建分支 {branch} (基于 {default_branch})")
         if not dry_run:
-            run(f"git checkout -b {branch} origin/{default_branch}", cwd=repodir)
-            run(f"git push origin {branch}", cwd=repodir)
-            print(f"  ✓ 分支 {branch} 已推送")
+            _, rc = run(f"git checkout -b {branch} origin/{default_branch}", cwd=repodir)
+            if rc != 0:
+                failures.append("branch")
+            else:
+                _, rc = run(f"git push origin {branch}", cwd=repodir)
+                if rc != 0:
+                    failures.append("push-branch")
+                else:
+                    print(f"  ✓ 分支 {branch} 已推送")
 
     # --- Create tag ---
     tag_exists = False
     if not dry_run:
-        out, _ = run(f"git tag -l", cwd=repodir, check=False)
-        tag_exists = version in out.splitlines()
+        out, _ = run(f"git ls-remote --tags origin", cwd=repodir)
+        tag_exists = f"refs/tags/{version}" in out
+        # 如果远程没有但本地有（上次推送失败残留），清理本地 tag
+        if not tag_exists:
+            local_out, _ = run(f"git tag -l", cwd=repodir)
+            if version in local_out.splitlines():
+                run(f"git tag -d {version}", cwd=repodir)
 
     if tag_exists:
         print(f"  ∟ tag {version} 已存在，跳过创建")
     else:
         print(f"  🏷  打 tag {version} (基于分支 {branch})")
         if not dry_run:
+            # 确保在正确的分支上
             run(f"git checkout {branch}", cwd=repodir)
             run(f"git pull origin {branch}", cwd=repodir)
-            run(f"git tag -a {version} -m 'FlagOS 2.1 release: {version}'", cwd=repodir)
-            run(f"git push origin {version}", cwd=repodir)
-            print(f"  ✓ tag {version} 已推送")
+            _, rc = run(f"git tag -a {version} -m 'FlagOS 2.1 release: {version}'", cwd=repodir)
+            if rc != 0:
+                failures.append("tag")
+            else:
+                _, rc = run(f"git push origin {version}", cwd=repodir)
+                if rc != 0:
+                    # tag 推送失败（可能是仓库规则限制），tag 已本地创建但未推送
+                    run(f"git tag -d {version}", cwd=repodir)  # 清理本地 tag
+                    failures.append("push-tag")
+                else:
+                    print(f"  ✓ tag {version} 已推送")
+
+    if failures:
+        print(f"  ⚠ 部分操作失败: {', '.join(failures)}")
+        return False
+    return True
 
 
 def main():
@@ -177,18 +211,16 @@ def main():
     if args.filter:
         print(f"🔎 过滤条件: '{args.filter}' → 匹配 {len(filtered)} 个模块\n")
 
-    success = 0
-    skipped = 0
+    results = []
     for repo in filtered:
-        try:
-            process_repo(repo, args.workdir, dry_run=args.dry_run)
-            success += 1
-        except Exception as e:
-            print(f"  ✗ 失败: {e}")
-            skipped += 1
+        ok = process_repo(repo, args.workdir, dry_run=args.dry_run)
+        results.append((repo["name"], ok))
 
     print(f"\n{'='*60}")
-    print(f"✅ 完成: {success} 成功, {skipped} 跳过/失败")
+    failed = [name for name, ok in results if not ok]
+    print(f"✅ 成功: {len(results) - len(failed)}/{len(results)}")
+    if failed:
+        print(f"❌ 失败: {', '.join(failed)}")
     if args.dry_run:
         print(f"🔍 以上为预览，使用去掉 --dry-run 执行实际操作")
 
