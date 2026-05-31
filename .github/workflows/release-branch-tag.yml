@@ -1,0 +1,59 @@
+name: Release Branch & Tag
+
+on:
+  schedule:
+    # 每天北京时间 04:00 (UTC 20:00)
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: 'release YAML 文件名'
+        required: true
+        default: 'release-2.1-rc2.yaml'
+        type: choice
+        options:
+          - release-2.1-rc0.yaml
+          - release-2.1-rc2.yaml
+      dry_run:
+        description: '预览模式（不实际操作）'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  create-branches-and-tags:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout community repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "flagos-release-bot"
+          git config --global user.email "flagos-release@baai.ac.cn"
+          # 用 PAT 替换所有 flagos-ai repo 的认证
+          git config --global url."https://oauth2:${FLAGOS_PAT}@github.com/flagos-ai/".insteadOf "https://github.com/flagos-ai/"
+
+      - name: Run manage-release.py
+        env:
+          FLAGOS_PAT: ${{ secrets.FLAGOS_PAT }}
+        working-directory: release
+        run: |
+          MANIFEST="${{ inputs.manifest || 'release-2.1-rc2.yaml' }}"
+          DRY_RUN="${{ inputs.dry_run || false }}"
+
+          if [ "$DRY_RUN" = "true" ]; then
+            python3 manage-release.py --dry-run "$MANIFEST"
+          else
+            python3 manage-release.py --workdir /tmp/flagos-release "$MANIFEST"
+          fi
