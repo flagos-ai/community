@@ -69,13 +69,6 @@ repositories:
     # 当前版本: v5.0.2 / 默认分支: master ← 注意：不是 main
     # tag 历史格式: v5.0.1.rc.0 → rc2 tag: v5.0.5-rc2.post1（分支用 -, tag 保持一致）
 
-    flaggems-vllm:
-    type: git
-    url: https://github.com/flagos-ai/FlagGems-vllm.git
-    version: v0.1.0-rc2.post1
-    # 分支: v0.1.0-rc2
-    # 当前版本: 无 tag / 默认分支: main
-
   flagfft:
     type: git
     url: https://github.com/flagos-ai/FlagFFT.git
