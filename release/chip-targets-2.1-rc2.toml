@@ -7,7 +7,7 @@
 #   2. base_image — Harbor 统一基础镜像
 #
 # 互补文件：
-#   release-2.1-rc0.yaml    → 管理模块 repo 分支/tag（vcstool 格式）
+#   release-2.1-rc2.yaml    → 管理模块 repo 分支/tag（vcstool 格式）
 #   各模块 pyproject.toml    → 管理 pip 包版本 + pypi index
 #
 # 设计原则：
@@ -28,8 +28,8 @@
 # =============================================================================
 
 [meta]
-flagos_version = "2.1-rc0"
-last_updated = "2026-05-28"
+flagos_version = "2.1-rc2"
+last_updated = "2026-06-01"
 
 # =============================================================================
 # 生产级芯片（CI 活跃，有自托管 Runner）
