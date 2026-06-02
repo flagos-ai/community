@@ -170,37 +170,14 @@ Start the SGLang server with the plugin:
 
 ```bash
 python -m sglang.launch_server \
-    --model-path Qwen/Qwen2.5-0.5B-Instruct \
+    --model-path /models/Qwen3.6-27B \
     --port 30000 \
     --disable-piecewise-cuda-graph
 ```
 
 ### Test Commands and Expected Results
 
-**1. Single-GPU text inference (Qwen2.5-0.5B-Instruct)**
-
-```bash
-python -m sglang.launch_server \
-    --model-path Qwen/Qwen2.5-0.5B-Instruct \
-    --port 30000 \
-    --disable-piecewise-cuda-graph
-```
-
-Send a request after server is ready:
-
-```bash
-curl -s http://localhost:30000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "default",
-    "messages": [{"role": "user", "content": "List the first 5 prime numbers."}],
-    "temperature": 0
-  }' | python -m json.tool
-```
-
-Expected: Server starts successfully; API returns a valid JSON response with coherent generated text listing prime numbers (2, 3, 5, 7, 11).
-
-**2. Text + VL offline inference (Qwen3.6-27B)**
+**1. Text + VL offline inference (Qwen3.6-27B)**
 
 ```bash
 MODEL_PATH=/models/Qwen3.6-27B python examples/qwen3_6_27b_offline_inference.py
@@ -208,15 +185,15 @@ MODEL_PATH=/models/Qwen3.6-27B python examples/qwen3_6_27b_offline_inference.py
 
 Expected: Text prompts return correct answers (e.g., "50" for US states, "Paris" for France capital). VL prompts correctly identify image content (e.g., "red" for red_square.jpg, "cat" for cat.jpg, "7" for digit_seven.png).
 
-**3. Text + VL offline inference (Qwen3.6-35B-A3B)**
+**2. Text + VL offline inference (Qwen3.6-35B-A3B)**
 
 ```bash
 MODEL_PATH=/models/Qwen3.6-35B-A3B python examples/qwen3_6_35b_a3b_offline_inference.py
 ```
 
-Expected: Same as test 2 — text and VL outputs are correct.
+Expected: Same as test 1 — text and VL outputs are correct.
 
-**4. 16-way concurrent inference (Qwen3.6-27B)**
+**3. 16-way concurrent inference (Qwen3.6-27B)**
 
 ```bash
 MODEL_PATH=/models/Qwen3.6-27B python examples/qwen3_6_27b_concurrent.py --mode all
@@ -224,15 +201,15 @@ MODEL_PATH=/models/Qwen3.6-27B python examples/qwen3_6_27b_concurrent.py --mode 
 
 Expected: All 16 concurrent requests complete successfully in text, VL, and mixed modes. Per-request latency statistics are printed. All responses pass correctness checks.
 
-**5. 16-way concurrent inference (Qwen3.6-35B-A3B)**
+**4. 16-way concurrent inference (Qwen3.6-35B-A3B)**
 
 ```bash
 MODEL_PATH=/models/Qwen3.6-35B-A3B python examples/qwen3_6_35b_a3b_concurrent.py --mode all
 ```
 
-Expected: Same as test 4 — all concurrent modes pass on the MoE model.
+Expected: Same as test 3 — all concurrent modes pass on the MoE model.
 
-**6. Multi-GPU inference (Qwen2.5-14B-Instruct, tp=8)**
+**5. Multi-GPU inference (Qwen2.5-14B-Instruct, tp=8)**
 
 ```bash
 python -m sglang.launch_server \
@@ -243,7 +220,7 @@ python -m sglang.launch_server \
 
 Expected: Server starts with 8 GPUs; inference produces correct results with tensor-parallel communication via CommunicatorFL.
 
-**7. Dispatch unit tests**
+**6. Dispatch unit tests**
 
 ```bash
 cd sglang-plugin-FL
@@ -259,12 +236,12 @@ Expected: All dispatch unit tests pass, covering:
 - `test_fork_safety`: real os.fork() cache/reinit/parent/epoch
 - `test_env_policy`: SGLANG_FL_PREFER/STRICT/DENY_VENDORS/ALLOW_VENDORS/PER_OP/CONFIG
 
-**8. Dispatch log verification**
+**7. Dispatch log verification**
 
 ```bash
 SGLANG_FL_DISPATCH_LOG=/tmp/dispatch.log \
   python -m sglang.launch_server \
-    --model-path Qwen/Qwen2.5-0.5B-Instruct \
+    --model-path /models/Qwen3.6-27B \
     --port 30000 --disable-piecewise-cuda-graph
 # After first request:
 sort -u /tmp/dispatch.log
@@ -278,11 +255,11 @@ Expected: Log shows all three fused ops dispatched to the flagos backend:
 [OOT-DISPATCH] RotaryEmbedding → flagos(flagos)
 ```
 
-**9. Plugin disabled baseline**
+**8. Plugin disabled baseline**
 
 ```bash
 SGLANG_PLUGINS="__none__" python -m sglang.launch_server \
-    --model-path Qwen/Qwen2.5-0.5B-Instruct \
+    --model-path /models/Qwen3.6-27B \
     --port 30000 --disable-piecewise-cuda-graph
 ```
 
