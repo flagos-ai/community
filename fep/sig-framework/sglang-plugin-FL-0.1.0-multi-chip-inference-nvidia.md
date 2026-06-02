@@ -151,18 +151,16 @@ The test plan below is required for NVIDIA.
 
 ### Image Acquisition
 
-NVIDIA platform image:
+NVIDIA platform image (pre-installed with PyTorch, Triton, FlagGems, SGLang, and Qwen3.6 models):
 
 ```bash
-docker pull vllm/vllm-openai:v0.20.0-cu130-ubuntu
+docker pull harbor.baai.ac.cn/flagos-inner-models-release/flagrelease-qwen3.6-nvidia-tree_none-gems_4.2.1rc0-vllm_none-plugin_none-cx_none-python_3.12.3-torch_2.11.0-pcp_cuda13.0-gpu_nvidia003-arc_amd64-driver_580.105.08:202605292005
 ```
 
 ### Package Installation
 
 ```bash
-# Inside container
-pip install "sglang[all]==0.5.11"
-git clone https://github.com/flagos-ai/FlagGems && cd FlagGems && pip install --no-build-isolation . && cd ..
+# Inside container (SGLang, FlagGems, PyTorch, Triton are pre-installed in the image)
 git clone https://github.com/flagos-ai/sglang-plugin-FL && cd sglang-plugin-FL && pip install --no-build-isolation . && cd ..
 ```
 
