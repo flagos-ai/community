@@ -25,7 +25,7 @@ This plugin provides a non-intrusive adaptation layer that enables SGLang to run
 ### Goals
 
 - Provide a three-layer non-intrusive adaptation for SGLang covering ATen operators, fused kernels, and distributed communication.
-- Support verified end-to-end inference on NVIDIA for models including Qwen3.6-27B, Qwen3.6-35B-A3B, and Qwen2.5-14B-Instruct, covering both text and multimodal (VL) modalities.
+- Support verified end-to-end inference on NVIDIA for models including Qwen3.6-27B and Qwen3.6-35B-A3B, covering both text and multimodal (VL) modalities.
 - Validate concurrent inference (16-way parallel requests) for text, VL, and mixed workloads.
 - Validate the full plugin pipeline on NVIDIA CUDA platform with comprehensive dispatch unit tests.
 - Share the dispatch system and vendor backend implementations with vllm-plugin-FL for cross-framework code reuse.
@@ -92,7 +92,6 @@ Currently supported vendor backend for this FEP:
 |-------|-----|----------|--------|
 | Qwen3.6-27B (Hybrid Attention + FLA + MoE) | tp=1 | Text + VL | Verified |
 | Qwen3.6-35B-A3B (MoE, 256 experts) | tp=1 | Text + VL | Verified |
-| Qwen2.5-14B-Instruct | tp=8 | Text | Verified |
 
 All models support 16-way concurrent inference (text, VL, and mixed modes).
 
@@ -147,7 +146,20 @@ The test plan below is required for NVIDIA.
 
 ### Environment Matrix
 
-- Platform: NVIDIA
+- Platform: NVIDIA H20
+- GPU: 8x NVIDIA H20
+
+### Model Acquisition
+
+Models are pre-loaded in the Docker image at `/models/`. Alternatively, download from ModelScope:
+
+```bash
+# Qwen3.6-27B
+modelscope download --model Qwen/Qwen3.6-27B --local_dir /models/Qwen3.6-27B
+
+# Qwen3.6-35B-A3B
+modelscope download --model Qwen/Qwen3.6-35B-A3B --local_dir /models/Qwen3.6-35B-A3B
+```
 
 ### Image Acquisition
 
@@ -209,18 +221,7 @@ MODEL_PATH=/models/Qwen3.6-35B-A3B python examples/qwen3_6_35b_a3b_concurrent.py
 
 Expected: Same as test 3 — all concurrent modes pass on the MoE model.
 
-**5. Multi-GPU inference (Qwen2.5-14B-Instruct, tp=8)**
-
-```bash
-python -m sglang.launch_server \
-    --model-path Qwen/Qwen2.5-14B-Instruct \
-    --tp 8 --port 30000 \
-    --disable-piecewise-cuda-graph
-```
-
-Expected: Server starts with 8 GPUs; inference produces correct results with tensor-parallel communication via CommunicatorFL.
-
-**6. Dispatch unit tests**
+**5. Dispatch unit tests**
 
 ```bash
 cd sglang-plugin-FL
@@ -236,7 +237,7 @@ Expected: All dispatch unit tests pass, covering:
 - `test_fork_safety`: real os.fork() cache/reinit/parent/epoch
 - `test_env_policy`: SGLANG_FL_PREFER/STRICT/DENY_VENDORS/ALLOW_VENDORS/PER_OP/CONFIG
 
-**7. Dispatch log verification**
+**6. Dispatch log verification**
 
 ```bash
 SGLANG_FL_DISPATCH_LOG=/tmp/dispatch.log \
@@ -255,7 +256,7 @@ Expected: Log shows all three fused ops dispatched to the flagos backend:
 [OOT-DISPATCH] RotaryEmbedding → flagos(flagos)
 ```
 
-**8. Plugin disabled baseline**
+**7. Plugin disabled baseline**
 
 ```bash
 SGLANG_PLUGINS="__none__" python -m sglang.launch_server \
