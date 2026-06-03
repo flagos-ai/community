@@ -109,35 +109,263 @@ automatically configuring OMP affinity. NEON serves as the universal fallback.
 
 ## Packaging
 
-- **Build**: `FLAGTREE_BACKEND=cpu`, native Linux/AArch64 build or cross-build via
-  Docker buildx.
-- **Toolchain**: LLVM-based AArch64 code generation through the Triton-CPU lowering path.
-- **Artifacts**: tle_arm64 plugin + `libTritonCPURuntime.so` (C runtime) + runtime detection
-  coordinator.
-- **Platform requirements**: Linux/AArch64; NEON as baseline, SVE2/i8mm optional with
-  auto-detection.
-- **Distribution**: Shipped as part of the FlagTree release.
+This feature is built from source on AArch64 Linux. The full installation guide is in the
+FlagTree repository at `documents/install_arm64.md` on the `triton_v3.3.x` branch (see
+[FlagTree#633](https://github.com/flagos-ai/FlagTree/pull/633)). The reproducible build
+sequence is reproduced below.
+
+> **Pre-merge note.** FlagTree [#632](https://github.com/flagos-ai/FlagTree/pull/632) and
+> the triton-cpu work have both merged upstream, so steps 4–6 use the canonical
+> `flagos-ai/*` URLs with default flags. The one remaining review-stage reference is
+> [FlagGems#3616](https://github.com/flagos-ai/FlagGems/pull/3616); the FlagGems clone in
+> step 7 points at the fork branch and will switch to `flagos-ai/FlagGems` once merged.
+
+### Platform requirements
+
+- AArch64 Linux (Ubuntu 22.04+ recommended)
+- ARMv9-A with NEON / SVE2 + i8mm (e.g. Cortex-A720, CIX P1 CD8180)
+- Python 3.11
+- LLVM a66376b0 — auto-fetched on first build by default; manually stageable for restricted networks
+
+### 1. System dependencies
+
+```bash
+sudo apt-get update && sudo apt-get install -y \
+    build-essential cmake ninja-build git ccache pkg-config \
+    libomp-dev libjemalloc2 zlib1g zlib1g-dev libxml2 libxml2-dev nlohmann-json3-dev \
+    ca-certificates curl wget numactl python3-dev python3-pip python3-venv
+```
+
+### 2. Python environment
+
+```bash
+python3 -m venv ~/venv-flagtree
+source ~/venv-flagtree/bin/activate
+pip install --upgrade pip setuptools wheel
+pip install torch==2.10.0+cpu --index-url https://download.pytorch.org/whl/cpu
+```
+
+### 3. (Optional) Manual LLVM download for restricted networks
+
+By default the LLVM toolchain is fetched automatically on the first build. Only when
+`oaitriton.blob.core.windows.net` is unreachable:
+
+```bash
+mkdir -p ~/.triton/llvm && cd ~/.triton/llvm
+wget https://oaitriton.blob.core.windows.net/public/llvm-builds/llvm-a66376b0-ubuntu-arm64.tar.gz
+tar zxvf llvm-a66376b0-ubuntu-arm64.tar.gz
+export LLVM_SYSPATH=~/.triton/llvm/llvm-a66376b0-ubuntu-arm64
+export LLVM_INCLUDE_DIRS=$LLVM_SYSPATH/include
+export LLVM_LIBRARY_DIR=$LLVM_SYSPATH/lib
+```
+
+### 4. Clone FlagTree and check out the CPU backend branch
+
+```bash
+cd ${YOUR_CODE_DIR}
+git clone https://github.com/flagos-ai/FlagTree.git
+cd FlagTree
+git checkout -b triton_v3.3.x origin/triton_v3.3.x   # FlagTree's 3.3.x branch (carries the CPU backend)
+```
+
+### 5. Wire up triton-cpu via the helper script
+
+The C++ extension layer (TritonCPU MLIR dialect + NEON/SVE2 C runtime + Python TLE builtins)
+lives in `flagos-ai/triton-cpu`. One helper script clones it into `third_party/triton-cpu/`
+and creates the 12 symlinks the CPU backend build expects (TritonCPU dialect headers,
+`third_party/cpu/*`, sleef, the Python TLE builtins, and `python/triton/language/extra/cpu`):
+
+```bash
+bash python/scripts/link_triton_cpu.sh
+```
+
+All resulting symlinks are relative. Re-running the script is safe (existing/correct
+symlinks are skipped).
+
+### 6. Build FlagTree (CPU backend)
+
+```bash
+FLAGTREE_BACKEND=cpu TRITON_BUILD_PROTON=OFF MAX_JOBS=$(nproc) \
+    pip install -e python/ --no-build-isolation -v
+```
+
+If step 3 ran (manual LLVM), the exported `LLVM_SYSPATH` is picked up automatically; you can
+also pass `TRITON_OFFLINE_BUILD=1` to assert no network access is used.
+
+### 7. Install FlagGems (ARM64 backend, for end-to-end inference)
+
+```bash
+cd ${YOUR_CODE_DIR}
+git clone -b add-arm64 https://github.com/kevinzs2048/FlagGems.git
+cd FlagGems
+pip install --no-build-isolation -e .
+```
+
+(After merge, replace with `git clone https://github.com/flagos-ai/FlagGems.git` and check
+out the merge commit of #3616.)
 
 ## Test Plan
 
-### Functional Verification
+The test plan below is required for AArch64 Linux on the reference platform.
 
-- Plugin loading: confirm that `tle_arm64`-injected `create_cpu_*` methods are available on
-  the Python side.
-- Operator-level: each TLE extended operation compared against a reference implementation
-  within defined numerical tolerances.
-- End-to-end: greedy decode of a small LLM (Qwen / MiniCPM) on Arm64, with per-token output
-  matching against a reference.
+### Environment Matrix
 
-### Performance Verification
+- Platform: AArch64 Linux, Ubuntu 22.04+
+- Reference hardware: CIX P1 (CD8180), ARMv9-A with NEON / SVE2 + i8mm + dotprod
+  (8 big Cortex-A720 cores pinned via `taskset`)
+- Python: 3.11
+- Triton: 3.3.x (commit recorded in CI logs)
+- LLVM: a66376b0 (auto-fetched)
+- FlagTree: `flagos-ai/FlagTree:triton_v3.3.x` (merged via PR #632)
+- triton-cpu: `flagos-ai/triton-cpu:main` (merged)
+- FlagGems: `kevinzs2048/FlagGems:add-arm64` (review-stage branch for PR #3616; post-merge: `flagos-ai/FlagGems:master` at the merge commit)
 
-- Performance benchmarks and acceptance thresholds will be defined after functional
-  verification, in conjunction with specific hardware platforms.
+### Component Setup and Running
 
-### Compatibility Verification
+All commands assume the Packaging steps above completed successfully and the venv is active.
 
-- Platform: Cix P1 (CD8180), Armv9.2-A with SVE2 + i8mm. Sole test platform for this cycle.
-- Confirm that the NEON fallback also runs correctly on the same hardware.
+#### 1. Verify CPU backend registration
+
+Confirm the CPU backend is registered and the `create_cpu_*` TLE builder methods are
+injected by the `tle_arm64` plugin:
+
+```python
+import triton
+from triton.backends import backends
+print(f"triton {triton.__version__}, cpu backend: {'cpu' in backends}")
+
+import triton._C.libtriton as lt
+b = lt.ir.builder(lt.ir.context())
+cpu_ops = sorted(m for m in dir(b) if m.startswith("create_cpu_"))
+print(f"TLE ARM64 ops ({len(cpu_ops)}): {cpu_ops}")
+```
+
+Expected output:
+
+```
+triton 3.3.0, cpu backend: True
+TLE ARM64 ops (10): ['create_cpu_flash_attn_decode', 'create_cpu_fused_decode_step',
+ 'create_cpu_fused_mlp', 'create_cpu_fused_transformer_layer', 'create_cpu_neon_sdot',
+ 'create_cpu_rms_norm', 'create_cpu_sdot_gemv', 'create_cpu_sdot_gemv_fused_bf16',
+ 'create_cpu_sdot_pack_weights', 'create_cpu_swiglu']
+```
+
+Pass criteria: `cpu backend: True` and 10 `create_cpu_*` methods are listed.
+
+#### 2. Operator-level verification: TLE rms_norm
+
+Run one TLE op end-to-end (`@triton.jit` → `create_cpu_rms_norm` → TritonCPU dialect →
+NEON/SVE2 C runtime):
+
+```python
+import torch, triton, triton.language as tl
+from triton.language.extra.cpu import tle_ops as tle_cpu
+
+@triton.jit
+def rms_kernel(x_ptr, w_ptr, out_ptr, D: tl.constexpr, eps: tl.constexpr):
+    tle_cpu.rms_norm(x_ptr, w_ptr, out_ptr, D, eps)
+
+D = 128
+torch.manual_seed(0)
+x = torch.randn(D, dtype=torch.bfloat16)
+w = torch.randn(D, dtype=torch.bfloat16)
+out = torch.empty(D, dtype=torch.bfloat16)
+rms_kernel[(1,)](x, w, out, D, 1e-6)
+
+xf = x.float()
+ref = (xf / torch.sqrt((xf * xf).mean() + 1e-6)) * w.float()
+err = (out.float() - ref).abs().max().item()
+print(f"TLE rms_norm max err (bf16): {err}")
+print(f"RESULT: {'OK' if err < 0.1 else 'MISMATCH'}")
+```
+
+Expected output:
+
+```
+TLE rms_norm max err (bf16): 0.014348745346069336
+RESULT: OK
+```
+
+Pass criteria: max err within bf16 precision (~0.014); `RESULT: OK`.
+
+#### 3. End-to-end decoder test: MiniCPM5-0.9B INT8 inference
+
+Verify the full TLE INT8 (W8A8-dynamic) stack on a real LLM. Quantize in memory and
+greedy-decode 64 new tokens. Save as `e2e_test.py`:
+
+```python
+import time
+import sys
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+sys.path.insert(0, "/path/to/FlagGems/src")
+from flag_gems.runtime.backend._arm.int8 import quantize_and_replace_linears
+from flag_gems.runtime.backend._arm.fused.patch_llama_arch import patch_llama_arch
+
+MODEL_PATH = "/path/to/MiniCPM5-0.9B"
+
+tok = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
+m = AutoModelForCausalLM.from_pretrained(
+    MODEL_PATH, dtype=torch.bfloat16, trust_remote_code=True,
+).eval()
+
+# INT8 quantization (W8A8-dynamic) + TLE Llama-arch patches (rope / rmsnorm / layer_norm)
+n = quantize_and_replace_linears(m)
+arch_info = patch_llama_arch()
+print(f"[setup] INT8 Linears={n}  patch_llama_arch={arch_info}")
+
+ids = tok("The future of edge AI is", return_tensors="pt").input_ids
+
+# Warmup
+with torch.inference_mode():
+    m.generate(ids, max_new_tokens=4, do_sample=False, use_cache=True,
+               pad_token_id=tok.eos_token_id)
+
+# Measure
+t0 = time.perf_counter()
+with torch.inference_mode():
+    out = m.generate(ids, max_new_tokens=64, do_sample=False, use_cache=True,
+                     pad_token_id=tok.eos_token_id)
+dt = time.perf_counter() - t0
+tps = 64 / dt
+print(f"TPS: {tps:.2f}")
+print(f"OUTPUT: {tok.decode(out[0], skip_special_tokens=True)}")
+```
+
+Run with the optimal OMP environment for the reference platform:
+
+```bash
+FLAGTREE_BACKEND=cpu \
+OMP_NUM_THREADS=8 OMP_PROC_BIND=close OMP_DYNAMIC=false \
+GOMP_SPINCOUNT=infinity TORCH_NUM_THREADS=1 \
+taskset -c 0,1,6,7,8,9,10,11 \
+    python e2e_test.py
+```
+
+Expected output (representative; concrete TPS depends on hardware):
+
+```
+[setup] INT8 Linears=169  patch_llama_arch={'rope': 1, 'rmsnorm': 1, 'layer_norm': 1}
+TPS: 18.66
+OUTPUT: The future of edge AI is ...
+```
+
+Pass criteria:
+- Setup line shows `INT8 Linears=169` and all three Llama patches applied.
+- TPS ≥ 17 tok/s on CIX P1 (CD8180).
+- Output text is coherent English (no token loops, no degenerate tokens).
+
+### Pass Criteria (summary)
+
+All three verification phases must pass:
+
+1. **Backend registration** (§1) — the CPU backend loads and the 10 `create_cpu_*` TLE
+   builder methods are visible.
+2. **Operator correctness** (§2) — TLE `rms_norm` matches the float reference within bf16
+   precision.
+3. **End-to-end correctness + performance** (§3) — INT8 W8A8-dynamic stack runs MiniCPM5-0.9B
+   coherently at ≥ 17 tok/s on CIX P1.
 
 ## Related PRs
 
