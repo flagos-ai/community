@@ -120,19 +120,19 @@ npx skills add flagos-ai/skills --skill kernelgen
 
 ### Sunrise Backend Verification
 
-- [ ] Kernel generation on Sunrise hardware
-- [ ] Auto optimization workflows
-- [ ] Testing & benchmarking pipelines
-- [ ] MCP integration workflows
-- [ ] Skills integration workflows
+- [√] Kernel generation on Sunrise hardware
+- [√] Auto optimization workflows
+- [√] Testing & benchmarking pipelines
+- [√] MCP integration workflows
+- [√] Skills integration workflows
 
 ### TLE Experimental Feature Verification
 
-- [ ] TLE-Lite kernel generation
-- [ ] TLE-Struct abstractions
-- [ ] TLE-Raw interfaces
-- [ ] Web platform TLE workflows
-- [ ] MCP TLE workflows
+- [√] TLE-Lite kernel generation
+- [√] TLE-Struct abstractions
+- [√] TLE-Raw interfaces
+- [√] Web platform TLE workflows
+- [√] MCP TLE workflows
 
 ### Known Issues Monitoring
 
