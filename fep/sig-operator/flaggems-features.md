@@ -165,23 +165,22 @@ pytest tests/ -v
 
 # Run specific operator tests
 pytest tests/test_add.py -v
-pytest tests/test_attention.py -v
 
 # Run DeepSeekV4 attention tests
-pytest tests/test_DSA/ -v
-pytest tests/test_FLA/ -v
-```
-
-**vLLM Accuracy Tests for DeepSeekV4:**
-```bash
-pytest tests/test_DSA/test_vllm_accuracy.py -v
+pytest tests/test_deepseek_v4_attention_combine_topk_swa_indices.py -v
+pytest tests/test_deepseek_v4_attention_compute_global_topk_indices_and_lens.py -v
+pytest tests/test_deepseek_v4_attention_dequantize_and_gather_k_cache.py -v
+pytest tests/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -v
 ```
 
 **Performance Benchmarks:**
 ```bash
 # Run benchmark suite
 python benchmark/test_add.py
-pytest benchmark/test_attention.py -v
+pytest benchmark/test_deepseek_v4_attention_combine_topk_swa_indices.py -v
+pytest benchmark/test_deepseek_v4_attention_compute_global_topk_indices_and_lens.py -v
+pytest benchmark/test_deepseek_v4_attention_dequantize_and_gather_k_cache.py -v
+pytest benchmark/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -v
 ```
 
 ### Expected Results
