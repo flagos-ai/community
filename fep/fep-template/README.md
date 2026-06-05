@@ -82,6 +82,12 @@ Implementation-level details such as API changes, data flow, or architecture dia
 **(Required)** How to verify the feature works correctly. Verify against each Goal listed above. Include functional, performance, and compatibility checks where relevant.
 
 <!-- How will this feature be verified? -->
+The test plan MUST explicitly describe:
+- **Image acquisition** (base image and source)
+- **Package installation** (commands)
+- **Component setup/running** (startup commands)
+- **Test commands** (exact commands for each verification scenario)
+- **Expected results** (per test command)
 
 ## Related PRs
 

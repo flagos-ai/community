@@ -1,38 +1,38 @@
 # =============================================================================
-# FlagOS 2.1 RC0 — 源码仓库清单（vcstool 格式）
+# FlagOS 2.1 RC2 — 源码仓库清单（vcstool 格式）
 # =============================================================================
-# 用途：批量拉取所有模块的 rc0 已验证快照
+# 用途：批量拉取所有模块的 rc2 已验证快照
 # 用法：
 #   pip install vcstool
-#   mkdir flagos-2.1-rc0 && cd flagos-2.1-rc0
-#   vcs import src < release-2.1-rc0.yaml
+#   mkdir flagos-2.1-rc2 && cd flagos-2.1-rc2
+#   vcs import src < release-2.1-rc2.yaml
 #
 # version / 分支 / tag 关系：
 #   - version 字段指向当前已验证的 tag（其他用户拉取锁定版本）
 #   - 注释中的"分支"是开发集成线，修复在上面累积
-#   - 每次验证通过后打递增 tag（rc0.1 → rc0.2 → ...），并更新 version
+#   - 每次验证通过后打递增 tag（rc2.post1 → rc2.post2 → ...），并更新 version
 #
 #   工作流：
-#     git checkout -b v0.13.0-rc0          # 拉 rc0 分支（一次）
-#     git push origin v0.13.0-rc0
+#     git checkout -b v0.13.0-rc2          # 拉 rc2 分支（一次）
+#     git push origin v0.13.0-rc2
 #     ... 修复 ...
-#     git tag v0.13.0-rc0.1                # 第一轮验证
-#     git push origin v0.13.0-rc0.1
-#     # manifest: version: v0.13.0-rc0.1   ← 更新
+#     git tag v0.13.0-rc2.post1            # 第一轮验证
+#     git push origin v0.13.0-rc2.post1
+#     # manifest: version: v0.13.0-rc2.post1  ← 更新
 #     ... 修复 ...
-#     git tag v0.13.0-rc0.2                # 第二轮验证
-#     # manifest: version: v0.13.0-rc0.2   ← 更新
+#     git tag v0.13.0-rc2.post2            # 第二轮验证
+#     # manifest: version: v0.13.0-rc2.post2  ← 更新
 #
 # 分支命名规则：
-#   - 每个模块使用自己的版本号 + 命名规则，详见 RC0_BRANCH_PLAN.md
-#   - A 类（有 release/ 分支习惯的）: release/v{X}.{Y}.{Z}-rc0
-#   - B 类（有 semver tag 但无 release 分支）: v{M}.{m}.{P}-rc0
-#   - C 类（无 tag 的新模块）: v0.1.0-rc0
+#   - 每个模块使用自己的版本号 + 命名规则，详见 RC2_BRANCH_PLAN.md
+#   - A 类（有 release/ 分支习惯的）: release/v{X}.{Y}.{Z}-rc2
+#   - B 类（有 semver tag 但无 release 分支）: v{M}.{m}.{P}-rc2
+#   - C 类（无 tag 的新模块）: v0.1.0-rc2
 #   - D 类（非 pip / 无版本号）: 跟 FlagOS 版本或 FL 版本
 #
 # Tag 命名规则：
-#   - 在分支名后追加 .N，例如 v0.13.0-rc0 → v0.13.0-rc0.1
-#   - FlagGems 例外：tag 用 v5.0.3.rc.1 格式（但 branch 用 -rc0）
+#   - 在分支名后追加 .postN，例如 v0.13.0-rc2 → v0.13.0-rc2.post1
+#   - FlagGems 例外：tag 用 v5.0.5.rc2.post1 格式（但 branch 用 -rc2）
 #
 # ⚠️ 注意: FlagGems / FlagDNN / FlagBLAS 的默认分支是 master，其他模块都是 main。
 # =============================================================================
@@ -46,15 +46,15 @@ repositories:
   flagtree:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: v0.5.0-rc0.1
-    # 分支: v0.5.0-rc0
+    version: v0.5.0-rc2.post1
+    # 分支: 0.5.0-rc2
     # 当前版本: v0.4.0 / 默认分支: main
 
   flagcx:
     type: git
     url: https://github.com/flagos-ai/flagcx.git
-    version: v0.13.0-rc0.1
-    # 分支: v0.13.0-rc0
+    version: v0.13.0-rc2.post1
+    # 分支: 0.13.0-rc2
     # 当前版本: v0.12.0 / 默认分支: main
 
   # ===========================================================================
@@ -64,59 +64,66 @@ repositories:
   flaggems:
     type: git
     url: https://github.com/flagos-ai/FlagGems.git
-    version: v5.3.0-rc0.1
-    # 分支: v5.3.0-rc0
+    version: v5.3.0-rc2.post1
+    # 分支: 5.3.0-rc2
     # 当前版本: v5.0.2 / 默认分支: master ← 注意：不是 main
-    # tag 历史格式: v5.0.1.rc.0 → 本次 tag: v5.0.3-rc0.1（分支用 -, tag 保持一致）
+    # tag 历史格式: v5.0.1.rc.0 → rc2 tag: v5.0.5-rc2.post1（分支用 -, tag 保持一致）
 
   flagfft:
     type: git
     url: https://github.com/flagos-ai/FlagFFT.git
-    version: v0.1.0-rc0.1
-    # 分支: v0.1.0-rc0
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
     # 当前版本: 无 tag / 默认分支: main
 
   flagsparse:
     type: git
     url: https://github.com/flagos-ai/FlagSparse.git
-    version: v0.2-rc0.1
-    # 分支: v0.2-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.1 / 默认分支: main
 
   flagdnn:
     type: git
     url: https://github.com/flagos-ai/FlagDNN.git
-    version: v0.2-rc0.1
-    # 分支: v0.2-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.1 / 默认分支: master ← 注意：不是 main
 
   flagblas:
     type: git
     url: https://github.com/flagos-ai/FlagBLAS.git
-    version: v0.2-rc0.1
-    # 分支: v0.2-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.1 / 默认分支: master ← 注意：不是 main
 
   flagtensor:
     type: git
     url: https://github.com/flagos-ai/FlagTensor.git
-    version: v0.2-rc0.1
-    # 分支: v0.2-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.1 / 默认分支: main
 
   flagaudio:
     type: git
     url: https://github.com/flagos-ai/FlagAudio.git
-    version: v0.2-rc0.1
-    # 分支: v0.2-rc0
+    version: v0.2-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.1 / 默认分支: main
 
   flagattention:
     type: git
     url: https://github.com/flagos-ai/FlagAttention.git
-    version: v0.3-rc0.1
-    # 分支: v0.3-rc0
+    version: v0.3.0-rc2.post1
+    # 分支: 0.3.0-rc2
     # 当前版本: v0.2 / 默认分支: main
+
+  flaggems-vllm:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-vllm.git
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
+    # 当前版本: 无 tag / 默认分支: main
 
   # ===========================================================================
   # L2 — 框架适配层（PyTorch 插件 + 训练/推理框架）
@@ -125,43 +132,43 @@ repositories:
   pytorch-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/PyTorch-Plugin-FL.git
-    version: v0.1.0-rc0.1
-    # 分支: v0.1.0-rc0
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
     # 当前版本: 无 tag / 默认分支: main
 
   vllm-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/vllm-plugin-FL.git
-    version: v0.2.0-rc0.post1
-    # 分支: v0.2.0-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.1.1+vllm0.13.0 / 默认分支: main
 
   sglang-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/sglang-plugin-FL.git
-    version: v0.1.0-rc0.1
-    # 分支: v0.1.0-rc0
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
     # 当前版本: 无 tag / 默认分支: main
 
   transformerengine-fl:
     type: git
     url: https://github.com/flagos-ai/TransformerEngine-FL.git
-    version: release/v0.2.0-rc0.1
-    # 分支: release/v0.2.0-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v2.9.0+fl.0.1.0 / 默认分支: main
 
   megatron-lm-fl:
     type: git
     url: https://github.com/flagos-ai/Megatron-LM-FL.git
-    version: release/v0.2.0-rc0.1
-    # 分支: release/v0.2.0-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.15.0rc7+fl.0.1.0 / 默认分支: main
 
   verl-fl:
     type: git
     url: https://github.com/flagos-ai/verl-FL.git
-    version: release/v0.2.0-rc0.1
-    # 分支: release/v0.2.0-rc0
+    version: v0.2.0-rc2.post1
+    # 分支: 0.2.0-rc2
     # 当前版本: v0.1.0+verl0.7.0 / 默认分支: main
 
   # ===========================================================================
@@ -171,48 +178,48 @@ repositories:
   flagscale:
     type: git
     url: https://github.com/flagos-ai/FlagScale.git
-    version: release/v1.1.0-rc0.1
-    # 分支: release/v1.1.0-rc0
+    version: v2.0.0-rc2.post1
+    # 分支: 2.0.0-rc2
     # 当前版本: v1.0.0 / 默认分支: main
 
   flagquantum:
     type: git
     url: https://github.com/flagos-ai/FlagQuantum.git
-    version: v0.1.0-rc0.1
-    # 分支: v0.1.0-rc0
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
     # 当前版本: 无 tag / 默认分支: main
 
   flagos-robo:
     type: git
     url: https://github.com/flagos-ai/FlagOS-Robo.git
-    version: v0.1.0-rc0.1
-    # 分支: v0.1.0-rc0
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
     # 当前版本: 无 tag / 默认分支: main
 
   kernelgen:
     type: git
     url: https://github.com/flagos-ai/KernelGen.git
-    version: v2.1.0-rc0.1
-    # 分支: v2.1.0-rc0
+    version: v2.1.0-rc2.post1
+    # 分支: 2.1.0-rc2
     # 当前版本: v2.0.0 / 默认分支: main
 
   kernelgenbench:
     type: git
     url: https://github.com/flagos-ai/KernelGenBench.git
-    version: v0.1.0-rc0.1
-    # 分支: v0.1.0-rc0
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
     # 当前版本: 无 tag / 默认分支: main
 
   flagrelease:
     type: git
     url: https://github.com/flagos-ai/flagrelease.git
-    version: v0.1.0-rc0.1
-    # 分支: v0.1.0-rc0
+    version: v0.1.0-rc2.post1
+    # 分支: 0.1.0-rc2
     # 当前版本: 无 tag / 默认分支: main
 
   skills:
     type: git
     url: https://github.com/flagos-ai/skills.git
-    version: v1.1.0-rc0.1
-    # 分支: v1.1.0-rc0
+    version: v1.1.0-rc2.post1
+    # 分支: 1.1.0-rc2
     # 当前版本: v1.0.0 / 默认分支: main
