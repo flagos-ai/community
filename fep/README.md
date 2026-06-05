@@ -24,6 +24,7 @@ stored under `fep/sig-*/`, submitted and reviewed via PR.
 | `sig-agent` | Skills |
 | `sig-tools` | FlagRelease |
 | `sig-edge` | Edge-side hardware — Arm CPU, mobile NPU, IoT devices |
+| `sig-riscv` | RISC-V architecture support across FlagOS modules |
 | `sig-architecture` | Cross-cutting features, process changes |
 
 ## When to Write a FEP

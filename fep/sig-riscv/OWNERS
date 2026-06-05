@@ -1,0 +1,9 @@
+# OWNERS — sig-riscv
+#
+# RISC-V 架构支持(跨模块)
+
+reviewers:
+  - TBD
+
+approvers:
+  - TBD
