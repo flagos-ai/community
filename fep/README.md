@@ -24,6 +24,7 @@ stored under `fep/sig-*/`, submitted and reviewed via PR.
 | `sig-agent` | Skills |
 | `sig-tools` | FlagRelease |
 | `sig-edge` | Edge-side hardware — Arm CPU, mobile NPU, IoT devices |
+| `sig-os` | OS-level packaging, distribution integration (openKylin, openEuler) |
 | `sig-architecture` | Cross-cutting features, process changes |
 
 ## When to Write a FEP

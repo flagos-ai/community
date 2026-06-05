@@ -6,7 +6,7 @@
 
 **Owner:** @shiptux
 
-**SIG:** sig-architecture
+**SIG:** sig-os
 
 **Target Version:** FlagOS TBD
 
@@ -43,7 +43,7 @@ The project needs a common FEP-backed process so that adding or merging packages
 
 Create a unified package integration track for FlagOS repositories. Each repository that enters the track adds packaging metadata, repeatable build commands, CI jobs, artifact upload, and a minimal package validation suite. Package readiness is reviewed through this FEP and tracked by repository-specific PRs.
 
-The home SIG for this cross-cutting process is `sig-architecture`. Repository-specific SIGs remain responsible for reviewing package behavior and compatibility for their modules:
+The home SIG for this cross-cutting process is `sig-os`. Repository-specific SIGs remain responsible for reviewing package behavior and compatibility for their modules:
 
 | SIG | Repositories |
 |-----|--------------|
@@ -268,4 +268,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 
 - 2026-05-25: Initial draft prepared for discussion.
 - 2026-05-26: Revised against the eleven open Wave 1 packaging PRs. Added RPM as a baseline format alongside Debian, replaced the proposed `./packaging/build.sh` interface with the actual `packaging/{debian,rpm}/build-helpers/build-<slug>.sh` layout, defined the verified platform matrix (Ubuntu 24.04, Fedora 43), specified FlagOS Nexus as the publish target, added versioning and ownership-record (`MANIFEST.yaml`) rules, listed canonical backend suffixes, populated concrete Wave assignments and PR links, and corrected the Python smoke test to use `importlib.util.find_spec`.
-- 2026-05-27: Clarified that a `pip`-installable PyPI wheel is a first-class channel for Python projects (aligned Summary, Publishing, and the artifact check). Scoped non-baseline distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler) to the FlagOS SIG within each distribution's own community or a downstream packager. Removed `vllm-FL`/`sglang-FL`, which do not exist, from the SIG and Wave tables. Documented the `python3-` naming derivation (import name with underscores converted to hyphens).
+- 2026-05-27: Clarified that a `pip`-installable PyPI wheel is a first-class channel for Python projects (aligned Summary, Publishing, and the artifact check). Scoped non-baseline distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler) to the FlagOS SIG within each distribution's own community or a downstream packager. Removed `vllm-FL`/`sglang-FL`, which do not exist, from the SIG and Wave tables. Documented the `python3-` naming derivation (import name with underscores converted to hyphens). Re-homed the FEP from `sig-architecture` to `sig-os`, since OS-level packaging and distribution integration is sig-os's core scope.
