@@ -127,6 +127,26 @@ FlagGems-vllm keeps the runtime structure from FlagGems:
 
 This design allows the same operator API to be used across supported hardware backends as implementations become available.
 
+### Multi-Chip Backend Support
+
+FlagGems-vllm is organized around a vendor-neutral Python operator API and a runtime backend layer. The public operator entry points, such as `grouped_topk`, `fused_experts_impl`, `moe_align_block_size`, cache update kernels, rotary embedding helpers, and DeepSeek V4 helper kernels, should remain stable across accelerator vendors. Backend differences are handled by runtime device detection, vendor metadata, backend-specific configuration files, and optional vendor-specialized operator overrides.
+
+The current backend structure follows the FlagGems model:
+
+- NVIDIA/CUDA is the primary bring-up and performance validation backend for Triton fused kernels.
+- Iluvatar is represented as a backend specialization directory and can provide vendor-specific tuning data or operator overrides.
+- The runtime vendor registry reserves names for additional accelerator families used in the FlagOS operator stack, including Cambricon, MThreads, Kunlunxin, Hygon, AMD, AIPU, Ascend, Tsingmicro, and Sunrise.
+
+For each backend, the intended extension pattern is:
+
+1. add or update vendor metadata under `src/flaggems_vllm/runtime/backend/_<vendor>/`,
+2. provide vendor tune and heuristic configs when the generic Triton config is not sufficient,
+3. add backend-specific fused operator implementations only when the generic implementation is unavailable or underperforms,
+4. keep the top-level `flaggems_vllm` operator API unchanged, and
+5. add backend-aware skip conditions, accuracy tests, and benchmark coverage for the supported operator subset.
+
+This means backend support can be staged. A backend may first support import, runtime detection, collection, and a small smoke-test subset; it can then expand to full accuracy coverage and finally to tuned performance coverage for vLLM inference workloads.
+
 ### Testing and Benchmarking
 
 Each migrated fused operator should include:
@@ -167,24 +187,78 @@ Package metadata:
 
 | Goal | Verification Method |
 |------|---------------------|
-| Dedicated package import | Run `python -c "import flaggems_vllm; import flaggems_vllm.ops"` after installation. |
-| Fused operator API availability | Verify exported symbols from `flaggems_vllm.ops.__all__` include the migrated vLLM-facing fused operators. |
-| Accuracy coverage | Run `pytest -q tests --collect-only` and targeted tests such as `pytest -q tests/test_moe_align_block_size.py --quick`. |
-| DeepSeek V4 helper coverage | Run the DeepSeek V4 attention helper tests when the matching CUDA/vLLM reference environment is available. |
-| Benchmark coverage | Run benchmark collection with `pytest -q benchmark --collect-only` and targeted benchmarks with `--level core --iter 1 --warmup 1`. |
-| Multi-backend readiness | Verify that backend-specific skip conditions and runtime device detection do not break collection on unsupported platforms. |
-| Packaging validation | Build and install from a clean checkout using `pip install .`, then run import and selected smoke tests. |
+| Dedicated package import | Install the package, import `flaggems_vllm` and `flaggems_vllm.ops`, and print the detected device and selected operator availability. |
+| Fused operator API availability | Check that exported package symbols include representative vLLM-facing operators such as `grouped_topk`, `moe_align_block_size`, `reshape_and_cache`, and `fused_inv_rope_fp8_quant`. |
+| Test discovery | Run `pytest -q tests --collect-only` before functional execution to catch import, marker, and skip-condition regressions. |
+| Accuracy coverage | Run `pytest -q tests --quick` plus targeted operator tests for MoE, cache update, rotary embedding, FP8 quantization, and DeepSeek V4 helpers. |
+| vLLM reference compatibility | Run tests that compare against vLLM custom ops when vLLM is installed; otherwise verify that they skip cleanly. |
+| Benchmark collection | Run `pytest -q benchmark --collect-only` to validate benchmark imports and parameterization. |
+| Benchmark smoke runs | Run representative benchmarks with `--level core --iter 1 --warmup 1` for fast kernel-level performance validation. |
+| Multi-backend readiness | Run collection and import smoke tests on each available backend, using backend/vendor environment selection where needed, and verify unsupported operators skip rather than fail. |
+| Packaging validation | Build and install from a clean checkout using `pip install .`, then run import, collection, selected accuracy tests, and selected benchmark smoke tests. |
 
-Representative commands:
+Representative setup and import smoke test:
 
 ```bash
 cd FlagGems-vllm
 pip install .
-pytest -q tests --collect-only
-pytest -q benchmark --collect-only
-pytest -q tests/test_moe_align_block_size.py --quick
-pytest -q benchmark/test_moe_align_block_size_triton.py::test_moe_align_block_size_triton --level core --iter 1 --warmup 1
+PYTHONPATH=$PWD/src python - <<'PY'
+import torch
+import flaggems_vllm
+import flaggems_vllm.ops as ops
+
+print("torch:", torch.__version__)
+print("device:", flaggems_vllm.device)
+print("grouped_topk:", callable(flaggems_vllm.grouped_topk))
+print("moe_align_block_size:", hasattr(ops, "moe_align_block_size"))
+PY
 ```
+
+Collection and quick accuracy checks:
+
+```bash
+cd FlagGems-vllm
+PYTHONPATH=$PWD/src pytest -q tests --collect-only
+PYTHONPATH=$PWD/src pytest -q tests --quick
+PYTHONPATH=$PWD/src pytest -q tests/test_moe_align_block_size.py --quick
+PYTHONPATH=$PWD/src pytest -q tests/test_grouped_topk.py
+PYTHONPATH=$PWD/src pytest -q tests/test_reshape_and_cache.py
+PYTHONPATH=$PWD/src pytest -q tests/test_fused_inv_rope_fp8_quant.py --quick
+```
+
+DeepSeek V4 and cache helper checks, when the required CUDA/vLLM reference environment is available:
+
+```bash
+cd FlagGems-vllm
+PYTHONPATH=$PWD/src pytest -q tests/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py
+PYTHONPATH=$PWD/src pytest -q tests/test_deepseek_v4_attention_dequantize_and_gather_k_cache.py
+PYTHONPATH=$PWD/src pytest -q tests/test_cp_gather_indexer_k_quant_cache.py
+PYTHONPATH=$PWD/src pytest -q tests/test_concat_and_cache_mla.py
+```
+
+Benchmark collection and smoke runs:
+
+```bash
+cd FlagGems-vllm
+PYTHONPATH=$PWD/src pytest -q benchmark --collect-only
+PYTHONPATH=$PWD/src pytest -q benchmark/test_moe_align_block_size_triton.py::test_moe_align_block_size_triton --level core --iter 1 --warmup 1
+PYTHONPATH=$PWD/src pytest -q benchmark/test_grouped_topk.py --level core --iter 1 --warmup 1
+PYTHONPATH=$PWD/src pytest -q benchmark/test_fused_inv_rope_fp8_quant.py --level core --iter 1 --warmup 1
+PYTHONPATH=$PWD/src pytest -q benchmark/test_fused_moe_w8a16.py --level core --iter 1 --warmup 1
+```
+
+Multi-backend validation should be run on each available accelerator platform. The exact environment variable may be provided by the runtime integration, but the validation pattern is:
+
+```bash
+cd FlagGems-vllm
+export FLAGGEMS_VENDOR=<vendor-name>
+PYTHONPATH=$PWD/src python -c "import flaggems_vllm; print(flaggems_vllm.vendor_name, flaggems_vllm.device)"
+PYTHONPATH=$PWD/src pytest -q tests --collect-only
+PYTHONPATH=$PWD/src pytest -q tests --quick
+PYTHONPATH=$PWD/src pytest -q benchmark --collect-only
+```
+
+For backend bring-up, a passing result may include backend-specific skips for unsupported operators or unsupported dtype features. A failure is expected only when an operator is advertised as supported on that backend but cannot pass import, accuracy, or benchmark smoke validation.
 
 ## Related PRs
 
