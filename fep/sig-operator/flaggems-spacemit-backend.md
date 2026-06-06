@@ -55,8 +55,8 @@ Related PR:
 - https://github.com/flagos-ai/FlagGems/pull/2527 — Add Spacemit runtime backend with operator implementations
 - https://github.com/flagos-ai/FlagGems/pull/3793 — Update Triton to 3.6.0+spacemit.a5 and fix mm, argmax, gelu, bmm
 
-PR #2527 has been merged into `flagos-ai:master`.
-PR #3793 has been approved.
+PR #2527 has been merged into `flagos-ai:master` and included in `tag 5.3.0-rc2`.
+PR #3793 has been merged into `flagos-ai:master` and cherry-picked onto `flagos-ai:5.3.0-rc2` via https://github.com/flagos-ai/FlagGems/pull/3828.
 
 The backend currently exports the following operators through `ops/__init__.py`:
 
@@ -168,8 +168,14 @@ Provides `_DeviceGuard` (device-switching context manager) and `_DeviceWrapper` 
 ## Test Plan
 
 ### Test Commands
+
 Env Setup with pip
-```
+
+```bash
+pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+
+pip config set global.extra-index-url https://git.spacemit.com/api/v4/projects/33/packages/pypi/simple
+
 uv venv --python 3.12 .venv
 
 source ./venv/bin/activate
@@ -177,13 +183,14 @@ source ./venv/bin/activate
 UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/ uv pip install pip
 
 python -m pip install ".[spacemit]"
-
 ```
 
 Or
 
-```
+```bash
 uv venv --python 3.12 .venv
+
+source ./venv/bin/activate
 
 bash ./tools/vendor.sh
 ```
@@ -237,6 +244,9 @@ tests/test_mm.py ........................                                       
 - https://github.com/flagos-ai/FlagGems/pull/3355 — Add setup support for spacemit
 - https://github.com/flagos-ai/FlagGems/pull/3385 — Downgrade SpacemiT supported Python version to 3.12
 - https://github.com/flagos-ai/FlagGems/pull/3793 — Update Triton to 3.6.0+spacemit.a5 and fix mm, argmax, gelu, bmm
+- https://github.com/flagos-ai/FlagGems/pull/3828 — Cherry-pick PR #3793 onto `flagos-ai:5.3.0-rc2`
+
+> PR #2527、PR #3112、PR #3275、PR #3355、PR #3385 are included in `5.3.0-rc2`.
 
 ## Implementation History
 
