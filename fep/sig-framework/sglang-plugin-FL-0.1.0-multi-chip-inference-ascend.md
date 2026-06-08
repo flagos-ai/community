@@ -82,7 +82,7 @@ export FLAGCX_PATH="$PWD"
 | sgl_kernel_npu | 2026.5.1|
 | triton | 3.5.0 |
 | triton_ascend | 3.2.1 |
-| FlagGems | 5.0.2 |
+| FlagGems | 5.3.0-rc2.post1 |
 | Python | 3.10 |
 | CANN | 8.5.0 |
 
@@ -99,7 +99,7 @@ The test plan below is required for Ascend.
 Ascend platform image:
 
 ```bash
-docker pull harbor.baai.ac.cn/flagos-inner-models-release/flagrelease-qwen3.6-ascend-tree_none-gems_5.0.2-vllm_none-plugin_none-cx_none-python_3.11.14-torch_npu_2.8.0.post2-pcp_cann8.5.0-gpu_ascend001-arc_arm64-driver_25.2.0:202605291309
+docker pull harbor.baai.ac.cn/flagos-inner-models-release/flagrelease-qwen3.6-ascend-tree_none-gems_5.3.0-rc2.post1-vllm_none-plugin_none-cx_none-python_3.11.14-torch_npu_2.8.0.post2-pcp_cann8.5.0-gpu_ascend001-arc_arm64-driver_25.2.0:202606081729
 ```
 
 ### Container Setup
@@ -119,7 +119,7 @@ docker run -dit \
     --volume /etc/ascend_install.info:/etc/ascend_install.info \
     --volume /var/queue_schedule:/var/queue_schedule \
     --entrypoint=bash \
-    harbor.baai.ac.cn/flagos-inner-models-release/flagrelease-qwen3.6-ascend-tree_none-gems_5.0.2-vllm_none-plugin_none-cx_none-python_3.11.14-torch_npu_2.8.0.post2-pcp_cann8.5.0-gpu_ascend001-arc_arm64-driver_25.2.0:202605291309
+    harbor.baai.ac.cn/flagos-inner-models-release/flagrelease-qwen3.6-ascend-tree_none-gems_5.3.0-rc2.post1-vllm_none-plugin_none-cx_none-python_3.11.14-torch_npu_2.8.0.post2-pcp_cann8.5.0-gpu_ascend001-arc_arm64-driver_25.2.0:202606081729
 ```
 
 ### Package Installation
@@ -216,7 +216,7 @@ Expected: the five ops land on `vendor.ascend`:
 
 ## Related PRs
 
-- [ ] flagos-ai/sglang-plugin-FL — feat: extend Ascend out-of-tree vendor backend with op implementations
+- [x] [flagos-ai/sglang-plugin-FL#10](https://github.com/flagos-ai/sglang-plugin-FL/pull/10) — feat: extend Ascend out-of-tree vendor backend with op implementations
 
 ## Implementation History
 
