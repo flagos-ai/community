@@ -90,8 +90,8 @@ Currently supported vendor backend for this FEP:
 
 | Model | TP | Modality | Status |
 |-------|-----|----------|--------|
-| Qwen3.6-27B (Hybrid Attention + FLA + MoE) | tp=1 | Text + VL | Verified |
-| Qwen3.6-35B-A3B (MoE, 256 experts) | tp=1 | Text + VL | Verified |
+| Qwen3.6-27B (Hybrid Attention + FLA + MoE) | TP=1 (single-node), TP=2 PP=2 (multi-node) | Text + VL | Verified |
+| Qwen3.6-35B-A3B (MoE, 256 experts) | TP=1 (single-node), TP=2 PP=2 (multi-node) | Text + VL | Verified |
 
 All models support 16-way concurrent inference (text, VL, and mixed modes).
 
@@ -135,7 +135,7 @@ export FLAGCX_PATH="$PWD"
 | sglang-kernel | 0.4.2 |
 | PyTorch | 2.11.0+cu130 |
 | Triton | 3.6.0 |
-| FlagGems | 4.2.1rc0 |
+| FlagGems | 5.3.0-rc2.post1 |
 | flashinfer | 0.6.8.post1 |
 | Python | 3.12 |
 | CUDA | 13.0 |
@@ -147,7 +147,8 @@ The test plan below is required for NVIDIA.
 ### Environment Matrix
 
 - Platform: NVIDIA H20
-- GPU: 8x NVIDIA H20
+- Single-node tests (1–4, 7–9): 1 node, 8x NVIDIA H20
+- Multi-node tests (5–6): 2 nodes, 2x NVIDIA H20 per node (4 GPUs total, TP=2, PP=2)
 
 ### Model Acquisition
 
@@ -166,7 +167,7 @@ modelscope download --model Qwen/Qwen3.6-35B-A3B --local_dir /models/Qwen3.6-35B
 NVIDIA platform image (pre-installed with PyTorch, Triton, FlagGems, SGLang, and Qwen3.6 models):
 
 ```bash
-docker pull harbor.baai.ac.cn/flagos-inner-models-release/flagrelease-qwen3.6-nvidia-tree_none-gems_4.2.1rc0-vllm_none-plugin_none-cx_none-python_3.12.3-torch_2.11.0-pcp_cuda13.0-gpu_nvidia003-arc_amd64-driver_580.105.08:202605292005
+docker pull harbor.baai.ac.cn/flagos-inner-models-release/flagrelease-qwen3.6-nvidia-tree_none-gems_5.3.0-rc2.post1-vllm_none-plugin_none-cx_none-python_3.12.3-torch_2.11.0-pcp_cuda13.0-gpu_nvidia003-arc_amd64-driver_580.105.08:202606072035
 ```
 
 ### Package Installation
@@ -221,7 +222,47 @@ MODEL_PATH=/models/Qwen3.6-35B-A3B python examples/qwen3_6_35b_a3b_concurrent.py
 
 Expected: Same as test 3 — all concurrent modes pass on the MoE model.
 
-**5. Dispatch unit tests**
+**5. Multi-node text + concurrent + VL inference (Qwen3.6-27B)**
+
+```bash
+# [Node 0 / Master / 192.168.0.66]
+CUDA_VISIBLE_DEVICES=0,1 \
+SGLANG_FL_FLAGOS_BLACKLIST=count_nonzero \
+SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK=0 \
+GLOO_SOCKET_IFNAME=eth0 NCCL_SOCKET_IFNAME=eth0 \
+    python examples/qwen3_6_27b_multinode.py --role master --master-addr 192.168.0.66 --tp 2 --pp 2
+
+# [Node 1 / Worker / 192.168.0.65]
+CUDA_VISIBLE_DEVICES=0,1 \
+SGLANG_FL_FLAGOS_BLACKLIST=count_nonzero \
+SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK=0 \
+GLOO_SOCKET_IFNAME=eth0 NCCL_SOCKET_IFNAME=eth0 \
+    python examples/qwen3_6_27b_multinode.py --role worker --master-addr 192.168.0.66 --tp 2 --pp 2
+```
+
+Expected: All requests complete successfully in text, concurrent, and multimodal (VL) inference tests.
+
+**6. Multi-node text + concurrent + VL inference (Qwen3.6-35B-A3B)**
+
+```bash
+# [Node 0 / Master / 192.168.0.66]
+CUDA_VISIBLE_DEVICES=0,1 \
+SGLANG_FL_FLAGOS_BLACKLIST=count_nonzero \
+SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK=0 \
+GLOO_SOCKET_IFNAME=eth0 NCCL_SOCKET_IFNAME=eth0 \
+    python examples/qwen3_6_35b_a3b_multinode.py --role master --master-addr 192.168.0.66 --tp 2 --pp 2
+
+# [Node 1 / Worker / 192.168.0.65]
+CUDA_VISIBLE_DEVICES=0,1 \
+SGLANG_FL_FLAGOS_BLACKLIST=count_nonzero \
+SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK=0 \
+GLOO_SOCKET_IFNAME=eth0 NCCL_SOCKET_IFNAME=eth0 \
+    python examples/qwen3_6_35b_a3b_multinode.py --role worker --master-addr 192.168.0.66 --tp 2 --pp 2
+```
+
+Expected: Same as test 5 — all text, concurrent, and VL tests pass on the MoE model.
+
+**7. Dispatch unit tests**
 
 ```bash
 cd sglang-plugin-FL
@@ -237,7 +278,7 @@ Expected: All dispatch unit tests pass, covering:
 - `test_fork_safety`: real os.fork() cache/reinit/parent/epoch
 - `test_env_policy`: SGLANG_FL_PREFER/STRICT/DENY_VENDORS/ALLOW_VENDORS/PER_OP/CONFIG
 
-**6. Dispatch log verification**
+**8. Dispatch log verification**
 
 ```bash
 SGLANG_FL_DISPATCH_LOG=/tmp/dispatch.log \
@@ -256,7 +297,7 @@ Expected: Log shows all three fused ops dispatched to the flagos backend:
 [OOT-DISPATCH] RotaryEmbedding → flagos(flagos)
 ```
 
-**7. Plugin disabled baseline**
+**9. Plugin disabled baseline**
 
 ```bash
 SGLANG_PLUGINS="__none__" python -m sglang.launch_server \
@@ -271,8 +312,10 @@ Expected: Server starts using vanilla SGLang CUDA path without the plugin; confi
 - [x] [flagos-ai/sglang-plugin-FL#1](https://github.com/flagos-ai/sglang-plugin-FL/pull/1) — Initial implementation of sglang-plugin-FL (three-layer OOT plugin)
 - [x] [flagos-ai/sglang-plugin-FL#9](https://github.com/flagos-ai/sglang-plugin-FL/pull/9) — Add concurrent inference examples with text/VL/mixed modes
 - [x] [flagos-ai/sglang-plugin-FL#11](https://github.com/flagos-ai/sglang-plugin-FL/pull/11) — Add dispatch unit tests
+- [x] [flagos-ai/sglang-plugin-FL#23](https://github.com/flagos-ai/sglang-plugin-FL/pull/23) — Add pipeline parallelism support to multi-node examples
 
 ## Implementation History
 
 - 2026-05-27: FEP created
 - 2026-05-29: Added multimodal (VL) inference, 16-way concurrent inference tests (PR #9), and dispatch unit tests (PR #11)
+
