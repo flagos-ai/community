@@ -160,8 +160,6 @@ pip install -e .
 
 **Accuracy Tests:**
 ```bash
-# Run all accuracy tests
-pytest tests/ -v
 
 # Run specific operator tests
 pytest tests/test_add.py -v
@@ -176,7 +174,7 @@ pytest tests/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -v
 **Performance Benchmarks:**
 ```bash
 # Run benchmark suite
-python benchmark/test_add.py
+pytest benchmark/test_add.py
 pytest benchmark/test_deepseek_v4_attention_combine_topk_swa_indices.py -v
 pytest benchmark/test_deepseek_v4_attention_compute_global_topk_indices_and_lens.py -v
 pytest benchmark/test_deepseek_v4_attention_dequantize_and_gather_k_cache.py -v
