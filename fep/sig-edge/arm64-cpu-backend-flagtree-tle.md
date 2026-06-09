@@ -145,6 +145,7 @@ python3 -m venv ~/venv-flagtree
 source ~/venv-flagtree/bin/activate
 pip install --upgrade pip setuptools wheel
 pip install pybind11   # build dependency; --no-build-isolation does not install it
+pip install numpy      # avoids torch's "Failed to initialize NumPy" warning (FlagGems needs it anyway)
 pip install torch==2.10.0+cpu --index-url https://download.pytorch.org/whl/cpu
 ```
 
@@ -189,13 +190,16 @@ symlinks are skipped).
 
 ```bash
 FLAGTREE_BACKEND=cpu TRITON_BUILD_PROTON=OFF MAX_JOBS=$(nproc) \
-TRITON_APPEND_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=/tmp/flagtree_install" \
+TRITON_APPEND_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=$HOME/.flagtree_install" \
     pip install -e python/ --no-build-isolation -v
 ```
 
 `TRITON_APPEND_CMAKE_ARGS` redirects the `cmake --install` step; without it the sleef
 subproject tries to copy `libsleef.so` into `/usr/local/lib`, which fails with
-*Permission denied* for non-root users.
+*Permission denied* for non-root users. Use a per-user prefix (`$HOME/.flagtree_install`)
+rather than a shared one like `/tmp/flagtree_install`: on a multi-user machine the shared
+directory is owned by whoever built first, and a second user's `cmake --install` then fails
+with *Permission denied* — the very error this flag is meant to avoid.
 
 If step 3 ran (manual LLVM), the exported `LLVM_SYSPATH` is picked up automatically; you can
 also pass `TRITON_OFFLINE_BUILD=1` to assert no network access is used.
