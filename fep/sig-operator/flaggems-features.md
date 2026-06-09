@@ -160,31 +160,22 @@ pip install -e .
 
 **Accuracy Tests:**
 ```bash
-
-# Run specific operator tests
-pytest tests/test_add.py -v
-
-# Run DeepSeekV4 attention tests
-pytest tests/test_deepseek_v4_attention_combine_topk_swa_indices.py -v
-pytest tests/test_deepseek_v4_attention_compute_global_topk_indices_and_lens.py -v
-pytest tests/test_deepseek_v4_attention_dequantize_and_gather_k_cache.py -v
-pytest tests/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -v
+pytest tests/test_add.py -sv
+pytest tests/test_router_gemm.py -sv
+pytest tests/test_mhc_ops.py -sv
 ```
 
 **Performance Benchmarks:**
 ```bash
-# Run benchmark suite
-pytest benchmark/test_add.py
-pytest benchmark/test_deepseek_v4_attention_combine_topk_swa_indices.py -v
-pytest benchmark/test_deepseek_v4_attention_compute_global_topk_indices_and_lens.py -v
-pytest benchmark/test_deepseek_v4_attention_dequantize_and_gather_k_cache.py -v
-pytest benchmark/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -v
+pytest benchmark/test_add.py -sv
+pytest benchmark/test_blas_perf_parallel.py -sv
+pytest benchmark/test_mhc.py -sv
 ```
 
 ### Expected Results
 
 - All accuracy tests pass with numerical tolerance within acceptable bounds.
-- DeepSeekV4 attention operators match vLLM reference implementation.
+- DeepSeekV4 operators match vLLM reference implementation.
 - Performance benchmarks show speedup compared to PyTorch ATen library in eager mode.
 - Multi-backend tests pass on supported platforms with correct dtype handling.
 
