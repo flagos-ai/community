@@ -652,44 +652,11 @@ bash examples/grpo_trainer/run_qwen3-0.6b_fl.sh
 
 **Validation criteria:** Training outputs step information normally, no errors during the training process, and the reward metric shows a convergence trend.
 
-### CUDA E2E GRPO Training
+### MUSA Heterogeneous Training (NVIDIA + Moore Threads)
 
-Environment requirements:
-- CUDA >= 12.1, PyTorch >= 2.4
-- `vllm-plugin-FL`, `TransformerEngine-FL`, `Megatron-LM-FL` installed
-- Model: [Qwen3-0.6B](https://modelscope.cn/models/Qwen/Qwen3-0.6B)
-- Dataset: GSM8K ([train.parquet](https://baai-flagscale.ks3-cn-beijing.ksyuncs.com/rl/datasets/gsm8k/train.parquet), [test.parquet](https://baai-flagscale.ks3-cn-beijing.ksyuncs.com/rl/datasets/gsm8k/test.parquet))
+This test validates CUDA+MUSA heterogeneous distributed training via FlagCX. One node runs actor/critic (NVIDIA, FSDP), the other runs rollout (Moore Threads MUSA, vLLM).
 
-```bash
-TORCH_COMPILE_DISABLE=1 RAY_DEDUP_LOGS=0 HYDRA_FULL_ERROR=1 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0 \
-python3 -m recipe.one_step_off_policy.main_ppo \
-    --config-path=config \
-    --config-name='one_step_off_ppo_trainer.yaml' \
-    actor_rollout_ref.model.path=<path/to/Qwen3-0.6B> \
-    data.train_files=<path/to/gsm8k/train.parquet> \
-    data.val_files=<path/to/gsm8k/test.parquet> \
-    actor_rollout_ref.actor.strategy=fsdp2 \
-    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=4 \
-    actor_rollout_ref.actor.ppo_mini_batch_size=64 \
-    actor_rollout_ref.rollout.name="vllm" \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=4 \
-    actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
-    +actor_rollout_ref.rollout.enable_sleep_mode=False \
-    actor_rollout_ref.rollout.free_cache_engine=False \
-    actor_rollout_ref.rollout.calculate_log_probs=True \
-    +actor_rollout_ref.model.override_config.attn_implementation=eager \
-    critic.strategy=fsdp2 \
-    actor_rollout_ref.hybrid_engine=False \
-    trainer.nnodes=1 \
-    trainer.logger='["console"]' \
-    trainer.n_gpus_per_node=8 \
-    rollout.nnodes=1 \
-    rollout.n_gpus_per_node=8 \
-    2>&1 | tee onestep.log
-```
-
-### (Optional) FlagCX Heterogeneous Communication Test
+#### (Optional) FlagCX Heterogeneous Communication Test
 
 Before running full E2E training, you can verify cross-node FlagCX communication independently using `torchrun`. This step does not require Ray or verl-FL — it only tests whether NVIDIA and MUSA nodes can communicate via FlagCX.
 
@@ -724,10 +691,6 @@ torchrun --nproc_per_node 8 --nnodes=2 --node_rank=1 \
 ```
 
 Expected: `example.py` (from the [FlagCX](https://github.com/FlagOpen/FlagCX) repo) completes without error; allreduce results match on both sides.
-
-### MUSA Heterogeneous Training (NVIDIA + Moore Threads)
-
-This test validates CUDA+MUSA heterogeneous distributed training via FlagCX. One node runs actor/critic (NVIDIA, FSDP), the other runs rollout (Moore Threads MUSA, vLLM).
 
 #### Environment Requirements
 
