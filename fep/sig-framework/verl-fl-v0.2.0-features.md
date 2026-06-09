@@ -689,18 +689,53 @@ python3 -m recipe.one_step_off_policy.main_ppo \
     2>&1 | tee onestep.log
 ```
 
+### (Optional) FlagCX Heterogeneous Communication Test
+
+Before running full E2E training, you can verify cross-node FlagCX communication independently using `torchrun`. This step does not require Ray or verl-FL — it only tests whether NVIDIA and MUSA nodes can communicate via FlagCX.
+
+On the MUSA node (rank 0, master):
+
+```bash
+export FLAGCX_DEBUG=INFO
+export FLAGCX_DEBUG_SUBSYS=ALL
+export FLAGCX_SOCKET_IFNAME=<MUSA_IB_IFNAME>   # e.g. bond0; check with `ip a`
+export MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export FLAGCX_IB_HCA=mlx5
+export FLAGCX_ENABLE_TOPO_DETECT=TRUE
+
+torchrun --nproc_per_node 8 --nnodes=2 --node_rank=0 \
+    --master_addr=<MUSA_NODE_IP> --master_port=8122 \
+    example.py
+```
+
+On the NVIDIA node (rank 1):
+
+```bash
+export FLAGCX_DEBUG=INFO
+export FLAGCX_DEBUG_SUBSYS=ALL
+export FLAGCX_SOCKET_IFNAME=<NVIDIA_IB_IFNAME>   # e.g. ens22f0; check with `ip a`
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export FLAGCX_IB_HCA=mlx5
+export FLAGCX_ENABLE_TOPO_DETECT=TRUE
+
+torchrun --nproc_per_node 8 --nnodes=2 --node_rank=1 \
+    --master_addr=<MUSA_NODE_IP> --master_port=8122 \
+    example.py
+```
+
+Expected: `example.py` (from the [FlagCX](https://github.com/FlagOpen/FlagCX) repo) completes without error; allreduce results match on both sides.
+
 ### MUSA Heterogeneous Training (NVIDIA + Moore Threads)
 
 This test validates CUDA+MUSA heterogeneous distributed training via FlagCX. One node runs actor/critic (NVIDIA, FSDP), the other runs rollout (Moore Threads MUSA, vLLM).
 
 #### Environment Requirements
 
-- **NVIDIA node:** CUDA >= 12.1, PyTorch >= 2.4, `vllm-plugin-FL`, `TransformerEngine-FL`, `Megatron-LM-FL`
-- **MUSA node:** `torch_musa`, MUSA toolkit, `vllm-plugin-FL` with MUSA support
-- **Both nodes:** [FlagCX](https://github.com/FlagOpen/FlagCX) (latest), Ray, verl-FL installed; identical Python version; InfiniBand for cross-node communication
-- **Docker image (MUSA node):** `registry.mthreads.com/presale/devtech/vllm_plugin_fix:verl`
+- **NVIDIA node:** base image `nvidia/cuda:12.9.1-devel-ubuntu22.04`; **Python 3.10**; manually install: torch 2.9.0+cu129, vllm 0.12.0, `vllm-plugin-FL`, `TransformerEngine-FL`, `Megatron-LM-FL`, `FlagCX`, `Ray`, `verl-FL`
+- **MUSA node:** base image `registry.mthreads.com/presale/devtech/vllm_plugin_fix:20260327hg` (includes `torch_musa`, MUSA toolkit, `vllm-plugin-FL`); **Python 3.10**; manually install: `FlagCX`, `Ray`, `verl-FL`
+- **Both nodes:** Python 3.10; InfiniBand for cross-node communication
 - **Model:** Qwen3-0.6B
-- **Dataset:** GSM8K
+- **Dataset:** GSM8K (`train.parquet` / `test.parquet`)
 
 #### Step 1 — Start Ray cluster
 
@@ -733,7 +768,19 @@ ray start --address='<MUSA_NODE_IP>:6379' --node-ip-address=<NVIDIA_NODE_IP> --n
 
 #### Step 2 — Launch heterogeneous GRPO training
 
-Run on the NVIDIA (worker) node:
+Edit `config/one_step_off_ppo_trainer.yaml` to set data and model paths:
+
+```yaml
+data:
+  train_files: <path/to/gsm8k/train.parquet>
+  val_files: <path/to/gsm8k/test.parquet>
+
+actor_rollout_ref:
+  model:
+    path: <path/to/Qwen3-0.6B>
+```
+
+Then run on the NVIDIA (worker) node:
 
 ```bash
 TORCH_COMPILE_DISABLE=1 RAY_DEDUP_LOGS=0 HYDRA_FULL_ERROR=1 \
@@ -742,9 +789,6 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0 \
 python3 -m recipe.one_step_off_policy.main_ppo \
     --config-path=config \
     --config-name='one_step_off_ppo_trainer.yaml' \
-    actor_rollout_ref.model.path=<path/to/Qwen3-0.6B> \
-    data.train_files=<path/to/gsm8k/train.parquet> \
-    data.val_files=<path/to/gsm8k/test.parquet> \
     actor_rollout_ref.actor.strategy=fsdp2 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=4 \
     actor_rollout_ref.actor.ppo_mini_batch_size=64 \
