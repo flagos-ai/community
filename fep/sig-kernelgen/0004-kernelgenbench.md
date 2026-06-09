@@ -26,7 +26,7 @@ There is currently no unified cross-platform evaluation standard for Triton kern
 - Support 3 sub-datasets: aten (110 ops), vllm (50 ops), cublas (50 ops)
 - Cover 6 chip platforms: NVIDIA, Ascend, MUSA, Hygon, Iluvatar, MetaX
 - Support Pass@K iterative verification workflow
-- Integrate 3 SOTA agent methods: AutoKernel, AKO4ALL, cuda-optimized-skill
+- Integrate 3 kernel-specialized methods: AutoKernel, AKO4ALL, cuda-optimized-skill
 
 ### Non-Goals
 
@@ -71,7 +71,7 @@ The `device_manager.py` module automatically detects the current hardware platfo
 | Single-op generation | `python scripts/generate_kernel_and_verify.py --op-name add` | Single-operator Pass@K generation and verification |
 | Full generation | `python scripts/generate_kernel_and_verify.py --dataset KernelGenBench` | Full dataset Pass@K generation and verification |
 | Sub-dataset coverage | Run aten/vllm/cublas datasets separately | All dataset operator lists are complete and loadable |
-| SOTA Agent | `bash agent_bench/test_autokernel.sh` / `test_ako4all.sh` / `test_cuda_optimized_skill.sh` | All three agent methods run successfully and produce results |
+| Kernel-specialized methods | `bash agent_bench/test_autokernel.sh` / `test_ako4all.sh` / `test_cuda_optimized_skill.sh` | All three kernel-specialized methods run successfully and produce results |
 | Device detection | `agent_bench/device_manager.py` | All platforms auto-detected, correct templates loaded |
 
 ### Compatibility Verification
