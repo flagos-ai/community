@@ -652,6 +652,120 @@ bash examples/grpo_trainer/run_qwen3-0.6b_fl.sh
 
 **Validation criteria:** Training outputs step information normally, no errors during the training process, and the reward metric shows a convergence trend.
 
+### CUDA E2E GRPO Training
+
+Environment requirements:
+- CUDA >= 12.1, PyTorch >= 2.4
+- `vllm-plugin-FL`, `TransformerEngine-FL`, `Megatron-LM-FL` installed
+- Model: [Qwen3-0.6B](https://modelscope.cn/models/Qwen/Qwen3-0.6B)
+- Dataset: GSM8K ([train.parquet](https://baai-flagscale.ks3-cn-beijing.ksyuncs.com/rl/datasets/gsm8k/train.parquet), [test.parquet](https://baai-flagscale.ks3-cn-beijing.ksyuncs.com/rl/datasets/gsm8k/test.parquet))
+
+```bash
+TORCH_COMPILE_DISABLE=1 RAY_DEDUP_LOGS=0 HYDRA_FULL_ERROR=1 \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0 \
+python3 -m recipe.one_step_off_policy.main_ppo \
+    --config-path=config \
+    --config-name='one_step_off_ppo_trainer.yaml' \
+    actor_rollout_ref.model.path=<path/to/Qwen3-0.6B> \
+    data.train_files=<path/to/gsm8k/train.parquet> \
+    data.val_files=<path/to/gsm8k/test.parquet> \
+    actor_rollout_ref.actor.strategy=fsdp2 \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=4 \
+    actor_rollout_ref.actor.ppo_mini_batch_size=64 \
+    actor_rollout_ref.rollout.name="vllm" \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=4 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
+    +actor_rollout_ref.rollout.enable_sleep_mode=False \
+    actor_rollout_ref.rollout.free_cache_engine=False \
+    actor_rollout_ref.rollout.calculate_log_probs=True \
+    +actor_rollout_ref.model.override_config.attn_implementation=eager \
+    critic.strategy=fsdp2 \
+    actor_rollout_ref.hybrid_engine=False \
+    trainer.nnodes=1 \
+    trainer.logger='["console"]' \
+    trainer.n_gpus_per_node=8 \
+    rollout.nnodes=1 \
+    rollout.n_gpus_per_node=8 \
+    2>&1 | tee onestep.log
+```
+
+### MUSA Heterogeneous Training (NVIDIA + Moore Threads)
+
+This test validates CUDA+MUSA heterogeneous distributed training via FlagCX. One node runs actor/critic (NVIDIA, FSDP), the other runs rollout (Moore Threads MUSA, vLLM).
+
+#### Environment Requirements
+
+- **NVIDIA node:** CUDA >= 12.1, PyTorch >= 2.4, `vllm-plugin-FL`, `TransformerEngine-FL`, `Megatron-LM-FL`
+- **MUSA node:** `torch_musa`, MUSA toolkit, `vllm-plugin-FL` with MUSA support
+- **Both nodes:** [FlagCX](https://github.com/FlagOpen/FlagCX) (latest), Ray, verl-FL installed; identical Python version; InfiniBand for cross-node communication
+- **Docker image (MUSA node):** `registry.mthreads.com/presale/devtech/vllm_plugin_fix:verl`
+- **Model:** Qwen3-0.6B
+- **Dataset:** GSM8K
+
+#### Step 1 — Start Ray cluster
+
+On the NVIDIA node (head):
+
+```bash
+export FLAGCX_PATH=/workspace/FlagCX
+export USE_FLAGCX=1
+export FLAGCX_LOG_LEVEL=DEBUG
+
+ray start --head --port=6379 --node-ip-address=<NVIDIA_NODE_IP> --num-gpus=8
+```
+
+On the MUSA node (worker):
+
+```bash
+export RAY_EXPERIMENTAL_NOSET_MUSA_VISIBLE_DEVICES=1
+export MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export MCCL_NET_GDR_LEVEL=2
+export MCCL_IB_HCA=mlx5_bond_0
+export FLAGCX_PATH=/workspace/FlagCX
+export USE_FLAGCX=1
+export FLAGCX_IB_HCA=mlx5
+export RAY_ADDRESS="auto"   # join existing cluster, do NOT start a new head
+
+# Install RDMA dependencies if not present
+apt install -y rdma-core libibverbs1 libibverbs-dev ibverbs-utils
+
+ray start --address='<NVIDIA_NODE_IP>:6379' --node-ip-address=<MUSA_NODE_IP> --num-gpus=8
+```
+
+#### Step 2 — Launch heterogeneous GRPO training
+
+Run on the NVIDIA (head) node:
+
+```bash
+TORCH_COMPILE_DISABLE=1 RAY_DEDUP_LOGS=0 HYDRA_FULL_ERROR=1 \
+FLAGCX_PATH=/workspace/FlagCX USE_FLAGCX=1 FLAGCX_LOG_LEVEL=DEBUG \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0 \
+python3 -m recipe.one_step_off_policy.main_ppo \
+    --config-path=config \
+    --config-name='one_step_off_ppo_trainer.yaml' \
+    actor_rollout_ref.model.path=<path/to/Qwen3-0.6B> \
+    data.train_files=<path/to/gsm8k/train.parquet> \
+    data.val_files=<path/to/gsm8k/test.parquet> \
+    actor_rollout_ref.actor.strategy=fsdp2 \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=4 \
+    actor_rollout_ref.actor.ppo_mini_batch_size=64 \
+    actor_rollout_ref.rollout.name="vllm" \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=4 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
+    +actor_rollout_ref.rollout.enable_sleep_mode=False \
+    actor_rollout_ref.rollout.free_cache_engine=False \
+    actor_rollout_ref.rollout.calculate_log_probs=True \
+    +actor_rollout_ref.model.override_config.attn_implementation=eager \
+    critic.strategy=fsdp2 \
+    actor_rollout_ref.hybrid_engine=False \
+    trainer.nnodes=1 \
+    trainer.logger='["console"]' \
+    trainer.n_gpus_per_node=8 \
+    rollout.nnodes=1 \
+    rollout.n_gpus_per_node=8 \
+    2>&1 | tee onestep_hetero.log
+```
+
 ### Expected Results
 
 | Platform | Test Scope | Expected Result |
@@ -659,6 +773,7 @@ bash examples/grpo_trainer/run_qwen3-0.6b_fl.sh
 | CPU | Unit tests (platform abstraction, engine registry, env manager) | All pass |
 | CUDA (NVIDIA GPU) | Unit tests + E2E GRPO training | All pass, training converges |
 | MetaX (MACA) | E2E GRPO training | All pass, training converges |
+| MUSA heterogeneous (NVIDIA actor/critic + MUSA rollout) | E2E GRPO training on GSM8K via FlagCX | FlagCX cross-node communication established; training runs without crash; `critic/score/mean` > 0 throughout; `rollout_corr/log_ppl_diff` < 0.005 (training vs rollout PPL consistent, e.g. `training_log_ppl` ~0.76 and `rollout_log_ppl` ~0.76 at step 1) |
 
 ## Related PRs
 
