@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Handbook — downstream consolidation artifact, not source of truth
+FLAGOS_COMMUNITY_GOVERNANCE_HANDBOOK.md
+
+# Initial proposal — superseded by GOVERNANCE.md + source files
+GOVERNANCE_PROPOSAL.md

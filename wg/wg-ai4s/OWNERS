@@ -1,0 +1,10 @@
+# OWNERS — wg-ai4s
+#
+'# No Approver role during WG phase.'
+'# Organizer may review PRs but has no binding approve authority.'
+
+reviewers:
+  # - github-id
+
+approvers:
+  '# Not active during WG phase'

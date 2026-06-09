@@ -1,0 +1,60 @@
+# OWNERS_ALIASES
+#
+# Defines Reviewer and Approver team aliases for each SIG.
+# Module repository OWNERS files can reference these aliases to avoid updating every OWNERS file when people change.
+#
+# Format:
+#   aliases:
+#     <sig-or-team-name>-approvers:
+#       - github-id
+#     <sig-or-team-name>-reviewers:
+#       - github-id
+#
+# Usage: Reference aliases in module OWNERS files:
+#   approvers:
+#     - sig-operator-approvers
+#   reviewers:
+#     - sig-operator-reviewers
+
+aliases:
+  # sig-operator
+  sig-operator-approvers:
+    # - github-id  ← fill in after first TSC meeting confirms
+  sig-operator-reviewers:
+    # - github-id
+
+  # sig-compiler
+  sig-compiler-approvers:
+    # - github-id
+  sig-compiler-reviewers:
+    # - github-id
+
+  # sig-network
+  sig-network-approvers:
+    # - github-id
+  sig-network-reviewers:
+    # - github-id
+
+  # sig-framework
+  sig-framework-approvers:
+    # - github-id
+  sig-framework-reviewers:
+    # - github-id
+
+  # sig-training
+  sig-training-approvers:
+    # - github-id
+  sig-training-reviewers:
+    # - github-id
+
+  # sig-kernelgen
+  sig-kernelgen-approvers:
+    # - github-id
+  sig-kernelgen-reviewers:
+    # - github-id
+
+  # sig-chip
+  sig-chip-approvers:
+    # - github-id
+  sig-chip-reviewers:
+    # - github-id

@@ -1,0 +1,12 @@
+# OWNERS — $sig
+#
+# reviewers: may give LGTM on PRs (non-binding)
+# approvers: may approve PRs and FEPs (binding), and merge code
+#
+'# Never list TBD or unconfirmed people. Leave blank if no one is identified.'
+
+reviewers:
+  # - github-id
+
+approvers:
+  # - github-id

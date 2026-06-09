@@ -1,14 +1,20 @@
 # FEP — FlagOS Enhancement Proposal
 
+[English](README.md) | [中文](README_CN.md)
+
 ## What is a FEP
 
 A FEP (FlagOS Enhancement Proposal) is the mechanism for managing features in FlagOS.
 Each cross-module or significant feature gets a FEP — a markdown design document,
 stored under `fep/sig-*/`, submitted and reviewed via PR.
 
-**Toolchain**: GitHub PR + Markdown file + OWNERS approval
+**Toolchain**: GitHub PR + Markdown file + [SIG OWNERS](../sigs/) approval
+
+> **New here?** Start with the [FEP Authoring Guide](../contributors/fep-guide.md). **Approver?** See the [FEP Review Guide](REVIEW_GUIDE.md). Governance rules are in [GOVERNANCE.md](../GOVERNANCE.md).
 
 ## SIG Groups
+
+### Active SIGs (7)
 
 | SIG | Modules |
 |-----|---------|
@@ -17,14 +23,22 @@ stored under `fep/sig-*/`, submitted and reviewed via PR.
 | `sig-network` | FlagCX |
 | `sig-framework` | PyTorch-Plugin-FL, vllm-plugin-FL, sglang-plugin-FL, TransformerEngine-FL, Megatron-LM-FL, verl-FL |
 | `sig-training` | FlagScale |
-| `sig-kernelgen` | KernelGen |
-| `sig-embodied` | FlagOS-Robo |
-| `sig-ai4s` | FlagQuantum |
-| `sig-benchmark` | FlagPerf |
-| `sig-agent` | Skills |
-| `sig-tools` | FlagRelease |
-| `sig-edge` | Edge-side hardware — Arm CPU, mobile NPU, IoT devices |
-| `sig-architecture` | Cross-cutting features, process changes |
+| `sig-kernelgen` | KernelGen, KernelGenBench |
+| `sig-chip` | Datacenter chip adaptation |
+
+### Planned / Incubating
+
+The following areas have been identified but lack Approvers; FEPs are reviewed directly by the TSC. See [SIG Overview](../sigs/README.md).
+
+| Area | Type | Modules |
+|------|------|------|
+| `sig-benchmark` | Planned SIG | FlagPerf |
+| `sig-agent` | Planned SIG | Skills |
+| `sig-tools` | Planned SIG | FlagRelease |
+| `sig-edge` | Planned SIG | Edge hardware |
+| `sig-architecture` | Planned SIG | Cross-module features, process changes |
+| `wg-embodied` | Incubating WG | FlagOS-Robo |
+| `wg-ai4s` | Incubating WG | FlagQuantum |
 
 ## When to Write a FEP
 
@@ -63,6 +77,10 @@ Provisional ──→ Implementable ──→ Implemented
 Before writing a FEP, discuss the idea with the relevant SIG. Make sure there is interest
 in the problem space and willingness to review.
 
+> **Bootstrap note:** If the relevant SIG has no Chair, Approver, or meeting yet, open an Issue
+> in the target module repository or post in [GitHub Discussions](https://github.com/FlagOS-AI/community/discussions).
+> The TSC (or the ZhongZhi FlagOS Community (众智FlagOS社区) before TSC is formed) will route and review. See [GOVERNANCE.md](../GOVERNANCE.md).
+
 ### 1. Create the FEP Document
 
 Copy the [FEP template](fep-template/README.md) to `fep/sig-xxx/title-slug.md`.
@@ -84,11 +102,12 @@ Open a PR with the FEP file.
 Review, discussion and iteration happen on the PR.
 
 - SIG approvers (listed in OWNERS) approve the PR
+- **Bootstrap note:** If the relevant SIG has no Approver yet, the TSC reviews directly. Post in [GitHub Discussions](https://github.com/FlagOS-AI/community/discussions) if you need help routing.
 - Once approved, update Status to `Implementable`
 - Merge the PR
 
 **Cross-SIG FEPs**: Pick a home SIG whose directory the file lives in. SIGs
-impacted by the feature should also review. If no existing SIG fits, use `sig-architecture`.
+impacted by the feature should also review. If no existing SIG fits, use `sig-architecture` (during bootstrap) or ask TSC for routing.
 
 ### 4. Implement
 
@@ -115,8 +134,10 @@ impacted by the feature should also review. If no existing SIG fits, use `sig-ar
 | Role | Responsibilities |
 |------|-----------------|
 | **FEP Owner** | Write the FEP, drive implementation, update status, ensure acceptance |
-| **SIG Approver** (OWNERS) | Review and approve FEP documents |
+| **SIG Approver** | Review and approve FEP documents (listed in [SIG OWNERS](../sigs/)) |
 | **Release Manager** | Track overall FEP progress per version, Go/No-Go decisions |
+
+> For complete role definitions and promotion paths, see [contributors/roles.md](../contributors/roles.md).
 
 ## Milestone Usage
 

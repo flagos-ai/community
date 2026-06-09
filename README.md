@@ -19,9 +19,23 @@ FlagOS is a unified, open-source AI system software stack designed for multi-chi
 - 📚 **Sharing knowledge** and best practices
 - 🎯 **Participating** in the FlagOS ecosystem
 
+## Community Navigation
+
+| Section | Description |
+|------|------|
+| [GOVERNANCE.md](GOVERNANCE.md) | Governance rules & decision-making |
+| [MAINTAINERS.md](MAINTAINERS.md) | TSC + SIG Chair roster |
+| [sigs/](sigs/) | **SIGs** — list of all SIGs, charters, creation process, OWNERS spec, meeting calendar |
+| [contributors/](contributors/) | Contributor guides, role definitions, FEP authoring |
+| [fep/](fep/) | FEP process & templates |
+| [release/](release/) | Release management process |
+| [wg/](wg/) | Incubating Working Groups |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributor quick-nav |
+
 ## Table of Contents
 
 - [About FlagOS Community](#about-flagos-community)
+- [Community Navigation](#community-navigation)
 - [How to Contribute](#how-to-contribute)
 - [Communication Channels](#communication-channels)
 - [Code of Conduct](#code-of-conduct)
@@ -74,13 +88,18 @@ Join discussions and help other contributors:
 - Share knowledge and best practices
 - Mentor new contributors
 
+### 🏛️ Join or Create a SIG
+SIGs (Special Interest Groups) are where technical work happens. Each SIG covers a specific domain — operators, compilers, networking, training, and more.
+- **[Browse existing SIGs](sigs/)** to find one that matches your interests and attend a meeting
+- **[Create a new SIG](GOVERNANCE.md#sig-special-interest-group)** — need ≥1 Chair, ≥1 Tech Lead, ≥3 members, and a charter. Submit a PR to get started
+
 ## Communication Channels
 
 Stay connected and engage with the FlagOS community:
 
 | Channel | Purpose | Contact |
 |---------|---------|---------|
-| 📧 **Email** | General inquiries and communication | qgzhu@flagos.io |
+| 📧 **Email** | General inquiries and communication | contact@flagos.io |
 | 📱 **WeChat Official Account** | Updates and news | 智源FlagOpen |
 | 💬 **GitHub Discussions** | Technical discussions and Q&A | [Coming Soon] |
 | 📋 **Mailing List** | Announcements and community updates | [Coming Soon] |
@@ -89,7 +108,7 @@ Stay connected and engage with the FlagOS community:
 
 We are committed to providing a welcoming and inclusive environment for all community members. All participants are expected to adhere to our Code of Conduct:
 
-- **[Code of Conduct](CODE_OF_CONDUCT.MD)** (English)
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** (English)
 
 By participating in this community, you agree to uphold these standards and help us maintain a respectful and productive environment.
 
@@ -127,6 +146,12 @@ By participating in this community, you agree to uphold these standards and help
    - Relevant environment information
 3. See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed reporting guidelines
 
+### I want to create or join a SIG
+1. Browse the [SIG Overview](sigs/) to see existing SIGs and find one that matches your interests
+2. To **join**: attend a SIG meeting (calendar in [sigs/](sigs/)) and introduce yourself
+3. To **create** a new SIG: read the [SIG creation conditions](GOVERNANCE.md#sig-special-interest-group) in GOVERNANCE.md, then submit a PR with a charter draft + initial member list. TSC votes within 2 weeks
+4. Check [Role Definitions](contributors/roles.md) to understand the Chair / Tech Lead / Approver roles
+
 ### I have a question or want to discuss something
 Join any of our [Communication Channels](#communication-channels) and ask away! We have a supportive community ready to help.
 
@@ -136,11 +161,18 @@ Join any of our [Communication Channels](#communication-channels) and ask away! 
 community/
 ├── README.md                    # English version (this file)
 ├── README_CN.md                # Chinese version
-├── CONTRIBUTING.md             # Contribution guidelines (English)
-├── CONTRIBUTING_CN.md          # Contribution guidelines (Chinese)
-├── CODE_OF_CONDUCT.MD          # Community code of conduct (English)
-├── CODE_OF_CONDUCT_CN.MD       # Community code of conduct (Chinese)
-└── LICENSE                     # Apache License 2.0
+├── GOVERNANCE.md               # Governance rules & decision making
+├── MAINTAINERS.md              # TSC + SIG Chair roster
+├── CODE_OF_CONDUCT.md          # Community code of conduct (English)
+├── CODE_OF_CONDUCT_CN.md       # Community code of conduct (Chinese)
+├── CONTRIBUTING.md             # Contribution quick-nav (English)
+├── CONTRIBUTING_CN.md          # Contribution quick-nav (Chinese)
+├── LICENSE                     # Apache License 2.0
+├── sigs/                       # SIG charters, OWNERS, meetings
+├── fep/                        # FEP process, template, review guide
+├── contributors/               # Contributor guides (roles, dev-setup, etc.)
+├── release/                    # Release management process & tools
+└── wg/                         # Working Groups (incubation)
 ```
 
 ## License

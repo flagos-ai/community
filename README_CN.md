@@ -19,9 +19,23 @@ FlagOS 是一个统一的、开源的 AI 系统软件栈，专为多芯片场景
 - 📚 **分享知识和最佳实践**
 - 🎯 **参与 FlagOS 生态**
 
+## 社区导航
+
+| 入口 | 说明 |
+|------|------|
+| [GOVERNANCE.md](GOVERNANCE.md) | 社区治理规则与决策机制 |
+| [MAINTAINERS.md](MAINTAINERS.md) | TSC + SIG Chair 名单 |
+| [sigs/](sigs/) | **SIG** — 所有 SIG 列表、章程、创建流程、OWNERS 规范、会议日历 |
+| [contributors/](contributors/) | 贡献者指南、角色定义、FEP 编写指引 |
+| [fep/](fep/) | FEP 流程与模板 |
+| [release/](release/) | 版本发布管理流程 |
+| [wg/](wg/) | 孵化工作组 |
+| [CONTRIBUTING.md](CONTRIBUTING_CN.md) | 贡献者快速导航 |
+
 ## 目录
 
 - [关于 FlagOS 社区](#关于-flagos-社区)
+- [社区导航](#社区导航)
 - [如何贡献](#如何贡献)
 - [交流渠道](#交流渠道)
 - [行为准则](#行为准则)
@@ -74,13 +88,18 @@ FlagOS 项目包含多个专业化的代码仓库：
 - 分享知识和最佳实践
 - 指导新贡献者
 
+### 🏛️ 加入或创建 SIG
+SIG（特别兴趣小组）是技术工作的核心组织。每个 SIG 覆盖一个特定技术领域——算子、编译器、通信、训练等。
+- **[浏览现有 SIG](sigs/)** 找到你感兴趣的方向，参加例会
+- **[创建新 SIG](GOVERNANCE.md#sig-special-interest-group)** — 需 ≥1 名 Chair、≥1 名 Tech Lead、≥3 名初始成员、Charter 草案。向 TSC 提交 PR 即可发起
+
 ## 交流渠道
 
 与 FlagOS 社区保持联系和互动：
 
 | 渠道 | 目的 | 联系方式 |
 |------|------|--------|
-| 📧 **邮箱** | 一般咨询和沟通 | qgzhu@flagos.io |
+| 📧 **邮箱** | 一般咨询和沟通 | contact@flagos.io |
 | 📱 **微信公众号** | 更新和新闻 | 智源FlagOpen |
 | 📺 **微信视频号** | 视频更新和公告 | 智源FlagOpen |
 | 💬 **GitHub Discussions** | 技术讨论和问答 | [即将推出] |
@@ -90,7 +109,7 @@ FlagOS 项目包含多个专业化的代码仓库：
 
 我们致力于为所有社区成员提供热情和包容的环境。所有参与者都应遵守我们的行为准则：
 
-- **[行为准则](CODE_OF_CONDUCT_CN.MD)** (中文)
+- **[行为准则](CODE_OF_CONDUCT_CN.md)** (中文)
 
 通过参与本社区，您同意遵守这些标准，并帮助我们维持一个尊重和高效的环境。
 
@@ -128,6 +147,12 @@ FlagOS 项目包含多个专业化的代码仓库：
    - 相关的环境信息
 3. 详见[贡献指南](CONTRIBUTING_CN.md)中的详细报告指南
 
+### 我想创建或加入 SIG
+1. 浏览 [SIG 总览](sigs/) 查看现有 SIG，找到你感兴趣的方向
+2. **加入**：参加 SIG 例会（日历见 [sigs/](sigs/)）并做自我介绍
+3. **创建**新 SIG：阅读 [SIG 创建条件](GOVERNANCE.md#sig-special-interest-group)，然后提交 PR（含 Charter 草案 + 初始成员名单）。TSC 在 2 周内投票决定
+4. 查看 [角色定义](contributors/roles.md) 了解 Chair / Tech Lead / Approver 等角色的职责
+
 ### 我有问题或想讨论某个话题
 加入我们的任何[交流渠道](#交流渠道)提问！我们有一个热心的社区随时准备帮助。
 
@@ -137,11 +162,18 @@ FlagOS 项目包含多个专业化的代码仓库：
 community/
 ├── README.md                    # 英文版本
 ├── README_CN.md                # 中文版本（本文件）
-├── CONTRIBUTING.md             # 贡献指南（英文）
-├── CONTRIBUTING_CN.md          # 贡献指南（中文）
-├── CODE_OF_CONDUCT.MD          # 社区行为准则（英文）
-├── CODE_OF_CONDUCT_CN.MD       # 社区行为准则（中文）
-└── LICENSE                     # Apache License 2.0
+├── GOVERNANCE.md               # 治理规则与决策机制
+├── MAINTAINERS.md              # TSC + SIG Chair 名单
+├── CODE_OF_CONDUCT.md          # 社区行为准则（英文）
+├── CODE_OF_CONDUCT_CN.md       # 社区行为准则（中文）
+├── CONTRIBUTING.md             # 贡献者快速导航（英文）
+├── CONTRIBUTING_CN.md          # 贡献者快速导航（中文）
+├── LICENSE                     # Apache License 2.0
+├── sigs/                       # SIG 章程、OWNERS、会议记录
+├── fep/                        # FEP 流程、模板、评审指南
+├── contributors/               # 贡献者指南（角色、环境搭建等）
+├── release/                    # 发布管理流程与工具
+└── wg/                         # 孵化工作组
 ```
 
 ## 许可证

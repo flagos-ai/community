@@ -1,9 +1,0 @@
-# OWNERS — sig-edge
-#
-# 端侧硬件适配 — Arm CPU, 移动端 NPU, IoT 设备等
-
-reviewers:
-  - TBD
-
-approvers:
-  - TBD
