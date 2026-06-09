@@ -85,6 +85,48 @@ The `device_manager.py` module automatically detects the current hardware platfo
 | Iluvatar | Device detection, template loading, kernel compilation and execution, correctness validation passed |
 | MetaX | Device detection, template loading, kernel compilation and execution, correctness validation passed |
 
+### Test Environment (Docker)
+
+NVIDIA / Hygon / Iluvatar / MetaX use the default FlagTree vendor images.
+Ascend and MUSA require the following specific images:
+
+#### Ascend NPU (910b)
+
+```bash
+docker run -dit --name svt-ascend \
+  --privileged --network=host --ipc=host --shm-size=64g \
+  --device=/dev/davinci0 --device=/dev/davinci1 \
+  --device=/dev/davinci2 --device=/dev/davinci3 \
+  --device=/dev/davinci4 --device=/dev/davinci5 \
+  --device=/dev/davinci6 --device=/dev/davinci7 \
+  --device=/dev/davinci_manager --device=/dev/hisi_hdc \
+  --volume /usr/local/sbin:/usr/local/sbin \
+  --volume /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+  --volume /public-flash:/public-flash \
+  --volume /etc/ascend_install.info:/etc/ascend_install.info \
+  harbor.baai.ac.cn/flagtree/flagtree-ascend-910c-py311-torch2.6.0-cann8.5.0-ubuntu22.04-aarch64:202603 \
+  bash
+```
+
+#### MUSA (S5000)
+
+```bash
+IMAGE=harbor.baai.ac.cn/flagtree/flagtree-mthreads3.6-py310-torch2.7.1-musa5.1.0-ubuntu22.04:202605-base
+CONTAINER=flagtree-dev-xxx
+docker run -dit \
+    --network=host --pid=host --privileged \
+    --cap-add=SYS_PTRACE \
+    --shm-size 16gb \
+    --security-opt seccomp=unconfined \
+    -e MTHREADS_VISIBLE_DEVICES=all -e MTHREADS_DRIVER_CAPABILITIES=all \
+    -v /usr/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu \
+    -v /lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu \
+    -v /etc/alternatives:/etc/alternatives \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v /data:/data -v /home:/home -v /tmp:/tmp \
+    -w /root --name ${CONTAINER} ${IMAGE} bash
+```
+
 ## Related PRs
 
 - [ ] flagos-ai/KernelGenBench — Initial release
