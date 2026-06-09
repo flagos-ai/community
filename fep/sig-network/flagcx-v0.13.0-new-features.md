@@ -147,15 +147,25 @@ The IR functions operate on opaque `devCommPtr` and `devMemPtr` pointers obtaine
 
 ## Packaging
 
+### Obtain Source Code
+
+```bash
+git clone https://github.com/flagos-ai/FlagCX.git
+cd FlagCX
+git submodule update --init --recursive
+```
+
 ### Build
 
 ```bash
-# Build FlagCX with Device API and P2P support
-cd flagcx && make -j
+# Build FlagCX core library (choose your backend)
+make <backend>=1 -j$(nproc)
 
-# Build with NIXL integration (optional)
-cd plugin/nixl && make -j
+# Build with Device API kernel support (required for CustomAllReduce)
+make USE_NVIDIA=1 COMPILE_KERNEL=1 -j$(nproc)
 ```
+
+Where `<backend>` is one of: `USE_NVIDIA`, `USE_ASCEND`, `USE_ILUVATAR_COREX`, `USE_CAMBRICON`, `USE_METAX`, `USE_MUSA`, `USE_KUNLUNXIN`, `USE_DU`, `USE_AMD`, `USE_TSM`, `USE_ENFLAME`.
 
 ### Dependencies
 
@@ -163,7 +173,6 @@ cd plugin/nixl && make -j
 - libibverbs (for IBRC P2P adaptor)
 - CUDA toolkit (for NVIDIA backend)
 - NCCL >= 2.25 (for Device API vendor path; >= 2.28 for window mode)
-- Triton >= 3.6 (for IR bindings integration)
 
 ---
 
@@ -171,37 +180,36 @@ cd plugin/nixl && make -j
 
 ### P2P Engine Tests
 
+```bash
+cd test/perf/host_api
+make USE_NVIDIA=1
+cd build/bin
+```
+
 | Test | Command | Description |
 |---|---|---|
-| Unit test: P2P read engine | `mpirun -np 2 ./test_p2p_engine_read` | Verifies one-sided RDMA read between two ranks |
-| Perf test: PUT | `mpirun -np 2 ./test_put -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided PUT |
-| Perf test: GET | `mpirun -np 2 ./test_get -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided GET |
-| Perf test: IPC sendrecv | `mpirun -np 2 ./test_ipc_sendrecv` | Intra-node IPC-based send/recv |
-| KV transfer benchmark | `python test/perf/kv_transfer/kv_transfer_benchmark.py --connector=flagcx --role=server` | End-to-end KV cache transfer benchmark supporting NIXL, Mooncake, and FlagCX backends |
+| Unit test: P2P read engine | `mpirun --allow-run-as-root -np 2 ./test_p2p_engine_read` | Verifies one-sided RDMA read between two ranks |
+| Perf test: PUT | `mpirun --allow-run-as-root -np 2 ./test_put -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided PUT |
+| Perf test: GET | `mpirun --allow-run-as-root -np 2 ./test_get -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided GET |
+| Perf test: IPC sendrecv | `mpirun --allow-run-as-root -np 2 ./test_ipc_sendrecv` | Intra-node IPC-based send/recv |
+| KV transfer benchmark | `python test/perf/kv_transfer/kv_transfer_benchmark.py --connector=flagcx --role=server` | End-to-end KV cache transfer benchmark |
 
 ### Device API CustomAllReduce Tests
 
+```bash
+# FlagCX must be built with COMPILE_KERNEL=1 (from project root)
+make USE_NVIDIA=1 COMPILE_KERNEL=1 -j$(nproc)
+
+cd test/perf/device_api
+make USE_NVIDIA=1
+cd build/bin
+```
+
 | Test | Command | Description |
 |---|---|---|
-| Unit test: AllReduce correctness | `mpirun -np N ./test_runner --gtest_filter=DeviceApiTest.IntraAllReduceViaDevicePtr` | Each rank fills buffer with (rank+1), verifies sum = N*(N+1)/2 |
-| Perf test: AllReduce bandwidth | `mpirun -np N ./test_device_api_allreduce -b 1024 -e 67108864 -f 2 -R 2` | Sweeps message sizes, reports algBW/busBW, verifies correctness |
-| Intra-node kernel test | `mpirun -np N ./test_intranode` | Full intra-node AllReduce kernel test |
-
-### Device API IR Bindings Tests
-
-| Test | Command | Description |
-|---|---|---|
-| IR function test (8 kernels) | `mpirun -np N ./test_device_ir` | Tests all 8 kernel categories (K1-K8) covering comm queries, cooperative groups, team queries, local/intra pointers, data type size, and intra barriers |
-
-**K1-K8 test categories:**
-- K1: Comm Queries — verifies `GetRank`, `GetSize`, `GetIntraRank`, `GetIntraSize`
-- K2: Cooperative Group — verifies `InitBlock`, `ThreadRank`, `Size`, `Sync`
-- K3: Team Queries — verifies `GetTeamIntra`, `RankToWorld`, `RankToIntra`
-- K4: Local Pointer — verifies `GetLocalPointerC` returns correct buffer address
-- K5: Intra Pointer — verifies LSA read of peer's data via `GetIntraPointerC`
-- K6: Data Type Size — verifies `DataTypeSizeC` for float(4), half(2), double(8), int32(4), uint64(8)
-- K7: Intra Barrier Sync — write buffer, barrier, read peer's data
-- K8: Intra Barrier Arrive/Wait — write buffer, arrive, wait, read peer's data
+| Unit test: AllReduce correctness | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./test_runner --gtest_filter=DeviceApiTest.IntraAllReduceViaDevicePtr` | Each rank fills buffer with (rank+1), verifies sum = N*(N+1)/2 |
+| Perf test: AllReduce bandwidth | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./perf_allreduce_intranode -b 1M -e 64M -f 2 -R 1` | Sweeps message sizes, reports algBW/busBW, verifies correctness |
+| Intra-node kernel test | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./test_intranode -b 1M -e 4M -f 2 -R 2` | Full intra-node AllReduce kernel test |
 
 ---
 
