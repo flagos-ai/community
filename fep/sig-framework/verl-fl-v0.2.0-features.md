@@ -704,17 +704,7 @@ This test validates CUDA+MUSA heterogeneous distributed training via FlagCX. One
 
 #### Step 1 — Start Ray cluster
 
-On the NVIDIA node (head):
-
-```bash
-export FLAGCX_PATH=/workspace/FlagCX
-export USE_FLAGCX=1
-export FLAGCX_LOG_LEVEL=DEBUG
-
-ray start --head --port=6379 --node-ip-address=<NVIDIA_NODE_IP> --num-gpus=8
-```
-
-On the MUSA node (worker):
+On the MUSA node (head, handles rollout):
 
 ```bash
 export RAY_EXPERIMENTAL_NOSET_MUSA_VISIBLE_DEVICES=1
@@ -724,17 +714,26 @@ export MCCL_IB_HCA=mlx5_bond_0
 export FLAGCX_PATH=/workspace/FlagCX
 export USE_FLAGCX=1
 export FLAGCX_IB_HCA=mlx5
-export RAY_ADDRESS="auto"   # join existing cluster, do NOT start a new head
 
 # Install RDMA dependencies if not present
 apt install -y rdma-core libibverbs1 libibverbs-dev ibverbs-utils
 
-ray start --address='<NVIDIA_NODE_IP>:6379' --node-ip-address=<MUSA_NODE_IP> --num-gpus=8
+ray start --head --port=6379 --node-ip-address=<MUSA_NODE_IP> --num-gpus=8
+```
+
+On the NVIDIA node (worker, handles actor/critic):
+
+```bash
+export FLAGCX_PATH=/workspace/FlagCX
+export USE_FLAGCX=1
+export FLAGCX_LOG_LEVEL=DEBUG
+
+ray start --address='<MUSA_NODE_IP>:6379' --node-ip-address=<NVIDIA_NODE_IP> --num-gpus=8
 ```
 
 #### Step 2 — Launch heterogeneous GRPO training
 
-Run on the NVIDIA (head) node:
+Run on the NVIDIA (worker) node:
 
 ```bash
 TORCH_COMPILE_DISABLE=1 RAY_DEDUP_LOGS=0 HYDRA_FULL_ERROR=1 \
