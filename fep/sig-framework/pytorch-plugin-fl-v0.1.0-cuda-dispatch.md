@@ -63,7 +63,7 @@ The v0.1.0 implementation covers two hardware platforms:
 | Platform | Hardware | SDK/Toolkit | Kernel Type |
 |----------|----------|-------------|-------------|
 | CUDA | NVIDIA A800-SXM4-80GB | CUDA 12.8, Driver 535.x | `.cu` native kernels |
-| Ascend | Huawei Atlas 910B | CANN 8.5.0 | ACL NN API (`.cc`) |
+| Ascend | Huawei Atlas 910B | CANN 25.0.rc1.3 | ACL NN API (`.cc`) |
 
 ---
 
@@ -243,7 +243,7 @@ torch_fl                 0.1.0 (editable)
 | Docker Container | `torch_fl` |
 | Docker Image | `harbor.baai.ac.cn/flagrelease-public/flagrelease-ascend-release-model_qwen3.5-35b-a3b-tree_none-gems_4.2.1rc0-scale_none-cx_none-python_3.11.14-torch_npu2.8.0.post2-pcp_cann8.5.0-gpu_ascend001-arc_arm64-driver_25.2.3:202603211926` |
 | NPU | Huawei Atlas 910B |
-| CANN Toolkit | 8.5.0 (from image tag) |
+| CANN Toolkit | 25.0.rc1.3 |
 | Conda Env | `torchfl` (Python 3.11.15) |
 
 **Key Dependencies:**
@@ -280,11 +280,17 @@ ACCELERATOR=cuda \
 
 #### Ascend Platform
 
+> **Note:** On domestic accelerator platforms (e.g., Ascend), the vendor-provided PyTorch (torch_npu-bundled torch) must be uninstalled first, then install the official PyTorch 2.11.0 CPU version. This ensures PyTorch-Plugin-FL registers its own backend dispatch without conflicting with vendor-patched torch internals.
+
 ```bash
 # Enter environment
 ssh 10.1.15.165
 docker exec -it torch_fl zsh
 source /root/miniconda3/etc/profile.d/conda.sh && conda activate torchfl
+
+# Uninstall vendor-provided torch and install official CPU version
+pip uninstall -y torch torch_npu
+pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
 
 # Build and install
 cd /nfs/hcr/repos/PyTorch-Plugin-FL
