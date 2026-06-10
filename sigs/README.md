@@ -33,6 +33,8 @@ The following areas have been identified as important but no Chair candidate has
 | sig-tools | [_planned/sig-tools.md](_planned/sig-tools.md) | FlagRelease has external contributors |
 | sig-edge | [_planned/sig-edge.md](_planned/sig-edge.md) | Clear contributors and users emerge on the edge side |
 | sig-architecture | [_planned/sig-architecture.md](_planned/sig-architecture.md) | Held by TSC members concurrently; no standalone SIG for now |
+| sig-os | [_planned/sig-os.md](_planned/sig-os.md) | Wave 1 unified packaging (FEP-19) lands and a Chair candidate emerges |
+| sig-riscv | [_planned/sig-riscv.md](_planned/sig-riscv.md) | `riscv64` build experiments (FEP-34) land and a Chair candidate emerges |
 
 ## SIG Creation Process
 

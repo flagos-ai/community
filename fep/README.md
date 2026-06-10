@@ -37,6 +37,8 @@ The following areas have been identified but lack Approvers; FEPs are reviewed d
 | `sig-tools` | Planned SIG | FlagRelease |
 | `sig-edge` | Planned SIG | Edge hardware |
 | `sig-architecture` | Planned SIG | Cross-module features, process changes |
+| `sig-os` | Planned SIG | OS-level packaging, distribution integration (openKylin, openEuler) |
+| `sig-riscv` | Planned SIG | Experimental RISC-V support — compile adaptation, dependency analysis |
 | `wg-embodied` | Incubating WG | FlagOS-Robo |
 | `wg-ai4s` | Incubating WG | FlagQuantum |
 
