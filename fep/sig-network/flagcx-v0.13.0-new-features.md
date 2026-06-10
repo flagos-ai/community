@@ -181,14 +181,14 @@ Where `<backend>` is one of: `USE_NVIDIA`, `USE_ASCEND`, `USE_ILUVATAR_COREX`, `
 ### P2P Engine Tests
 
 ```bash
-cd test/unittest/p2p
-make
+cd test/perf/host_api
+make USE_NVIDIA=1
 cd build/bin
 ```
 
 | Test | Command | Description |
 |---|---|---|
-| Unit test: P2P engine | `mpirun --allow-run-as-root -np 2 ./p2p_unit_tests` | Verifies P2P engine correctness: one-sided read, RPC, adaptor, batch, and slice task |
+| Perf test: P2P Engine (read/write) | `mpirun --allow-run-as-root -np 2 ./perf_p2p_engine -b 4K -e 64M -f 2 -n 10` | One-sided RDMA GET/PUT bandwidth benchmark via P2P Engine RPC control-plane. Set `FLAGCX_P2P_PERF_OP=read\|write\|both` to select operation. |
 
 ### Device API CustomAllReduce Tests
 
