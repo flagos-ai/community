@@ -43,19 +43,19 @@ The project needs a common FEP-backed process so that adding or merging packages
 
 Create a unified package integration track for FlagOS repositories. Each repository that enters the track adds packaging metadata, repeatable build commands, CI jobs, artifact upload, and a minimal package validation suite. Package readiness is reviewed through this FEP and tracked by repository-specific PRs.
 
-The home SIG for this cross-cutting process is `sig-os`. Repository-specific SIGs remain responsible for reviewing package behavior and compatibility for their modules — only SIGs that own packaged repositories appear below; SIGs without packaged deliverables (for example `sig-agent`, `sig-tools`, `sig-edge`) are intentionally omitted:
+The home SIG for this cross-cutting process is `sig-os`, proposed as a Planned SIG in [community#35](https://github.com/flagos-ai/community/pull/35); until it activates, this FEP is reviewed directly by the TSC per the bootstrap note in [fep/README.md](../README.md). Repository-owning SIGs and WGs remain responsible for reviewing package behavior and compatibility for their modules — only groups that own packaged repositories appear below; groups without packaged deliverables (for example `sig-agent`, `sig-tools`, `sig-edge`) are intentionally omitted:
 
-| SIG | Repositories |
-|-----|--------------|
+| SIG / WG | Repositories |
+|----------|--------------|
 | `sig-operator` | FlagGems, FlagAttention, FlagBLAS, FlagDNN, FlagFFT, FlagSparse, FlagTensor, FlagAudio |
 | `sig-compiler` | FlagTree and related compiler/runtime repositories |
 | `sig-network` | FlagCX |
 | `sig-framework` | PyTorch-Plugin-FL, vllm-plugin-FL, sglang-plugin-FL, TransformerEngine-FL, Megatron-LM-FL, verl-FL |
 | `sig-training` | FlagScale |
 | `sig-kernelgen` | KernelGen |
-| `sig-ai4s` | FlagQuantum |
+| `wg-ai4s` | FlagQuantum |
 | `sig-benchmark` | FlagPerf |
-| `sig-embodied` | FlagOS-Robo |
+| `wg-embodied` | FlagOS-Robo |
 
 The integration is staged. Wave 1 is anchored by the repositories that already have open packaging PRs (see [Related PRs](#related-prs)); later waves cover repositories that still need build-system cleanup or have no user-facing install target yet.
 
@@ -272,3 +272,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 - 2026-05-26: Revised against the eleven open Wave 1 packaging PRs. Added RPM as a baseline format alongside Debian, replaced the proposed `./packaging/build.sh` interface with the actual `packaging/{debian,rpm}/build-helpers/build-<slug>.sh` layout, defined the verified platform matrix (Ubuntu 24.04, Fedora 43), specified FlagOS Nexus as the publish target, added versioning and ownership-record (`MANIFEST.yaml`) rules, listed canonical backend suffixes, populated concrete Wave assignments and PR links, and corrected the Python smoke test to use `importlib.util.find_spec`.
 - 2026-05-27: Clarified that a `pip`-installable PyPI wheel is a first-class channel for Python projects (aligned Summary, Publishing, and the artifact check). Scoped non-baseline distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler) to the FlagOS SIG within each distribution's own community or a downstream packager. Removed `vllm-FL`/`sglang-FL`, which do not exist, from the SIG and Wave tables. Documented the `python3-` naming derivation (import name with underscores converted to hyphens). Re-homed the FEP from `sig-architecture` to `sig-os`, since OS-level packaging and distribution integration is sig-os's core scope.
 - 2026-06-05: Assigned `FEP-19` and renamed the file. Split SIG registration to governance PR [#35](https://github.com/flagos-ai/community/pull/35); this PR now contains only the FEP document. Trimmed the Summary's repository list to Wave 1; noted that only SIGs owning packaged repositories appear in the SIG / repository table; cited FlagCX (`ADAPTOR_MAP`) and FlagTree (`third_party/`) as the source of the canonical backend suffix list with the normalization rule; linked `release manager` to `fep/README.md#roles`; clarified that the FlagOS vendor-SDK base-image registry only applies to vendor-SDK builds, not pure-Python or generic-native builds. Removed `aipu` from the backend list — no implementation found in FlagCX, FlagTree, or build-infra. FlagCX's `du` adaptor is intentionally NOT added pending clarification of its origin.
+- 2026-06-10: Aligned with the community governance restructure: `sig-os` is now proposed as a Planned SIG (charter draft in [#35](https://github.com/flagos-ai/community/pull/35)) and this FEP is TSC-reviewed until activation; renamed `sig-ai4s` → `wg-ai4s` and `sig-embodied` → `wg-embodied` in the SIG / repository table per the new Active SIG / Planned SIG / Incubating WG model.
