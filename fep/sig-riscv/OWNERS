@@ -1,9 +1,0 @@
-# OWNERS — sig-riscv
-#
-# RISC-V 架构支持(实验性) — 编译适配、依赖分析
-
-reviewers:
-  - shiptux
-
-approvers:
-  - shiptux
