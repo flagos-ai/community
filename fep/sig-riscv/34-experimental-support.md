@@ -42,7 +42,7 @@ RISC-V is becoming a viable target for AI system software, with chip vendors suc
 
 ## Proposal
 
-Stand up an experimental RISC-V track owned by `sig-riscv`, executing two phases that may run in parallel:
+Stand up an experimental RISC-V track owned by `sig-riscv` — proposed as a Planned SIG in [community#35](https://github.com/flagos-ai/community/pull/35); until it activates, this FEP is reviewed directly by the TSC per the bootstrap note in [fep/README.md](../README.md) — executing two phases that may run in parallel:
 
 1. **Compile adaptation.** For each FlagOS repository in scope, attempt a `riscv64` build and submit the adaptation back to the originating repository — either a working build helper + CI matrix entry, or a documented "not yet supported" status (README note, an `ARCH_SUPPORT`-style file, or a CI skip).
 2. **Dependency analysis.** Identify deps that are unavailable, broken, or unnecessary on `riscv64`, and land trimming / relaxation PRs in the originating repositories.
@@ -128,3 +128,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 ## Implementation History
 
 - 2026-06-05: Initial draft for the experimental RISC-V architecture-level track. SIG registration lives in [flagos-ai/community#35](https://github.com/flagos-ai/community/pull/35); this PR contains only the FEP document. Scope is intentionally narrow — compile adaptation + dependency analysis; distribution-level packaging, the supported distribution matrix, and publishing channels belong to `sig-os` ([#19](https://github.com/flagos-ai/community/pull/19)). Deliverables land as merged PRs in originating Flag* repositories rather than standalone PDF reports. Assigned `FEP-34` and renamed the file. Adopted the SpacemiT brand notation consistently. Smoke test scope updated to apply to any module whose build succeeds (fully or partially). Implementation tracking explicitly calls out the initial 4-module priority within Wave 1; relative links to the OS FEP updated for its `19-` prefix.
+- 2026-06-10: Aligned with the community governance restructure: `sig-riscv` is now proposed as a Planned SIG (charter draft in [#35](https://github.com/flagos-ai/community/pull/35)) and this FEP is TSC-reviewed until activation.
