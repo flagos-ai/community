@@ -188,11 +188,8 @@ cd build/bin
 
 | Test | Command | Description |
 |---|---|---|
-| Unit test: P2P read engine | `mpirun --allow-run-as-root -np 2 ./test_p2p_engine_read` | Verifies one-sided RDMA read between two ranks |
-| Perf test: PUT | `mpirun --allow-run-as-root -np 2 ./test_put -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided PUT |
-| Perf test: GET | `mpirun --allow-run-as-root -np 2 ./test_get -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided GET |
-| Perf test: IPC sendrecv | `mpirun --allow-run-as-root -np 2 ./test_ipc_sendrecv` | Intra-node IPC-based send/recv |
-| KV transfer benchmark | `python test/perf/kv_transfer/kv_transfer_benchmark.py --connector=flagcx --role=server` | End-to-end KV cache transfer benchmark |
+| Perf test: PUT | `mpirun --allow-run-as-root -np 2 ./perf_put -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided PUT |
+| Perf test: GET | `mpirun --allow-run-as-root -np 2 ./perf_get -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided GET |
 
 ### Device API CustomAllReduce Tests
 
@@ -207,9 +204,7 @@ cd build/bin
 
 | Test | Command | Description |
 |---|---|---|
-| Unit test: AllReduce correctness | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./test_runner --gtest_filter=DeviceApiTest.IntraAllReduceViaDevicePtr` | Each rank fills buffer with (rank+1), verifies sum = N*(N+1)/2 |
-| Perf test: AllReduce bandwidth | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./perf_allreduce_intranode -b 1M -e 64M -f 2 -R 1` | Sweeps message sizes, reports algBW/busBW, verifies correctness |
-| Intra-node kernel test | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./test_intranode -b 1M -e 4M -f 2 -R 2` | Full intra-node AllReduce kernel test |
+| Perf test: AllReduce intranode | `mpirun --allow-run-as-root -np 8 -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./perf_allreduce_intranode -b 1M -e 64M -f 2 -R 1` | Sweeps message sizes, reports algBW/busBW, verifies AllReduce correctness |
 
 ### Device API IR Bindings Tests
 
