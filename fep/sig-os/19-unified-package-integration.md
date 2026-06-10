@@ -1,4 +1,4 @@
-# FEP-NNNN: Unified Package Integration for FlagOS Repositories
+# FEP-19: Unified Package Integration for FlagOS Repositories
 
 **Status:** `Provisional`
 
@@ -14,7 +14,7 @@
 
 ## Summary
 
-This FEP proposes a unified package integration process for FlagOS repositories, covering build metadata, package naming, CI artifacts, release publishing, and acceptance checks across the FlagOS project family. The baseline deliverable for each repository is a pair of distribution packages — a Debian `.deb` and an RPM `.rpm` — published to the shared FlagOS Nexus repository; Python projects additionally ship a `pip`-installable wheel on PyPI as a first-class channel, and container images are reserved for builds that need a vendor SDK. The initial scope includes the public FlagOS repositories under https://github.com/flagos-ai, including FlagGems, FlagTree, FlagScale, FlagCX, FlagPerf, FlagAttention, KernelGen, FlagBLAS, FlagDNN, FlagFFT, FlagSparse, FlagTensor, FlagAudio, FlagQuantum, FlagOS-Robo, and the `*-FL` framework/plugin repositories (the `-FL` suffix marks FlagOS-maintained forks of upstream frameworks and their plugins).
+This FEP proposes a unified package integration process for FlagOS repositories, covering build metadata, package naming, CI artifacts, release publishing, and acceptance checks across the FlagOS project family. The baseline deliverable for each repository is a pair of distribution packages — a Debian `.deb` and an RPM `.rpm` — published to the shared FlagOS Nexus repository; Python projects additionally ship a `pip`-installable wheel on PyPI as a first-class channel, and container images are reserved for builds that need a vendor SDK. The initial scope (Wave 1) is the eleven FlagOS repositories with active packaging PRs: FlagCX, FlagTree, FlagGems, FlagScale, FlagQuantum, FlagTensor, FlagAudio, FlagBLAS, FlagDNN, FlagAttention, FlagSparse. Later waves are tracked in [Related PRs](#related-prs).
 
 ## Motivation
 
@@ -43,7 +43,7 @@ The project needs a common FEP-backed process so that adding or merging packages
 
 Create a unified package integration track for FlagOS repositories. Each repository that enters the track adds packaging metadata, repeatable build commands, CI jobs, artifact upload, and a minimal package validation suite. Package readiness is reviewed through this FEP and tracked by repository-specific PRs.
 
-The home SIG for this cross-cutting process is `sig-os`. Repository-specific SIGs remain responsible for reviewing package behavior and compatibility for their modules:
+The home SIG for this cross-cutting process is `sig-os`. Repository-specific SIGs remain responsible for reviewing package behavior and compatibility for their modules — only SIGs that own packaged repositories appear below; SIGs without packaged deliverables (for example `sig-agent`, `sig-tools`, `sig-edge`) are intentionally omitted:
 
 | SIG | Repositories |
 |-----|--------------|
@@ -97,7 +97,7 @@ Each integrated repository should provide:
 
 - Package versions derive from the repository's own release version (git tag `vX.Y.Z`), not from an independent packaging counter; the upstream version maps directly to the Debian/RPM upstream-version field (for example tag `v5.0.2` produces `python3-flag-gems_5.0.2-1`).
 - The trailing Debian revision / RPM release number (`-1`) is reserved for packaging-only changes that do not change upstream source.
-- Each repository declares which of its versions map to a given FlagOS release matrix in its `MANIFEST.yaml` or release checklist; cross-repository version alignment is owned by the release manager, not encoded per package.
+- Each repository declares which of its versions map to a given FlagOS release matrix in its `MANIFEST.yaml` or release checklist; cross-repository version alignment is owned by the [release manager](../README.md#roles), not encoded per package.
 
 Package names should be predictable:
 
@@ -108,6 +108,8 @@ Package names should be predictable:
 - Plugin packages include the host framework in the name when needed to avoid ambiguity.
 
 The canonical backend suffixes are: `nvidia`, `metax`, `ascend`, `rocm` (AMD), `cambricon`, `iluvatar`, `kunlunxin`, `mthreads`, `enflame`, `hygon`, `aipu`, `sunrise`, `tsingmicro`. Repositories reuse these suffixes rather than inventing new ones; new backends extend this list through this FEP.
+
+The list is normalized from the backend identifiers already used in FlagCX (`plugin/torch/_build_config.py` `ADAPTOR_MAP`) and FlagTree (`third_party/` backend directories), rewritten to vendor-marketed names so that package names stay readable: `klx` → `kunlunxin`, `tsm` → `tsingmicro`, `hcu` → `hygon`, `musa` → `mthreads`, `amd` → `rocm`, `iluvatar_corex` → `iluvatar`, `xpu` → `kunlunxin`.
 
 Two backend-handling patterns are both acceptable:
 
@@ -156,7 +158,7 @@ bash packaging/debian/build-helpers/build-flagcx.sh nvidia        # -> debian-pa
 bash packaging/debian/build-helpers/build-flagcx.sh metax v1.2.3
 ```
 
-Backend builds that need a vendor SDK pull a prebuilt base image from the FlagOS registry rather than installing the SDK in CI, by convention `harbor.baai.ac.cn/flagbase/flagbase-<backend>:<version>`.
+Backend builds that need a vendor SDK pull a prebuilt base image from the FlagOS registry rather than installing the SDK in CI, by convention `harbor.baai.ac.cn/flagbase/flagbase-<backend>:<version>`. Repositories whose build needs no vendor SDK (pure-Python projects, generic native libraries) use a standard Ubuntu / Fedora image declared in their own Dockerfile and do not consult this registry.
 
 ### Package formats
 
@@ -234,11 +236,11 @@ The FEP should only move to `Implemented` after all Wave 1 repositories have mer
 
 ## Related PRs
 
-This list is a snapshot; the authoritative tracking lives in the FEP tracking issue. The FEP still needs an assigned number (`FEP-NNNN`): the PR number becomes the identifier, and the file is renamed to `NNNN-unified-package-integration.md` before merge.
+This list is a snapshot; the authoritative tracking lives in the FEP tracking issue.
 
 **Wave 1 (open PRs):**
 
-- [ ] flagos-ai/community#NNNN - this FEP
+- [ ] [flagos-ai/community#19](https://github.com/flagos-ai/community/pull/19) - this FEP
 - [ ] [flagos-ai/FlagCX#476](https://github.com/flagos-ai/FlagCX/pull/476) - deb/rpm for backend-specific `libflagcx-{nvidia,metax}` runtime and dev files
 - [ ] [flagos-ai/FlagTree#607](https://github.com/flagos-ai/FlagTree/pull/607) - deb/rpm wrapping `python3-flagtree-nvidia` wheel
 - [ ] [flagos-ai/FlagGems#3418](https://github.com/flagos-ai/FlagGems/pull/3418) - `python3-flag-gems` (multi-backend, runtime selection)
@@ -269,3 +271,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 - 2026-05-25: Initial draft prepared for discussion.
 - 2026-05-26: Revised against the eleven open Wave 1 packaging PRs. Added RPM as a baseline format alongside Debian, replaced the proposed `./packaging/build.sh` interface with the actual `packaging/{debian,rpm}/build-helpers/build-<slug>.sh` layout, defined the verified platform matrix (Ubuntu 24.04, Fedora 43), specified FlagOS Nexus as the publish target, added versioning and ownership-record (`MANIFEST.yaml`) rules, listed canonical backend suffixes, populated concrete Wave assignments and PR links, and corrected the Python smoke test to use `importlib.util.find_spec`.
 - 2026-05-27: Clarified that a `pip`-installable PyPI wheel is a first-class channel for Python projects (aligned Summary, Publishing, and the artifact check). Scoped non-baseline distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler) to the FlagOS SIG within each distribution's own community or a downstream packager. Removed `vllm-FL`/`sglang-FL`, which do not exist, from the SIG and Wave tables. Documented the `python3-` naming derivation (import name with underscores converted to hyphens). Re-homed the FEP from `sig-architecture` to `sig-os`, since OS-level packaging and distribution integration is sig-os's core scope.
+- 2026-06-05: Assigned `FEP-19` and renamed the file. Split SIG registration to governance PR [#35](https://github.com/flagos-ai/community/pull/35); this PR now contains only the FEP document. Trimmed the Summary's repository list to Wave 1; noted that only SIGs owning packaged repositories appear in the SIG / repository table; cited FlagCX (`ADAPTOR_MAP`) and FlagTree (`third_party/`) as the source of the canonical backend suffix list with the normalization rule; linked `release manager` to `fep/README.md#roles`; clarified that the FlagOS vendor-SDK base-image registry only applies to vendor-SDK builds, not pure-Python or generic-native builds.
