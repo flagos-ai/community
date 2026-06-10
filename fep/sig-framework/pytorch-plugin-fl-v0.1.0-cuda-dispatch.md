@@ -226,7 +226,7 @@ tests/integration/
 ```
 torch                    2.11.0+cu128
 triton                   3.6.0
-flag_gems                5.0.2
+flag_gems                5.0.2 (with C extensions, flag DFLAGGEMS_BUILD_C_EXTENSIONS)
 transformers             5.5.0
 pytest                   9.0.2
 cmake                    4.3.2
