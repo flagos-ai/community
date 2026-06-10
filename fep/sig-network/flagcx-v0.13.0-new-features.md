@@ -198,7 +198,7 @@ cd build/bin
 
 ```bash
 # FlagCX must be built with COMPILE_KERNEL=1 (from project root)
-make USE_NVIDIA=1 COMPILE_KERNEL=1 -j$(nproc)
+make USE_NVIDIA=1 COMPILE_KERNEL=1 FORCE_DEFAULT_PATH=1 -j$(nproc)
 
 cd test/perf/device_api
 make USE_NVIDIA=1
@@ -210,6 +210,21 @@ cd build/bin
 | Unit test: AllReduce correctness | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./test_runner --gtest_filter=DeviceApiTest.IntraAllReduceViaDevicePtr` | Each rank fills buffer with (rank+1), verifies sum = N*(N+1)/2 |
 | Perf test: AllReduce bandwidth | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./perf_allreduce_intranode -b 1M -e 64M -f 2 -R 1` | Sweeps message sizes, reports algBW/busBW, verifies correctness |
 | Intra-node kernel test | `mpirun --allow-run-as-root -np N -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./test_intranode -b 1M -e 4M -f 2 -R 2` | Full intra-node AllReduce kernel test |
+
+### Device API IR Bindings Tests
+
+```bash
+# FlagCX must be built with COMPILE_KERNEL=1 (from project root)
+make USE_NVIDIA=1 COMPILE_KERNEL=1 FORCE_DEFAULT_PATH=1 -j$(nproc)
+
+cd test/unittest/device_api
+make USE_NVIDIA=1 FORCE_DEFAULT_PATH=1 -j$(nproc)
+cd build/bin
+```
+
+| Test | Command | Description |
+|---|---|---|
+| IR bindings correctness | `mpirun --allow-run-as-root -np 8 -x FLAGCX_USE_HETERO_COMM=1 -x FLAGCX_MEM_ENABLE=1 -x FLAGCX_VMM_ENABLE=0 -x FLAGCX_P2P_DISABLE=1 ./test_device_ir -b 1M -e 4M -f 2 -R 2` | Tests 8 kernel categories covering 69 IR wrapper functions (comm queries, cooperative group, team queries, local/intra pointers, barriers) |
 
 ---
 
