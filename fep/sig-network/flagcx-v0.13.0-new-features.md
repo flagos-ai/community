@@ -181,15 +181,14 @@ Where `<backend>` is one of: `USE_NVIDIA`, `USE_ASCEND`, `USE_ILUVATAR_COREX`, `
 ### P2P Engine Tests
 
 ```bash
-cd test/perf/host_api
-make USE_NVIDIA=1
+cd test/unittest/p2p
+make
 cd build/bin
 ```
 
 | Test | Command | Description |
 |---|---|---|
-| Perf test: PUT | `mpirun --allow-run-as-root -np 2 ./perf_put -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided PUT |
-| Perf test: GET | `mpirun --allow-run-as-root -np 2 ./perf_get -b 1024 -e 67108864 -f 2` | Bandwidth benchmark for one-sided GET |
+| Unit test: P2P engine | `mpirun --allow-run-as-root -np 2 ./p2p_unit_tests` | Verifies P2P engine correctness: one-sided read, RPC, adaptor, batch, and slice task |
 
 ### Device API CustomAllReduce Tests
 
