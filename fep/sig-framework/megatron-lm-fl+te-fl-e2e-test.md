@@ -12,7 +12,7 @@ git checkout xxx
 git clone https://github.com/flagos-ai/Megatron-LM-FL.git
 git cehckout xxx
 cd Megatron-LM
-pip install . --no-build-isolation
+pip install . --no-build-isolation --root-user-action=ignore
 ```
 
 3. Prepare transformerengine-fl 
@@ -21,7 +21,9 @@ git clone https://github.com/flagos-ai/TransformerEngine-FL.git
 git checkout xxx
 cd TransformerEngine-FL
 git submodule update --init --recursive
-MAX_JOBS=64 pip install -v . --no-build-isolation
+MAX_JOBS=64 pip install -v . --no-build-isolation --root-user-action=ignore
+# in metax env(image: harbor.baai.ac.cn/flagscale/megatron-lm-with-te:202603231839):
+TE_FL_SKIP_CUDA=1 MAX_JOBS=64 pip install -v . --no-build-isolation --root-user-action=ignore
 ```
 
 4. Prepare dataset/tokenizer/...
@@ -95,4 +97,3 @@ python run.py \
 - need 4 GPUs
 - NOTE Optional in cmd
 - log path: ./logs/host_0_localhost.output
-
