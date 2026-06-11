@@ -158,55 +158,11 @@ pip install --no-build-isolation .
 |--------|-------------|-----------------|
 | All features | `python transformer_engine/plugin/tests/run_all_tests.py` | All tests pass |
 
-### Performance Verification
-
-End-to-end training throughput validated via FlagScale. Performance regression threshold: throughput should not degrade more than 5% compared to baseline.
-
-**Qwen3-32B, 16 layers, 20 iters, 1 node x 8 GPUs**
-
-| Config | Status | Avg Throughput (tokens/s/gpu) | Note |
-|--------|--------|-------------------------------|------|
-| vendor-flash | PASS | 124.33 | |
-| vendor-fused | PASS | 121.95 | |
-| vendor-unfused | PASS | 108.35 | |
-| flagos-flash | PASS | 94.20 | |
-| flagos-fused | N/A | — | Known limitation: no fused attention backend for flagos (see Non-Goals) |
-| flagos-unfused | PASS | 65.01 | |
-| reference-flash | PASS | 93.14 | |
-| reference-fused | N/A | — | Known limitation: no fused attention backend for reference (see Non-Goals) |
-| reference-unfused | PASS | 66.89 | |
-
-**DeepSeek-V3 16BA3B, 18 layers with 1 MTP layer, 20 iters, 1 node x 8 GPUs (no flash-attn or fused-attn support for multi-latent attention)**
-
-| Config | Status | Avg Throughput (tokens/s/gpu) | Note |
-|--------|--------|-------------------------------|------|
-| vendor-unfused | PASS | 47.00 | |
-| flagos-unfused | PASS | 18.57 | |
-| reference-unfused | PASS | 20.68 | |
-
-### Compatibility Verification
-
-| Platform / Chip | Verification Scope | Status | Owner |
-|-----------------|-------------------|--------|-------|
-| CUDA (NVIDIA GPU) | Full unit tests + integration tests + FlagScale E2E | Verified | @zhaoyinglia |
-| MetaX MACA (C500) | Unit tests + integration tests (FlagCICD) | Verified | @zhaoyinglia |
-| KunlunXin | Flash attention operator functional verification | Pending hardware access | KunlunXin vendor team |
-| ENFLAME | Flash attention operator functional verification | Pending hardware access | ENFLAME vendor team |
-
 ### Existing CI Validation
 
 ```bash
-# Full test suite (CUDA platform)
-python -m pytest tests/pytorch/ -v
-
-# MetaX platform tests (via FlagCICD runner)
-# Trigger .github/workflows/all_tests_metax.yml
-
 # Plugin tests
 python -m pytest transformer_engine/plugin/tests/ -v
-
-# Lint check
-bash qa/format.sh
 ```
 
 ## Related PRs

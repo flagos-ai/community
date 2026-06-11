@@ -161,44 +161,33 @@ pip install -e .
 - **Test commands**:
   ```bash
   # Unit tests for CSA attention variant
-  torchrun --nproc_per_node=2 -m pytest tests/unit_tests/transformer/experimental_attention_variant/test_attention_variant_csa.py -v
+  torchrun --nproc_per_node=8 -m pytest tests/unit_tests/transformer/experimental_attention_variant/test_attention_variant_csa.py -v
 
   # Unit tests for DSV4 hybrid attention
-  torchrun --nproc_per_node=2 -m pytest tests/unit_tests/transformer/experimental_attention_variant/test_dsv4_hybrid_attention.py -v
+  torchrun --nproc_per_node=8 -m pytest tests/unit_tests/transformer/experimental_attention_variant/test_dsv4_hybrid_attention.py -v
 
   # Unit tests for MTP
-  torchrun --nproc_per_node=2 -m pytest tests/unit_tests/transformer/test_multi_token_prediction.py -v
+  torchrun --nproc_per_node=8 -m pytest tests/unit_tests/transformer/test_multi_token_prediction.py -v -k "not TestMultiTokenPredictionMamba"
 
   # Unit tests for MoE routers (hash router)
-  torchrun --nproc_per_node=2 -m pytest tests/unit_tests/transformer/moe/test_routers.py -v
+  torchrun --nproc_per_node=8 -m pytest tests/unit_tests/transformer/moe/test_routers.py -v
 
   # Unit tests for fused kernels
-  torchrun --nproc_per_node=2 -m pytest tests/unit_tests/fusions/test_mla_yarn_rope_apply.py -v
-  torchrun --nproc_per_node=2 -m pytest tests/unit_tests/fusions/test_swiglu_fusion.py -v
+  torchrun --nproc_per_node=8 -m pytest tests/unit_tests/fusions/test_mla_yarn_rope_apply.py -v
+  torchrun --nproc_per_node=8 -m pytest tests/unit_tests/fusions/test_swiglu_fusion.py -v
   ```
 - **Expected results**: All tests pass with exit code 0.
 
-#### NPU Platform
+#### NPU Platform/TXDA Platform (Tsingmicro)/...
 
 - **Modules**: `megatron/plugin/platform/platform_npu.py`
-- **Test commands**:
-  ```bash
-  # Verify NPU platform registration (on NPU hardware)
-  python -c "from megatron.plugin.platform.platform_manager import PlatformManager; pm = PlatformManager(); print(pm.get_platform())"
-  ```
-- **Expected results**: NPU platform is detected and registered on Ascend hardware.
-- **Compatibility**: Ascend 910B / CANN 8.0+
-
-#### TXDA Platform (Tsingmicro)
-
 - **Modules**: `megatron/plugin/platform/platform_txda.py`
 - **Test commands**:
   ```bash
-  # Verify TXDA platform registration (on Tsingmicro hardware)
-  python -c "from megatron.plugin.platform.platform_manager import PlatformManager; pm = PlatformManager(); print(pm.get_platform())"
+  python -m pytest megatron/plugin/tests/test_platform.py -v
   ```
-- **Expected results**: TXDA platform is detected and registered on Tsingmicro hardware.
-- **Compatibility**: Tsingmicro chips
+- **Expected results**: NPU platform is detected and registered on Ascend hardware.
+- **Compatibility**: Ascend 910B / CANN 8.0+
 
 #### Multi-Vendor Plugin Dispatch
 
@@ -209,30 +198,8 @@ pip install -e .
   ```
 - **Expected results**: All 15+ test cases pass, covering registration, selection, fallback, and case-insensitive matching.
 
-#### CI/CD Benchmark Gate (Qwen3)
-
-- **Modules**: `tests/functional_tests/`
-- **Test commands**:
-  ```bash
-  # Run Qwen3 TP2/PP2 benchmark (on A100 or C550)
-  bash tests/functional_tests/shell_test_utils/run_ci_test.sh \
-    --case qwen3_0p6b_mcore_te_tp2_pp2_benchmark
-  ```
-- **Expected results**: Elapsed time per iteration and throughput per GPU are within the golden value thresholds defined in `golden_values_dev_dgx_a100.json`.
-
-### Performance Verification
-
-- **Qwen3 benchmark**: throughput (TFLOP/s/GPU) and elapsed time (ms/iteration) must stay within upper/lower bounds of A100 golden values.
-- **DeepSeek V4**: no explicit performance regression target for this cycle; functional correctness is the primary goal.
-
-### Compatibility Verification
-
-| Platform | Unit Tests | Functional Tests | Benchmark Gate |
-|----------|-----------|-----------------|----------------|
-| CUDA (A100) | Yes | Yes | Yes (Qwen3) |
-| MetaX (C550) | Yes | Yes (2-GPU subset) | Yes (Qwen3) |
-| TXDA (Tsingmicro) | Planned | Planned | No |
-| NPU (Ascend 910B) | Planned | Planned | No |
+#### E2E benchmark Test
+.megatron-lm-fl+te-fl-e2e-test.md
 
 ### Existing CI Validation
 
