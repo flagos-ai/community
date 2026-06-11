@@ -570,6 +570,7 @@ export NVTE_ALLOW_NONDETERMINISTIC_ALGO=0
 export GLOO_SOCKET_IFNAME=bond0
 export MCCL_SOCKET_IFNAME=bond0
 export MCCL_IB_HCA=mlx5_101,mlx5_102,mlx5_103,mlx5_104,mlx5_105,mlx5_106,mlx5_107,mlx5_108
+export MCCL_PCIE_BUFFER_MODE=0
 
 # FlagCX configuration for MetaX
 export FLAGCX_P2P_LEVEL=SYS
@@ -610,6 +611,7 @@ python3 -m verl.trainer.main_ppo \
     data.filter_overlong_prompts=True \
     data.truncation='error' \
     actor_rollout_ref.model.path=${MODEL_DIR} \
+    actor_rollout_ref.model.use_fused_kernels=False \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.actor.ppo_mini_batch_size=64 \
