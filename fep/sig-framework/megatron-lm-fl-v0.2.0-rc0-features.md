@@ -175,6 +175,9 @@ pip install -e .
   # Unit tests for fused kernels
   torchrun --nproc_per_node=8 -m pytest tests/unit_tests/fusions/test_mla_yarn_rope_apply.py -v
   torchrun --nproc_per_node=8 -m pytest tests/unit_tests/fusions/test_swiglu_fusion.py -v
+
+  # Unit tests for dualpipev
+  torchrun --nproc_per_node=8 -m tests/unit_tests/a2a_overlap/test_schedule_dualpipev.py -v
   ```
 - **Expected results**: All tests pass with exit code 0.
 
