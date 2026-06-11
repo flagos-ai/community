@@ -11,10 +11,7 @@
 #   release-2.1-rc2.yaml    → 管理模块 repo 分支/tag（vcstool 格式）
 #   各模块 pyproject.toml    → 管理 pip 包版本 + pypi index
 #
-# 数据来源：
-#   飞书文档「厂商基础镜像信息汇总」+ FlagGems pyproject.toml
-#   镜像仓库: harbor.baai.ac.cn/flagbase/
-#
+# 镜像仓库: harbor.baai.ac.cn/flagbase/
 # 数据采集日期：2026-06-11
 # =============================================================================
 
@@ -23,16 +20,13 @@ flagos_version = "2.1-rc2"
 last_updated = "2026-06-11"
 
 # =============================================================================
-# 生产级芯片（CI 活跃，有自托管 Runner，基础镜像可用）
+# 生产级芯片
 # =============================================================================
 
 [chips.nvidia]
 sdk_name = "CUDA"
 sdk_version = "13.0"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-nvidia"
-base_image_tag = "latest"
-status = "active"
-# nvidia 不在厂商基础镜像飞书文档中，使用标准 CUDA 环境
 
 [chips.hygon]
 sdk_name = "DTK"
@@ -44,13 +38,7 @@ python_version = "3.10"
 torch_version = "2.9.0+das.opt1.dtk2604"
 triton_version = "3.3.0+das.opt1.dtk2604.torch290"
 flagtree_version = "0.5.0+hcu3.0"
-vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-hygon"
-base_image_tag = "latest"
-base_image_status = "OK"
-dockerfile_status = "OK"
-contact = ""
-status = "active"
 
 [chips.iluvatar]
 sdk_name = "CoreX"
@@ -62,13 +50,7 @@ python_version = "3.10"
 torch_version = "2.7.1+corex.4.4.0"
 triton_version = "3.1.0+corex.4.4.0"
 flagtree_version = "0.5.1+iluvatar3.1"
-vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-iluvatar"
-base_image_tag = "latest"
-base_image_status = "OK"
-dockerfile_status = "OK"
-contact = "彭方来"
-status = "active"
 
 [chips.metax]
 sdk_name = "MACA"
@@ -80,13 +62,7 @@ python_version = "3.12"
 torch_version = "2.8.0+metax3.7.2.0"
 triton_version = "3.0.0+metax3.7.2.0"
 flagtree_version = "3.1.0+metax3.7.2.0"
-vllm_version = "未知"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-metax"
-base_image_tag = "latest"
-base_image_status = "OK"
-dockerfile_status = "OK"
-contact = ""
-status = "active"
 
 [chips.tsingmicro]
 sdk_name = "TXDA SDK"
@@ -98,13 +74,7 @@ python_version = "3.10"
 torch_version = "2.7.1+cpu (torch_txda==0.1.0)"
 triton_version = "3.3.0+git2e9c1195"
 flagtree_version = "0.5.0+tsingmicro3.3"
-vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-tsingmicro"
-base_image_tag = "latest"
-base_image_status = "OK"
-dockerfile_status = "OK"
-contact = "梁维斌"
-status = "active"
 
 [chips.enflame]
 sdk_name = "GCU"
@@ -116,14 +86,7 @@ python_version = "3.12"
 torch_version = "2.10 (+cpu)"
 triton_version = "3.6.0 (deb)"
 flagtree_version = "3.6.0"
-vllm_version = "0.20.x"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-enflame"
-base_image_tag = "TBD"
-base_image_status = "OK"
-dockerfile_status = "OK"
-contact = "刘宝琦"
-status = "active"
-# 注：期望使用 gcu400；主机安装脚本在 sftp 服务器上
 
 [chips.kunlunxin]
 sdk_name = "XPU SDK"
@@ -135,14 +98,7 @@ python_version = "3.10"
 torch_version = "2.5.1+cu118 (torch-klx==0.1.0)"
 triton_version = "3.0.0+0762702f"
 flagtree_version = "0.5.1+xpu3.0"
-vllm_version = "0.13"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-kunlunxin"
-base_image_tag = "latest"
-base_image_status = "OK"
-dockerfile_status = "OK"
-contact = "李三宝"
-status = "active"
-# 注：推理基础镜像已提供，待验证；vLLM 待验证；驱动需升级到 5.10+
 
 [chips.mthreads]
 sdk_name = "MUSA"
@@ -154,14 +110,7 @@ python_version = "3.10"
 torch_version = "2.9.0 (torch_musa=2.9.0)"
 triton_version = "3.6.0+git89458660"
 flagtree_version = "0.5.1+mthreads3.6"
-vllm_version = "0.20.2"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-mthreads"
-base_image_tag = "latest"
-base_image_status = "OK"
-dockerfile_status = "OK"
-contact = "郑德磊"
-status = "active"
-# 注：vLLM 待验证
 
 [chips.thead]
 sdk_name = "T-Head XuanTie"
@@ -172,18 +121,11 @@ driver = "2.0.0"
 python_version = "3.12"
 torch_version = "2.9.0+ppu2.0.0.oe"
 triton_version = "3.5.0+ppu2.0.0oe"
-flagtree_version = "未知"
-vllm_version = "未知"
+flagtree_version = "TBD"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-thead"
-base_image_tag = "latest"
-base_image_status = "none"
-dockerfile_status = "none"
-contact = "龙杰"
-status = "active"
-# 注：基础镜像和 Dockerfile 均不可用；需要阿里准备 API 镜像
 
 # =============================================================================
-# 暂停芯片（CI Runner 不可用，但 pyproject.toml 仍保留包定义）
+# 暂停芯片
 # =============================================================================
 
 [chips.ascend]
@@ -196,42 +138,23 @@ python_version = "3.11"
 torch_version = "2.9.0+cpu (torch_npu==2.9.0)"
 triton_version = "triton_ascend==3.2.0"
 flagtree_version = "0.5.0+ascend3.2"
-vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-ascend"
-base_image_tag = "py311torch2.6"
-base_image_status = "testing"
-dockerfile_status = "testing"
-contact = "钟羽"
-status = "disabled"
-# 注：CI 节点使用天翼云操作系统，不支持 FlagTree
 
 # =============================================================================
-# 规划中芯片（pyproject.toml 有包定义，但 CI 尚未配置）
+# 规划中芯片
 # =============================================================================
 
 [chips.spacemit]
 sdk_name = "SpacemiT SDK"
 sdk_version = "TBD"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-spacemit"
-base_image_tag = "TBD"
-status = "pending"
 
 [chips.sunrise]
 sdk_name = "PTPU SDK"
 sdk_version = "TBD"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-sunrise"
-base_image_tag = "TBD"
-status = "pending"
-
-# =============================================================================
-# build-infra 已构建但尚未集成到 FlagOS 2.1 的芯片
-# =============================================================================
 
 [chips.amd]
 sdk_name = "ROCm"
 sdk_version = "TBD"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-amd"
-base_image_tag = "latest"
-status = "planned"
-# 注：build-infra 有 flagbase-amd:latest，但 FlagGems pyproject.toml
-#     中无 AMD/ROCm optional-dependencies，FEP #19 提到 rocm 为未来方向
