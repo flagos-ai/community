@@ -300,6 +300,10 @@ ACCELERATOR=ascend \
   CUDA_KERNEL=0 ASCEND_KERNEL=1 \
   CMAKE_BUILD_PARALLEL_LEVEL=32 \
   pip install --no-build-isolation -vvv -e .
+
+# Patch triton-ascend to remove torch_npu dependency
+python scripts/patch_triton_ascend.py
+rm -rf ~/.triton/cache/
 ```
 
 ### 3. Test Procedures and Expected Output
