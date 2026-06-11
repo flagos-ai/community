@@ -174,6 +174,14 @@ Where `<backend>` is one of: `USE_NVIDIA`, `USE_ASCEND`, `USE_ILUVATAR_COREX`, `
 - CUDA toolkit (for NVIDIA backend)
 - NCCL >= 2.25 (for Device API vendor path; >= 2.28 for window mode)
 
+### Multi-Platform Support
+
+| Feature | Platform Support | Current Test Status |
+|---|---|---|
+| P2P Engine | All supported backends (no vendor-specific adaptation required) | Tested on NVIDIA only during development |
+| Device API CustomAllReduce | NVIDIA only | Other vendors need to add compilation pipeline and kernel implementation |
+| Device API IR Bindings | NVIDIA only | Other vendors need to add compilation pipeline and kernel implementation |
+
 ---
 
 ## Test Plan
