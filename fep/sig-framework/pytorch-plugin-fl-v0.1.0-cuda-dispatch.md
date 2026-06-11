@@ -249,7 +249,7 @@ torch_fl                 0.1.0 (editable)
 **Key Dependencies:**
 ```
 torch                    2.11.0+cpu (host build, NPU via ACL)
-flag_gems                5.0.2
+flag_gems                5.0.2 (from Hchnr/FlagGems torch_fl branch, built with FLAGGEMS_BACKEND=FLAGOS)
 transformers             5.7.0
 pytest                   9.0.3
 setuptools               70.2.0
