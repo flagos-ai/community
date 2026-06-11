@@ -5,34 +5,25 @@
 # 管理范围：
 #   1. chip_sdk — 各厂商 SDK 名称与版本
 #   2. base_image — Harbor 统一基础镜像
+#   3. 芯片基础环境 — OS, 驱动, Python, Torch, Triton, FlagTree
 #
 # 互补文件：
 #   release-2.1-rc2.yaml    → 管理模块 repo 分支/tag（vcstool 格式）
 #   各模块 pyproject.toml    → 管理 pip 包版本 + pypi index
 #
-# 设计原则：
-#   只管理 pyproject.toml 之外的依赖，避免数据双写导致漂移。
-#   pip 包版本由各模块自行声明，pypi index 由 FlagGems pyproject.toml
-#   中的 [[tool.uv.index]] 统一管理，此处不重复。
-#
-# SDK 版本来源：
-#   从 FlagGems pyproject.toml 各芯片 optional-dependencies 的
-#   pip 包后缀（如 +cu128、+ascend3.2）提取，反映 FlagOS 2.1
-#   当前实际编译/测试使用的 SDK 版本。
-#
-# 基础镜像来源：
-#   build-infra 仓库 vendor_json/ + .github/workflows/scheduled.yml
+# 数据来源：
+#   飞书文档「厂商基础镜像信息汇总」+ FlagGems pyproject.toml
 #   镜像仓库: harbor.baai.ac.cn/flagbase/
 #
-# 数据采集日期：2026-05-28
+# 数据采集日期：2026-06-11
 # =============================================================================
 
 [meta]
 flagos_version = "2.1-rc2"
-last_updated = "2026-06-01"
+last_updated = "2026-06-11"
 
 # =============================================================================
-# 生产级芯片（CI 活跃，有自托管 Runner）
+# 生产级芯片（CI 活跃，有自托管 Runner，基础镜像可用）
 # =============================================================================
 
 [chips.nvidia]
@@ -40,43 +31,156 @@ sdk_name = "CUDA"
 sdk_version = "13.0"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-nvidia"
 base_image_tag = "latest"
-# alt_tag = "py312torch2.8"
 status = "active"
+# nvidia 不在厂商基础镜像飞书文档中，使用标准 CUDA 环境
 
 [chips.hygon]
 sdk_name = "DTK"
 sdk_version = "26.04"
+chip_model = "BW1000"
+os = "Ubuntu22.04"
+driver = "6.3.28"
+python_version = "3.10"
+torch_version = "2.9.0+das.opt1.dtk2604"
+triton_version = "3.3.0+das.opt1.dtk2604.torch290"
+flagtree_version = "0.5.0+hcu3.0"
+vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-hygon"
 base_image_tag = "latest"
+base_image_status = "OK"
+dockerfile_status = "OK"
+contact = ""
 status = "active"
 
 [chips.iluvatar]
 sdk_name = "CoreX"
 sdk_version = "4.4.0"
+chip_model = "150 / 100"
+os = "Ubuntu24.04"
+driver = "4.4.0"
+python_version = "3.10"
+torch_version = "2.7.1+corex.4.4.0"
+triton_version = "3.1.0+corex.4.4.0"
+flagtree_version = "0.5.1+iluvatar3.1"
+vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-iluvatar"
 base_image_tag = "latest"
+base_image_status = "OK"
+dockerfile_status = "OK"
+contact = "彭方来"
 status = "active"
 
 [chips.metax]
 sdk_name = "MACA"
-sdk_version = "3.5.3.9"
+sdk_version = "3.5.3.18"
+chip_model = "MetaX C500"
+os = "Ubuntu22.04"
+driver = "3.3.12"
+python_version = "3.12"
+torch_version = "2.8.0+metax3.7.2.0"
+triton_version = "3.0.0+metax3.7.2.0"
+flagtree_version = "3.1.0+metax3.7.2.0"
+vllm_version = "未知"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-metax"
 base_image_tag = "latest"
+base_image_status = "OK"
+dockerfile_status = "OK"
+contact = ""
 status = "active"
 
 [chips.tsingmicro]
 sdk_name = "TXDA SDK"
-sdk_version = "3.3"
+sdk_version = "260604163331"
+chip_model = "TX8110"
+os = "Ubuntu22.04"
+driver = "260604163331"
+python_version = "3.10"
+torch_version = "2.7.1+cpu (torch_txda==0.1.0)"
+triton_version = "3.3.0+git2e9c1195"
+flagtree_version = "0.5.0+tsingmicro3.3"
+vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-tsingmicro"
 base_image_tag = "latest"
+base_image_status = "OK"
+dockerfile_status = "OK"
+contact = "梁维斌"
 status = "active"
+
+[chips.enflame]
+sdk_name = "GCU"
+sdk_version = "20260521"
+chip_model = "zixiaoC200"
+os = "Ubuntu24.04"
+driver = "1.9.10"
+python_version = "3.12"
+torch_version = "2.10 (+cpu)"
+triton_version = "3.6.0 (deb)"
+flagtree_version = "3.6.0"
+vllm_version = "0.20.x"
+base_image = "harbor.baai.ac.cn/flagbase/flagbase-enflame"
+base_image_tag = "TBD"
+base_image_status = "OK"
+dockerfile_status = "OK"
+contact = "刘宝琦"
+status = "active"
+# 注：期望使用 gcu400；主机安装脚本在 sftp 服务器上
+
+[chips.kunlunxin]
+sdk_name = "XPU SDK"
+sdk_version = "5.29.0"
+chip_model = "P800"
+os = "Ubuntu22.04"
+driver = "5.29.0"
+python_version = "3.10"
+torch_version = "2.5.1+cu118 (torch-klx==0.1.0)"
+triton_version = "3.0.0+0762702f"
+flagtree_version = "0.5.1+xpu3.0"
+vllm_version = "0.13"
+base_image = "harbor.baai.ac.cn/flagbase/flagbase-kunlunxin"
+base_image_tag = "latest"
+base_image_status = "OK"
+dockerfile_status = "OK"
+contact = "李三宝"
+status = "active"
+# 注：推理基础镜像已提供，待验证；vLLM 待验证；驱动需升级到 5.10+
+
+[chips.mthreads]
+sdk_name = "MUSA"
+sdk_version = "4.3.6"
+chip_model = "T5000"
+os = "Ubuntu22.04"
+driver = "3.3.6"
+python_version = "3.10"
+torch_version = "2.9.0 (torch_musa=2.9.0)"
+triton_version = "3.6.0+git89458660"
+flagtree_version = "0.5.1+mthreads3.6"
+vllm_version = "0.20.2"
+base_image = "harbor.baai.ac.cn/flagbase/flagbase-mthreads"
+base_image_tag = "latest"
+base_image_status = "OK"
+dockerfile_status = "OK"
+contact = "郑德磊"
+status = "active"
+# 注：vLLM 待验证
 
 [chips.thead]
 sdk_name = "T-Head XuanTie"
-sdk_version = "TBD"
+sdk_version = "2.0.0"
+chip_model = "PPU-ZW810E"
+os = "Ubuntu24.04"
+driver = "2.0.0"
+python_version = "3.12"
+torch_version = "2.9.0+ppu2.0.0.oe"
+triton_version = "3.5.0+ppu2.0.0oe"
+flagtree_version = "未知"
+vllm_version = "未知"
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-thead"
 base_image_tag = "latest"
+base_image_status = "none"
+dockerfile_status = "none"
+contact = "龙杰"
 status = "active"
+# 注：基础镜像和 Dockerfile 均不可用；需要阿里准备 API 镜像
 
 # =============================================================================
 # 暂停芯片（CI Runner 不可用，但 pyproject.toml 仍保留包定义）
@@ -84,39 +188,26 @@ status = "active"
 
 [chips.ascend]
 sdk_name = "CANN"
-sdk_version = "3.2"
+sdk_version = "8.5.0"
+chip_model = "910B / 910C"
+os = "CTyunOS 2 25.05"
+driver = "25.5.1"
+python_version = "3.11"
+torch_version = "2.9.0+cpu (torch_npu==2.9.0)"
+triton_version = "triton_ascend==3.2.0"
+flagtree_version = "0.5.0+ascend3.2"
+vllm_version = ""
 base_image = "harbor.baai.ac.cn/flagbase/flagbase-ascend"
 base_image_tag = "py311torch2.6"
+base_image_status = "testing"
+dockerfile_status = "testing"
+contact = "钟羽"
 status = "disabled"
-# 注：FlagGems CI backend-ascend 标记 if: false，等待 Runner 重配
-# build-infra 有 flagbase-ascend:py311torch2.6 基础镜像
-
-[chips.kunlunxin]
-sdk_name = "XPU SDK"
-sdk_version = "3.0"
-base_image = "harbor.baai.ac.cn/flagbase/flagbase-kunlunxin"
-base_image_tag = "latest"
-status = "disabled"
-# 注：FlagGems CI backend-kunlunxin 标记 if: false，Runner 未就绪
-
-[chips.mthreads]
-sdk_name = "MUSA"
-sdk_version = "4.0.0"
-base_image = "harbor.baai.ac.cn/flagbase/flagbase-mthreads"
-base_image_tag = "latest"
-status = "disabled"
-# 注：FlagGems CI backend-mthreads 标记 if: false，Runner 已下线
+# 注：CI 节点使用天翼云操作系统，不支持 FlagTree
 
 # =============================================================================
 # 规划中芯片（pyproject.toml 有包定义，但 CI 尚未配置）
 # =============================================================================
-
-[chips.enflame]
-sdk_name = "GCU"
-sdk_version = "3.7.1"
-base_image = "harbor.baai.ac.cn/flagbase/flagbase-enflame"
-base_image_tag = "TBD"
-status = "pending"
 
 [chips.spacemit]
 sdk_name = "SpacemiT SDK"
