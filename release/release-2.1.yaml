@@ -26,26 +26,26 @@ repositories:
   flagtree-triton3.6:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.6
-    # 分支: v0.5.0-rc2-triton3.6
+    version: 0.6.0+triton3.6
+    # 分支: v0.6.0-rc2-triton3.6
 
   flagtree-triton3.5:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.5
-    # 分支: v0.5.0-rc2-triton3.5
+    version: 0.6.0+triton3.5
+    # 分支: v0.6.0-rc2-triton3.5
 
   flagtree-triton3.3:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.3
-    # 分支: v0.5.0-rc2-triton3.3
+    version: 0.6.0+triton3.3
+    # 分支: v0.6.0-rc2-triton3.3
 
   flagtree-triton3.2:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.2
-    # 分支: v0.5.0-rc2-triton3.2
+    version: 0.6.0+triton3.2
+    # 分支: v0.6.0-rc2-triton3.2
 
   flagcx:
     type: git

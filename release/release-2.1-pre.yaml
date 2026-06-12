@@ -27,17 +27,17 @@ repositories:
   flagtree-triton3.6:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.6
+    version: 0.6.0+triton3.6
 
   flagtree-triton3.3:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.3
+    version: 0.6.0+triton3.3
 
   flagtree-triton3.2:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.2
+    version: 0.6.0+triton3.2
 
   # ===========================================================================
   # L1 — Compute libraries (core + domain operators)
