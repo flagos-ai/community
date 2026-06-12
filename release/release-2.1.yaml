@@ -10,7 +10,7 @@
 # 版本对应关系：
 #   - 每个 version 由对应的 rc2 tag 去掉 -rc2.postN 得到
 #   - 例如 v0.13.0-rc2.post3 → v0.13.0
-#   - FlagTree 有 3 个 Triton 变体，通过 +variant 区分
+#   - FlagTree 有 4 个 Triton 变体，通过 +variant 区分
 #
 # ⚠️ 注意:
 #   - FlagGems / FlagDNN / FlagBLAS 的默认分支是 master，其他模块都是 main。
@@ -28,6 +28,12 @@ repositories:
     url: https://github.com/flagos-ai/FlagTree.git
     version: 0.5.0+triton3.6
     # 分支: v0.5.0-rc2-triton3.6
+
+  flagtree-triton3.5:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: 0.5.0+triton3.5
+    # 分支: v0.5.0-rc2-triton3.5
 
   flagtree-triton3.3:
     type: git
