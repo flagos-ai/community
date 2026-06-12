@@ -135,9 +135,21 @@ repositories:
     version: v0.1.0
     # default branch: main
 
+  kernelgen:
+    type: git
+    url: https://github.com/flagos-ai/KernelGen.git
+    version: v2.1.0
+    # default branch: main
+
   kernelgenbench:
     type: git
     url: https://github.com/flagos-ai/KernelGenBench.git
+    version: v0.1.0
+    # default branch: main
+
+  flagrelease:
+    type: git
+    url: https://github.com/flagos-ai/flagrelease.git
     version: v0.1.0
     # default branch: main
 
