@@ -1,0 +1,148 @@
+# =============================================================================
+# FlagOS 2.1 Pre-Release — Source Repository Manifest (vcstool format)
+# =============================================================================
+# Purpose: Batch clone all modules in the 2.1 pre-release snapshot.
+# Usage:
+#   pip install vcstool
+#   mkdir flagos-2.1-pre && cd flagos-2.1-pre
+#   vcs import src < release-2.1-pre.yaml
+#
+# This manifest is a SUBSET of release-2.1.yaml, limited to modules that:
+#   - Passed SVT testing (green status), OR
+#   - Have no FEP coverage (not yet tested), OR
+#   - Are explicitly included by user request
+#
+# Excluded: modules with blocked/failed/partial SVT status.
+#
+# Note:
+#   - FlagGems / FlagDNN / FlagBLAS default branch is master, others are main.
+# =============================================================================
+
+repositories:
+
+  # ===========================================================================
+  # L0 — Infrastructure (build base + communication)
+  # ===========================================================================
+
+  flagtree-triton3.6:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: 0.5.0+triton3.6
+
+  flagtree-triton3.3:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: 0.5.0+triton3.3
+
+  flagtree-triton3.2:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: 0.5.0+triton3.2
+
+  # ===========================================================================
+  # L1 — Compute libraries (core + domain operators)
+  # ===========================================================================
+
+  flagfft:
+    type: git
+    url: https://github.com/flagos-ai/FlagFFT.git
+    version: v0.1.0
+    # default branch: main
+
+  flagsparse:
+    type: git
+    url: https://github.com/flagos-ai/FlagSparse.git
+    version: v0.2.0
+    # default branch: main
+
+  flagdnn:
+    type: git
+    url: https://github.com/flagos-ai/FlagDNN.git
+    version: v0.2.0
+    # default branch: master
+
+  flagblas:
+    type: git
+    url: https://github.com/flagos-ai/FlagBLAS.git
+    version: v0.2.0
+    # default branch: master
+
+  flagtensor:
+    type: git
+    url: https://github.com/flagos-ai/FlagTensor.git
+    version: v0.2.0
+    # default branch: main
+
+  flagaudio:
+    type: git
+    url: https://github.com/flagos-ai/FlagAudio.git
+    version: v0.2
+    # default branch: main
+
+  flagattention:
+    type: git
+    url: https://github.com/flagos-ai/FlagAttention.git
+    version: v0.3.0
+    # default branch: main
+
+  flaggems-vllm:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-vllm.git
+    version: v0.1.0
+    # default branch: main
+
+  # ===========================================================================
+  # L2 — Framework adapters (PyTorch plugins + training/inference)
+  # ===========================================================================
+
+  pytorch-plugin-fl:
+    type: git
+    url: https://github.com/flagos-ai/PyTorch-Plugin-FL.git
+    version: v0.1.0
+    # default branch: main
+
+  vllm-plugin-fl:
+    type: git
+    url: https://github.com/flagos-ai/vllm-plugin-FL.git
+    version: v0.2.0
+    # default branch: main
+
+  sglang-plugin-fl:
+    type: git
+    url: https://github.com/flagos-ai/sglang-plugin-FL.git
+    version: v0.1.0
+    # default branch: main
+
+  # ===========================================================================
+  # L3 — Applications / tools
+  # ===========================================================================
+
+  flagscale:
+    type: git
+    url: https://github.com/flagos-ai/FlagScale.git
+    version: v2.0.0
+    # default branch: main
+
+  flagquantum:
+    type: git
+    url: https://github.com/flagos-ai/FlagQuantum.git
+    version: v0.1.0
+    # default branch: main
+
+  flagos-robo:
+    type: git
+    url: https://github.com/flagos-ai/FlagOS-Robo.git
+    version: v0.1.0
+    # default branch: main
+
+  kernelgenbench:
+    type: git
+    url: https://github.com/flagos-ai/KernelGenBench.git
+    version: v0.1.0
+    # default branch: main
+
+  skills:
+    type: git
+    url: https://github.com/flagos-ai/skills.git
+    version: v1.1.0
+    # default branch: main
