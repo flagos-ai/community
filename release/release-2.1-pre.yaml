@@ -1,201 +1,148 @@
 # =============================================================================
-# FlagOS 2.1 — 源码仓库清单（vcstool 格式）
+# FlagOS 2.1 Pre-Release — Source Repository Manifest (vcstool format)
 # =============================================================================
-# 用途：批量拉取所有模块的 2.1 正式发布快照
-# 用法：
+# Purpose: Batch clone all modules in the 2.1 pre-release snapshot.
+# Usage:
 #   pip install vcstool
-#   mkdir flagos-2.1 && cd flagos-2.1
-#   vcs import src < release-2.1.yaml
+#   mkdir flagos-2.1-pre && cd flagos-2.1-pre
+#   vcs import src < release-2.1-pre.yaml
 #
-# 版本对应关系：
-#   - 每个 version 由对应的 rc2 tag 去掉 -rc2.postN 得到
-#   - 例如 v0.13.0-rc2.post3 → v0.13.0
-#   - FlagTree 有 4 个 Triton 变体，通过 +variant 区分
+# This manifest is a SUBSET of release-2.1.yaml, limited to modules that:
+#   - Passed SVT testing (green status), OR
+#   - Have no FEP coverage (not yet tested), OR
+#   - Are explicitly included by user request
 #
-# ⚠️ 注意:
-#   - FlagGems / FlagDNN / FlagBLAS 的默认分支是 master，其他模块都是 main。
-#   - Tag 将在正式发版时打出，当前文件为预设版本号。
+# Excluded: modules with blocked/failed/partial SVT status.
+#
+# Note:
+#   - FlagGems / FlagDNN / FlagBLAS default branch is master, others are main.
 # =============================================================================
 
 repositories:
 
   # ===========================================================================
-  # L0 — 基础设施层（编译底座 + 通信库）
+  # L0 — Infrastructure (build base + communication)
   # ===========================================================================
 
   flagtree-triton3.6:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
     version: 0.5.0+triton3.6
-    # 分支: v0.5.0-rc2-triton3.6
-
-  flagtree-triton3.5:
-    type: git
-    url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.5.0+triton3.5
-    # 分支: v0.5.0-rc2-triton3.5
 
   flagtree-triton3.3:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
     version: 0.5.0+triton3.3
-    # 分支: v0.5.0-rc2-triton3.3
 
   flagtree-triton3.2:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
     version: 0.5.0+triton3.2
-    # 分支: v0.5.0-rc2-triton3.2
-
-  flagcx:
-    type: git
-    url: https://github.com/flagos-ai/flagcx.git
-    version: v0.13.0
-    # 分支: 0.13.0-rc2
 
   # ===========================================================================
-  # L1 — 计算库层（核心算子 + 领域算子）
+  # L1 — Compute libraries (core + domain operators)
   # ===========================================================================
-
-  flaggems:
-    type: git
-    url: https://github.com/flagos-ai/FlagGems.git
-    version: v5.3.0
-    # 分支: 5.3.0-rc2
-    # 默认分支: master
 
   flagfft:
     type: git
     url: https://github.com/flagos-ai/FlagFFT.git
     version: v0.1.0
-    # 分支: 0.1.0-rc2
+    # default branch: main
 
   flagsparse:
     type: git
     url: https://github.com/flagos-ai/FlagSparse.git
     version: v0.2.0
-    # 分支: 0.2.0-rc2
+    # default branch: main
 
   flagdnn:
     type: git
     url: https://github.com/flagos-ai/FlagDNN.git
     version: v0.2.0
-    # 分支: 0.2.0-rc2
-    # 默认分支: master
+    # default branch: master
 
   flagblas:
     type: git
     url: https://github.com/flagos-ai/FlagBLAS.git
     version: v0.2.0
-    # 分支: 0.2.0-rc2
-    # 默认分支: master
+    # default branch: master
 
   flagtensor:
     type: git
     url: https://github.com/flagos-ai/FlagTensor.git
     version: v0.2.0
-    # 分支: 0.2.0-rc2
+    # default branch: main
 
   flagaudio:
     type: git
     url: https://github.com/flagos-ai/FlagAudio.git
     version: v0.2.0
-    # 分支: 0.2.0-rc2
+    # default branch: main
 
   flagattention:
     type: git
     url: https://github.com/flagos-ai/FlagAttention.git
     version: v0.3.0
-    # 分支: 0.3.0-rc2
+    # default branch: main
 
   flaggems-vllm:
     type: git
     url: https://github.com/flagos-ai/FlagGems-vllm.git
     version: v0.1.0
-    # 分支: 0.1.0-rc2
+    # default branch: main
 
   # ===========================================================================
-  # L2 — 框架适配层（PyTorch 插件 + 训练/推理框架）
+  # L2 — Framework adapters (PyTorch plugins + training/inference)
   # ===========================================================================
 
   pytorch-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/PyTorch-Plugin-FL.git
     version: v0.1.0
-    # 分支: 0.1.0-rc2
+    # default branch: main
 
   vllm-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/vllm-plugin-FL.git
     version: v0.2.0
-    # 分支: 0.2.0-rc2
+    # default branch: main
 
   sglang-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/sglang-plugin-FL.git
     version: v0.1.0
-    # 分支: 0.1.0-rc2
-
-  transformerengine-fl:
-    type: git
-    url: https://github.com/flagos-ai/TransformerEngine-FL.git
-    version: v0.2.0
-    # 分支: 0.2.0-rc2
-
-  megatron-lm-fl:
-    type: git
-    url: https://github.com/flagos-ai/Megatron-LM-FL.git
-    version: v0.2.0
-    # 分支: 0.2.0-rc2
-
-  verl-fl:
-    type: git
-    url: https://github.com/flagos-ai/verl-FL.git
-    version: v0.2.0
-    # 分支: 0.2.0-rc2
+    # default branch: main
 
   # ===========================================================================
-  # L3 — 应用/工具层（编排框架 + 工具 + 文档）
+  # L3 — Applications / tools
   # ===========================================================================
 
   flagscale:
     type: git
     url: https://github.com/flagos-ai/FlagScale.git
     version: v2.0.0
-    # 分支: 2.0.0-rc2
+    # default branch: main
 
   flagquantum:
     type: git
     url: https://github.com/flagos-ai/FlagQuantum.git
     version: v0.1.0
-    # 分支: 0.1.0-rc2
+    # default branch: main
 
   flagos-robo:
     type: git
     url: https://github.com/flagos-ai/FlagOS-Robo.git
     version: v0.1.0
-    # 分支: 0.1.0-rc2
-
-  kernelgen:
-    type: git
-    url: https://github.com/flagos-ai/KernelGen.git
-    version: v2.1.0
-    # 分支: 2.1.0-rc2
+    # default branch: main
 
   kernelgenbench:
     type: git
     url: https://github.com/flagos-ai/KernelGenBench.git
     version: v0.1.0
-    # 分支: 0.1.0-rc2
-
-  flagrelease:
-    type: git
-    url: https://github.com/flagos-ai/flagrelease.git
-    version: v0.1.0
-    # 分支: 0.1.0-rc2
+    # default branch: main
 
   skills:
     type: git
     url: https://github.com/flagos-ai/skills.git
     version: v1.1.0
-    # 分支: 1.1.0-rc2
+    # default branch: main
