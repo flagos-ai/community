@@ -4,22 +4,24 @@ NOTE: same process in CUDA and METAX
 1. prepare FlagScale
 ```bash
 git clone https://github.com/flagos-ai/FlagScale.git
+cd FlagScale
+pip install -r requirements/cuda/train.txt
 git checkout xxx
 ```
 
 2. Prepare megatron-lm-fl
 ```bash
 git clone https://github.com/flagos-ai/Megatron-LM-FL.git
-git cehckout xxx
 cd Megatron-LM
+git cehckout xxx
 pip install . --no-build-isolation --root-user-action=ignore
 ```
 
 3. Prepare transformerengine-fl 
 ```bash
 git clone https://github.com/flagos-ai/TransformerEngine-FL.git
-git checkout xxx
 cd TransformerEngine-FL
+git checkout xxx
 git submodule update --init --recursive
 MAX_JOBS=64 pip install -v . --no-build-isolation --root-user-action=ignore
 # in metax env(image: harbor.baai.ac.cn/flagscale/megatron-lm-with-te:202603231839):
