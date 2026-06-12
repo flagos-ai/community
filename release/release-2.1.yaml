@@ -99,7 +99,7 @@ repositories:
   flagaudio:
     type: git
     url: https://github.com/flagos-ai/FlagAudio.git
-    version: v0.2
+    version: v0.2.0
     # 分支: 0.2.0-rc2
 
   flagattention:
