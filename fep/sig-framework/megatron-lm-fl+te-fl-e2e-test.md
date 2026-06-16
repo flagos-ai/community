@@ -9,6 +9,7 @@ docker pull harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-2026031
     docker exec -it <name> /bin/bash
     conda activate flagscale-train
     pip install flash-attn==2.8.3 --no-build-isolation
+    pip install upgrade wandb tensorboard
 ```
 
 1. prepare FlagScale
