@@ -1,6 +1,15 @@
 
 NOTE: same process in CUDA and METAX
 
+0. docker env
+
+```bash
+docker pull harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-20260319182856
+    docker run -itd --gpus all --shm-size=500g --name <name>  harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-20260319182856 /bin/bash
+    docker exec -it <name> /bin/bash
+    conda activate flagscale-train
+```
+
 1. prepare FlagScale
 ```bash
 git clone https://github.com/flagos-ai/FlagScale.git
