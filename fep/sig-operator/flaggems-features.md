@@ -115,20 +115,6 @@ flag_gems/
 
 `LibEntry` independently manages the kernel cache and bypasses the runtime of `Autotuner`, `Heuristics`, and `JitFunction`, providing function-level kernel dispatching with reduced overhead.
 
-### Supported Platforms
-
-| Vendor     | State | float16 | float32 | bfloat16 |
-| ---------- | ------| ------- | ------- | -------- |
-| NVIDIA     | ✅    | ✅      | ✅      | ✅       |
-| Ascend     | ✅    | ✅      | ✅      | ✅       |
-| MetaX      | ✅    | ✅      | ✅      | ✅       |
-| Hygon      | ✅    | ✅      | ✅      | ✅       |
-| Iluvatar   | ✅    | ✅      | ✅      | ✅       |
-| Kunlunxin  | ✅    | ✅      | ✅      | ✅       |
-| Mthreads   | ✅    | ✅      | ✅      | ✅       |
-| Cambricon  | ✅    | ✅      | ✅      | ✅       |
-| Sunrise    | ☑️     | ✅      | ✅      | ✅       |
-| AIPU       | ☑️     | ✅      | ✅      | ✅       |
 
 ## Packaging
 
@@ -157,19 +143,27 @@ pip install -e .
 ## Test Plan
 
 ### Test Commands
+Testing dsv4 ops on nvidia, and need:
+- vllm==vllm0.20.2
+- triton>=3.6.0
 
 **Accuracy Tests:**
 ```bash
-pytest tests/test_add.py -sv
 pytest tests/test_router_gemm.py -sv
+pytest tests/test_topk_softplus_sqrt.py -sv
+pytest tests/test_silu_and_mul_with_clamp.py -sv
 pytest tests/test_mhc_ops.py -sv
+pytest tests/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -sv
+
 ```
 
 **Performance Benchmarks:**
 ```bash
-pytest benchmark/test_add.py -sv
-pytest benchmark/test_blas_perf_parallel.py -sv
+pytest benchmark/test_blas_perf_parallel.py -m router_gemm -sv
+pytest benchmark/test_topk_softplus_sqrt.py -sv
+pytest benchmark/test_silu_and_mul_with_clamp.py -sv
 pytest benchmark/test_mhc.py -sv
+pytest benchmark/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -sv
 ```
 
 ### Expected Results
