@@ -8,6 +8,7 @@ docker pull harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-2026031
     docker run -itd --gpus all --shm-size=500g --name <name>  harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-20260319182856 /bin/bash
     docker exec -it <name> /bin/bash
     conda activate flagscale-train
+    pip install flash-attn==2.8.3 --no-build-isolation
 ```
 
 1. prepare FlagScale
