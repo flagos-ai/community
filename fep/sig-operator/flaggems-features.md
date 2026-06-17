@@ -151,7 +151,7 @@ pytest tests/test_mhc_ops.py -m mhc_post --ref cpu -vs
 pytest tests/test_rad2deg.py -m rad2deg --ref cpu -vs
 pytest tests/test_affine_grid_generator.py -m affine_grid_generator --ref cpu -vs
 pytest tests/test_silu_and_mul.py -m silu_and_mul_out --ref cpu -vs
-pytset tests/test_log1p.py -m silu_and_mul_out --ref cpu -vs
+pytest tests/test_log1p.py -m log1p --ref cpu -vs
 ```
 
 **Performance Benchmarks:**
@@ -161,7 +161,7 @@ pytest benchmark/test_mhc.py -m mhc_post --level core -vs
 pytest benchmark/test_rad2deg.py -m rad2deg --level core -vs
 pytest benchmark/test_affine_grid_generator.py -m affine_grid_generator --level core -vs
 pytest benchmark/test_silu_and_mul.py -m silu_and_mul_out --level core -vs
-pytest benchmark/test_log1p.py -m silu_and_mul_out --level core -vs
+pytest benchmark/test_log1p.py -m log1p --level core -vs
 ```
 
 ### Expected Results
