@@ -143,27 +143,25 @@ pip install -e .
 ## Test Plan
 
 ### Test Commands
-Testing dsv4 ops on nvidia, and need:
-- vllm==vllm0.20.2
-- triton>=3.6.0
 
 **Accuracy Tests:**
 ```bash
-pytest tests/test_router_gemm.py -sv
-pytest tests/test_topk_softplus_sqrt.py -sv
-pytest tests/test_silu_and_mul_with_clamp.py -sv
-pytest tests/test_mhc_ops.py -sv
-pytest tests/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -sv
-
+pytest tests/test_mhc_ops.py -m mhc_bwd --ref cpu -vs
+pytest tests/test_mhc_ops.py -m mhc_post --ref cpu -vs
+pytest tests/test_rad2deg.py -m rad2deg --ref cpu -vs
+pytest tests/test_affine_grid_generator.py -m affine_grid_generator --ref cpu -vs
+pytest tests/test_silu_and_mul.py -m silu_and_mul_out --ref cpu -vs
+pytset tests/test_log1p.py -m silu_and_mul_out --ref cpu -vs
 ```
 
 **Performance Benchmarks:**
 ```bash
-pytest benchmark/test_blas_perf_parallel.py -m router_gemm -sv
-pytest benchmark/test_topk_softplus_sqrt.py -sv
-pytest benchmark/test_silu_and_mul_with_clamp.py -sv
-pytest benchmark/test_mhc.py -sv
-pytest benchmark/test_deepseek_v4_attention_fused_q_kv_rmsnorm.py -sv
+pytest benchmark/test_mhc.py -m mhc_bwd --level core -vs
+pytest benchmark/test_mhc.py -m mhc_post --level core -vs
+pytest benchmark/test_rad2deg.py -m rad2deg --level core -vs
+pytest benchmark/test_affine_grid_generator.py -m affine_grid_generator --level core -vs
+pytest benchmark/test_silu_and_mul.py -m silu_and_mul_out --level core -vs
+pytest benchmark/test_log1p.py -m silu_and_mul_out --level core -vs
 ```
 
 ### Expected Results
