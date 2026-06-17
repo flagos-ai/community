@@ -1,21 +1,30 @@
 
-NOTE: same process in CUDA and METAX
-
 0. docker env
 
+- cuda
 ```bash
 docker pull harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-20260319182856
-    docker run -itd --gpus all --shm-size=500g --name <name>  harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-20260319182856 /bin/bash
-    docker exec -it <name> /bin/bash
-    conda activate flagscale-train
-    pip install flash-attn==2.8.3 --no-build-isolation
-    pip install upgrade wandb tensorboard
+docker run -itd --gpus all --shm-size=500g --name <name>  harbor.baai.ac.cn/flagscale/flagscale-train:dev-cu128-py3.12-20260319182856 /bin/bash
+docker exec -it <name> /bin/bash
+conda activate flagscale-train
+pip install flash-attn==2.8.3 --no-build-isolation
+pip install upgrade wandb tensorboard
 ```
+
+- metax
+```bash
+docker pull harbor.baai.ac.cn/flagscale/megatron-lm-with-te:202603231839
+docker run -itd --gpus all --shm-size=500g --name <name> --ulimit nofile=65535:65535 --device=/dev/dri --device=/dev/mxcd harbor.baai.ac.cn/flagscale/megatron-lm-with-te:202603231839
+conda activate base
+```
+
+NOTE: same process in CUDA and METAX
 
 1. prepare FlagScale
 ```bash
 git clone https://github.com/flagos-ai/FlagScale.git
 cd FlagScale
+# only for cuda
 pip install -r requirements/cuda/train.txt
 git checkout xxx
 ```
