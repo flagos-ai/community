@@ -169,18 +169,28 @@ Where `<backend>` is one of: `USE_NVIDIA`, `USE_ASCEND`, `USE_ILUVATAR_COREX`, `
 
 ### Dependencies
 
-- MPI (for multi-process tests)
+- MPI (for multi-process tests): OpenMPI or mpich
 - libibverbs (for IBRC P2P adaptor)
 - CUDA toolkit (for NVIDIA backend)
 - NCCL >= 2.25 (for Device API vendor path; >= 2.28 for window mode)
+
+#### Installing mpich (required for multi-platform P2P Engine testing)
+
+```bash
+wget https://www.mpich.org/static/downloads/4.2.3/mpich-4.2.3.tar.gz
+tar xzvf mpich-4.2.3.tar.gz
+cd mpich-4.2.3 && ./configure --prefix="$PWD/build" --with-device=ch3 --disable-fortran && make -j64 && make install
+export MPI_HOME=$PWD/build
+export LD_LIBRARY_PATH=$MPI_HOME/lib:$MPI_HOME:$LD_LIBRARY_PATH
+```
 
 ### Multi-Platform Support
 
 | Feature | Platform Support | Current Test Status |
 |---|---|---|
-| P2P Engine | All supported backends (no vendor-specific adaptation required) | Tested on NVIDIA only during development |
-| Device API CustomAllReduce | NVIDIA only | Other vendors need to add compilation pipeline and kernel implementation |
-| Device API IR Bindings | NVIDIA only | Other vendors need to add compilation pipeline and kernel implementation |
+| P2P Engine | All supported backends (no vendor-specific adaptation required) | Tested on NVIDIA, Mthreads (USE_MUSA), Metax (USE_METAX), Hygon (USE_DU) |
+| Device API CustomAllReduce | NVIDIA only | Tested on NVIDIA only; other vendors need to add compilation pipeline and kernel implementation |
+| Device API IR Bindings | NVIDIA only | Tested on NVIDIA only; other vendors need to add compilation pipeline and kernel implementation |
 
 ---
 
@@ -189,14 +199,17 @@ Where `<backend>` is one of: `USE_NVIDIA`, `USE_ASCEND`, `USE_ILUVATAR_COREX`, `
 ### P2P Engine Tests
 
 ```bash
+# Build (choose your backend)
+make USE_NVIDIA=1 -j$(nproc)   # or USE_MUSA=1, USE_METAX=1, USE_DU=1
+
 cd test/perf/host_api
-make USE_NVIDIA=1
+make USE_NVIDIA=1              # match your backend flag
 cd build/bin
 ```
 
 | Test | Command | Description |
 |---|---|---|
-| Perf test: P2P Engine (read/write) | `mpirun --allow-run-as-root -np 2 ./perf_p2p_engine -b 4K -e 64M -f 2 -n 10` | One-sided RDMA GET/PUT bandwidth benchmark via P2P Engine RPC control-plane. Set `FLAGCX_P2P_PERF_OP=read\|write\|both` to select operation. |
+| Perf test: P2P Engine (read/write) | `$MPI_HOME/bin/mpirun --genv FLAGCX_MEM_ENABLE=1 -np 2 ./perf_p2p_engine -b 4K -e 64M -f 2 -n 10` | One-sided RDMA GET/PUT bandwidth benchmark via P2P Engine RPC control-plane. Set `FLAGCX_P2P_PERF_OP=read\|write\|both` to select operation. |
 
 ### Device API CustomAllReduce Tests
 
