@@ -143,17 +143,17 @@ pip install -e .
 ## Test Plan
 ### Test Commands
 
-Test on:
-- Hygon
+Testing on following vendor and using environment variables:
+- Hygon: export GEMS_VENDOR="hygon"
 - Mthreads
-- MetaX
+- MetaX: export MACA_DIRECT_DISPATCH=1
 - Iluvatar
 - Cambricon
 - Thead
 - Nvidia
 - Ascend
-- Kunlunxin
- 
+- Kunlunxin: export XPU_EVENT_KL3_ENABLE=1
+
 **Accuracy Tests:**
 ```bash
 pytest tests/test_mhc_ops.py -m mhc_bwd --ref cpu -vs
