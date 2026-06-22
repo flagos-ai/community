@@ -431,7 +431,6 @@ docker exec -it verl_fl_test bash
 
 ```bash
 cd /workspace
-conda activate flagscale-RL
 
 # Download model
 modelscope download --model Qwen/Qwen3-0.6B --local_dir ./Qwen3-0.6B
@@ -452,7 +451,7 @@ wget "https://baai-flagscale.ks3-cn-beijing.ksyuncs.com/rl/datasets/gsm8k/test.p
 cd /workspace
 git clone https://github.com/flagos-ai/FlagCX.git
 cd FlagCX
-git checkout -b v0.9.0
+git checkout v0.9.0
 git submodule update --init --recursive
 make USE_METAX=1
 export FLAGCX_PATH="$PWD"
