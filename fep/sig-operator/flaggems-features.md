@@ -14,7 +14,7 @@
 
 ## Summary
 
-This FEP covers the features and improvements delivered in FlagGems, a high-performance generic operator library implemented in Triton language. FlagGems provides 290+ PyTorch-compatible operators with multi-backend support for 10+ hardware platforms including NVIDIA, Ascend, MetaX, Hygon, Iluvatar, Kunlunxin, Mthreads, Cambricon, and more. Key features in this release include:
+This FEP covers the features and improvements delivered in FlagGems, a high-performance generic operator library implemented in Triton language. FlagGems provides 600+ PyTorch-compatible operators with multi-backend support for 10+ hardware platforms including NVIDIA, Ascend, MetaX, Hygon, Iluvatar, Kunlunxin, Mthreads, Cambricon, and more. Key features in this release include:
 
 1. **DeepSeek V4 attention operators** — support for DeepSeekV4 attention ops with vLLM integration.
 2. **Expanded operator coverage** — new operators including `reflection_pad1d_backward`, `randint`, `rad2deg`, `repeat_interleave`, `as_strided_copy`, `cauchy`, etc.
