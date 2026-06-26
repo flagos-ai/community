@@ -19,5 +19,5 @@ A planned SIG may be activated as a formal SIG when the following conditions are
 | [sig-release](sig-release.md) | Release engineering | Increased release frequency warrants a standing organization |
 | [sig-agent](sig-agent.md) | AI Agent / Skills | Active external contributors emerge for the Skills module |
 | [sig-tools](sig-tools.md) | FlagRelease tooling | FlagRelease gains external contributors |
-| [sig-edge](sig-edge.md) | Edge-side hardware adaptation | Identifiable contributors and users emerge in the edge domain |
+| [sig-edge](sig-edge.md) | Edge hardware and edge-side SDK | Identifiable contributors and users emerge in the edge domain |
 | [sig-architecture](sig-architecture.md) | Cross-module architecture | TSC members cover this role; no standalone SIG for now |

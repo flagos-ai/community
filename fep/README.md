@@ -35,7 +35,7 @@ The following areas have been identified but lack Approvers; FEPs are reviewed d
 | `sig-benchmark` | Planned SIG | FlagPerf |
 | `sig-agent` | Planned SIG | Skills |
 | `sig-tools` | Planned SIG | FlagRelease |
-| `sig-edge` | Planned SIG | Edge hardware |
+| `sig-edge` | Planned SIG | Edge Hardware and Edge side SDK for FlagOS |
 | `sig-architecture` | Planned SIG | Cross-module features, process changes |
 | `sig-os` | Planned SIG | OS-level packaging, distribution integration (openKylin, openEuler) |
 | `sig-riscv` | Planned SIG | Experimental RISC-V support — compile adaptation, dependency analysis |
