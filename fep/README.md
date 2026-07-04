@@ -12,6 +12,20 @@ stored under `fep/sig-*/`, submitted and reviewed via PR.
 
 > **New here?** Start with the [FEP Authoring Guide](../contributors/fep-guide.md). **Approver?** See the [FEP Review Guide](REVIEW_GUIDE.md). Governance rules are in [GOVERNANCE.md](../GOVERNANCE.md).
 
+## 🚩 Release Tracker
+
+Live FEP progress per FlagOS release. Badges read from the GitHub Milestones API and update automatically. A board view is on the [**Projects tab**](https://github.com/orgs/flagos-ai/projects) → *FlagOS FEP Tracker*.
+
+[![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
+[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2&color=blue)](https://github.com/flagos-ai/community/milestone/2)
+
+| Release | Due | Status | FEP Milestone |
+|---------|-----|--------|---------------|
+| **FlagOS 2.1** | 2026-06-11 | ✅ Released — all FEPs merged | [milestone/1](https://github.com/flagos-ai/community/milestone/1) |
+| **FlagOS 2.2** | 2026-09-28 | 🔵 Open — accepting FEPs | [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
+
+> A FEP is attached to a release milestone once its Owner sets `Target Version` to that release (see [Milestone Usage](#milestone-usage)).
+
 ## SIG Groups
 
 ### Active SIGs (7)
@@ -147,3 +161,4 @@ impacted by the feature should also review. If no existing SIG fits, use `sig-ar
 - Milestones have a deadline set
 - FEPs targeting a version are associated with the corresponding Milestone
 - Release Manager tracks progress via the Milestone view
+- Live status for every release is surfaced at the top of this page under [🚩 Release Tracker](#-release-tracker)

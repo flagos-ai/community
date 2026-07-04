@@ -2,6 +2,10 @@
 
 <div align="center">
 
+[![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1%20FEPs&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
+[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2%20FEPs&color=blue)](https://github.com/flagos-ai/community/milestone/2)
+[![版本追踪](https://img.shields.io/badge/🚩_版本追踪-fep%2FREADME__CN-orange)](fep/README_CN.md#-版本追踪-release-tracker)
+
 **语言** | **Language**
 
 [中文](README_CN.md) | [English](README.md)
