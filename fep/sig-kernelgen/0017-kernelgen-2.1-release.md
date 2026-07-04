@@ -1,6 +1,6 @@
 # FEP: KernelGen v2.1.0 Release
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Created:** 2026-05-27
 
