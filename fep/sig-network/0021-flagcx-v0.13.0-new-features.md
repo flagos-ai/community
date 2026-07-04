@@ -1,6 +1,6 @@
 # FEP(sig-network): Add FlagCX v0.13.0 New Features
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-27
 
