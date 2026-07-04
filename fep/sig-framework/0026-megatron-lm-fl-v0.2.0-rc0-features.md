@@ -1,6 +1,6 @@
 # FEP-NNNN: Megatron-LM-FL v0.2.0-rc0 Features
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-26
 
