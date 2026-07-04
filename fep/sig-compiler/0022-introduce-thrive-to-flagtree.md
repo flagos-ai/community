@@ -1,6 +1,6 @@
 # FEP-NNNN: Introduce Thrive to FlagTree
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-27
 
