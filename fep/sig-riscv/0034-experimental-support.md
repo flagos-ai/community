@@ -1,6 +1,6 @@
 # FEP-34: Experimental RISC-V Support for FlagOS
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Created:** 2026-06-05
 
@@ -20,7 +20,7 @@ This work runs in parallel with per-vendor RISC-V backend FEPs such as SpacemiT'
 
 ## Motivation
 
-RISC-V is becoming a viable target for AI system software, with chip vendors such as SpacemiT shipping platforms suitable for FlagOS workloads. Today FlagOS's published packages target `amd64` only (see [unified-package-integration](../sig-os/19-unified-package-integration.md)), and `riscv64` is unverified across most of the stack. We need a structured experimental track to:
+RISC-V is becoming a viable target for AI system software, with chip vendors such as SpacemiT shipping platforms suitable for FlagOS workloads. Today FlagOS's published packages target `amd64` only (see [unified-package-integration](../sig-os/0019-unified-package-integration.md)), and `riscv64` is unverified across most of the stack. We need a structured experimental track to:
 
 - Discover and document what builds, what breaks, and what is fundamentally unsupported on RISC-V today.
 - Inform whether and when RISC-V deserves a place in the baseline matrix.
@@ -37,7 +37,7 @@ RISC-V is becoming a viable target for AI system software, with chip vendors suc
 - **Distribution-level packaging and publishing.** Distribution package formats (`.deb`/`.rpm`/wheel), the supported distribution matrix, publishing channels, and per-distribution install/runtime validation belong to `sig-os` ([#19](https://github.com/flagos-ai/community/pull/19)). This FEP hands compile evidence and build artifacts to that workflow.
 - Production-grade RISC-V support across all FlagOS modules. The work here is explicitly experimental.
 - Guaranteeing every FlagOS module compiles or runs on RISC-V in this wave. Some modules will be documented as not-yet-supported; that is a valid outcome.
-- Adding `riscv` to the canonical backend suffix list in [unified-package-integration](../sig-os/19-unified-package-integration.md) before experiment data justifies it. That is a follow-up decision under `sig-os` once compatibility data is in hand.
+- Adding `riscv` to the canonical backend suffix list in [unified-package-integration](../sig-os/0019-unified-package-integration.md) before experiment data justifies it. That is a follow-up decision under `sig-os` once compatibility data is in hand.
 - Replacing per-vendor RISC-V backend FEPs (for example SpacemiT, [community#33](https://github.com/flagos-ai/community/pull/33)); this FEP coordinates above them, not under them.
 
 ## Proposal
@@ -57,7 +57,7 @@ Coordination with vendor-specific RISC-V backend SIGs (for example sig-operator 
 
 ### Modules in scope
 
-Initial scope mirrors Wave 1 of [unified-package-integration](../sig-os/19-unified-package-integration.md): FlagCX, FlagTree, FlagGems, FlagScale, FlagQuantum, FlagTensor, FlagAudio, FlagBLAS, FlagDNN, FlagAttention, FlagSparse. Within this wave, **FlagCX, FlagTree, FlagGems, and FlagScale are the initial priority** for the build matrix; the remaining seven modules join as the matrix progresses. Each module enters with one of three statuses:
+Initial scope mirrors Wave 1 of [unified-package-integration](../sig-os/0019-unified-package-integration.md): FlagCX, FlagTree, FlagGems, FlagScale, FlagQuantum, FlagTensor, FlagAudio, FlagBLAS, FlagDNN, FlagAttention, FlagSparse. Within this wave, **FlagCX, FlagTree, FlagGems, and FlagScale are the initial priority** for the build matrix; the remaining seven modules join as the matrix progresses. Each module enters with one of three statuses:
 
 - **Compile-adapted** — builds on `riscv64`; build helpers and CI matrix entry merged into the originating repository.
 - **Partially adapted** — builds with limitations (subset of operators, particular configuration). Limitations recorded in the repository's own documentation.
@@ -129,3 +129,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 
 - 2026-06-05: Initial draft for the experimental RISC-V architecture-level track. SIG registration lives in [flagos-ai/community#35](https://github.com/flagos-ai/community/pull/35); this PR contains only the FEP document. Scope is intentionally narrow — compile adaptation + dependency analysis; distribution-level packaging, the supported distribution matrix, and publishing channels belong to `sig-os` ([#19](https://github.com/flagos-ai/community/pull/19)). Deliverables land as merged PRs in originating Flag* repositories rather than standalone PDF reports. Assigned `FEP-34` and renamed the file. Adopted the SpacemiT brand notation consistently. Smoke test scope updated to apply to any module whose build succeeds (fully or partially). Implementation tracking explicitly calls out the initial 4-module priority within Wave 1; relative links to the OS FEP updated for its `19-` prefix.
 - 2026-06-10: Aligned with the community governance restructure: `sig-riscv` is now proposed as a Planned SIG (charter draft in [#35](https://github.com/flagos-ai/community/pull/35)) and this FEP is TSC-reviewed until activation.
+- 2026-07-04: TSC review complete; Status set to `Implementable` (design approved, experimental track may proceed). Renamed to `0034-experimental-support.md`; relative links updated for FEP-0019's `0019-` rename. Target Version remains `TBD` pending the FEP Owner's milestone decision.
