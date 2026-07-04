@@ -1,6 +1,6 @@
 # FEP-19: Unified Package Integration for FlagOS Repositories
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Created:** 2026-05-25
 
@@ -241,8 +241,8 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 **Wave 1 (open PRs):**
 
 - [ ] [flagos-ai/community#19](https://github.com/flagos-ai/community/pull/19) - this FEP
-- [ ] [flagos-ai/FlagCX#476](https://github.com/flagos-ai/FlagCX/pull/476) - deb/rpm for backend-specific `libflagcx-{nvidia,metax}` runtime and dev files
-- [ ] [flagos-ai/FlagTree#607](https://github.com/flagos-ai/FlagTree/pull/607) - deb/rpm wrapping `python3-flagtree-nvidia` wheel
+- [x] [flagos-ai/FlagCX#476](https://github.com/flagos-ai/FlagCX/pull/476) - deb/rpm for backend-specific `libflagcx-{nvidia,metax}` runtime and dev files
+- [x] [flagos-ai/FlagTree#607](https://github.com/flagos-ai/FlagTree/pull/607) - deb/rpm wrapping `python3-flagtree-nvidia` wheel
 - [ ] [flagos-ai/FlagGems#3418](https://github.com/flagos-ai/FlagGems/pull/3418) - `python3-flag-gems` (multi-backend, runtime selection)
 - [ ] [flagos-ai/FlagScale#1205](https://github.com/flagos-ai/FlagScale/pull/1205) - `python3-flagscale` (noarch CLI)
 - [ ] [flagos-ai/FlagQuantum#4](https://github.com/flagos-ai/FlagQuantum/pull/4) - `python3-flagquantum`
@@ -250,8 +250,8 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 - [ ] [flagos-ai/FlagAudio#2](https://github.com/flagos-ai/FlagAudio/pull/2) - `python3-flag-audio`
 - [ ] [flagos-ai/FlagBLAS#1](https://github.com/flagos-ai/FlagBLAS/pull/1) - `python3-flag-blas`
 - [ ] [flagos-ai/FlagDNN#1](https://github.com/flagos-ai/FlagDNN/pull/1) - `python3-flag-dnn`
-- [ ] [flagos-ai/FlagAttention#31](https://github.com/flagos-ai/FlagAttention/pull/31) - `python3-flag-attention`
-- [ ] [flagos-ai/FlagSparse#12](https://github.com/flagos-ai/FlagSparse/pull/12) - `python3-flagsparse`
+- [x] [flagos-ai/FlagAttention#31](https://github.com/flagos-ai/FlagAttention/pull/31) - `python3-flag-attention`
+- [x] [flagos-ai/FlagSparse#12](https://github.com/flagos-ai/FlagSparse/pull/12) - `python3-flagsparse`
 
 **Wave 2 / 3 (not yet started):**
 
@@ -273,3 +273,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 - 2026-05-27: Clarified that a `pip`-installable PyPI wheel is a first-class channel for Python projects (aligned Summary, Publishing, and the artifact check). Scoped non-baseline distributions (Ubuntu 22.04, Debian Trixie, RHEL/openEuler) to the FlagOS SIG within each distribution's own community or a downstream packager. Removed `vllm-FL`/`sglang-FL`, which do not exist, from the SIG and Wave tables. Documented the `python3-` naming derivation (import name with underscores converted to hyphens). Re-homed the FEP from `sig-architecture` to `sig-os`, since OS-level packaging and distribution integration is sig-os's core scope.
 - 2026-06-05: Assigned `FEP-19` and renamed the file. Split SIG registration to governance PR [#35](https://github.com/flagos-ai/community/pull/35); this PR now contains only the FEP document. Trimmed the Summary's repository list to Wave 1; noted that only SIGs owning packaged repositories appear in the SIG / repository table; cited FlagCX (`ADAPTOR_MAP`) and FlagTree (`third_party/`) as the source of the canonical backend suffix list with the normalization rule; linked `release manager` to `fep/README.md#roles`; clarified that the FlagOS vendor-SDK base-image registry only applies to vendor-SDK builds, not pure-Python or generic-native builds. Removed `aipu` from the backend list — no implementation found in FlagCX, FlagTree, or build-infra. FlagCX's `du` adaptor is intentionally NOT added pending clarification of its origin.
 - 2026-06-10: Aligned with the community governance restructure: `sig-os` is now proposed as a Planned SIG (charter draft in [#35](https://github.com/flagos-ai/community/pull/35)) and this FEP is TSC-reviewed until activation; renamed `sig-ai4s` → `wg-ai4s` and `sig-embodied` → `wg-embodied` in the SIG / repository table per the new Active SIG / Planned SIG / Incubating WG model.
+- 2026-07-04: TSC review complete; Status set to `Implementable` (design approved, implementation in progress). Marked the four merged Wave 1 packaging PRs (FlagCX#476, FlagTree#607, FlagAttention#31, FlagSparse#12) as done. Target Version remains `TBD` pending the FEP Owner's milestone decision.
