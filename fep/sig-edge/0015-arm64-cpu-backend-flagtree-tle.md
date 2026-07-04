@@ -1,6 +1,6 @@
 # FEP-0015: Arm64 CPU Backend for FlagOS (TLE + Triton-CPU)
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-27
 
