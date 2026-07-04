@@ -1,6 +1,6 @@
 # FEP-0004: KernelGenBench - Multi-Chip Triton Kernel Generation Benchmark
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Created:** 2025-05-25
 
