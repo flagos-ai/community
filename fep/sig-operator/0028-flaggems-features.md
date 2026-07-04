@@ -1,6 +1,6 @@
 # FEP-NNNN: FlagGems Features
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-28
 
