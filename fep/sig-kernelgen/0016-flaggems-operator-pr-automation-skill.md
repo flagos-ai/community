@@ -1,6 +1,6 @@
 # FEP-0016: FlagGems Operator PR Automation Skill
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-27
 
