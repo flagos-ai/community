@@ -1,6 +1,6 @@
 # FEP: FlagGems-vllm - High-Performance Fused Operator Library for vLLM
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-27
 
