@@ -1,6 +1,6 @@
 # FEP: sglang-plugin-FL 0.1.0 Multi-Chip Inference Plugin for SGLang (Ascend)
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-05-29
 
