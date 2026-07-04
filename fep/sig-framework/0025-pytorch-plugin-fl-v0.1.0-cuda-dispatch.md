@@ -1,5 +1,9 @@
 # FEP: PyTorch-Plugin-FL Multi-Backend Operator Dispatch
 
+**Status:** `Implemented`
+
+**Target Version:** FlagOS 2.1
+
 ## Summary
 
 This FEP proposes integrating multi-backend operator dispatch support into the PyTorch-Plugin-FL project through the following complementary execution paths:
