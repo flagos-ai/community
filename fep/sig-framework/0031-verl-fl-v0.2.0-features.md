@@ -1,6 +1,6 @@
 # FEP-NNNN: verl-FL v0.2.0 Features
 
-**Status:** `Provisional`
+**Status:** `Implemented`
 
 **Created:** 2026-06-01
 
