@@ -1,3 +1,13 @@
+# FEP-0026 Appendix: Megatron-LM-FL + TE-FL v0.2.0 E2E Test Guide
+
+**Status:** `Implemented`
+
+**Target Version:** FlagOS 2.1
+
+> Supporting appendix for FEP-0026 (megatron-lm-fl / te-fl v0.2.0 features). Records the end-to-end test environment and steps used for FlagOS 2.1 acceptance.
+
+---
+
 
 0. docker env
 
