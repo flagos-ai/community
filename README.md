@@ -52,7 +52,7 @@ flowchart LR
     end
     P -.author writes.-> S
     IA -.approved by FEP Freeze.-> FF
-    CF -.impl. merged in module repos.-> T
+    CF -.implementation merged in module repos.-> T
     IM -.acceptance met at release.-> R
 
     OW([FEP Owner]):::role -.owns.-> P
