@@ -14,7 +14,7 @@ stored under `fep/sig-*/`, submitted and reviewed via PR.
 
 ## 🚩 Release Tracker
 
-Live FEP progress per FlagOS release. Badges read from the GitHub Milestones API and update automatically. A board view is on the [**Projects tab**](https://github.com/orgs/flagos-ai/projects) → *FlagOS FEP Tracker*.
+Live FEP progress per FlagOS release. Badges read from the GitHub Milestones API and update automatically. Board view: [**FlagOS FEP Tracker** — grouped by FEP Status](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770).
 
 [![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
 [![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2&color=blue)](https://github.com/flagos-ai/community/milestone/2)
