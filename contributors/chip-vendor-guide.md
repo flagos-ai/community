@@ -76,5 +76,5 @@ See [roles.md](roles.md) for detailed promotion criteria.
 ## Related Resources
 
 - [sig-chip Charter](../sigs/sig-chip/README.md)
-- [chip-targets-2.1-rc2.toml](../release/chip-targets-2.1-rc2.toml)
+- [chip-targets-2.1-rc2.toml](../release/2.1/chip-targets-2.1-rc2.toml)
 - [Chip Support Request Form](../sigs/sig-chip/chip-support-request.md)

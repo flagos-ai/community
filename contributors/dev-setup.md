@@ -34,7 +34,7 @@ cd community
 
 If you are developing on a specific chip, please confirm:
 
-1. The chip SDK is installed per [chip-targets.toml](../release/chip-targets-2.1-rc2.toml)
+1. The chip SDK is installed per [chip-targets.toml](../release/2.1/chip-targets-2.1-rc2.toml)
 2. The Docker base image is available (see `harbor.baai.ac.cn/flagbase/`)
 3. The chip CI runner is configured (contact sig-chip)
 

@@ -9,13 +9,13 @@ FlagOS Release Branch & Tag Manager
 
 用法:
   # 预览模式（不实际操作）
-  python manage-release.py --dry-run release-2.1-rc0.yaml
+  python tools/manage-release.py --dry-run 2.1/release-2.1-rc0.yaml
 
   # 执行操作
-  python manage-release.py release-2.1-rc0.yaml
+  python tools/manage-release.py 2.1/release-2.1-rc0.yaml
 
   # 指定工作目录（默认 /tmp/flagos-release）
-  python manage-release.py --workdir /path/to/workspace release-2.1-rc2.yaml
+  python tools/manage-release.py --workdir /path/to/workspace 2.1/release-2.1-rc2.yaml
 
 依赖: Python 3.8+, PyYAML, git CLI
 """
