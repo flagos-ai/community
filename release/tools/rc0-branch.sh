@@ -8,7 +8,7 @@
 #   只打 tag:      bash rc0-branch.sh --tag-only
 #
 # 前置条件:
-#   1. 所有模块已克隆到 src/ 目录下（通过 vcs import src < release-2.1-rc0.yaml）
+#   1. 所有模块已克隆到 src/ 目录下（通过 vcs import src < 2.1/release-2.1-rc0.yaml）
 #   2. 对每个模块有推送权限
 #
 # 流程:
