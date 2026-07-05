@@ -47,8 +47,8 @@ flowchart LR
     subgraph Design["FEP status (design track)"]
         P[Provisional] --> IA[Implementable] --> IM[Implemented]
     end
-    subgraph Cycle["Release cycle (per version, e.g. 2.2)"]
-        S[Submit and review] --> FF[FEP Freeze<br/>08-15] --> CF[Code Freeze<br/>08-31] --> T[Testing<br/>09-01→26] --> R[Release<br/>09-28]
+    subgraph Cycle["Release cycle (repeats every version)"]
+        S[Submit and review] --> FF[FEP Freeze] --> CF[Code Freeze] --> T[Testing window] --> R[Release]
     end
     P -.author writes.-> S
     IA -.approved by FEP Freeze.-> FF
@@ -67,7 +67,7 @@ flowchart LR
 - **Release Manager** enforces the freeze dates and tracks progress via the milestone.
 - **Tester** validates each merged FEP against its Test Plan during the testing window.
 
-Full rules: [FEP lifecycle](fep/README.md#fep-lifecycle) · [2.2 schedule & freeze rules](release/2.2/schedule.md).
+Full rules: [FEP lifecycle](fep/README.md#fep-lifecycle). Concrete dates for the current cycle: [release/2.2/schedule.md](release/2.2/schedule.md).
 
 ## Community Navigation
 
