@@ -23,7 +23,55 @@ FlagOS is a unified, open-source AI system software stack designed for multi-chi
 - 📚 **Sharing knowledge** and best practices
 - 🎯 **Participating** in the FlagOS ecosystem
 
+## 🧭 Find Your Path
+
+**New here? Start with your role — each row is the shortest path from "what you want" to "where to go."**
+
+| I want to… | Role | Start here |
+|------------|------|------------|
+| **Propose a new feature** (cross-module, new chip, new repo) | Feature developer / FEP Owner | [FEP process](fep/README.md) → [authoring guide](contributors/fep-guide.md) → mind the [**2.2 FEP Freeze: 2026-08-15**](release/2.2/schedule.md) |
+| **Onboard my chip** to FlagOS | Chip vendor | [Chip vendor guide](contributors/chip-vendor-guide.md) → example [FEP-0033 (SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
+| **Fix a bug / send a small PR** | Code contributor | [CONTRIBUTING.md](CONTRIBUTING.md) → the target repo's own `CONTRIBUTING.md` |
+| **Review FEPs** | SIG Approver / TSC | [Review guide](fep/REVIEW_GUIDE.md) → [FEP Tracker board](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |
+| **Test a release** | Tester / QA | [2.2 schedule](release/2.2/schedule.md) → [tracking issue #47](https://github.com/flagos-ai/community/issues/47) (test matrix compiled at FEP Freeze) |
+| **Track release progress** | Release Manager / anyone | [🚩 Release Tracker](fep/README.md#-release-tracker) · [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
+| **Join or start a SIG** | New member / org | [sigs/](sigs/) → [roles](contributors/roles.md) |
+| **Understand governance** | Everyone | [GOVERNANCE.md](GOVERNANCE.md) · [MAINTAINERS.md](MAINTAINERS.md) |
+
+### How it all fits together
+
+FlagOS development runs on three tracks at once — a FEP's **design status**, the **release cycle**, and **who acts when**. One picture:
+
+```mermaid
+flowchart LR
+    subgraph Design["FEP status (design track)"]
+        P[Provisional] --> IA[Implementable] --> IM[Implemented]
+    end
+    subgraph Cycle["Release cycle (per version, e.g. 2.2)"]
+        S[Submit & review] --> FF[FEP Freeze<br/>08-15] --> CF[Code Freeze<br/>08-31] --> T[Testing<br/>09-01→26] --> R[Release<br/>09-28]
+    end
+    P -.author writes.-> S
+    IA -.approved by FEP Freeze.-> FF
+    CF -.impl. merged in module repos.-> T
+    IM -.acceptance met at release.-> R
+
+    OW([FEP Owner]):::role -.owns.-> P
+    AP([SIG Approver / TSC]):::role -.approves.-> IA
+    RM([Release Manager]):::role -.gates & tracks.-> FF
+    QA([Tester]):::role -.validates.-> T
+    classDef role fill:#eef,stroke:#88a
+```
+
+- **FEP Owner** drives a proposal from `Provisional` to `Implemented`, and declares its `Target Version`.
+- **SIG Approver / TSC** reviews the design and approves it to `Implementable` (with a complete Test Plan).
+- **Release Manager** enforces the freeze dates and tracks progress via the milestone.
+- **Tester** validates each merged FEP against its Test Plan during the testing window.
+
+Full rules: [FEP lifecycle](fep/README.md#fep-lifecycle) · [2.2 schedule & freeze rules](release/2.2/schedule.md).
+
 ## Community Navigation
+
+> The role router above is the fast path. This table is the full directory index.
 
 | Section | Description |
 |------|------|
@@ -32,13 +80,14 @@ FlagOS is a unified, open-source AI system software stack designed for multi-chi
 | [sigs/](sigs/) | **SIGs** — list of all SIGs, charters, creation process, OWNERS spec, meeting calendar |
 | [contributors/](contributors/) | Contributor guides, role definitions, FEP authoring |
 | [fep/](fep/) | FEP process & templates |
-| [release/](release/) | Release management process |
+| [release/](release/) | Release management process & per-version schedules |
 | [wg/](wg/) | Incubating Working Groups |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contributor quick-nav |
 
 ## Table of Contents
 
 - [About FlagOS Community](#about-flagos-community)
+- [Find Your Path](#-find-your-path)
 - [Community Navigation](#community-navigation)
 - [How to Contribute](#how-to-contribute)
 - [Communication Channels](#communication-channels)

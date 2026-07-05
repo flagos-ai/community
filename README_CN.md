@@ -23,7 +23,55 @@ FlagOS 是一个统一的、开源的 AI 系统软件栈，专为多芯片场景
 - 📚 **分享知识和最佳实践**
 - 🎯 **参与 FlagOS 生态**
 
+## 🧭 按角色找路
+
+**初来乍到?从你的角色出发——每一行都是从"我想做什么"到"该去哪"的最短路径。**
+
+| 我想… | 角色 | 从这里开始 |
+|-------|------|-----------|
+| **提交新特性**(跨模块、新芯片、新仓库) | 特性开发者 / FEP Owner | [FEP 流程](fep/README_CN.md) → [编写指引](contributors/fep-guide.md) → 注意 [**2.2 FEP 冻结:2026-08-15**](release/2.2/schedule_CN.md) |
+| **让我的芯片接入** FlagOS | 芯片厂商 | [芯片厂商指南](contributors/chip-vendor-guide.md) → 范例 [FEP-0033(SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
+| **修 bug / 提小 PR** | 代码贡献者 | [CONTRIBUTING.md](CONTRIBUTING_CN.md) → 目标仓库自己的 `CONTRIBUTING.md` |
+| **评审 FEP** | SIG Approver / TSC | [评审指南](fep/REVIEW_GUIDE.md) → [FEP Tracker 看板](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |
+| **参与版本测试** | 测试者 / QA | [2.2 时间表](release/2.2/schedule_CN.md) → [追踪 issue #47](https://github.com/flagos-ai/community/issues/47)(测试矩阵在 FEP 冻结日汇编) |
+| **了解版本进度** | Release Manager / 任何人 | [🚩 版本追踪](fep/README_CN.md#-版本追踪-release-tracker) · [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
+| **加入或创建 SIG** | 新成员 / 组织 | [sigs/](sigs/) → [角色定义](contributors/roles_CN.md) |
+| **了解治理机制** | 所有人 | [GOVERNANCE.md](GOVERNANCE_CN.md) · [MAINTAINERS.md](MAINTAINERS.md) |
+
+### 全局一张图
+
+FlagOS 的开发同时跑在三条轨道上——FEP 的**设计状态**、**版本周期**、以及**各角色何时行动**:
+
+```mermaid
+flowchart LR
+    subgraph Design["FEP 状态(设计轨道)"]
+        P[Provisional] --> IA[Implementable] --> IM[Implemented]
+    end
+    subgraph Cycle["版本周期(每个版本,如 2.2)"]
+        S[提交与评审] --> FF[FEP 冻结<br/>08-15] --> CF[代码冻结<br/>08-31] --> T[测试期<br/>09-01→26] --> R[发布<br/>09-28]
+    end
+    P -.作者撰写.-> S
+    IA -.冻结前须批准.-> FF
+    CF -.实现合入各模块仓库.-> T
+    IM -.发布时验收达成.-> R
+
+    OW([FEP Owner]):::role -.负责.-> P
+    AP([SIG Approver / TSC]):::role -.批准.-> IA
+    RM([Release Manager]):::role -.把关与追踪.-> FF
+    QA([测试者]):::role -.验证.-> T
+    classDef role fill:#eef,stroke:#88a
+```
+
+- **FEP Owner**:推动提案从 `Provisional` 走到 `Implemented`,并申报 `Target Version`。
+- **SIG Approver / TSC**:评审设计,批准至 `Implementable`(要求 Test Plan 完整)。
+- **Release Manager**:执行冻结日期,通过 milestone 追踪进度。
+- **测试者**:在测试期依据各 FEP 的 Test Plan 验证已合入的功能。
+
+完整规则:[FEP 生命周期](fep/README_CN.md#fep-生命周期) · [2.2 时间表与冻结规则](release/2.2/schedule_CN.md)。
+
 ## 社区导航
+
+> 上面的角色路由是快捷路径,下表是完整的目录索引。
 
 | 入口 | 说明 |
 |------|------|
@@ -32,13 +80,14 @@ FlagOS 是一个统一的、开源的 AI 系统软件栈，专为多芯片场景
 | [sigs/](sigs/) | **SIG** — 所有 SIG 列表、章程、创建流程、OWNERS 规范、会议日历 |
 | [contributors/](contributors/) | 贡献者指南、角色定义、FEP 编写指引 |
 | [fep/](fep/) | FEP 流程与模板 |
-| [release/](release/) | 版本发布管理流程 |
+| [release/](release/) | 版本发布管理流程与各版本时间表 |
 | [wg/](wg/) | 孵化工作组 |
 | [CONTRIBUTING.md](CONTRIBUTING_CN.md) | 贡献者快速导航 |
 
 ## 目录
 
 - [关于 FlagOS 社区](#关于-flagos-社区)
+- [按角色找路](#-按角色找路)
 - [社区导航](#社区导航)
 - [如何贡献](#如何贡献)
 - [交流渠道](#交流渠道)
