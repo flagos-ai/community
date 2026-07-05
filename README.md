@@ -48,7 +48,7 @@ flowchart LR
         P[Provisional] --> IA[Implementable] --> IM[Implemented]
     end
     subgraph Cycle["Release cycle (per version, e.g. 2.2)"]
-        S[Submit & review] --> FF[FEP Freeze<br/>08-15] --> CF[Code Freeze<br/>08-31] --> T[Testing<br/>09-01→26] --> R[Release<br/>09-28]
+        S[Submit and review] --> FF[FEP Freeze<br/>08-15] --> CF[Code Freeze<br/>08-31] --> T[Testing<br/>09-01→26] --> R[Release<br/>09-28]
     end
     P -.author writes.-> S
     IA -.approved by FEP Freeze.-> FF
@@ -57,7 +57,7 @@ flowchart LR
 
     OW([FEP Owner]):::role -.owns.-> P
     AP([SIG Approver / TSC]):::role -.approves.-> IA
-    RM([Release Manager]):::role -.gates & tracks.-> FF
+    RM([Release Manager]):::role -.gates and tracks.-> FF
     QA([Tester]):::role -.validates.-> T
     classDef role fill:#eef,stroke:#88a
 ```
