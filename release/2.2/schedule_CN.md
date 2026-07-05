@@ -24,5 +24,5 @@
 ## 角色分工
 
 - **FEP Owner**:在 FEP Freeze 前将 `Target Version` 设为 `FlagOS 2.2`,在 Code Freeze 前推动实现完成。
-- **Release Manager**:执行 milestone 准入截止,通过 milestone 视图追踪进度,按[发布流程](../README_CN.md)组织 Go/No-Go。
+- **Release Manager**:执行 milestone 准入截止,通过 milestone 视图追踪进度,按[发布流程](../README_CN.md)组织 Go/No-Go;**在 FEP 冻结日汇编 2.2 测试矩阵**——把所有已挂入 FEP 的 Test Plan 链接汇总到[追踪 issue #47](https://github.com/flagos-ai/community/issues/47),供测试期使用。
 - **SIG Approver / TSC**:及时完成 FEP 评审(按评审指南 2 周内给出初审意见),让作者来得及赶上冻结点。

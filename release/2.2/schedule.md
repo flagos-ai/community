@@ -24,5 +24,5 @@
 ## Roles
 
 - **FEP Owners**: set `Target Version: FlagOS 2.2` in your FEP before FEP Freeze and drive implementation before Code Freeze.
-- **Release Manager**: enforces milestone attachment cut-off, tracks progress via the milestone view, runs Go/No-Go per the [release process](../README.md).
+- **Release Manager**: enforces milestone attachment cut-off, tracks progress via the milestone view, runs Go/No-Go per the [release process](../README.md); **at FEP Freeze, compiles the 2.2 test matrix** — links to every attached FEP's Test Plan — into [tracking issue #47](https://github.com/flagos-ai/community/issues/47) for the testing window.
 - **SIG Approvers / TSC**: complete FEP reviews in time for authors to meet the freeze (initial feedback within 2 weeks per the Review Guide).
