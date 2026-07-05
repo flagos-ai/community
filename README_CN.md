@@ -47,8 +47,8 @@ flowchart LR
     subgraph Design["FEP 状态(设计轨道)"]
         P[Provisional] --> IA[Implementable] --> IM[Implemented]
     end
-    subgraph Cycle["版本周期(每个版本,如 2.2)"]
-        S[提交与评审] --> FF[FEP 冻结<br/>08-15] --> CF[代码冻结<br/>08-31] --> T[测试期<br/>09-01→26] --> R[发布<br/>09-28]
+    subgraph Cycle["版本周期(每个版本循环一次)"]
+        S[提交与评审] --> FF[FEP 冻结] --> CF[代码冻结] --> T[测试期] --> R[发布]
     end
     P -.作者撰写.-> S
     IA -.冻结前须批准.-> FF
@@ -67,7 +67,7 @@ flowchart LR
 - **Release Manager**:执行冻结日期,通过 milestone 追踪进度。
 - **测试者**:在测试期依据各 FEP 的 Test Plan 验证已合入的功能。
 
-完整规则:[FEP 生命周期](fep/README_CN.md#fep-生命周期) · [2.2 时间表与冻结规则](release/2.2/schedule_CN.md)。
+完整规则:[FEP 生命周期](fep/README_CN.md#fep-生命周期)。当前周期的具体日期见:[release/2.2/schedule_CN.md](release/2.2/schedule_CN.md)。
 
 ## 社区导航
 
