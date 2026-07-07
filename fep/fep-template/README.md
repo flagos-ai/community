@@ -66,28 +66,44 @@ Implementation-level details such as API changes, data flow, or architecture dia
 
 ## Packaging
 
-**(Required)** How to build and package the feature. Include build commands, packaging format, and platform requirements.
+**(Required)** How to build and package the feature. This section is about **building/packaging only** — do NOT describe how to install or run the feature here (that belongs in the Test Plan).
 
-<!-- How to build and package this feature? Provide build commands or script. -->
+**Supported vendors:** e.g. Metax, Nvidia, Hygon
+
+**Can this feature be packaged as a wheel (`.whl`)?**
+- If **yes**: provide detailed instructions for building the wheel, **or** provide the pre-built `.whl` file directly (with a download link).
+- If **no**: state why, and note that it will be built from source instead.
 
 <!--
-- Build command: pip install . / make / cmake ...
-- Packaging format: pip wheel / deb / rpm / Docker ...
-- Platform requirements: CUDA version, Python version, etc.
+If yes:
+- Packaging format: pip wheel (.whl) / deb / rpm / Docker ...
+- Build command (to produce the wheel), e.g.:
+    python -m build            # produces dist/*.whl
+    # or
+    pip wheel . -w dist/
+- Pre-built artifact: [link to the .whl file], or
 - [Link to packaging script or CI workflow]
+
+Platform requirements: supported vendors, CUDA/toolkit version, Python version, PyTorch version, etc.
 -->
 
 ## Test Plan
 
 **(Required)** How to verify the feature works correctly. Verify against each Goal listed above. Include functional, performance, and compatibility checks where relevant.
 
-<!-- How will this feature be verified? -->
-The test plan MUST explicitly describe:
-- **Image acquisition** (base image and source)
-- **Package installation** (commands)
-- **Component setup/running** (startup commands)
-- **Test commands** (exact commands for each verification scenario)
-- **Expected results** (per test command)
+This section focuses on **verifying the new feature** — do NOT describe installation or environment setup here (packaging is covered in the Packaging section).
+
+The test plan MUST explicitly describe, for each new feature in this release:
+- **Test commands** — the exact command(s) that exercise the new feature added in this release. Clearly mark which feature each command targets.
+- **Expected results** — the expected output/behavior for each test command.
+
+<!--
+For each new feature in this release:
+
+Feature: e.g. <name of the new feature>
+- Test command: e.g. <exact command>
+- Expected result: e.g. <expected output / behavior>
+-->
 
 ## Related PRs
 
