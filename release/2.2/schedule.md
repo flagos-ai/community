@@ -9,9 +9,9 @@
 
 | Date | Event | What it means |
 |------|-------|---------------|
-| **2026-08-15** | **FEP Freeze** | FEPs targeting 2.2 must be approved (`Implementable`) and merged, with a complete Test Plan. After this date, no new FEPs are attached to the 2.2 milestone — late FEPs move to the next release. |
+| **2026-08-14** | **FEP Freeze** | FEPs targeting 2.2 must be approved (`Implementable`) and merged, with a complete Test Plan. After this date, no new FEPs are attached to the 2.2 milestone — late FEPs move to the next release. |
 | **2026-08-31** | **Code Freeze** | All implementation PRs tracked by 2.2 FEPs must be merged in their module repositories. |
-| 2026-09-01 → 09-26 | **Testing & stabilization** | Testing runs against each FEP's Test Plan (multi-chip matrix). Only bug fixes land; no new features. |
+| 2026-09-01 → 09-24 | **Testing & stabilization** | Testing runs against each FEP's Test Plan (multi-chip matrix). Only bug fixes land; no new features. |
 | **2026-09-28** | **Release** | FlagOS 2.2 GA. FEPs with acceptance criteria met flip Status to `Implemented`. |
 
 ## Freeze rules
