@@ -24,7 +24,7 @@ Live FEP progress per FlagOS release. Badges read from the GitHub Milestones API
 | **FlagOS 2.1** | 2026-06-11 | ✅ Released — all FEPs merged | [milestone/1](https://github.com/flagos-ai/community/milestone/1) |
 | **FlagOS 2.2** | 2026-09-28 | 🔵 Open — accepting FEPs | [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
 
-> **FlagOS 2.2 key dates** — FEP Freeze: **2026-08-15** · Code Freeze: **2026-08-31** · Testing: 09-01 → 09-26. Full schedule and freeze rules: [release/2.2/schedule.md](../release/2.2/schedule.md).
+> **FlagOS 2.2 key dates** — FEP Freeze: **2026-08-14** · Code Freeze: **2026-08-31** · Testing: 09-01 → 09-24. Full schedule and freeze rules: [release/2.2/schedule.md](../release/2.2/schedule.md).
 
 > A FEP is attached to a release milestone once its Owner sets `Target Version` to that release (see [Milestone Usage](#milestone-usage)).
 
