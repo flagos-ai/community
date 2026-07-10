@@ -304,9 +304,9 @@ feat: 为 FlagAttention 实现新的注意力算子
 ### 交流渠道
 
 - **邮箱**: contact@flagos.io
-- **微信公众号**: FlagOpen
-- **微信视频号**: FlagOpen
-- **GitHub Discussions**: [即将推出]
+- **微信公众号**: 智源FlagOpen
+- **微信视频号**: 智源FlagOpen
+- **GitHub Discussions**: [flagos-ai/community/discussions](https://github.com/flagos-ai/community/discussions)
 - **GitHub Issues**: 用于 bug 和功能请求
 
 ### 参与讨论
@@ -328,8 +328,8 @@ feat: 为 FlagAttention 实现新的注意力算子
 
 我们致力于提供热情和包容的社区。所有贡献者必须遵守我们的行为准则：
 
-- **[Code of Conduct (English)](CODE_OF_CONDUCT.md)**
-- **[行为准则 (中文)](CODE_OF_CONDUCT_CN.md)**
+- **[Code of Conduct (English)](../CODE_OF_CONDUCT.md)**
+- **[行为准则 (中文)](../CODE_OF_CONDUCT_CN.md)**
 
 不可接受的行为包括骚扰、歧视和违反这些标准。
 
@@ -356,7 +356,7 @@ feat: 为 FlagAttention 实现新的注意力算子
 - [FlagOS 组织](https://github.com/flagos-ai)
 - [FlagOS Wiki](https://flagos-wiki.baai.ac.cn/)
 - [行为准则](../CODE_OF_CONDUCT_CN.md)
-- [社区 README](README_CN.md)
+- [社区 README](../README_CN.md)
 
 ---
 

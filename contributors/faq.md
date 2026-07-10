@@ -43,7 +43,7 @@ See sig-chip's CI tier requirements. At minimum, the runner must be able to comp
 ### Q: How do I contact the FlagOS team?
 - GitHub Discussions: [FlagOS Community](https://github.com/FlagOS-AI/community/discussions)
 - Email: contact@flagos.io
-- WeChat Official Account: FlagOpen
+- WeChat Official Account: 智源FlagOpen
 
 ### Q: I can't find the answer to my question?
 Ask in the Q&A category of GitHub Discussions.

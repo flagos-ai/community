@@ -368,7 +368,7 @@ Code review is key to maintaining FlagOS quality. See the [Code Review Guide](re
 ### Communication Channels
 
 - **Email**: contact@flagos.io
-- **WeChat Official Account**: FlagOpen
+- **WeChat Official Account**: 智源FlagOpen
 - **GitHub Discussions**: [FlagOS Community](https://github.com/FlagOS-AI/community/discussions)
 - **GitHub Issues**: Use for bugs and feature requests
 

@@ -84,7 +84,7 @@ Provisional ──→ Implementable ──→ Implemented
 | **Implementable** | Design approved, ready to implement | SIG approvers approve PR, then merge |
 | **Implemented** | Code merged, acceptance criteria met | Update doc via PR |
 | **Deferred** | Postponed to a later release | Move to next Milestone |
-| **Rejected** | Not moving forward | Close PR; rejected FEPs should still be merged to preserve the decision record |
+| **Rejected** | Not moving forward | Merge the PR with Status `Rejected` to preserve the decision record |
 
 > Status is marked in the FEP doc as `**Status:** <value>` and updated via follow-up PRs at each state transition.
 

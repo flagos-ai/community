@@ -132,7 +132,7 @@ FlagOS vX.Y Release Calendar
 
 ### Per Validation Iteration (.postN)
 
-1. RM tags all modules with `.postN` using [manage-release.py](manage-release.py)
+1. RM tags all modules with `.postN` using [manage-release.py](tools/manage-release.py)
 2. Update the `version` field in `release-2.1-rc2.yaml`
 3. Run full multi-chip CI test suite
 4. Record blocking issues in the RC tracking Issue
@@ -392,6 +392,6 @@ Thanks to the following contributors who submitted these fixes:
 
 | Tool | Purpose | Path |
 |------|------|------|
-| `manage-release.py` | Automated branch creation and tagging | [manage-release.py](manage-release.py) |
-| `release-2.1-rc2.yaml` | Module manifest and version pinning example (vcstool format) | [release-2.1-rc2.yaml](release-2.1-rc2.yaml) |
-| `chip-targets-2.1-rc2.toml` | Chip SDK version and Docker base image example | [chip-targets-2.1-rc2.toml](chip-targets-2.1-rc2.toml) |
+| `manage-release.py` | Automated branch creation and tagging | [manage-release.py](tools/manage-release.py) |
+| `release-2.1-rc2.yaml` | Module manifest and version pinning example (vcstool format) | [release-2.1-rc2.yaml](2.1/release-2.1-rc2.yaml) |
+| `chip-targets-2.1-rc2.toml` | Chip SDK version and Docker base image example | [chip-targets-2.1-rc2.toml](2.1/chip-targets-2.1-rc2.toml) |
