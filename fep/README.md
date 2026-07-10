@@ -104,7 +104,7 @@ in the problem space and willingness to review.
 Copy the [FEP template](fep-template/README.md) to `fep/sig-xxx/title-slug.md`.
 
 - `title-slug` is a short hyphenated English description
-- Minimum content to start: Summary + Motivation. Everything else can follow later.
+- Minimum content to start: the template's **(Required)** sections — Summary, Goals, Packaging, Test Plan. Everything else can follow later.
 - Set initial Status to `Provisional`
 
 ### 2. Open a PR
