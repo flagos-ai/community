@@ -1,19 +1,17 @@
 name: Release Branch & Tag
 
 on:
-  schedule:
-    # 每天北京时间 04:00 (UTC 20:00)
-    - cron: '0 20 * * *'
   workflow_dispatch:
     inputs:
       manifest:
-        description: 'release YAML 文件名'
+        description: 'release YAML 清单路径（相对 release/）'
         required: true
-        default: 'release-2.1-rc2.yaml'
+        default: '2.1/release-2.1-rc2.yaml'
         type: choice
         options:
-          - release-2.1-rc0.yaml
-          - release-2.1-rc2.yaml
+          - 2.1/release-2.1-rc0.yaml
+          - 2.1/release-2.1-rc2.yaml
+          - 2.1/release-2.1.yaml
       dry_run:
         description: '预览模式（不实际操作）'
         required: false
@@ -49,11 +47,11 @@ jobs:
           FLAGOS_PAT: ${{ secrets.FLAGOS_PAT }}
         working-directory: release
         run: |
-          MANIFEST="${{ inputs.manifest || 'release-2.1-rc2.yaml' }}"
+          MANIFEST="${{ inputs.manifest }}"
           DRY_RUN="${{ inputs.dry_run || false }}"
 
           if [ "$DRY_RUN" = "true" ]; then
-            python3 manage-release.py --dry-run "$MANIFEST"
+            python3 tools/manage-release.py --dry-run "$MANIFEST"
           else
-            python3 manage-release.py --workdir /tmp/flagos-release "$MANIFEST"
+            python3 tools/manage-release.py --workdir /tmp/flagos-release "$MANIFEST"
           fi
