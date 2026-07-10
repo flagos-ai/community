@@ -29,7 +29,7 @@ FlagOS is a unified, open-source AI system software stack designed for multi-chi
 
 | I want to… | Role | Start here |
 |------------|------|------------|
-| **Propose a new feature** (cross-module, new chip, new repo) | Feature developer / FEP Owner | [FEP process](fep/README.md) → [authoring guide](contributors/fep-guide.md) → mind the [**2.2 FEP Freeze: 2026-08-15**](release/2.2/schedule.md) |
+| **Propose a new feature** (cross-module, new chip, new repo) | Feature developer / FEP Owner | [FEP process](fep/README.md) → [authoring guide](contributors/fep-guide.md) → mind the [**2.2 FEP Freeze: 2026-08-14**](release/2.2/schedule.md) |
 | **Onboard my chip** to FlagOS | Chip vendor | [Chip vendor guide](contributors/chip-vendor-guide.md) → example [FEP-0033 (SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
 | **Fix a bug / send a small PR** | Code contributor | [CONTRIBUTING.md](CONTRIBUTING.md) → the target repo's own `CONTRIBUTING.md` |
 | **Review FEPs** | SIG Approver / TSC | [Review guide](fep/REVIEW_GUIDE.md) → [FEP Tracker board](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |

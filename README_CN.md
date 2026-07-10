@@ -29,7 +29,7 @@ FlagOS 是一个统一的、开源的 AI 系统软件栈，专为多芯片场景
 
 | 我想… | 角色 | 从这里开始 |
 |-------|------|-----------|
-| **提交新特性**(跨模块、新芯片、新仓库) | 特性开发者 / FEP Owner | [FEP 流程](fep/README_CN.md) → [编写指引](contributors/fep-guide.md) → 注意 [**2.2 FEP 冻结:2026-08-15**](release/2.2/schedule_CN.md) |
+| **提交新特性**(跨模块、新芯片、新仓库) | 特性开发者 / FEP Owner | [FEP 流程](fep/README_CN.md) → [编写指引](contributors/fep-guide.md) → 注意 [**2.2 FEP 冻结:2026-08-14**](release/2.2/schedule_CN.md) |
 | **让我的芯片接入** FlagOS | 芯片厂商 | [芯片厂商指南](contributors/chip-vendor-guide.md) → 范例 [FEP-0033(SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
 | **修 bug / 提小 PR** | 代码贡献者 | [CONTRIBUTING.md](CONTRIBUTING_CN.md) → 目标仓库自己的 `CONTRIBUTING.md` |
 | **评审 FEP** | SIG Approver / TSC | [评审指南](fep/REVIEW_GUIDE.md) → [FEP Tracker 看板](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |
