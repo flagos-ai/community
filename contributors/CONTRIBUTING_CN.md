@@ -12,14 +12,37 @@
 
 欢迎！我们很高兴您有兴趣为 FlagOS 做出贡献。本文档为所有类型的贡献提供指南和说明。
 
+## 开发者原创声明 (DCO)
+
+FlagOS 对所有代码贡献采用 [Developer Certificate of Origin](https://developercertificate.org/)（DCO）。向 FlagOS 贡献即表示您确认：
+
+- 您有权以 Apache 2.0 许可证提交该贡献
+- 该贡献是您的原创作品（或已获得版权所有者的许可）
+
+**签署方式**：在提交信息中添加 `Signed-off-by: Your Name <your@email.com>`：
+
+```bash
+git commit -s -m "your commit message"
+```
+
+使用 `git commit -s` 会自动完成签署。未签署 DCO 的 Pull Request 不会被接受。
+
+> **DCO 检查**：FlagOS 使用 [DCO GitHub App](https://github.com/apps/dco) 自动校验每个 PR 的签署情况。未通过 DCO 检查的 PR 会被标记 `dco/failed` 并阻止合入。如因 rebase 等操作丢失签署，可用 `git commit -s --amend` 恢复。
+
+> 芯片厂商集成可能需要额外协议，见 [chip-vendor-guide.md](chip-vendor-guide.md)。
+
 ## 目录
 
 - [贡献方式](#贡献方式)
 - [快速开始](#快速开始)
 - [代码贡献工作流](#代码贡献工作流)
+- [CI 门禁要求](#ci-门禁要求)
+- [合并策略](#合并策略)
 - [文档贡献](#文档贡献)
 - [Bug 报告](#bug-报告)
 - [功能请求](#功能请求)
+- [Issue Triage](#issue-triage)
+- [代码审查](#代码审查)
 - [社区参与](#社区参与)
 - [行为准则](#行为准则)
 - [有疑问？](#有疑问)
@@ -194,10 +217,34 @@ feat: 为 FlagAttention 实现新的注意力算子
 - 相关 issue 的链接
 
 **PR 审查流程**：
-- 至少需要一名 FlagOS 维护者审查
-- 及时处理审查意见
+- 至少需要一名 [SIG Approver](roles_CN.md) 批准（见 [OWNERS](../sigs/)）
+- 如果尚未列出 Approver（启动期），在 PR 中评论说明，并在 [GitHub Discussions](https://github.com/FlagOS-AI/community/discussions) 发帖请求流转。联系方式见 [MAINTAINERS.md](../MAINTAINERS.md)
 - 进行更改后重新请求审查
 - 对反馈和建议保持开放态度
+- 审查标准见[代码审查指南](review-guide.md)
+
+## CI 门禁要求
+
+PR 合入前必须通过以下 CI 检查。RC 期间由 CI Signal Lead（见[发布管理](../release/README_CN.md)角色一节）维护统一的 CI 面板。
+
+| 检查项 | 要求 | 是否阻塞合入 |
+|--------|------|----------|
+| **DCO 签署** | DCO bot 检查通过 | ✅ 阻塞 |
+| **Lint / 格式化** | 按各仓库 pre-commit 配置 | ✅ 阻塞 |
+| **Tier 1 芯片构建 + 单元测试**（如 NVIDIA） | 100% 通过 | ✅ 阻塞 |
+| **Tier 2 芯片构建 + 单元测试**（如海光、天数、沐曦） | 必须运行，95%+ 通过 | ❌ 不阻塞（失败告警但不阻止合入） |
+| **Tier 3 芯片 CI** | 日报/周报形式 | ❌ 不阻塞 |
+
+> **芯片 CI 分层**：分层定义见[芯片厂商接入指引](chip-vendor-guide.md#ci-tiers)。层级升降由 sig-chip 季度评审决定。
+>
+> **Flaky 测试处理**：反复出现的 flaky 测试须由对应 SIG Approver 建 Issue 追踪（标签 `kind/flake`），不应长期阻塞 CI。SIG Chair 可将其临时移出 Required 检查集，但必须在同一版本内修复。
+
+## 合并策略
+
+- 所有 PR 使用 **squash merge**
+- PR 标题即 squash 提交信息，须符合 [Conventional Commits](https://www.conventionalcommits.org/) 格式：`<type>: <description>`
+- 由 SIG Approver 执行合并（见[角色定义](roles_CN.md)）
+- 合并前提：所有 Required CI 通过 + 至少 1 名 Approver 批准
 
 ## 文档贡献
 
@@ -299,6 +346,23 @@ feat: 为 FlagAttention 实现新的注意力算子
 任何草图、模型或相关 issue
 ```
 
+## Issue Triage
+
+帮助分类和响应 issue 也是重要的贡献方式。详见 [Issue Triage 指南](issue-triage.md)。
+
+- 为新提交的 issue 添加分类标签（`kind/bug`、`kind/feature` 等）
+- 确认 issue 信息是否足以复现
+- 帮助标记重复 issue
+- 将已解决的 issue 关联到修复 PR
+
+## 代码审查
+
+代码审查是保持 FlagOS 质量的关键。详见[代码审查指南](review-guide.md)。
+
+- 审查清单：正确性、性能、代码质量、API 兼容性、多芯片
+- 审查时效预期：常规 PR 72 小时内给出首次反馈
+- 跨模块 PR 需要每个受影响模块的 Approver 批准
+
 ## 社区参与
 
 ### 交流渠道
@@ -324,6 +388,10 @@ feat: 为 FlagAttention 实现新的注意力算子
 - 分享知识和专业知识
 - 对新手保持欢迎态度
 
+### SIG 例会
+
+各 SIG 定期举行例会。会议日历见 [SIG 总览](../sigs/README.md)。
+
 ## 行为准则
 
 我们致力于提供热情和包容的社区。所有贡献者必须遵守我们的行为准则：
@@ -347,7 +415,7 @@ feat: 为 FlagAttention 实现新的注意力算子
 
 1. **阅读文档**: 查看 [FlagOS Wiki](https://flagos-wiki.baai.ac.cn/)
 2. **检查现有 issue**: 搜索类似问题
-3. **在讨论中提问**: 当可用时使用 GitHub Discussions
+3. **在讨论中提问**: 使用 [GitHub Discussions](https://github.com/FlagOS-AI/community/discussions)
 4. **联系**: 邮件 contact@flagos.io
 5. **加入社区**: 通过微信或其他渠道联系
 
@@ -355,6 +423,13 @@ feat: 为 FlagAttention 实现新的注意力算子
 
 - [FlagOS 组织](https://github.com/flagos-ai)
 - [FlagOS Wiki](https://flagos-wiki.baai.ac.cn/)
+- [治理规则 (GOVERNANCE_CN.md)](../GOVERNANCE_CN.md)
+- [SIG 总览](../sigs/README.md)
+- [FEP 流程](../fep/README_CN.md)
+- [角色定义](roles_CN.md)
+- [代码审查指南](review-guide.md)
+- [Issue Triage 指南](issue-triage.md)
+- [决策操作手册](decision-guide_CN.md)
 - [行为准则](../CODE_OF_CONDUCT_CN.md)
 - [社区 README](../README_CN.md)
 
