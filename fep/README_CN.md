@@ -82,7 +82,7 @@ Provisional ──→ Implementable ──→ Implemented
 | **Implementable** | 设计已批准，可开始实现 | SIG Approver 批准 PR 后合入 |
 | **Implemented** | 代码已合入，验收标准已满足 | 通过 PR 更新文档 |
 | **Deferred** | 推迟到后续版本 | 移至下一 Milestone |
-| **Rejected** | 不再推进 | 关闭 PR；被拒绝的 FEP 仍应合入以保留决策记录 |
+| **Rejected** | 不再推进 | 将 Status 标为 `Rejected` 后合入 PR,以保留决策记录 |
 
 > 状态在 FEP 文档中标注为 `**Status:** <value>`，每次状态变更通过后续 PR 更新。
 

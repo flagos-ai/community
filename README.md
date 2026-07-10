@@ -154,7 +154,7 @@ Stay connected and engage with the FlagOS community:
 |---------|---------|---------|
 | 📧 **Email** | General inquiries and communication | contact@flagos.io |
 | 📱 **WeChat Official Account** | Updates and news | 智源FlagOpen |
-| 💬 **GitHub Discussions** | Technical discussions and Q&A | [Coming Soon] |
+| 💬 **GitHub Discussions** | Technical discussions and Q&A | [flagos-ai/community/discussions](https://github.com/flagos-ai/community/discussions) |
 | 📋 **Mailing List** | Announcements and community updates | [Coming Soon] |
 
 ## Code of Conduct

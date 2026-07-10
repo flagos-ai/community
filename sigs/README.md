@@ -63,7 +63,7 @@ After TSC approves a new SIG, the Chair must complete the following within **2 w
 - [ ] Publish the agenda before the first meeting (per the [Meeting Operations Guide](../contributors/meeting-guide.md))
 
 **Community Participation**
-- [ ] Chair and tech leads read the [Moderation Guidelines](../contributors/communication-guidelines.md#8-moderation)
+- [ ] Chair and tech leads read the [Moderation Guidelines](../contributors/communication-guidelines.md#viii-moderation)
 - [ ] Give a SIG introduction at the next community all-hands (5-minute lightning talk)
 - [ ] Submit the first monthly brief to TSC (1 page, including meeting notes link and key progress)
 

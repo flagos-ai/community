@@ -132,7 +132,7 @@ FlagOS vX.Y 发布日历
 
 ### 每个验证轮次 (.postN)
 
-1. RM 按 [manage-release.py](manage-release.py) 为所有模块打 `.postN` tag
+1. RM 按 [manage-release.py](tools/manage-release.py) 为所有模块打 `.postN` tag
 2. 更新 `release-2.1-rc2.yaml` 中的 `version` 字段
 3. 多芯片 CI 跑全量测试
 4. 记录阻塞问题到 RC 追踪 Issue
@@ -392,6 +392,6 @@ YYYY-MM-DD
 
 | 工具 | 用途 | 路径 |
 |------|------|------|
-| `manage-release.py` | 自动化分支创建与打 tag | [manage-release.py](manage-release.py) |
-| `release-2.1-rc2.yaml` | 模块清单与版本锁定示例（vcstool 格式） | [release-2.1-rc2.yaml](release-2.1-rc2.yaml) |
-| `chip-targets-2.1-rc2.toml` | 芯片 SDK 版本与 Docker 基础镜像示例 | [chip-targets-2.1-rc2.toml](chip-targets-2.1-rc2.toml) |
+| `manage-release.py` | 自动化分支创建与打 tag | [manage-release.py](tools/manage-release.py) |
+| `release-2.1-rc2.yaml` | 模块清单与版本锁定示例（vcstool 格式） | [release-2.1-rc2.yaml](2.1/release-2.1-rc2.yaml) |
+| `chip-targets-2.1-rc2.toml` | 芯片 SDK 版本与 Docker 基础镜像示例 | [chip-targets-2.1-rc2.toml](2.1/chip-targets-2.1-rc2.toml) |
