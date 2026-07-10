@@ -99,7 +99,7 @@ Provisional ──→ Implementable ──→ Implemented
 将 [FEP 模板](fep-template/README.md) 复制到 `fep/sig-xxx/title-slug.md`。
 
 - `title-slug` 是一个简短的英文连字符描述
-- 起步最小内容：Summary + Motivation，其余后续补充
+- 起步最小内容：模板中标注 **(Required)** 的章节——Summary、Goals、Packaging、Test Plan，其余后续补充
 - 初始 Status 设为 `Provisional`
 
 ### 2. 提交 PR

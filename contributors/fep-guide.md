@@ -29,9 +29,12 @@ Locate the SIG that corresponds to the module(s) involved in your proposal:
 | FlagPerf | [sig-benchmark](../sigs/_planned/sig-benchmark.md) | Planned |
 | FlagRelease | [sig-tools](../sigs/_planned/sig-tools.md) | Planned |
 | Skills | [sig-agent](../sigs/_planned/sig-agent.md) | Planned |
+| Edge hardware | [sig-edge](../sigs/_planned/sig-edge.md) | Planned |
+| OS packaging / distribution integration (openKylin, openEuler) | [sig-os](../sigs/_planned/sig-os.md) | Planned |
+| Experimental RISC-V support | [sig-riscv](../sigs/_planned/sig-riscv.md) | Planned |
 | FlagQuantum | [wg-ai4s](../wg/wg-ai4s/) | Incubating |
 | FlagOS-Robo | [wg-embodied](../wg/wg-embodied/) | Incubating |
-| Crosses multiple SIGs or none of the above | Home SIG assigned by TSC | — |
+| Crosses multiple SIGs or none of the above | Home SIG assigned by TSC ([sig-architecture](../sigs/_planned/sig-architecture.md) during bootstrap) | — |
 
 > SIGs/WGs marked "Planned" or "Incubating" have no Approver yet. FEPs for these modules are approved directly by the TSC.
 
@@ -49,15 +52,15 @@ Ways to do this:
 ## Step 3: Write the FEP Document
 
 1. Copy the [FEP template](../fep/fep-template/README.md) to `fep/sig-xxx/title-slug.md`
-2. Fill in at minimum: Summary + Motivation + Goals + Test Plan
+2. Fill in at minimum the template's **(Required)** sections: Summary + Goals + Packaging + Test Plan
 3. Set the initial Status to `Provisional`
-4. Title format: `NNNN-title-slug.md` (NNNN = PR number)
+4. Name the file `title-slug.md` for now — rename it to `NNNN-title-slug.md` (NNNN = PR number) after the PR is created, before merge
 
 ## Step 4: Open a PR
 
 1. Open a Draft PR (if further discussion is needed) or a regular PR (if already well-discussed)
 2. The PR title should describe the feature; the PR description can be brief — the FEP document itself carries the details
-3. Link the PR to the corresponding Milestone
+3. To target a release, set `Target Version: FlagOS X.Y` in the FEP header — the Release Manager then attaches the PR to the corresponding Milestone (mind the [FEP Freeze date](../release/2.2/schedule.md))
 
 ## Step 5: Drive the Approval
 
