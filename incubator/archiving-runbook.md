@@ -12,7 +12,7 @@
 ## 2. 仓库处置 / Repository Disposition
 
 - 仓库设为 **archived（只读）**，保留全部代码、issue、PR 历史，不删除；
-- README 顶部替换孵化/正式标识为归档说明：项目已归档、归档日期、代码许可仍然有效（Apache-2.0，任何人可 fork 继续）；
+- README 顶部替换孵化/正式标识为归档说明：项目已归档、归档日期、代码许可仍然有效（按项目实际出口许可证，任何人可 fork 继续）；
 - 移除分支保护之外的 CI 消耗（定时任务、发布流水线）。
 
 ## 3. 发布渠道与域名 / Release Channels & Domains
@@ -38,9 +38,9 @@
 
 ## 7. 复活 / Reactivation
 
-归档项目可以复活：有新维护团队愿意接手时，向 TSC 提交**简化提案**（说明团队、计划，无需重走 IP 清理——资产仍在联盟名下），TSC 按重大决策规则投票，通过后解除只读、恢复孵化中状态（原正式项目复活后回到孵化中，按转正维度重新评估）。
+归档项目可以复活：有新维护团队愿意接手时，向 TSC 提交**简化提案**（说明团队与计划），TSC 按重大决策规则投票，通过后解除只读、恢复孵化中状态（原正式项目复活后回到孵化中，按转正维度重新评估）。复活**不重复完整 IP 清理，但须做增量核验**：确认代码许可未发生变化、商标/域名当前状态可用、依赖合规扫描通过、无未处理的安全风险。
 
-Archived projects may be reactivated: a new maintainer team submits a **simplified proposal** to the TSC (team and plan; no new IP clearance needed since assets remain with the alliance). On approval, the repository is un-archived and the project returns to Incubating status (formerly graduated projects also return to Incubating and are re-assessed against the graduation dimensions).
+Archived projects may be reactivated: a new maintainer team submits a **simplified proposal** to the TSC (team and plan). On approval, the repository is un-archived and the project returns to Incubating status (formerly graduated projects also return to Incubating and are re-assessed against the graduation dimensions). Reactivation **does not repeat full IP clearance but requires incremental verification**: the code license is unchanged, trademark/domain status is usable, dependency compliance scans pass, and no security risks remain unhandled.
 
 ## 8. 完成记录 / Completion Record
 

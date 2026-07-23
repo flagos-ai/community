@@ -43,10 +43,18 @@
 
 ## 6. 启用前置条件 / Readiness Gate
 
-本政策承诺的响应时限自以下条件全部就绪之日起生效；**首个项目正式接收前必须完成**：
+分两层：
+
+**制度级（首个项目 Final Acceptance 前必须就绪）/ Institutional (before the first Final Acceptance)**：
 
 - [ ] <security@flagos.io> 邮箱开通并可收信；
-- [ ] TSC 已指定至少 **2 名**安全响应负责人并公示；
-- [ ] 各项目仓库的 GitHub Private Vulnerability Reporting 已启用。
+- [ ] TSC 已指定至少 **2 名**安全响应负责人并公示。
 
-The response timelines in this policy take effect once all of the above are in place; **they must be completed before the first project's formal acceptance**: the security@ mailbox operational, at least 2 security-response owners designated by the TSC and published, and GitHub Private Vulnerability Reporting enabled on project repositories.
+**项目级（每个项目仓库迁入后、对外公告或正式开放贡献前完成，属[执行手册](acceptance-runbook.md)的完成门槛，不是 Final Acceptance 的前置条件）/ Per-project (after each repository migration, before announcement or opening contributions; a completion gate in the acceptance runbook, not a precondition of Final Acceptance)**：
+
+- [ ] 仓库启用 GitHub Private Vulnerability Reporting；
+- [ ] 添加 `SECURITY.md`（指向本政策）；
+- [ ] 登记项目安全联系人（记录于 `projects/<项目名>/` 档案）。
+
+本政策承诺的响应时限自制度级条件就绪之日起生效。
+The response timelines in this policy take effect once the institutional items are in place; per-project items are completed per repository after migration.

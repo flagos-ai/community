@@ -23,7 +23,8 @@
 
 - 项目 README 顶部添加孵化标识（建议 badge 形式）：`FlagOS Incubating Project`；
 - 仓库 About 描述追加 `(incubating)`；
-- 添加 `SECURITY.md`（指向[安全响应政策](security-policy.md)）、确认 `LICENSE`/`NOTICE` 符合[许可证政策](license-policy.md)。
+- 添加 `SECURITY.md`（指向[安全响应政策](security-policy.md)）、确认 `LICENSE`/`NOTICE` 符合[许可证政策](license-policy.md)；
+- **项目级安全就绪**（[安全响应政策](security-policy.md)第 6 节，对外公告前完成）：启用 GitHub Private Vulnerability Reporting、登记项目安全联系人至 `projects/<项目名>/` 档案。
 
 ## 3. 发布渠道与账号 / Release Channels & Accounts
 

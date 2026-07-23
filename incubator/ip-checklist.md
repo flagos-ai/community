@@ -24,7 +24,7 @@
 
 - [ ] 全量依赖许可证扫描完成（ScanCode / ORT 等），扫描报告已存档 / Full dependency license scan completed (ScanCode / ORT, etc.), report archived
 - [ ] 无禁止类许可证依赖（GPL / AGPL / SSPL / Commons Clause / 非商用条款）；例外项已获 TSC 个案批准 / No prohibited licenses in dependencies; any exceptions approved by TSC case by case
-- [ ] 源码文件头统一添加许可证声明 / License headers added consistently to source files
+- [ ] **项目自有源码**文件头统一添加许可证声明；第三方源码保留其原许可证与版权头 / License headers added consistently to **project-owned** source files; third-party sources keep their original license and copyright headers
 - [ ] 仓库根目录包含 LICENSE 与 NOTICE 文件 / LICENSE and NOTICE present at the repository root
 
 ## 资产核验与迁移准备 / Asset Verification & Migration Readiness

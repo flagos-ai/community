@@ -1,6 +1,6 @@
 # 年度 Review 模板 / Annual Review Template
 
-> 每个孵化项目每年提交一次，在 community 仓库开 issue（标题：`[Annual Review] <项目名> <年份>`），按本模板填写。Mentor 确认后由 TSC 归档至 `projects/<项目名>/reviews/`。填写以事实为主，遇到困难如实写——review 的目的是发现需要支持的地方，不是考核。
+> 每个孵化项目每年提交一次，在 community 仓库开 issue（标题：`[Annual Review] <项目名> <年份>`），按本模板填写。Mentor 确认后由 TSC 归档至 `projects/<项目名>/reviews/`。正式项目每 2 年复用本模板做轻量健康检查（无 Mentor 的由 TSC 指定确认人）。填写以事实为主，遇到困难如实写——review 的目的是发现需要支持的地方，不是考核。
 >
 > Each incubating project submits once a year via an issue in the community repo (title: `[Annual Review] <project> <year>`). After Mentor confirmation, the TSC archives it under `projects/<project-name>/reviews/`. Be factual; report difficulties honestly — the review exists to surface where support is needed, not to grade projects.
 

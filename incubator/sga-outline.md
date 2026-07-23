@@ -32,8 +32,8 @@
    The donor represents: it has the right to make this grant; the code does not infringe third-party rights; all known third-party code, patents, and license obligations are disclosed; ownership of outsourced code and employee works-for-hire has been confirmed.
 
 6. **专利防御性终止 / Defensive patent termination**
-   若捐赠方对受赠方或项目用户发起针对本项目的专利诉讼，其依据本协议获得的专利许可自动终止。
-   If the donor initiates patent litigation over the project against the recipient or its users, patent licenses granted to the donor terminate automatically.
+   任何一方（含捐赠方）就本项目对受赠方、贡献者或用户提起专利诉讼的，**该方基于本项目所获得的全部专利许可**（含依出口许可证 Apache-2.0 第 3 条获得的专利授权）自诉讼提起之日终止。具体机制由法务定稿时确定：直接依赖出口许可证 Apache-2.0 第 3 条，或在 SGA 中另行设计双向专利许可及其终止条款——若选后者，须先明确授予对象与范围。
+   If any party (including the donor) initiates patent litigation over the project against the recipient, contributors, or users, **all patent licenses that party has received for the project** (including those under Apache-2.0 §3 of the outbound license) terminate as of the filing date. Legal counsel will settle the exact mechanism at drafting: rely directly on Apache-2.0 §3 of the outbound license, or design a reciprocal patent grant with its own termination clause in the SGA — in the latter case, the grantees and scope must be defined first.
 
 7. **无附加义务 / No further obligations**
    受赠方不承担继续开发、维护或推广项目的义务；捐赠不构成任何形式的商业对价或背书承诺。
