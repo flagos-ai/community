@@ -4,8 +4,10 @@
 
 ```
 projects/<项目名>/
-├── proposal.md      # 捐赠提案（按 ../proposal-template.md 填写）
-└── ip-checklist.md  # 核验完成的 IP 清理清单副本
+├── proposal.md      # 捐赠提案（按 ../proposal-template.md 填写），
+│                    #   末尾追加 Final Acceptance 与执行完成记录
+├── ip-checklist.md  # 核验完成的 IP 清理清单副本
+└── reviews/         # 历年年度 review 归档（按 ../annual-review-template.md）
 ```
 
-Each project gets one directory holding its full records: the donation proposal (following [proposal-template.md](../proposal-template.md)) and the completed IP clearance checklist copy.
+Each project gets one directory holding its full records: the donation proposal (with Final Acceptance and execution records appended), the completed IP clearance checklist copy, and archived annual reviews.

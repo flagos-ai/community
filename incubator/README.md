@@ -54,14 +54,14 @@ The TSC reviews donation proposals against the following principles, and the rea
    - **Validity**: Conditional approval is valid for **12 months** from the vote, extendable by TSC resolution. If the SGA and IP clearance are not completed in time, the proposal is closed (closed/withdrawn) and the project **enters no lifecycle state**; it may be resubmitted later.
    - **If rejected**: The TSC provides written reasons in the PR; the project may resubmit after 6 months.
 4. **SGA + IP clearance**: Sign the [Software Grant Agreement](sga-outline.md) and complete every item on the [IP clearance checklist](ip-checklist.md). **No acceptance until the checklist is complete.**
-5. **Formal acceptance**: Once the SGA is effective and the IP clearance checklist is fully complete, the TSC (or its authorized delegate) records **Final Acceptance** in the proposal document (with date and verification basis); **formal acceptance takes effect as of that record**. Transferring the repository into the `flagos-ai` org (preserving forks and stars), marking the README `(incubating)`, updating the project list on this page, and publishing the announcement are execution steps that follow formal acceptance.
+5. **Formal acceptance**: Once the SGA is effective and the IP clearance checklist is fully complete, the TSC (or its authorized delegate) records **Final Acceptance** in the proposal document (with date and verification basis); **formal acceptance takes effect as of that record**. Transferring the repository into the `flagos-ai` org (preserving forks and stars), marking the README `(incubating)`, updating the project list on this page, and publishing the announcement are execution steps that follow formal acceptance, carried out per the [acceptance runbook](acceptance-runbook.md).
 
 ## 6. Incubation, Annual Review & Graduation
 
 ### Incubation
 
-- Each project is assigned **1–2 Mentors** by the TSC, who coach governance adoption, answer process questions, and provide the recommendation at graduation time.
-- **Annual review**: Once a year, the project answers a short set of questions via an issue in the community repo: releases shipped, new maintainers added, community challenges, support needed. The Mentor confirms and the review is archived.
+- Each project is assigned **1–2 Mentors** by the TSC, who coach governance adoption, answer process questions, and provide the recommendation at graduation time. See the [Mentor guide](mentor-guide.md) for appointment, responsibilities, and rotation.
+- **Annual review**: Once a year, the project submits an issue in the community repo following the [annual review template](annual-review-template.md): releases, community changes, adoption, compliance and security, challenges and support needed. The Mentor confirms and the review is archived.
 - Project governance and code of conduct follow the community's existing [GOVERNANCE.md](../GOVERNANCE.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) — no separate rulebook.
 - Day-to-day contributions require signing the **CLA** (Contributor License Agreement), consistent with current practice across FlagOS repositories; the CLA bot checks this automatically on PRs, and a one-time signature remains valid thereafter.
 
@@ -101,11 +101,11 @@ After archiving, the repository becomes **read-only and remains available**. **C
 - **Allowed dependency licenses**: Apache-2.0, MIT, BSD, MulanPSL-2.0.
 - **Prohibited in the source tree**: GPL, AGPL, SSPL, Commons Clause, and any "non-commercial use only" terms.
 
-License scanning in CI blocks non-compliant dependencies at the PR level. Special cases (e.g., weak-copyleft dependencies used only in tests) are decided by the TSC case by case.
+License scanning in CI blocks non-compliant dependencies at the PR level. See the [license policy details](license-policy.md) for the full classification (including case-by-case categories), CI scanning requirements, and licensing rules for model weights and datasets.
 
 ### Security Vulnerability Response
 
-Please report security vulnerabilities in incubating and graduated projects **privately** to <security@flagos.io> — do not open public issues. We will acknowledge within 3 business days and coordinate a disclosure timeline with the reporter.
+Please report security vulnerabilities in incubating and graduated projects **privately** to <security@flagos.io> — do not open public issues. We will acknowledge within 3 business days and coordinate a disclosure timeline with the reporter. See the [security response policy](security-policy.md) for the full process (timelines, disclosure coordination, project obligations).
 
 ### Files in This Directory
 
@@ -114,4 +114,9 @@ Please report security vulnerabilities in incubating and graduated projects **pr
 | [proposal-template.md](proposal-template.md) | Donation proposal template |
 | [ip-checklist.md](ip-checklist.md) | IP clearance checklist (hard gate for acceptance) |
 | [sga-outline.md](sga-outline.md) | Software Grant Agreement term sheet (pending legal counsel) |
+| [license-policy.md](license-policy.md) | License policy details (classification, CI scanning, AI artifacts) |
+| [security-policy.md](security-policy.md) | Security response policy (timelines, process, obligations) |
+| [mentor-guide.md](mentor-guide.md) | Mentor guide (appointment, responsibilities, rotation) |
+| [acceptance-runbook.md](acceptance-runbook.md) | Formal acceptance runbook (migration & announcement steps) |
+| [annual-review-template.md](annual-review-template.md) | Annual review template |
 | `projects/` | Proposals and process records for each project |
