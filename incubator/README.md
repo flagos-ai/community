@@ -63,7 +63,7 @@ The TSC reviews donation proposals against the following principles, and the rea
 - Each project is assigned **1–2 Mentors** by the TSC, who coach governance adoption, answer process questions, and provide the recommendation at graduation time.
 - **Annual review**: Once a year, the project answers a short set of questions via an issue in the community repo: releases shipped, new maintainers added, community challenges, support needed. The Mentor confirms and the review is archived.
 - Project governance and code of conduct follow the community's existing [GOVERNANCE.md](../GOVERNANCE.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) — no separate rulebook.
-- Day-to-day contributions use the **DCO** (`Signed-off-by`), checked automatically by a CI bot; no CLA signing required.
+- Day-to-day contributions require signing the **CLA** (Contributor License Agreement), consistent with current practice across FlagOS repositories; the CLA bot checks this automatically on PRs, and a one-time signature remains valid thereafter.
 
 ### Graduation
 
