@@ -5,9 +5,9 @@
 
 ## 1. 出口许可证 / Outbound License
 
-项目对外发布统一采用 **Apache-2.0**。捐赠项目若原采用其他许可证，须在 IP 清理阶段完成切换（SGA 中的授权条款保证了切换的合法性）。个别项目确有理由采用其他许可证的（如 MulanPSL-2.0），须在捐赠提案中说明并经 TSC 批准。
+项目对外发布统一采用 **Apache-2.0**。捐赠项目若原采用其他许可证，须在 IP 清理阶段完成切换。**SGA 仅覆盖捐赠方自身有权授权的部分**；项目能否整体切换出口许可证，以 [IP 清理清单](ip-checklist.md)"贡献权利链"一节的核验结果为准——历史外部贡献者保留的版权须通过原许可证兼容性、补签授权或重写/移除逐项解决。个别项目确有理由采用其他许可证的（如 MulanPSL-2.0），须在捐赠提案中说明并经 TSC 批准。
 
-All projects release under **Apache-2.0**. Donated projects under other licenses must switch during IP clearance (the SGA grant makes this lawful). Exceptions (e.g., MulanPSL-2.0) must be justified in the proposal and approved by the TSC.
+All projects release under **Apache-2.0**. Donated projects under other licenses must switch during IP clearance. **The SGA covers only what the donor itself has the right to license**; whether the project can switch its outbound license as a whole is determined by the "Contribution Rights Chain" verification in the [IP clearance checklist](ip-checklist.md) — copyright retained by historical external contributors must be resolved item by item via original-license compatibility, retroactive authorization, or rewrite/removal. Exceptions (e.g., MulanPSL-2.0) must be justified in the proposal and approved by the TSC.
 
 ## 2. 依赖许可证分类 / Dependency License Categories
 
@@ -58,5 +58,5 @@ All projects release under **Apache-2.0**. Donated projects under other licenses
 ## 5. 文件与声明要求 / File & Notice Requirements
 
 - 仓库根目录：`LICENSE`（Apache-2.0 全文）+ `NOTICE`（版权声明与第三方组件致谢）。
-- 源码文件头统一添加 SPDX 标识：`SPDX-License-Identifier: Apache-2.0`。
+- **项目自有源码**文件头统一添加 SPDX 标识：`SPDX-License-Identifier: Apache-2.0`；第三方文件**保留其原许可证声明与版权头，不得改写**。
 - 引入的第三方代码保留其原始版权声明，并在 `NOTICE` 或 `third_party/` 目录中登记。

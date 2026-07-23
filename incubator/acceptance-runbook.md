@@ -27,7 +27,7 @@
 
 ## 3. 发布渠道与账号 / Release Channels & Accounts
 
-按 IP 清单第"商标与资产移交"节逐项执行：
+按 IP 清理清单"资产核验与迁移准备"节确认的资产清单与迁移方案，逐项执行实际移交：
 
 - PyPI / npm / Docker Hub 等：将联盟机器账号加为 owner，捐赠方个人账号降为 maintainer 或移除；
 - 域名：完成转移或 DNS 控制权移交；

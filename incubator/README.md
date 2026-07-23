@@ -76,13 +76,13 @@ Graduation is assessed against the following **six fixed dimensions**, which pro
 5. **Compliance**: IP and licensing remain continuously compliant, with no unresolved violating dependencies;
 6. **Reduced single-party dependence**: dependence on the original donor is clearly reduced (maintainers not concentrated in a single organization).
 
-Graduation takes effect after Mentor recommendation and a TSC vote under the rules in Section 4, dropping the `(incubating)` label.
+Graduation is initiated by project maintainers or the Mentor using the [graduation proposal template](graduation-template.md) (evidence per dimension + written Mentor recommendation), takes effect after a TSC vote under the rules in Section 4, and drops the `(incubating)` label.
 
 > Quantitative reference indicators for each dimension (number of organizations, releases, etc.) will be added by the TSC later; such additions only refine reference lines and do not change the dimensions themselves.
 
 ## 7. Exit & Archiving
 
-Archiving is the neutral exit mechanism for a **formally accepted project** (Incubating or Graduated) that no longer meets the conditions of its stage; proposals that never reached formal acceptance are handled under the conditional-approval validity rules in Section 5 and are not archived. Upon any of the following, any community member may propose archiving, decided by TSC vote under the rules in Section 4:
+Archiving is the neutral exit mechanism for a **formally accepted project** (Incubating or Graduated) that no longer meets the conditions of its stage; proposals that never reached formal acceptance are handled under the conditional-approval validity rules in Section 5 and are not archived. **Discovery**: incubating projects are checked via the annual review; graduated projects undergo a lightweight health check **every 2 years** (reusing the [annual review template](annual-review-template.md)), and any community member may also propose archiving at any time based on the conditions below. Upon any of the following, the TSC decides by vote under the rules in Section 4:
 
 - No substantive activity for 12 consecutive months (no commits, no releases, unreachable maintainers);
 - IP or compliance issues discovered after formal acceptance that remain unfixed long-term;
@@ -91,7 +91,7 @@ Archiving is the neutral exit mechanism for a **formally accepted project** (Inc
 - Inability to sustain basic release and security-response capability;
 - The project's maintainer team voluntarily requests to exit.
 
-After archiving, the repository becomes **read-only and remains available**. **Commitment to donors**: the code license granted under the SGA is **irrevocable**; archiving does not affect anyone's right to fork and use the code. Project trademarks may be returned to the donor by negotiation.
+After archiving, the repository becomes **read-only and remains available**; execution details (notice period, channel disposition, trademarks, reactivation) are in the [archiving runbook](archiving-runbook.md). **Commitment to donors**: the code license granted under the SGA is **irrevocable**; archiving does not affect anyone's right to fork and use the code. Project trademarks may be returned to the donor by negotiation.
 
 ## 8. Licensing, Security & Supporting Files
 
@@ -119,4 +119,6 @@ Please report security vulnerabilities in incubating and graduated projects **pr
 | [mentor-guide.md](mentor-guide.md) | Mentor guide (appointment, responsibilities, rotation) |
 | [acceptance-runbook.md](acceptance-runbook.md) | Formal acceptance runbook (migration & announcement steps) |
 | [annual-review-template.md](annual-review-template.md) | Annual review template |
+| [graduation-template.md](graduation-template.md) | Graduation proposal template (six-dimension evidence + Mentor recommendation) |
+| [archiving-runbook.md](archiving-runbook.md) | Archiving runbook (notice period, disposition, reactivation) |
 | `projects/` | Proposals and process records for each project |

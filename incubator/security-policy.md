@@ -40,3 +40,13 @@
 ## 5. 嵌入式披露 / Embargo
 
 在修复发布前，漏洞细节仅限以下人员知悉：报告者、该项目安全联系人与参与修复的 maintainer、安全响应负责人。确需提前通知重要下游用户的（如漏洞已被利用），由 TSC 决定通知范围。
+
+## 6. 启用前置条件 / Readiness Gate
+
+本政策承诺的响应时限自以下条件全部就绪之日起生效；**首个项目正式接收前必须完成**：
+
+- [ ] <security@flagos.io> 邮箱开通并可收信；
+- [ ] TSC 已指定至少 **2 名**安全响应负责人并公示；
+- [ ] 各项目仓库的 GitHub Private Vulnerability Reporting 已启用。
+
+The response timelines in this policy take effect once all of the above are in place; **they must be completed before the first project's formal acceptance**: the security@ mailbox operational, at least 2 security-response owners designated by the TSC and published, and GitHub Private Vulnerability Reporting enabled on project repositories.

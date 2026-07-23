@@ -11,17 +11,17 @@
 
 ## 核心条款 / Core Terms
 
-1. **许可而非转让（代码版权）/ License, not assignment (code copyright)**
-   捐赠方保留代码版权，向受赠方授予**永久、全球、非独占、免费、不可撤销**的版权及专利许可，允许以 Apache-2.0（或 TSC 批准的其他出口许可证）对外分发。
-   The donor retains copyright and grants the recipient a **perpetual, worldwide, non-exclusive, royalty-free, irrevocable** copyright and patent license, permitting outbound distribution under Apache-2.0 (or another TSC-approved license).
+1. **代码版权权利安排 / Code copyright arrangement**
+   具体权利模型——**转让、独占许可、或非独占且可再许可的永久授权**——由正式 SGA 针对每个项目确定（默认推荐：捐赠方保留版权，授予受赠方**永久、全球、非独占、免费、不可撤销、可再许可**的版权及专利许可）。无论采用何种模型，均须允许受赠方以 Apache-2.0（或 TSC 批准的其他出口许可证）对外分发。本条仅覆盖捐赠方自身有权处分的权利；历史外部贡献者保留的权利按 [IP 清理清单](ip-checklist.md)"贡献权利链"一节处理。
+   The specific rights model — **assignment, exclusive license, or a non-exclusive perpetual sublicensable license** — is determined per project in the executed SGA (recommended default: the donor retains copyright and grants the recipient a **perpetual, worldwide, non-exclusive, royalty-free, irrevocable, sublicensable** copyright and patent license). Whichever model applies, it must permit outbound distribution under Apache-2.0 (or another TSC-approved license). This clause covers only rights the donor itself may dispose of; rights retained by historical external contributors are handled per the "Contribution Rights Chain" section of the [IP clearance checklist](ip-checklist.md).
 
 2. **不可撤销承诺 / Irrevocability**
    上述许可不因项目归档、捐赠方退出社区或双方合作终止而撤销或终止。
    The license granted survives project archiving, the donor's departure from the community, and termination of cooperation.
 
 3. **软件著作权登记 / Software copyright registration**
-   如项目已进行软著登记，捐赠方配合办理登记转让或备案独占许可，以满足国内司法实践中的权属证据要求。
-   Where software copyright is registered, the donor cooperates in registration transfer or recorded exclusive license to meet domestic ownership-evidence requirements.
+   如项目已进行软著登记，捐赠方配合办理**与第 1 条约定的权利模型相对应**的登记或备案手续（转让登记 / 独占许可备案 / 许可备案），以满足国内司法实践中的权属证据要求。
+   Where software copyright is registered, the donor cooperates in the registration or recording procedure **corresponding to the rights model agreed under Clause 1** (assignment registration / exclusive-license recording / license recording) to meet domestic ownership-evidence requirements.
 
 4. **商标 / Trademarks**
    项目名称与 Logo 的已注册商标**转让**至受赠方，或授予独占许可；未注册的，捐赠方承诺不另行注册并配合受赠方注册。项目归档时商标可协商返还捐赠方。
