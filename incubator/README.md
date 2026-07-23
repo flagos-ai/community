@@ -2,62 +2,99 @@
 
 [English](README.md) | [中文](README_CN.md)
 
+## 1. Purpose & Scope
+
 This directory is the single entry point for **external project donations** to the FlagOS community. It defines the full lifecycle from donation proposal through incubation, graduation, and archiving. Design principle: **take IP in cleanly, let projects exit gracefully** — keep everything else simple.
 
-## Project Lifecycle
+This process applies to externally donated projects; governance of existing FlagOS subprojects is not affected by this directory.
+
+## 2. Project Lifecycle
 
 ```
 Donation Proposal → Incubating → Graduated
                         └─────→ Archived
 ```
 
-Only two levels: **Incubating** / **Graduated**. Archiving is the exit path from either stage.
+Only two levels: **Incubating** / **Graduated**. Archiving is the neutral exit path from either stage.
 
-## Project List
+### Project List
 
 | Project | Status | Donor | Mentors | Proposal |
 |---------|--------|-------|---------|----------|
 | _None yet_ | | | | |
 
-## 1. Decision Body
+## 3. Acceptance Principles
 
-- Donation acceptance, graduation, and archiving are decided by **TSC vote** (simple majority). Before the first TSC meeting, the FlagOS founding community acts on its behalf during the bootstrap period (see [GOVERNANCE.md](../GOVERNANCE.md)).
-- Routine matters follow lazy consensus: proposals posted on GitHub pass after 72 hours without objection.
-- **Conflict of interest recusal**: TSC members affiliated with the donor organization recuse themselves from acceptance, graduation, and archiving votes for that project.
-- All decisions are recorded publicly on GitHub, consistent with community governance principles.
+The TSC reviews donation proposals against the following principles, and the reasons for acceptance or rejection are recorded publicly. A candidate project must at minimum:
 
-## 2. Donation Process
+- Fit the FlagOS mission and technical scope (the multi-chip AI system software stack and its ecosystem);
+- Use an open source license compliant with the license policy in Section 8;
+- Have an IP status that is clearable in principle (known issues are not automatically disqualifying, but a feasible clearance path must exist);
+- Have a committed initial maintainer team — not code parked after maintenance has stopped;
+- Be willing to adopt open, neutral community governance, including this community's [GOVERNANCE.md](../GOVERNANCE.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md);
+- Be complementary to, or clearly differentiated from, existing FlagOS projects, without creating duplicated competition within the community.
+
+## 4. Decision Body
+
+- Donation acceptance, graduation, and archiving are **major decisions** of the community, decided by **TSC vote under the major-decision rules defined in [GOVERNANCE.md](../GOVERNANCE.md)**. Before the first TSC meeting, the FlagOS founding community acts on its behalf under the same rules.
+- Routine matters follow the lazy consensus rules in GOVERNANCE.
+- **Conflict of interest**: Directly interested parties in a donation matter (TSC members from the donor or its affiliated organizations) **must recuse** from the vote. This is a special rule for donation matters on top of the GOVERNANCE conflict-of-interest policy; see [GOVERNANCE.md](../GOVERNANCE.md#conflict-of-interest-coi).
+- All decisions are recorded publicly on GitHub.
+
+## 5. Donation & Formal Acceptance Process
 
 ```
-① Proposal PR → ② 2-week public review → ③ TSC presentation & vote → ④ SGA + IP clearance → ⑤ Repo transfer, incubation begins
+① Proposal PR → ② 2-week public review → ③ TSC conditional approval → ④ SGA + IP clearance → ⑤ Formal acceptance, incubation begins
 ```
 
 1. **Proposal PR**: The donor fills out [proposal-template.md](proposal-template.md) and submits it as a PR to `incubator/projects/<project-name>/proposal.md`. Questions before submitting can go to <contact@flagos.io>.
 2. **2-week public review**: The PR stays open for at least 14 days to collect community feedback. Meanwhile the TSC identifies 1–2 Mentors for the project.
-3. **TSC presentation & vote**: The donor presents at a TSC meeting (~30 minutes); the TSC votes (simple majority, conflicted members recuse). On approval, the proposal PR is merged.
+3. **TSC conditional approval**: The donor presents at a TSC meeting (~30 minutes); the TSC votes under the rules in Section 4. On approval, the proposal PR is merged.
+   - **Conditional approval only authorizes proceeding to IP due diligence; it does not constitute formal acceptance.**
    - **If rejected**: The TSC provides written reasons in the PR; the project may resubmit after 6 months.
 4. **SGA + IP clearance**: Sign the [Software Grant Agreement](sga-outline.md) and complete every item on the [IP clearance checklist](ip-checklist.md). **No acceptance until the checklist is complete.**
-5. **Incubation begins**: The repository is transferred into the `flagos-ai` org (preserving fork relationships and stars), the README is marked `(incubating)`, the project list on this page is updated, and an announcement is published.
+5. **Formal acceptance**: The repository is transferred into the `flagos-ai` org (preserving fork relationships and stars), the README is marked `(incubating)`, the project list on this page is updated, and an announcement is published. **Formal acceptance takes effect upon repository transfer.**
 
-## 3. Incubation
+## 6. Incubation, Annual Review & Graduation
+
+### Incubation
 
 - Each project is assigned **1–2 Mentors** by the TSC, who coach governance adoption, answer process questions, and provide the recommendation at graduation time.
 - **Annual review**: Once a year, the project answers a short set of questions via an issue in the community repo: releases shipped, new maintainers added, community challenges, support needed. The Mentor confirms and the review is archived.
 - Project governance and code of conduct follow the community's existing [GOVERNANCE.md](../GOVERNANCE.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) — no separate rulebook.
 - Day-to-day contributions use the **DCO** (`Signed-off-by`), checked automatically by a CI bot; no CLA signing required.
 
-## 4. Graduation
+### Graduation
 
-Once an incubating project demonstrates **sustainable cross-organization maintenance** (maintainers not concentrated in a single organization, a steady release cadence, and real users), it graduates to a formal project by Mentor recommendation and TSC vote, dropping the `(incubating)` label.
+Graduation is assessed against the following **six fixed dimensions**, which projects can prepare for from day one of incubation:
 
-> Quantitative criteria (number of organizations, releases, production users, etc.) will be defined by the TSC as the first project approaches graduation, and added to this section.
+1. **Governance**: community governance operates openly and independently (committer nominations, decision records visible on GitHub);
+2. **Maintainer sustainability**: an active maintainer team with a working path for onboarding new maintainers;
+3. **Releases & security**: a steady release cadence and basic security-response capability;
+4. **Real adoption**: real users or production usage exists;
+5. **Compliance**: IP and licensing remain continuously compliant, with no unresolved violating dependencies;
+6. **Reduced single-party dependence**: dependence on the original donor is clearly reduced (maintainers not concentrated in a single organization).
 
-## 5. Archiving
+Graduation takes effect after Mentor recommendation and a TSC vote under the rules in Section 4, dropping the `(incubating)` label.
 
-- If a project shows **no substantive activity for 12 consecutive months** (no commits, no releases, unreachable maintainers), any community member may propose archiving. After a TSC vote, the project moves to archived status and its repository becomes read-only but remains available.
-- **Commitment to donors**: The code license granted under the SGA is **irrevocable**; archiving does not affect anyone's right to fork and use the code. Project trademarks may be returned to the donor by negotiation.
+> Quantitative reference indicators for each dimension (number of organizations, releases, etc.) will be added by the TSC later; such additions only refine reference lines and do not change the dimensions themselves.
 
-## 6. License Policy
+## 7. Exit & Archiving
+
+Archiving is the **neutral exit mechanism for a project that no longer meets the conditions for continued incubation or graduated status**. Upon any of the following, any community member may propose archiving, decided by TSC vote under the rules in Section 4:
+
+- No substantive activity for 12 consecutive months (no commits, no releases, unreachable maintainers);
+- Prolonged inability to complete IP clearance or fix compliance issues;
+- Loss of the maintainer team with no successor, or no Mentor available long-term;
+- Sustained violation of community governance or the code of conduct without remedy;
+- Inability to sustain basic release and security-response capability;
+- The project's maintainer team voluntarily requests to exit.
+
+After archiving, the repository becomes **read-only and remains available**. **Commitment to donors**: the code license granted under the SGA is **irrevocable**; archiving does not affect anyone's right to fork and use the code. Project trademarks may be returned to the donor by negotiation.
+
+## 8. Licensing, Security & Supporting Files
+
+### License Policy
 
 - **Default outbound license**: Apache-2.0.
 - **Allowed dependency licenses**: Apache-2.0, MIT, BSD, MulanPSL-2.0.
@@ -65,15 +102,15 @@ Once an incubating project demonstrates **sustainable cross-organization mainten
 
 License scanning in CI blocks non-compliant dependencies at the PR level. Special cases (e.g., weak-copyleft dependencies used only in tests) are decided by the TSC case by case.
 
-## 7. Security Vulnerability Response
+### Security Vulnerability Response
 
 Please report security vulnerabilities in incubating and graduated projects **privately** to <security@flagos.io> — do not open public issues. We will acknowledge within 3 business days and coordinate a disclosure timeline with the reporter.
 
-## Files in This Directory
+### Files in This Directory
 
 | File | Purpose |
 |------|---------|
 | [proposal-template.md](proposal-template.md) | Donation proposal template |
 | [ip-checklist.md](ip-checklist.md) | IP clearance checklist (hard gate for acceptance) |
 | [sga-outline.md](sga-outline.md) | Software Grant Agreement term sheet (pending legal counsel) |
-| `projects/` | Proposals and status records for each project |
+| `projects/` | Proposals and process records for each project |
