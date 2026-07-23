@@ -51,9 +51,10 @@ The TSC reviews donation proposals against the following principles, and the rea
 2. **2-week public review**: The PR stays open for at least 14 days to collect community feedback. Meanwhile the TSC identifies 1–2 Mentors for the project.
 3. **TSC conditional approval**: The donor presents at a TSC meeting (~30 minutes); the TSC votes under the rules in Section 4. On approval, the proposal PR is merged.
    - **Conditional approval only authorizes proceeding to IP due diligence; it does not constitute formal acceptance.**
+   - **Validity**: Conditional approval is valid for **12 months** from the vote, extendable by TSC resolution. If the SGA and IP clearance are not completed in time, the proposal is closed (closed/withdrawn) and the project **enters no lifecycle state**; it may be resubmitted later.
    - **If rejected**: The TSC provides written reasons in the PR; the project may resubmit after 6 months.
 4. **SGA + IP clearance**: Sign the [Software Grant Agreement](sga-outline.md) and complete every item on the [IP clearance checklist](ip-checklist.md). **No acceptance until the checklist is complete.**
-5. **Formal acceptance**: The repository is transferred into the `flagos-ai` org (preserving fork relationships and stars), the README is marked `(incubating)`, the project list on this page is updated, and an announcement is published. **Formal acceptance takes effect upon repository transfer.**
+5. **Formal acceptance**: Once the SGA is effective and the IP clearance checklist is fully complete, the TSC (or its authorized delegate) records **Final Acceptance** in the proposal document (with date and verification basis); **formal acceptance takes effect as of that record**. Transferring the repository into the `flagos-ai` org (preserving forks and stars), marking the README `(incubating)`, updating the project list on this page, and publishing the announcement are execution steps that follow formal acceptance.
 
 ## 6. Incubation, Annual Review & Graduation
 
@@ -81,11 +82,11 @@ Graduation takes effect after Mentor recommendation and a TSC vote under the rul
 
 ## 7. Exit & Archiving
 
-Archiving is the **neutral exit mechanism for a project that no longer meets the conditions for continued incubation or graduated status**. Upon any of the following, any community member may propose archiving, decided by TSC vote under the rules in Section 4:
+Archiving is the neutral exit mechanism for a **formally accepted project** (Incubating or Graduated) that no longer meets the conditions of its stage; proposals that never reached formal acceptance are handled under the conditional-approval validity rules in Section 5 and are not archived. Upon any of the following, any community member may propose archiving, decided by TSC vote under the rules in Section 4:
 
 - No substantive activity for 12 consecutive months (no commits, no releases, unreachable maintainers);
-- Prolonged inability to complete IP clearance or fix compliance issues;
-- Loss of the maintainer team with no successor, or no Mentor available long-term;
+- IP or compliance issues discovered after formal acceptance that remain unfixed long-term;
+- Loss of the maintainer team with no successor; for incubating projects, no Mentor available long-term;
 - Sustained violation of community governance or the code of conduct without remedy;
 - Inability to sustain basic release and security-response capability;
 - The project's maintainer team voluntarily requests to exit.
