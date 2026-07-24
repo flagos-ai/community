@@ -8,7 +8,7 @@
 
 **SIG:** sig-os
 
-**Target Version:** FlagOS TBD
+**Target Version:** FlagOS 2.2
 
 ---
 
@@ -274,3 +274,4 @@ This list is a snapshot; the authoritative tracking lives in the FEP tracking is
 - 2026-06-05: Assigned `FEP-19` and renamed the file. Split SIG registration to governance PR [#35](https://github.com/flagos-ai/community/pull/35); this PR now contains only the FEP document. Trimmed the Summary's repository list to Wave 1; noted that only SIGs owning packaged repositories appear in the SIG / repository table; cited FlagCX (`ADAPTOR_MAP`) and FlagTree (`third_party/`) as the source of the canonical backend suffix list with the normalization rule; linked `release manager` to `fep/README.md#roles`; clarified that the FlagOS vendor-SDK base-image registry only applies to vendor-SDK builds, not pure-Python or generic-native builds. Removed `aipu` from the backend list — no implementation found in FlagCX, FlagTree, or build-infra. FlagCX's `du` adaptor is intentionally NOT added pending clarification of its origin.
 - 2026-06-10: Aligned with the community governance restructure: `sig-os` is now proposed as a Planned SIG (charter draft in [#35](https://github.com/flagos-ai/community/pull/35)) and this FEP is TSC-reviewed until activation; renamed `sig-ai4s` → `wg-ai4s` and `sig-embodied` → `wg-embodied` in the SIG / repository table per the new Active SIG / Planned SIG / Incubating WG model.
 - 2026-07-04: TSC review complete; Status set to `Implementable` (design approved, implementation in progress). Marked the four merged Wave 1 packaging PRs (FlagCX#476, FlagTree#607, FlagAttention#31, FlagSparse#12) as done. Target Version remains `TBD` pending the FEP Owner's milestone decision.
+- 2026-07-12: Owner milestone decision: Target Version set to `FlagOS 2.2` (code freeze 2026-08-31, release 2026-09-28, see [#47](https://github.com/flagos-ai/community/issues/47)). Wave 1 stands at 4/11 merged with the remaining seven PRs open and planned to land before the code freeze.
