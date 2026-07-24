@@ -1,4 +1,4 @@
-# Donation Proposal: <Project Name>
+# Contribution Proposal: <Project Name>
 
 > **Language requirement:** All submitted content must be written in English.
 
@@ -6,9 +6,9 @@
 Copy this template to incubator/projects/<project-name>/proposal.md and submit as a PR
 (process in /incubator/README.md Section 6; questions to contact@flagos.io).
 
-
 Fill in all fields truthfully — especially the "IP Status Disclosure" section.
 Issues disclosed early can be worked out; issues concealed will block acceptance at IP clearance.
+Write "N/A" where a field does not apply; do not delete sections.
 -->
 
 ## Basic Information
@@ -16,12 +16,12 @@ Issues disclosed early can be worked out; issues concealed will block acceptance
 - **Project name**:
 - **Website (if any)**:
 - **Current license**:
-- **Donor & signing entity**: <full legal name of the organization or individual>
-- **Donor contact**: <name + email>
+- **Contributing organization & signing entity**: <full legal name of the organization or individual>
+- **Contact**: <name + email>
 
-**Donation scope (repository list)**:
+**Contribution scope (repository list)**:
 
-<!-- List every repository transferred in this donation; multi-repo projects list all.
+<!-- List every repository transferred in this contribution; multi-repo projects list all.
      Repositories not listed are out of scope. -->
 
 | Repository | Description |
@@ -30,7 +30,9 @@ Issues disclosed early can be worked out; issues concealed will block acceptance
 
 ## Project Description
 
-<!-- One paragraph: what the project does, what problem it solves, who the target users are -->
+<!-- Start with a single-sentence summary — it will be reused in the acceptance
+     announcement and the incubator project list. Then one paragraph: what the project
+     does, what problem it solves, who the target users are. -->
 
 **Relationship to existing FlagOS projects**:
 <!-- Complementary or overlapping with FlagGems / FlagTree / FlagScale / FlagCX / FlagPerf?
@@ -48,6 +50,7 @@ Issues disclosed early can be worked out; issues concealed will block acceptance
 |---------|--------------|------|
 | | | |
 
+- **Developer independence**: <How many core developers are salaried by the contributing organization vs. independent? What is the organization's commitment to the project if its business priorities shift?>
 - **Users & adoption**: <any production usage? citable publicly?>
 - **Release history**: <number of releases, most recent date>
 
@@ -60,20 +63,20 @@ Issues disclosed early can be worked out; issues concealed will block acceptance
 - **Software copyright registration**: <registered? under whose name?>
 - **Trademarks & domains**: <registered? by whom? willing to transfer or exclusively license?>
 - **Release channels & account assets**: <current state of PyPI / npm / Docker Hub / social accounts, to be handed over per the [acceptance runbook](/incubator/acceptance-runbook.md)>
-- **Known risks**: <GPL-family dependencies, patent issues, ongoing disputes; write "none" if none>
+- **Known risks**: <GPL-family dependencies, cryptographic functionality (export compliance), patent issues, ongoing disputes; write "none" if none>
 
 **AI artifacts (if applicable)**:
 
-- **Model weights**: <donated along with code? intended license?>
+- **Model weights**: <contributed along with code? intended license?>
 - **Datasets**: <provenance and licenses of training/eval datasets; redistributable?>
 
-## Post-Donation Plan
+## Post-Contribution Plan
 
 - **Initial maintainers**:
 - **6–12 month roadmap**: <a few sentences>
 - **Support requested**: <CI resources, promotion, mentoring focus, etc.>
 
-## Donor Commitments
+## Commitments
 
 Check to confirm:
 
@@ -90,7 +93,7 @@ Check to confirm:
 ---
 
 <!-- ==================== Sections below are completed by the community. ====================
-     ========================= Donors: please do not edit. ================================= -->
+     ================ Contributing organizations: please do not edit. ======================= -->
 
 ## Process Records
 

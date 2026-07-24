@@ -6,7 +6,7 @@
 
 ## 1. Notice Period
 
-- Before an archiving proposal goes to a TSC vote, it is publicized in the project repository and the community repository for **≥30 days**, with best-effort direct contact to the project maintainers and the donor contact;
+- Before an archiving proposal goes to a TSC vote, it is publicized in the project repository and the community repository for **≥30 days**, with best-effort direct contact to the project maintainers and the contributing organization contact;
 - During the notice period the project may present an improvement plan; the TSC decides whether to halt the archiving process;
 - After the vote passes, downstream users get a **≥30-day** migration notice before the repository goes read-only.
 
@@ -29,7 +29,7 @@
 
 ## 5. Trademark Disposition
 
-- Negotiated with the donor per the SGA trademark terms: return to the donor, retain under the alliance, or let registration lapse;
+- Negotiated with the contributing organization per the SGA trademark terms: return to the contributing organization, retain under the alliance, or let registration lapse;
 - The outcome is recorded in the process records of `projects/<project-name>/proposal.md`.
 
 ## 6. Announcement
