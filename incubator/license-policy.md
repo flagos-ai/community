@@ -6,7 +6,7 @@
 
 ## 1. Outbound License
 
-All projects release under **Apache-2.0**. Donated projects under other licenses must switch during IP clearance. **The SGA covers only what the donor itself has the right to license**; whether the project can switch its outbound license as a whole is determined by the "Contribution Rights Chain" verification in the [IP clearance checklist](ip-checklist.md) — copyright retained by historical external contributors must be resolved item by item via original-license compatibility, retroactive authorization, or rewrite/removal. Exceptions (e.g., MulanPSL-2.0) must be justified in the proposal and approved by the TSC.
+All projects release under **Apache-2.0**. Contributed projects under other licenses must switch during IP clearance. **The SGA covers only what the contributing organization itself has the right to license**; whether the project can switch its outbound license as a whole is determined by the "Contribution Rights Chain" verification in the [IP clearance checklist](ip-checklist.md) — copyright retained by historical external contributors must be resolved item by item via original-license compatibility, retroactive authorization, or rewrite/removal. Exceptions (e.g., MulanPSL-2.0) must be justified in the proposal and approved by the TSC.
 
 ## 2. Dependency License Categories
 
@@ -48,9 +48,9 @@ How to apply: open an issue in the affected repository stating the dependency na
 
 ## 4. Licensing of AI Artifacts
 
-For projects donating or distributing model weights or datasets:
+For projects contributing or distributing model weights or datasets:
 
-- **Model weights**: Whether weights are donated with the code must be stated in the proposal. Weight licenses are independent of code licenses; Apache-2.0 or a clearly defined open-weights license is recommended. Licenses with usage restrictions (e.g., research-only) must be declared prominently in the README and must not be conflated with "open source" claims.
+- **Model weights**: Whether weights are contributed with the code must be stated in the proposal. Weight licenses are independent of code licenses; Apache-2.0 or a clearly defined open-weights license is recommended. Licenses with usage restrictions (e.g., research-only) must be declared prominently in the README and must not be conflated with "open source" claims.
 - **Datasets**: Provenance must be lawful and licenses must permit redistribution; datasets that cannot be redistributed may only be provided as a download script plus source citation, and must not enter the repository.
 - **Fine-tuned derivatives of third-party models**: Must comply with the base model's license terms (derivative naming, use-policy pass-through, etc.), verified item by item in the IP clearance checklist.
 

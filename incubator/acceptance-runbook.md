@@ -2,7 +2,7 @@
 
 [English](acceptance-runbook.md) | [中文](acceptance-runbook_CN.md)
 
-> Operational runbook for step ⑤ of the donation process in Section 6 of the [README](README.md): after Final Acceptance is recorded, the execution team completes asset migration and announcements per this document.
+> Operational runbook for step ⑤ of the contribution process in Section 6 of the [README](README.md): after Final Acceptance is recorded, the execution team completes asset migration and announcements per this document.
 
 ## 0. Preconditions
 
@@ -12,7 +12,7 @@
 
 ## 1. Repository Transfer
 
-1. The donor hands over repository owner rights or uses GitHub **Transfer ownership** to move the repository into the `flagos-ai` org (stars, forks, issue and PR history are preserved; GitHub auto-redirects the old URL).
+1. The contributing organization hands over repository owner rights or uses GitHub **Transfer ownership** to move the repository into the `flagos-ai` org (stars, forks, issue and PR history are preserved; GitHub auto-redirects the old URL).
 2. Multi-repository projects migrate one by one; once all are done, append a migration-completion confirmation under the Final Acceptance record in proposal.md.
 3. Post-transfer setup:
    - Branch protection (main: no force pushes, PR review required);
@@ -31,20 +31,20 @@
 
 Execute the actual handover item by item, following the asset inventory and migration plan confirmed in the "Asset Verification & Migration Readiness" section of the IP clearance checklist:
 
-- PyPI / npm / Docker Hub etc.: add the alliance machine account as owner; downgrade the donor's personal accounts to maintainer or remove them;
+- PyPI / npm / Docker Hub etc.: add the alliance machine account as owner; downgrade the contributing organization's personal accounts to maintainer or remove them;
 - Domains: complete the transfer or hand over DNS control;
 - Social media / community channels: complete the handover or update ownership in the channel profile.
 
 ## 4. Community Onboarding
 
-- Update the project list in the incubator [README](README.md) / [README_CN.md](README_CN.md) (status Incubating, donor, Mentors, proposal link);
+- Update the project list in the incubator [README](README.md) / [README_CN.md](README_CN.md) (status Incubating, contributing organization, Mentors, proposal link);
 - Assign the project to the appropriate SIG (where none fits, the TSC manages it directly per the GOVERNANCE transition rules);
 - Register the maintainer roster in MAINTAINERS.md or the project OWNERS file;
 - Invite the project maintainers to the open agenda of TSC meetings.
 
 ## 5. Announcement
 
-- Publish the acceptance announcement in the community repo's GitHub Discussions (project intro, donor, incubating-status note);
+- Publish the acceptance announcement in the community repo's GitHub Discussions (project intro, contributing organization, incubating-status note);
 - Syndicate to official channels such as the WeChat official account;
 - Wording: refer to the project as a "FlagOS incubating project"; avoid phrasing that could be read as final endorsement.
 

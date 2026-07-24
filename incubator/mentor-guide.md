@@ -7,13 +7,13 @@
 ## 1. Who Mentors Are
 
 - Mentors are **appointed by the TSC from senior community members** (TSC members, SIG Chairs/Tech Leads, or senior contributors recognized by the TSC), 1–2 per incubating project.
-- Mentors act **in a personal capacity**, not on behalf of their employers; members of the same organization as the project's donor **do not serve** as that project's Mentor.
+- Mentors act **in a personal capacity**, not on behalf of their employers; members of the same organization as the project's contributing organization **do not serve** as that project's Mentor.
 - A Mentor is a coach and a bridge, **not the project's decision maker** — technical decisions remain with the project's maintainer team.
 
 ## 2. Responsibilities
 
-**Donation stage (conditional approval → formal acceptance)**
-- Help the donor understand the process and refine the proposal;
+**Contribution stage (conditional approval → formal acceptance)**
+- Help the contributing organization understand the process and refine the proposal;
 - Participate in verifying the IP clearance checklist (which carries a Mentor sign-off).
 
 **During incubation**
