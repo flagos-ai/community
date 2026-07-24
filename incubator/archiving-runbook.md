@@ -1,47 +1,46 @@
-# 归档执行手册 / Archiving Runbook
+# Archiving Runbook
 
-> [README_CN.md](/incubator/README_CN.md) 第 8 节归档决议通过后的执行手册。归档是中性退出，执行时注意措辞不带惩罚色彩。
-> Runbook for executing an archiving decision under README Section 8. Archiving is a neutral exit; keep all wording non-punitive.
+[English](archiving-runbook.md) | [中文](archiving-runbook_CN.md)
 
-## 1. 通知期 / Notice Period
+> Runbook for executing an archiving decision under Section 8 of the [README](README.md). Archiving is a neutral exit; keep all wording non-punitive.
 
-- 归档提议进入 TSC 投票前，在项目仓库和 community 仓库公示 **≥30 天**，同时尽力直接联系项目 maintainer 与捐赠方联系人；
-- 公示期内项目方可提出改善计划，由 TSC 决定是否中止归档流程；
-- 投票通过后，给下游用户留 **≥30 天**的迁移公告期再执行只读。
+## 1. Notice Period
 
-## 2. 仓库处置 / Repository Disposition
+- Before an archiving proposal goes to a TSC vote, it is publicized in the project repository and the community repository for **≥30 days**, with best-effort direct contact to the project maintainers and the donor contact;
+- During the notice period the project may present an improvement plan; the TSC decides whether to halt the archiving process;
+- After the vote passes, downstream users get a **≥30-day** migration notice before the repository goes read-only.
 
-- 仓库设为 **archived（只读）**，保留全部代码、issue、PR 历史，不删除；
-- README 顶部替换孵化/正式标识为归档说明：项目已归档、归档日期、代码许可仍然有效（按项目实际出口许可证，任何人可 fork 继续）；
-- 移除分支保护之外的 CI 消耗（定时任务、发布流水线）。
+## 2. Repository Disposition
 
-## 3. 发布渠道与域名 / Release Channels & Domains
+- The repository is set to **archived (read-only)**, preserving all code, issue, and PR history — nothing is deleted;
+- The incubating/graduated badge at the top of the README is replaced with an archive notice: the project is archived, the archive date, and that the code license remains valid (under the project's actual outbound license — anyone may fork and continue);
+- CI spend beyond branch protection is removed (scheduled jobs, release pipelines).
 
-- PyPI / npm / Docker Hub 等：**保留已发布版本**（删除会破坏下游），包描述追加归档说明，停止新发布；
-- 域名：官网替换为归档说明页或重定向至 GitHub 仓库；到期后是否续费由 TSC 决定；
-- 社交媒体渠道：发布归档公告后停更。
+## 3. Release Channels & Domains
 
-## 4. 安全漏洞的后续接收 / Post-Archive Security Reports
+- PyPI / npm / Docker Hub etc.: **published versions are kept** (deletion breaks downstream); the package description gets an archive note, and new releases stop;
+- Domains: the website is replaced with an archive notice page or redirected to the GitHub repository; whether to renew after expiry is decided by the TSC;
+- Social media channels: post the archive announcement, then stop updating.
 
-- 归档项目的漏洞报告仍经 <security@flagos.io> 接收，但**不再承诺修复时限**；
-- 收到影响广泛的严重漏洞时，安全响应负责人评估后可发布公告性 advisory（告知用户风险与规避方式），不承诺补丁。
+## 4. Post-Archive Security Reports
 
-## 5. 商标处置 / Trademark Disposition
+- Vulnerability reports for archived projects are still received via <security@flagos.io>, but **no fix timeline is promised**;
+- For severe, widely impactful vulnerabilities, the security-response owners may, after assessment, publish an informational advisory (risk and mitigations for users) without committing to a patch.
 
-- 按 SGA 商标条款与捐赠方协商：返还捐赠方、保留在联盟名下、或放弃续展；
-- 结果记录于 `projects/<项目名>/proposal.md` 流程记录。
+## 5. Trademark Disposition
 
-## 6. 公告 / Announcement
+- Negotiated with the donor per the SGA trademark terms: return to the donor, retain under the alliance, or let registration lapse;
+- The outcome is recorded in the process records of `projects/<project-name>/proposal.md`.
 
-- community 仓库 Discussions 发布归档公告：归档原因（中性表述）、日期、代码可继续使用的说明、致谢贡献者；
-- 更新 incubator README 项目列表，状态改为 Archived。
+## 6. Announcement
 
-## 7. 复活 / Reactivation
+- Publish the archive announcement in the community repo Discussions: the reason (neutral wording), the date, a note that the code remains usable, and thanks to contributors;
+- Update the incubator README project list, setting the status to Archived.
 
-归档项目可以复活：有新维护团队愿意接手时，向 TSC 提交**简化提案**（说明团队与计划），TSC 按重大决策规则投票，通过后解除只读、恢复孵化中状态（原正式项目复活后回到孵化中，按转正维度重新评估）。复活**不重复完整 IP 清理，但须做增量核验**：确认代码许可未发生变化、商标/域名当前状态可用、依赖合规扫描通过、无未处理的安全风险。
+## 7. Reactivation
 
 Archived projects may be reactivated: a new maintainer team submits a **simplified proposal** to the TSC (team and plan). On approval, the repository is un-archived and the project returns to Incubating status (formerly graduated projects also return to Incubating and are re-assessed against the graduation dimensions). Reactivation **does not repeat full IP clearance but requires incremental verification**: the code license is unchanged, trademark/domain status is usable, dependency compliance scans pass, and no security risks remain unhandled.
 
-## 8. 完成记录 / Completion Record
+## 8. Completion Record
 
-执行负责人在 `projects/<项目名>/proposal.md` 流程记录中追加归档执行记录（日期、执行人、各项完成链接）。
+The execution owner appends an archiving-execution record (date, executor, links per item) to the process records of `projects/<project-name>/proposal.md`.

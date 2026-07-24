@@ -1,60 +1,60 @@
-# 安全响应政策 / Security Response Policy
+# Security Response Policy
 
-> 本文件是 [README_CN.md](README_CN.md) 第 9 节安全响应的实施细则，适用于所有孵化中与正式项目。
+[English](security-policy.md) | [中文](security-policy_CN.md)
+
 > This document details the security-response policy in Section 9 of the [README](README.md), applying to all incubating and graduated projects.
 
-## 1. 报告渠道 / Reporting Channel
+## 1. Reporting Channel
 
-- **私密报告邮箱**：<security@flagos.io>（请勿公开提 issue 或在公开渠道讨论未修复漏洞）
-- 支持 GitHub 私密渠道：各项目仓库启用 **GitHub Private Vulnerability Reporting**（Settings → Security）后，可经仓库 Security 页直接私密提交。
-- 报告请尽量包含：受影响版本、复现步骤或 PoC、影响评估、建议的修复方向（如有）。
+- **Private reporting mailbox**: <security@flagos.io> (do not open public issues or discuss unfixed vulnerabilities in public channels)
+- GitHub private channel: once a project repository enables **GitHub Private Vulnerability Reporting** (Settings → Security), reports can be submitted privately via the repository's Security page.
+- Reports should include where possible: affected versions, reproduction steps or PoC, impact assessment, and suggested remediation direction (if any).
 
-## 2. 响应时限 / Response Timeline
+## 2. Response Timeline
 
-| 阶段 | 时限 |
-|------|------|
-| 确认收到报告 | 3 个工作日内 |
-| 初步评估（是否为有效漏洞、严重程度） | 10 个工作日内 |
-| 修复目标 | 严重（Critical）：30 天内；高危：60 天内；中低危：90 天内或下一常规版本 |
-| 协调披露 | 修复发布后公开 advisory；与报告者协商时间线，默认不超过 90 天 |
+| Stage | Target |
+|-------|--------|
+| Acknowledge receipt | Within 3 business days |
+| Initial assessment (validity, severity) | Within 10 business days |
+| Fix target | Critical: within 30 days; High: within 60 days; Medium/Low: within 90 days or the next regular release |
+| Coordinated disclosure | Advisory published after the fix ships; timeline negotiated with the reporter, defaulting to no more than 90 days |
 
-时限为目标而非硬承诺；确有困难时由安全响应负责人与报告者沟通延期。
+Timelines are targets, not hard commitments; where genuinely difficult, the security-response owners negotiate an extension with the reporter.
 
-## 3. 处理流程 / Handling Process
+## 3. Handling Process
 
-1. **接收与分诊**：security@ 邮箱由 TSC 指定的安全响应负责人（至少 2 人）值守，收到报告后转入对应项目的私密修复通道（GitHub Security Advisory 草稿）。
-2. **评估**：项目 maintainer 与报告者确认漏洞有效性与严重程度（参考 CVSS 评分）。
-3. **修复**：在私有分支开发补丁；修复涉及的讨论不进入公开 issue/PR。
-4. **发布**：补丁随新版本发布，同时发布 GitHub Security Advisory；需要时申请 CVE 编号（GitHub 可代为分配）。
-5. **致谢**：经报告者同意后在 advisory 中致谢。
+1. **Intake & triage**: The security@ mailbox is staffed by TSC-designated security-response owners (at least 2); reports are moved into the affected project's private remediation channel (a GitHub Security Advisory draft).
+2. **Assessment**: Project maintainers and the reporter confirm validity and severity (CVSS as reference).
+3. **Fix**: Patches are developed on a private branch; remediation discussions stay out of public issues/PRs.
+4. **Release**: The patch ships in a new release together with a GitHub Security Advisory; a CVE ID is requested where warranted (GitHub can assign one).
+5. **Credit**: The reporter is credited in the advisory with their consent.
 
-## 4. 项目义务 / Project Obligations
+## 4. Project Obligations
 
-每个孵化中与正式项目须：
+Every incubating and graduated project must:
 
-- 在仓库根目录放置 `SECURITY.md`，内容指向本政策与 security@ 邮箱；
-- 启用 GitHub Private Vulnerability Reporting；
-- 指定至少 1 名 maintainer 作为安全联系人（记录于 `projects/<项目名>/` 档案）；
-- 在年度 review 中报告本年度安全事件处理情况（无事件则声明"无"）。
+- Place a `SECURITY.md` at the repository root pointing to this policy and the security@ mailbox;
+- Enable GitHub Private Vulnerability Reporting;
+- Designate at least 1 maintainer as the security contact (recorded in the `projects/<project-name>/` records);
+- Report the year's security-incident handling in the annual review (state "none" if none).
 
-## 5. 嵌入式披露 / Embargo
+## 5. Embargo
 
-在修复发布前，漏洞细节仅限以下人员知悉：报告者、该项目安全联系人与参与修复的 maintainer、安全响应负责人。确需提前通知重要下游用户的（如漏洞已被利用），由 TSC 决定通知范围。
+Before a fix is released, vulnerability details are limited to: the reporter, the project's security contact and maintainers working on the fix, and the security-response owners. Where important downstream users must be notified early (e.g., active exploitation), the TSC decides the notification scope.
 
-## 6. 启用前置条件 / Readiness Gate
+## 6. Readiness Gate
 
-分两层：
+Two layers:
 
-**制度级（首个项目 Final Acceptance 前必须就绪）/ Institutional (before the first Final Acceptance)**：
+**Institutional (must be in place before the first project's Final Acceptance)**:
 
-- [ ] <security@flagos.io> 邮箱开通并可收信；
-- [ ] TSC 已指定至少 **2 名**安全响应负责人并公示。
+- [ ] The <security@flagos.io> mailbox is operational;
+- [ ] The TSC has designated and published at least **2** security-response owners.
 
-**项目级（每个项目仓库迁入后、对外公告或正式开放贡献前完成，属[执行手册](acceptance-runbook.md)的完成门槛，不是 Final Acceptance 的前置条件）/ Per-project (after each repository migration, before announcement or opening contributions; a completion gate in the acceptance runbook, not a precondition of Final Acceptance)**：
+**Per-project (completed after each repository migration, before announcement or opening contributions — a completion gate in the [acceptance runbook](acceptance-runbook.md), not a precondition of Final Acceptance)**:
 
-- [ ] 仓库启用 GitHub Private Vulnerability Reporting；
-- [ ] 添加 `SECURITY.md`（指向本政策）；
-- [ ] 登记项目安全联系人（记录于 `projects/<项目名>/` 档案）。
+- [ ] GitHub Private Vulnerability Reporting enabled on the repository;
+- [ ] `SECURITY.md` added (pointing to this policy);
+- [ ] Project security contact registered (in the `projects/<project-name>/` records).
 
-本政策承诺的响应时限自制度级条件就绪之日起生效。
 The response timelines in this policy take effect once the institutional items are in place; per-project items are completed per repository after migration.

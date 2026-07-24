@@ -30,7 +30,7 @@
 
 ## 资产核验与迁移准备 / Asset Verification & Migration Readiness
 
-> 本节在正式接收前完成的是**核验与准备**；域名、发布渠道、CI、社媒等运营资产的**实际移交**在 Final Acceptance 后按[执行手册](acceptance-runbook.md)执行。仅商标等法律权利安排须在接收前启动。
+> 本节在正式接收前完成的是**核验与准备**；域名、发布渠道、CI、社媒等运营资产的**实际移交**在 Final Acceptance 后按[执行手册](acceptance-runbook_CN.md)执行。仅商标等法律权利安排须在接收前启动。
 > Before formal acceptance this section covers **verification and preparation** only; the **actual transfer** of operational assets (domains, release channels, CI, social accounts) is executed after Final Acceptance per the [acceptance runbook](acceptance-runbook.md). Only legal arrangements such as trademarks must be initiated before acceptance.
 
 - [ ] （法律项）项目名称与 Logo 的商标检索完成；SGA 约定的商标权利安排（转让或独占许可）已启动 / (Legal) Trademark search completed; the trademark arrangement agreed in the SGA (assignment or exclusive license) initiated
