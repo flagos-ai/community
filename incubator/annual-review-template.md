@@ -2,14 +2,14 @@
 
 > 每个孵化项目每年提交一次，在 community 仓库开 issue（标题：`[Annual Review] <项目名> <年份>`），按本模板填写。Mentor 确认后由 TSC 归档至 `projects/<项目名>/reviews/`。正式项目每 2 年复用本模板做轻量健康检查（无 Mentor 的由 TSC 指定确认人）。填写以事实为主，遇到困难如实写——review 的目的是发现需要支持的地方，不是考核。
 >
-> Each incubating project submits once a year via an issue in the community repo (title: `[Annual Review] <project> <year>`). After Mentor confirmation, the TSC archives it under `projects/<project-name>/reviews/`. Be factual; report difficulties honestly — the review exists to surface where support is needed, not to grade projects.
+> Each incubating project submits once a year via an issue in the community repo (title: `[Annual Review] <project> <year>`). After Mentor confirmation, the TSC archives it under `projects/<project-name>/reviews/`. Graduated projects reuse this template every 2 years for a lightweight health check (confirmed by a TSC-designated reviewer where there is no Mentor). Be factual; report difficulties honestly — the review exists to surface where support is needed, not to grade projects.
 
 ## 基本情况 / Basics
 
 - **项目 / Project**：
 - **Review 年度 / Year**：
 - **填写人 / Submitted by**：
-- **Mentor**：
+- **Mentor / TSC 指定确认人 / Mentor or TSC-designated reviewer**：
 
 ## 1. 发布 / Releases
 
@@ -40,9 +40,9 @@
 
 ---
 
-## Mentor 确认 / Mentor Confirmation
+## 确认 / Confirmation（Mentor；正式项目由 TSC 指定确认人 / Mentor, or TSC-designated reviewer for graduated projects）
 
 - [ ] 已核对以上内容与项目实际情况相符
-- **Mentor 意见**（项目健康度评价、风险提示、对 TSC 的建议）：
+- **确认人意见 / Reviewer comments**（项目健康度评价、风险提示、对 TSC 的建议）：
 
-<!-- Mentor 签名 + 日期 -->
+<!-- 确认人签名 + 日期 / Reviewer signature + date -->

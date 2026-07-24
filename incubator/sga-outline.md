@@ -6,8 +6,8 @@
 
 ## 接收主体 / Receiving Entity
 
-- 协议乙方（受赠方）为**中关村人工智能开源联盟**。正式协议以该主体的注册全称署名；法务起草时同步确认其签约资格与盖章流程。
-  The recipient (Party B) is the **Zhongguancun Artificial Intelligence Open Source Alliance**. The executed agreement uses the entity's full registered name; legal counsel confirms its contracting capacity and sealing procedure at drafting.
+- 协议乙方（受赠方）为**中关村人工智能开源联盟**（拟接收主体）。正式协议定稿前，法务须核验并固化：工商/登记注册全称及统一社会信用代码；主体类型及独立签约、持有版权许可与商标/域名等资产的能力；法定代表人或授权签署人、授权文件与有效盖章流程；TSC 接收决定与该法律主体签约/持有资产之间的内部授权关系。中英文名称不一致时，以注册中文名称及正式协议约定为准。核验完成情况见 [IP 清理清单](ip-checklist.md)法律文件部分。
+  The recipient (Party B) is the **Zhongguancun Artificial Intelligence Open Source Alliance** (designated recipient). Before the formal agreement is finalized, legal counsel must verify and fix: the registered name and unified social credit code; the entity type and its capacity to contract independently and hold copyright licenses, trademarks, and domains; the legal representative or authorized signatory, authorization documents, and valid sealing procedure; and the internal authorization linking TSC acceptance decisions to this legal entity's contracting and asset holding. Where the Chinese and English names diverge, the registered Chinese name and the executed agreement prevail. Verification is tracked in the Legal Documents section of the [IP clearance checklist](ip-checklist.md).
 
 ## 核心条款 / Core Terms
 

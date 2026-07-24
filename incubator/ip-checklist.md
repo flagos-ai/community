@@ -6,6 +6,7 @@
 
 ## 法律文件 / Legal Documents
 
+- [ ] 受赠方主体信息及签署授权已由法务核验：注册全称与统一社会信用代码、独立签约及持有版权许可/商标/域名等资产的能力、授权签署人及盖章流程 / Recipient entity information and signing authorization verified by legal counsel: registered name and unified social credit code, capacity to contract independently and hold copyright licenses / trademarks / domains, authorized signatory and sealing procedure
 - [ ] 软件捐赠协议（SGA）已由捐赠方签约主体签署 / Software Grant Agreement signed by the donor's legal entity
 - [ ] 捐赠方已出具代码权属声明，确认无外包代码、前雇主代码或来源不明代码的权属风险；如有，已逐项说明处理方式 / Donor has provided a code ownership declaration covering outsourced / prior-employer / unclear-origin code risks, with resolution for each item if any
 - [ ] SGA 约定的软件著作权权利安排（转让 / 独占许可 / 非独占可再许可的永久授权，以正式 SGA 为准）已生效，或相应登记/备案手续已启动且有明确完成时点 / The software-copyright arrangement agreed in the SGA (assignment / exclusive license / non-exclusive perpetual sublicensable license, as the executed SGA specifies) is effective, or the corresponding registration/recording has been initiated with a defined completion date
