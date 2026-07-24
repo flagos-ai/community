@@ -2,8 +2,6 @@
 
 [English](acceptance-runbook.md) | [中文](acceptance-runbook_CN.md)
 
-> 本文档以英文版本为准，中文版本供阅读便利；如两者存在不一致，以英文版本为准。
-
 > 本文件是 [README_CN.md](README_CN.md) 第 6 节流程第 ⑤ 步的操作手册：Final Acceptance 记录生效后，执行团队按此完成资产迁移与对外发布。
 
 ## 0. 前置条件

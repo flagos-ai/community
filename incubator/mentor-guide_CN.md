@@ -2,8 +2,6 @@
 
 [English](mentor-guide.md) | [中文](mentor-guide_CN.md)
 
-> 本文档以英文版本为准，中文版本供阅读便利；如两者存在不一致，以英文版本为准。
-
 > 本文件说明孵化项目 Mentor 的产生、职责与工作方式，是 [README_CN.md](README_CN.md) 第 7 节的实施细则。
 
 ## 1. Mentor 是谁

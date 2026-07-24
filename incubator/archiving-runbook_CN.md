@@ -2,8 +2,6 @@
 
 [English](archiving-runbook.md) | [中文](archiving-runbook_CN.md)
 
-> 本文档以英文版本为准，中文版本供阅读便利；如两者存在不一致，以英文版本为准。
-
 > [README_CN.md](README_CN.md) 第 8 节归档决议通过后的执行手册。归档是中性退出，执行时注意措辞不带惩罚色彩。
 
 ## 1. 通知期
