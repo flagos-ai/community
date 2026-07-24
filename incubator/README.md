@@ -16,7 +16,7 @@ If you plan to donate a project to FlagOS:
 2. **Prepare and submit the proposal**: Copy the [donation proposal template](proposal-template.md) to `incubator/projects/<project-name>/proposal.md`, fill in the project, maintainer team, donation scope, IP status, and post-donation plan, then submit a PR to the community repo.
 3. **Public review and TSC presentation**: The proposal is publicly reviewed for at least 14 days; we will then contact you to arrange a ~30-minute TSC presentation. On approval the project is conditionally approved and enters the SGA and IP due-diligence stage.
 4. **Complete the SGA and IP clearance**: With help from the Mentors, the TSC-designated verifier, and the legal receiving entity, complete the [IP clearance checklist](ip-checklist.md) and sign the SGA. Conditional approval is valid for 12 months.
-5. **Formal acceptance and asset migration**: Once the SGA is effective and IP clearance is complete, the community records Final Acceptance in the proposal; both sides then migrate repositories, release channels, domains, and other agreed assets per the [acceptance runbook](acceptance-runbook.md), and the project enters incubation.
+5. **Formal acceptance and asset migration**: Once the SGA is effective and IP clearance is complete, the community records Final Acceptance in the proposal, and **the project enters incubation as of that date**; both sides then migrate repositories, release channels, domains, and other agreed assets per the [acceptance runbook](acceptance-runbook.md).
 
 Status progression at a glance:
 
