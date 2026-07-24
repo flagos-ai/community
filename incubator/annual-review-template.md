@@ -1,48 +1,58 @@
-# 年度 Review 模板 / Annual Review Template
+# Annual Review Template
 
-> 每个孵化项目每年提交一次，在 community 仓库开 issue（标题：`[Annual Review] <项目名> <年份>`），按本模板填写。Mentor 确认后由 TSC 归档至 `projects/<项目名>/reviews/`。正式项目每 2 年复用本模板做轻量健康检查（无 Mentor 的由 TSC 指定确认人）。填写以事实为主，遇到困难如实写——review 的目的是发现需要支持的地方，不是考核。
->
-> Each incubating project submits once a year via an issue in the community repo (title: `[Annual Review] <project> <year>`). After Mentor confirmation, the TSC archives it under `projects/<project-name>/reviews/`. Graduated projects reuse this template every 2 years for a lightweight health check (confirmed by a TSC-designated reviewer where there is no Mentor). Be factual; report difficulties honestly — the review exists to surface where support is needed, not to grade projects.
+<!--
+Each incubating project submits once a year via an issue in the community repo
+(title: [Annual Review] <project> <year>). After confirmation by the Mentor, the TSC
+archives it under projects/<project-name>/reviews/. Graduated projects reuse this
+template every 2 years for a lightweight health check (confirmed by a TSC-designated
+reviewer where there is no Mentor).
 
-## 基本情况 / Basics
+**All content must be written in English.**
 
-- **项目 / Project**：
-- **Review 年度 / Year**：
-- **填写人 / Submitted by**：
-- **Mentor / TSC 指定确认人 / Mentor or TSC-designated reviewer**：
+Be factual; report difficulties honestly — the review exists to surface where support
+is needed, not to grade projects.
+-->
 
-## 1. 发布 / Releases
+## Basics
 
-<!-- 本年度发布的版本列表（版本号 + 日期），无发布请说明原因 -->
+- **Project**:
+- **Year**:
+- **Submitted by**:
+- **Mentor or TSC-designated reviewer**:
 
-## 2. 社区 / Community
+## 1. Releases
 
-- 新增 maintainer/committer（姓名/ID 及所属机构）：
-- maintainer 机构分布现状（各机构人数）：
-- 活跃贡献者数量的大致变化：
+<!-- Versions released this year (version + date); if none, explain why -->
 
-## 3. 采用 / Adoption
+## 2. Community
 
-<!-- 已知的用户/生产使用情况变化，可公开引用的写明出处 -->
+- New maintainers/committers (name/ID and organization):
+- Current maintainer org distribution (headcount per org):
+- Rough change in active contributor count:
 
-## 4. 合规与安全 / Compliance & Security
+## 3. Adoption
 
-- 许可证扫描是否保持通过：
-- 本年度安全事件及处理情况（无则写"无"）：
+<!-- Known changes in users / production usage; cite publicly referenceable sources -->
 
-## 5. 困难与需要的支持 / Challenges & Support Needed
+## 4. Compliance & Security
 
-<!-- 社区遇到什么困难？需要联盟/TSC 提供什么支持（CI 资源、推广、Mentor 方向调整等）？ -->
+- License scanning still passing:
+- Security incidents this year and how they were handled (write "none" if none):
 
-## 6. 下一年计划 / Plan for Next Year
+## 5. Challenges & Support Needed
 
-<!-- 几句话即可 -->
+<!-- What is the community struggling with? What support is needed from the alliance/TSC
+     (CI resources, promotion, mentoring adjustments, etc.)? -->
+
+## 6. Plan for Next Year
+
+<!-- A few sentences -->
 
 ---
 
-## 确认 / Confirmation（Mentor；正式项目由 TSC 指定确认人 / Mentor, or TSC-designated reviewer for graduated projects）
+## Confirmation (Mentor, or TSC-designated reviewer for graduated projects)
 
-- [ ] 已核对以上内容与项目实际情况相符
-- **确认人意见 / Reviewer comments**（项目健康度评价、风险提示、对 TSC 的建议）：
+- [ ] The content above has been checked against the project's actual state
+- **Reviewer comments** (project health, risk notes, suggestions to the TSC):
 
-<!-- 确认人签名 + 日期 / Reviewer signature + date -->
+<!-- Reviewer signature + date -->
