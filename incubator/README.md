@@ -8,7 +8,25 @@ This directory is the single entry point for **external project donations** to t
 
 This process applies to externally donated projects; governance of existing FlagOS subprojects is not affected by this directory.
 
-## 2. Project Lifecycle
+## 2. Quick Start for Donors
+
+If you plan to donate a project to FlagOS:
+
+1. **Confirm the fit**: Read the acceptance principles in Section 4 and confirm the project fits the FlagOS technical scope, has a maintainer team, and its code and assets can in principle pass IP clearance.
+2. **Prepare and submit the proposal**: Copy the [donation proposal template](proposal-template.md) to `incubator/projects/<project-name>/proposal.md`, fill in the project, maintainer team, donation scope, IP status, and post-donation plan, then submit a PR to the community repo.
+3. **Public review and TSC presentation**: The proposal is publicly reviewed for at least 14 days; we will then contact you to arrange a ~30-minute TSC presentation. On approval the project is conditionally approved and enters the SGA and IP due-diligence stage.
+4. **Complete the SGA and IP clearance**: With help from the Mentors, the TSC-designated verifier, and the legal receiving entity, complete the [IP clearance checklist](ip-checklist.md) and sign the SGA. Conditional approval is valid for 12 months.
+5. **Formal acceptance and asset migration**: Once the SGA is effective and IP clearance is complete, the community records Final Acceptance in the proposal; both sides then migrate repositories, release channels, domains, and other agreed assets per the [acceptance runbook](acceptance-runbook.md), and the project enters incubation.
+
+Status progression at a glance:
+
+```
+Draft → Public Review → Conditional Approved → SGA / IP Clearance → Final Accepted → Incubating
+```
+
+Questions before submitting: <contact@flagos.io>. **Do not submit contract scans, identity documents, account credentials, or other sensitive material in the public PR**; your Mentor or legal contact will provide a private submission channel for such material.
+
+## 3. Project Lifecycle
 
 ```
 Donation Proposal → Incubating → Graduated
@@ -23,25 +41,25 @@ Only two levels: **Incubating** / **Graduated**. Archiving is the neutral exit p
 |---------|--------|-------|---------|----------|
 | _None yet_ | | | | |
 
-## 3. Acceptance Principles
+## 4. Acceptance Principles
 
 The TSC reviews donation proposals against the following principles, and the reasons for acceptance or rejection are recorded publicly. A candidate project must at minimum:
 
 - Fit the FlagOS mission and technical scope (the multi-chip AI system software stack and its ecosystem);
-- Use an open source license compliant with the license policy in Section 8;
+- Use an open source license compliant with the license policy in Section 9;
 - Have an IP status that is clearable in principle (known issues are not automatically disqualifying, but a feasible clearance path must exist);
 - Have a committed initial maintainer team — not code parked after maintenance has stopped;
 - Be willing to adopt open, neutral community governance, including this community's [GOVERNANCE.md](../GOVERNANCE.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md);
 - Be complementary to, or clearly differentiated from, existing FlagOS projects, without creating duplicated competition within the community.
 
-## 4. Decision Body
+## 5. Decision Body
 
 - Donation acceptance, graduation, and archiving are **major decisions** of the community, decided by **TSC vote under the major-decision rules defined in [GOVERNANCE.md](../GOVERNANCE.md)**. Before the first TSC meeting, the FlagOS founding community acts on its behalf under the same rules.
 - Routine matters follow the lazy consensus rules in GOVERNANCE.
 - **Conflict of interest**: Directly interested parties in a donation matter (TSC members from the donor or its affiliated organizations) **must recuse** from the vote. This is a special rule for donation matters on top of the GOVERNANCE conflict-of-interest policy; see [GOVERNANCE.md](../GOVERNANCE.md#conflict-of-interest-coi).
 - All decisions are recorded publicly on GitHub.
 
-## 5. Donation & Formal Acceptance Process
+## 6. Donation & Formal Acceptance Process
 
 ```
 ① Proposal PR → ② 2-week public review → ③ TSC conditional approval → ④ SGA + IP clearance → ⑤ Formal acceptance, incubation begins
@@ -49,14 +67,14 @@ The TSC reviews donation proposals against the following principles, and the rea
 
 1. **Proposal PR**: The donor fills out [proposal-template.md](proposal-template.md) and submits it as a PR to `incubator/projects/<project-name>/proposal.md`. Questions before submitting can go to <contact@flagos.io>.
 2. **2-week public review**: The PR stays open for at least 14 days to collect community feedback. Meanwhile the TSC identifies 1–2 Mentors for the project.
-3. **TSC conditional approval**: The donor presents at a TSC meeting (~30 minutes); the TSC votes under the rules in Section 4. On approval, the proposal PR is merged.
+3. **TSC conditional approval**: The donor presents at a TSC meeting (~30 minutes); the TSC votes under the rules in Section 5. On approval, the proposal PR is merged.
    - **Conditional approval only authorizes proceeding to IP due diligence; it does not constitute formal acceptance.**
    - **Validity**: Conditional approval is valid for **12 months** from the vote, extendable by TSC resolution. If the SGA and IP clearance are not completed in time, the proposal is closed (closed/withdrawn) and the project **enters no lifecycle state**; it may be resubmitted later.
    - **If rejected**: The TSC provides written reasons in the PR; the project may resubmit after 6 months.
 4. **SGA + IP clearance**: Sign the [Software Grant Agreement](sga-outline.md) and complete every item on the [IP clearance checklist](ip-checklist.md). **No acceptance until the checklist is complete.**
 5. **Formal acceptance**: Once the SGA is effective and the IP clearance checklist is fully complete, the TSC (or its authorized delegate) records **Final Acceptance** in the proposal document (with date and verification basis); **formal acceptance takes effect as of that record**. Transferring the repository into the `flagos-ai` org (preserving forks and stars), marking the README `(incubating)`, updating the project list on this page, and publishing the announcement are execution steps that follow formal acceptance, carried out per the [acceptance runbook](acceptance-runbook.md).
 
-## 6. Incubation, Annual Review & Graduation
+## 7. Incubation, Annual Review & Graduation
 
 ### Incubation
 
@@ -76,13 +94,13 @@ Graduation is assessed against the following **six fixed dimensions**, which pro
 5. **Compliance**: IP and licensing remain continuously compliant, with no unresolved violating dependencies;
 6. **Reduced single-party dependence**: dependence on the original donor is clearly reduced (maintainers not concentrated in a single organization).
 
-Graduation is initiated by project maintainers or the Mentor using the [graduation proposal template](graduation-template.md) (evidence per dimension + written Mentor recommendation), takes effect after a TSC vote under the rules in Section 4, and drops the `(incubating)` label.
+Graduation is initiated by project maintainers or the Mentor using the [graduation proposal template](graduation-template.md) (evidence per dimension + written Mentor recommendation), takes effect after a TSC vote under the rules in Section 5, and drops the `(incubating)` label.
 
 > Quantitative reference indicators for each dimension (number of organizations, releases, etc.) will be added by the TSC later; such additions only refine reference lines and do not change the dimensions themselves.
 
-## 7. Exit & Archiving
+## 8. Exit & Archiving
 
-Archiving is the neutral exit mechanism for a **formally accepted project** (Incubating or Graduated) that no longer meets the conditions of its stage; proposals that never reached formal acceptance are handled under the conditional-approval validity rules in Section 5 and are not archived. **Discovery**: incubating projects are checked via the annual review; graduated projects undergo a lightweight health check **every 2 years** (reusing the [annual review template](annual-review-template.md)), and any community member may also propose archiving at any time based on the conditions below. Upon any of the following, the TSC decides by vote under the rules in Section 4:
+Archiving is the neutral exit mechanism for a **formally accepted project** (Incubating or Graduated) that no longer meets the conditions of its stage; proposals that never reached formal acceptance are handled under the conditional-approval validity rules in Section 6 and are not archived. **Discovery**: incubating projects are checked via the annual review; graduated projects undergo a lightweight health check **every 2 years** (reusing the [annual review template](annual-review-template.md)), and any community member may also propose archiving at any time based on the conditions below. Upon any of the following, the TSC decides by vote under the rules in Section 5:
 
 - No substantive activity for 12 consecutive months (no commits, no releases, unreachable maintainers);
 - IP or compliance issues discovered after formal acceptance that remain unfixed long-term;
@@ -93,7 +111,7 @@ Archiving is the neutral exit mechanism for a **formally accepted project** (Inc
 
 After archiving, the repository becomes **read-only and remains available**; execution details (notice period, channel disposition, trademarks, reactivation) are in the [archiving runbook](archiving-runbook.md). **Commitment to donors**: the code license granted under the SGA is **irrevocable**; archiving does not affect anyone's right to fork and use the code. Project trademarks may be returned to the donor by negotiation.
 
-## 8. Licensing, Security & Supporting Files
+## 9. Licensing, Security & Supporting Files
 
 ### License Policy
 

@@ -1,7 +1,7 @@
 # 安全响应政策 / Security Response Policy
 
-> 本文件是 [README_CN.md](README_CN.md) 第 8 节安全响应的实施细则，适用于所有孵化中与正式项目。
-> This document details the security-response policy in Section 8 of the [README](README.md), applying to all incubating and graduated projects.
+> 本文件是 [README_CN.md](README_CN.md) 第 9 节安全响应的实施细则，适用于所有孵化中与正式项目。
+> This document details the security-response policy in Section 9 of the [README](README.md), applying to all incubating and graduated projects.
 
 ## 1. 报告渠道 / Reporting Channel
 

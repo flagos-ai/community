@@ -1,7 +1,7 @@
 # 许可证政策 / License Policy
 
-> 本文件是 [README_CN.md](README_CN.md) 第 8 节许可证政策的实施细则，适用于所有孵化中与正式项目。
-> This document details the license policy in Section 8 of the [README](README.md), applying to all incubating and graduated projects.
+> 本文件是 [README_CN.md](README_CN.md) 第 9 节许可证政策的实施细则，适用于所有孵化中与正式项目。
+> This document details the license policy in Section 9 of the [README](README.md), applying to all incubating and graduated projects.
 
 ## 1. 出口许可证 / Outbound License
 

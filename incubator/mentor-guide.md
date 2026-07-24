@@ -1,7 +1,7 @@
 # Mentor 指南 / Mentor Guide
 
-> 本文件说明孵化项目 Mentor 的产生、职责与工作方式，是 [README_CN.md](README_CN.md) 第 6 节的实施细则。
-> This document details how Mentors are appointed and what they do, per Section 6 of the [README](README.md).
+> 本文件说明孵化项目 Mentor 的产生、职责与工作方式，是 [README_CN.md](README_CN.md) 第 7 节的实施细则。
+> This document details how Mentors are appointed and what they do, per Section 7 of the [README](README.md).
 
 ## 1. Mentor 是谁 / Who Mentors Are
 
@@ -34,7 +34,7 @@
 - Mentor 可随时向 TSC 提出卸任，TSC 在 4 周内指派继任者；
 - 项目可向 TSC 申请更换 Mentor（须说明理由）；
 - Mentor 连续 6 个月未履职（无任何互动记录）的，TSC 应主动更换；
-- 孵化项目长期（超过 6 个月）无 Mentor 可指派的，触发 [README_CN.md](README_CN.md) 第 7 节的归档评估。
+- 孵化项目长期（超过 6 个月）无 Mentor 可指派的，触发 [README_CN.md](README_CN.md) 第 8 节的归档评估。
 
 ## 5. 记录 / Records
 

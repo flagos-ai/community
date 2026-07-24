@@ -1,6 +1,6 @@
 # 正式接收执行手册 / Formal Acceptance Runbook
 
-> 本文件是 [README_CN.md](README_CN.md) 第 5 节流程第 ⑤ 步的操作手册：Final Acceptance 记录生效后，执行团队按此完成资产迁移与对外发布。
+> 本文件是 [README_CN.md](README_CN.md) 第 6 节流程第 ⑤ 步的操作手册：Final Acceptance 记录生效后，执行团队按此完成资产迁移与对外发布。
 > Operational runbook for step ⑤ of the donation process: after Final Acceptance is recorded, the execution team completes asset migration and announcements per this document.
 
 ## 0. 前置条件 / Preconditions

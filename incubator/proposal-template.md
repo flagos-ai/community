@@ -1,8 +1,8 @@
 # 项目捐赠提案：<项目名>
 
-> 复制本模板至 `incubator/projects/<项目名>/proposal.md`，填写后以 PR 提交（流程见 [README_CN.md](/incubator/README_CN.md) 第 5 节；提交前有疑问可联系 <contact@flagos.io>）。所有字段务必如实填写——特别是"IP 状况自述"部分，早期披露的问题都有办法处理，隐瞒的问题会在 IP 清理阶段阻断接收。
+> 复制本模板至 `incubator/projects/<项目名>/proposal.md`，填写后以 PR 提交（流程见 [README_CN.md](/incubator/README_CN.md) 第 6 节；提交前有疑问可联系 <contact@flagos.io>）。所有字段务必如实填写——特别是"IP 状况自述"部分，早期披露的问题都有办法处理，隐瞒的问题会在 IP 清理阶段阻断接收。
 >
-> Copy this template to `incubator/projects/<project-name>/proposal.md` and submit as a PR (process in [README.md](/incubator/README.md) Section 5; questions to <contact@flagos.io>). Fill in all fields truthfully — especially the "IP Status Disclosure" section. Issues disclosed early can be worked out; issues concealed will block acceptance at IP clearance.
+> Copy this template to `incubator/projects/<project-name>/proposal.md` and submit as a PR (process in [README.md](/incubator/README.md) Section 6; questions to <contact@flagos.io>). Fill in all fields truthfully — especially the "IP Status Disclosure" section. Issues disclosed early can be worked out; issues concealed will block acceptance at IP clearance.
 
 ## 基本信息 / Basic Information
 
@@ -74,7 +74,7 @@
 - [ ] 同意采用开放、中立的社区治理，遵循 FlagOS 社区的 [GOVERNANCE](/GOVERNANCE_CN.md) 与 [CODE_OF_CONDUCT](/CODE_OF_CONDUCT_CN.md) / Agree to open, neutral community governance under FlagOS GOVERNANCE and CODE_OF_CONDUCT
 - [ ] 同意项目出口许可证切换为 Apache-2.0（或已在提案中说明例外并申请 TSC 批准），并遵守[许可证政策](/incubator/license-policy.md) / Agree to relicense outbound under Apache-2.0 (or an exception justified above for TSC approval) and to follow the license policy
 - [ ] 同意后续贡献遵循 FlagOS 现行 CLA 机制 / Agree that subsequent contributions follow the current FlagOS CLA mechanism
-- [ ] 已知悉条件批准有效期 12 个月、归档机制及许可不可撤销条款（README 第 5、7 节）/ Aware of the 12-month conditional-approval validity, the archiving mechanism, and the irrevocable-license terms (README Sections 5 & 7)
+- [ ] 已知悉条件批准有效期 12 个月、归档机制及许可不可撤销条款（README 第 6、8 节）/ Aware of the 12-month conditional-approval validity, the archiving mechanism, and the irrevocable-license terms (README Sections 6 & 8)
 - [ ] 确认本提案所述内容真实、无重大遗漏 / Confirm this proposal is truthful with no material omissions
 
 ## 意向 Mentor（可留空，由 TSC 指派）/ Proposed Mentors (optional; TSC will assign)

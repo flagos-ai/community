@@ -1,7 +1,7 @@
 # 转正提案：<项目名> / Graduation Proposal
 
-> 由项目 maintainer 或 Mentor 发起，以 PR 提交至 `incubator/projects/<项目名>/graduation.md`，逐维度附证据链接。TSC 按 [README_CN.md](/incubator/README_CN.md) 第 4 节规则投票。
-> Initiated by project maintainers or the Mentor, submitted as a PR to `incubator/projects/<project-name>/graduation.md` with evidence links per dimension. The TSC votes under README Section 4.
+> 由项目 maintainer 或 Mentor 发起，以 PR 提交至 `incubator/projects/<项目名>/graduation.md`，逐维度附证据链接。TSC 按 [README_CN.md](/incubator/README_CN.md) 第 5 节规则投票。
+> Initiated by project maintainers or the Mentor, submitted as a PR to `incubator/projects/<project-name>/graduation.md` with evidence links per dimension. The TSC votes under README Section 5.
 
 - **项目 / Project**：
 - **发起人 / Initiated by**：
