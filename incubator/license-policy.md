@@ -1,62 +1,63 @@
-# 许可证政策 / License Policy
+# License Policy
 
-> 本文件是 [README_CN.md](README_CN.md) 第 9 节许可证政策的实施细则，适用于所有孵化中与正式项目。
+[English](license-policy.md) | [中文](license-policy_CN.md)
+
+> The English version is authoritative. The Chinese translation is provided for convenience; if the versions differ, the English version prevails.
+
 > This document details the license policy in Section 9 of the [README](README.md), applying to all incubating and graduated projects.
 
-## 1. 出口许可证 / Outbound License
-
-项目对外发布统一采用 **Apache-2.0**。捐赠项目若原采用其他许可证，须在 IP 清理阶段完成切换。**SGA 仅覆盖捐赠方自身有权授权的部分**；项目能否整体切换出口许可证，以 [IP 清理清单](ip-checklist.md)"贡献权利链"一节的核验结果为准——历史外部贡献者保留的版权须通过原许可证兼容性、补签授权或重写/移除逐项解决。个别项目确有理由采用其他许可证的（如 MulanPSL-2.0），须在捐赠提案中说明并经 TSC 批准。
+## 1. Outbound License
 
 All projects release under **Apache-2.0**. Donated projects under other licenses must switch during IP clearance. **The SGA covers only what the donor itself has the right to license**; whether the project can switch its outbound license as a whole is determined by the "Contribution Rights Chain" verification in the [IP clearance checklist](ip-checklist.md) — copyright retained by historical external contributors must be resolved item by item via original-license compatibility, retroactive authorization, or rewrite/removal. Exceptions (e.g., MulanPSL-2.0) must be justified in the proposal and approved by the TSC.
 
-## 2. 依赖许可证分类 / Dependency License Categories
+## 2. Dependency License Categories
 
-### 允许 / Allowed（可直接引入）
+### Allowed (may be introduced directly)
 
-| 许可证 | 说明 |
-|--------|------|
-| Apache-2.0 | 含专利授权 |
+| License | Notes |
+|---------|-------|
+| Apache-2.0 | Includes a patent grant |
 | MIT / ISC | |
 | BSD-2-Clause / BSD-3-Clause | |
-| MulanPSL-2.0（木兰宽松） | 中英双语文本均有法律效力 |
+| MulanPSL-2.0 | Both the Chinese and English texts are legally effective |
 | Zlib / Python-2.0 | |
-| CC0-1.0 / Unlicense | 公有领域类 |
+| CC0-1.0 / Unlicense | Public-domain class |
 
-### 个案裁定 / Case-by-Case（须经 TSC 批准并记录）
+### Case-by-Case (requires TSC approval, recorded)
 
-| 许可证 | 典型允许场景 |
-|--------|-------------|
-| MPL-2.0 / EPL-2.0 | 以独立文件/二进制形式使用，不修改源文件 |
-| LGPL-2.1 / LGPL-3.0 | 仅动态链接，且为可替换的系统级依赖 |
-| CDDL | 同 MPL 处理 |
-| 弱互惠许可证仅用于测试/构建工具链 | 不进入分发产物 |
+| License | Typical permitted scenario |
+|---------|---------------------------|
+| MPL-2.0 / EPL-2.0 | Used as standalone files/binaries without modifying the source files |
+| LGPL-2.1 / LGPL-3.0 | Dynamic linking only, as a replaceable system-level dependency |
+| CDDL | Treated the same as MPL |
+| Weak-copyleft licenses used only in test/build toolchains | Not part of distributed artifacts |
 
-申请方式：在对应仓库提 issue，说明依赖名称、许可证、使用方式（源码引入/动态链接/仅构建期）、是否进入分发产物、有无替代方案。TSC 按 lazy consensus 处理，结论记录在 issue 中。
+How to apply: open an issue in the affected repository stating the dependency name, license, usage mode (source inclusion / dynamic linking / build-time only), whether it enters distributed artifacts, and available alternatives. The TSC handles it by lazy consensus and records the conclusion in the issue.
 
-### 禁止 / Prohibited（不得进入源码树或分发产物）
+### Prohibited (must not enter the source tree or distributed artifacts)
 
 - GPL-2.0 / GPL-3.0 / AGPL-3.0
-- SSPL、BUSL、Elastic License 2.0
-- Commons Clause 及任何附加"仅限非商用""禁止竞争"条款的文本
-- JSON License（"shall be used for Good, not Evil"）及其他含使用限制的非自由条款
-- 无许可证（no license）的第三方代码
+- SSPL, BUSL, Elastic License 2.0
+- Commons Clause and any text with added "non-commercial only" or "no competition" terms
+- JSON License ("shall be used for Good, not Evil") and other non-free terms with usage restrictions
+- Third-party code with no license
 
-## 3. CI 扫描要求 / CI Scanning Requirements
+## 3. CI Scanning Requirements
 
-- 每个项目仓库须在 CI 中启用许可证扫描（推荐 ScanCode Toolkit 或 OSS Review Toolkit），对 PR 引入的新依赖做增量检查，命中禁止类许可证即阻断合并。
-- 扫描配置以本文件的分类为准；个案批准的依赖加入项目级 allowlist，并注明批准 issue 链接。
-- 全量扫描至少每次发布前执行一次，报告随发布记录存档。
+- Every project repository must run license scanning in CI (ScanCode Toolkit or OSS Review Toolkit recommended), incrementally checking new dependencies introduced by PRs and blocking merges on prohibited licenses.
+- Scan configuration follows the categories in this document; case-by-case approved dependencies go into a project-level allowlist annotated with the approval issue link.
+- A full scan runs at least once before every release, with the report archived alongside the release records.
 
-## 4. AI 制品的许可 / Licensing of AI Artifacts
+## 4. Licensing of AI Artifacts
 
-适用于捐赠或分发模型权重、数据集的项目：
+For projects donating or distributing model weights or datasets:
 
-- **模型权重**：是否随代码捐赠须在提案中明确。权重的许可证独立于代码，推荐采用 Apache-2.0 或明确的开放权重许可；含使用限制的许可（如仅研究用途）须在 README 显著位置声明，且不得与"开源项目"表述混同。
-- **数据集**：须确认来源合法、许可允许再分发；不能再分发的数据集只能以"下载脚本 + 来源引用"方式提供，不得直接入库。
-- **第三方模型微调产物**：须遵守基座模型的许可条款（如衍生模型命名、使用政策传递等），在 IP 清理清单中逐项核对。
+- **Model weights**: Whether weights are donated with the code must be stated in the proposal. Weight licenses are independent of code licenses; Apache-2.0 or a clearly defined open-weights license is recommended. Licenses with usage restrictions (e.g., research-only) must be declared prominently in the README and must not be conflated with "open source" claims.
+- **Datasets**: Provenance must be lawful and licenses must permit redistribution; datasets that cannot be redistributed may only be provided as a download script plus source citation, and must not enter the repository.
+- **Fine-tuned derivatives of third-party models**: Must comply with the base model's license terms (derivative naming, use-policy pass-through, etc.), verified item by item in the IP clearance checklist.
 
-## 5. 文件与声明要求 / File & Notice Requirements
+## 5. File & Notice Requirements
 
-- 仓库根目录：`LICENSE`（Apache-2.0 全文）+ `NOTICE`（版权声明与第三方组件致谢）。
-- **项目自有源码**文件头统一添加 SPDX 标识：`SPDX-License-Identifier: Apache-2.0`；第三方文件**保留其原许可证声明与版权头，不得改写**。
-- 引入的第三方代码保留其原始版权声明，并在 `NOTICE` 或 `third_party/` 目录中登记。
+- Repository root: `LICENSE` (full Apache-2.0 text) + `NOTICE` (copyright statements and third-party attributions).
+- **Project-owned source files** carry a uniform SPDX header: `SPDX-License-Identifier: Apache-2.0`; third-party files **keep their original license and copyright headers unmodified**.
+- Introduced third-party code retains its original copyright notices and is registered in `NOTICE` or a `third_party/` directory.

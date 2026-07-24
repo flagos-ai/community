@@ -1,41 +1,44 @@
-# Mentor 指南 / Mentor Guide
+# Mentor Guide
 
-> 本文件说明孵化项目 Mentor 的产生、职责与工作方式，是 [README_CN.md](README_CN.md) 第 7 节的实施细则。
+[English](mentor-guide.md) | [中文](mentor-guide_CN.md)
+
+> The English version is authoritative. The Chinese translation is provided for convenience; if the versions differ, the English version prevails.
+
 > This document details how Mentors are appointed and what they do, per Section 7 of the [README](README.md).
 
-## 1. Mentor 是谁 / Who Mentors Are
+## 1. Who Mentors Are
 
-- Mentor 由 **TSC 从社区资深成员中指派**（TSC 成员、SIG Chair/Tech Lead、或 TSC 认可的资深贡献者），每个孵化项目 1~2 名。
-- Mentor 以**个人身份**行事，不代表雇主；与项目捐赠方同属一个机构的成员**不担任**该项目的 Mentor。
-- Mentor 是辅导者与桥梁，**不是项目的决策者**——项目技术决策仍由其 maintainer 团队作出。
+- Mentors are **appointed by the TSC from senior community members** (TSC members, SIG Chairs/Tech Leads, or senior contributors recognized by the TSC), 1–2 per incubating project.
+- Mentors act **in a personal capacity**, not on behalf of their employers; members of the same organization as the project's donor **do not serve** as that project's Mentor.
+- A Mentor is a coach and a bridge, **not the project's decision maker** — technical decisions remain with the project's maintainer team.
 
-## 2. 职责 / Responsibilities
+## 2. Responsibilities
 
-**捐赠阶段（条件批准 → 正式接收）**
-- 协助捐赠方理解流程、完善提案；
-- 参与 IP 清理清单的核验（清单上有 Mentor 签字项）。
+**Donation stage (conditional approval → formal acceptance)**
+- Help the donor understand the process and refine the proposal;
+- Participate in verifying the IP clearance checklist (which carries a Mentor sign-off).
 
-**孵化期间**
-- 辅导项目落地社区治理（OWNERS 文件、决策公开、Committer 提名流程等）；
-- 作为项目与 TSC 之间的沟通渠道，在 TSC 例会上代为反映项目的困难与资源需求；
-- 确认项目的年度 review 内容属实；
-- 关注项目健康度，发现风险（maintainer 流失、发布停滞、合规问题）时及时向 TSC 提示。
+**During incubation**
+- Coach the project in adopting community governance (OWNERS files, public decision records, committer nomination processes, etc.);
+- Act as the communication channel between the project and the TSC, relaying the project's difficulties and resource needs at TSC meetings;
+- Confirm the accuracy of the project's annual review;
+- Watch project health and alert the TSC promptly to risks (maintainer attrition, stalled releases, compliance issues).
 
-**转正/归档阶段**
-- 转正：对照六个评估维度出具书面推荐意见（附于转正提案）；
-- 归档：项目触发归档条件时，Mentor 意见作为 TSC 投票的重要参考。
+**Graduation / archiving stage**
+- Graduation: provide a written recommendation against the six assessment dimensions (attached to the graduation proposal);
+- Archiving: when a project triggers archiving conditions, the Mentor's opinion is a key input to the TSC vote.
 
-## 3. 工作量预期 / Expected Effort
+## 3. Expected Effort
 
-日常以异步为主（关注项目 repo 动态、回复问题），预期投入**每月 2~4 小时**；年度 review 与转正评估期间略高。Mentor 不承担项目的开发或运维工作。
+Day-to-day work is mostly asynchronous (following the project repo, answering questions), with an expected commitment of **2–4 hours per month**, somewhat higher during annual reviews and graduation assessment. Mentors do not take on the project's development or operations work.
 
-## 4. 更换与退出 / Rotation & Exit
+## 4. Rotation & Exit
 
-- Mentor 可随时向 TSC 提出卸任，TSC 在 4 周内指派继任者；
-- 项目可向 TSC 申请更换 Mentor（须说明理由）；
-- Mentor 连续 6 个月未履职（无任何互动记录）的，TSC 应主动更换；
-- 孵化项目长期（超过 6 个月）无 Mentor 可指派的，触发 [README_CN.md](README_CN.md) 第 8 节的归档评估。
+- A Mentor may step down at any time by notifying the TSC, which appoints a successor within 4 weeks;
+- A project may request a Mentor change from the TSC (with reasons);
+- If a Mentor is inactive for 6 consecutive months (no interaction records), the TSC should proactively replace them;
+- If an incubating project has no assignable Mentor for an extended period (over 6 months), the archiving assessment in Section 8 of the [README](README.md) is triggered.
 
-## 5. 记录 / Records
+## 5. Records
 
-Mentor 名单记录于 incubator README 的项目列表及 `projects/<项目名>/` 档案；更换时同步更新。
+The Mentor roster is recorded in the incubator README project list and in the `projects/<project-name>/` records, updated whenever Mentors change.
