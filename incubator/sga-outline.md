@@ -4,10 +4,10 @@
 >
 > **Status: term sheet, not final legal text.** The formal agreement must be drafted by legal counsel based on this outline and adapted to the PRC legal context (especially software copyright registration transfer and trademark assignment) to satisfy domestic ownership-evidence requirements.
 
-## 待定事项 / Open Question
+## 接收主体 / Receiving Entity
 
-- **接收主体 / Receiving entity**：协议乙方（受赠方）的法律实体待确定——联盟自身法人 / 依托单位代持。**此项确定前法律文本无法定稿。**
-  The legal entity acting as recipient is TBD — the alliance's own legal entity or a host organization. **Legal drafting cannot be finalized before this is settled.**
+- 协议乙方（受赠方）为**中关村人工智能开源联盟**。正式协议以该主体的注册全称署名；法务起草时同步确认其签约资格与盖章流程。
+  The recipient (Party B) is the **Zhongguancun Artificial Intelligence Open Source Alliance**. The executed agreement uses the entity's full registered name; legal counsel confirms its contracting capacity and sealing procedure at drafting.
 
 ## 核心条款 / Core Terms
 
