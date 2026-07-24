@@ -2,8 +2,6 @@
 
 [English](security-policy.md) | [中文](security-policy_CN.md)
 
-> The English version is authoritative. The Chinese translation is provided for convenience; if the versions differ, the English version prevails.
-
 > This document details the security-response policy in Section 9 of the [README](README.md), applying to all incubating and graduated projects.
 
 ## 1. Reporting Channel

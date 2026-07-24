@@ -2,8 +2,6 @@
 
 [English](archiving-runbook.md) | [中文](archiving-runbook_CN.md)
 
-> The English version is authoritative. The Chinese translation is provided for convenience; if the versions differ, the English version prevails.
-
 > Runbook for executing an archiving decision under Section 8 of the [README](README.md). Archiving is a neutral exit; keep all wording non-punitive.
 
 ## 1. Notice Period
