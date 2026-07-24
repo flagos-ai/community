@@ -1,12 +1,13 @@
 # IP Clearance Checklist
 
+> **Language requirement:** All submitted content must be written in English.
+
 <!--
 This checklist is a hard gate for entering incubation: the repository is not
 transferred until every item is checked. Verified jointly by the project Mentors
 and a TSC designee; the completed copy is archived under
 incubator/projects/<project-name>/.
 
-**All content must be written in English.**
 -->
 
 ## Legal Documents

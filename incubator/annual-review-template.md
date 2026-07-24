@@ -1,5 +1,7 @@
 # Annual Review Template
 
+> **Language requirement:** All submitted content must be written in English.
+
 <!--
 Each incubating project submits once a year via an issue in the community repo
 (title: [Annual Review] <project> <year>). After confirmation by the Mentor, the TSC
@@ -7,7 +9,6 @@ archives it under projects/<project-name>/reviews/. Graduated projects reuse thi
 template every 2 years for a lightweight health check (confirmed by a TSC-designated
 reviewer where there is no Mentor).
 
-**All content must be written in English.**
 
 Be factual; report difficulties honestly — the review exists to surface where support
 is needed, not to grade projects.

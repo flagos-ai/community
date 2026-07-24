@@ -2,6 +2,8 @@
 
 [English](mentor-guide.md) | [中文](mentor-guide_CN.md)
 
+> The English version is authoritative. The Chinese translation is provided for convenience; if the versions differ, the English version prevails.
+
 > This document details how Mentors are appointed and what they do, per Section 7 of the [README](README.md).
 
 ## 1. Who Mentors Are

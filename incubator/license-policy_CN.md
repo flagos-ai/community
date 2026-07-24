@@ -2,6 +2,8 @@
 
 [English](license-policy.md) | [中文](license-policy_CN.md)
 
+> 本文档以英文版本为准，中文版本供阅读便利；如两者存在不一致，以英文版本为准。
+
 > 本文件是 [README_CN.md](README_CN.md) 第 9 节许可证政策的实施细则，适用于所有孵化中与正式项目。
 
 ## 1. 出口许可证

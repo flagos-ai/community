@@ -2,6 +2,8 @@
 
 [English](acceptance-runbook.md) | [中文](acceptance-runbook_CN.md)
 
+> The English version is authoritative. The Chinese translation is provided for convenience; if the versions differ, the English version prevails.
+
 > Operational runbook for step ⑤ of the donation process in Section 6 of the [README](README.md): after Final Acceptance is recorded, the execution team completes asset migration and announcements per this document.
 
 ## 0. Preconditions

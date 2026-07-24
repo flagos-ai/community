@@ -1,10 +1,11 @@
 # Donation Proposal: <Project Name>
 
+> **Language requirement:** All submitted content must be written in English.
+
 <!--
 Copy this template to incubator/projects/<project-name>/proposal.md and submit as a PR
 (process in /incubator/README.md Section 6; questions to contact@flagos.io).
 
-**All content must be written in English.**
 
 Fill in all fields truthfully — especially the "IP Status Disclosure" section.
 Issues disclosed early can be worked out; issues concealed will block acceptance at IP clearance.
