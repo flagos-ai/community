@@ -8,9 +8,11 @@ This directory is the single entry point for **external project contributions** 
 
 This process applies to externally contributed projects; governance of existing FlagOS subprojects is not affected by this directory.
 
+**Terminology.** In this directory, **project contribution** means contributing an existing external project into the FlagOS lifecycle; it does not refer to ordinary code, documentation, issue, or pull-request contributions, which follow the normal repository contribution process. The **contributing party** is the organization or individual submitting and legally granting the project contribution; **contributing organization** is used only where a rule is specific to organizations.
+
 **Language.** English is the working language of this directory. Policy and runbook documents are authoritative in English — the `_CN` translations are provided for convenience, and if the versions differ, the English version prevails. Canonical project records (proposals, IP checklists, graduation proposals, annual reviews) are written in English. Legally executed documents such as the SGA define their own governing-language rule. Changes to any policy or runbook must update the English and `_CN` files in the same PR.
 
-## 2. Quick Start for Contributing Projects
+## 2. Quick Start: Contribute a Project
 
 If you plan to contribute a project to FlagOS:
 
@@ -56,20 +58,20 @@ The TSC reviews contribution proposals against the following principles, and the
 
 ## 5. Decision Body
 
-- Contribution acceptance, graduation, and archiving are **major decisions** of the community, decided by **TSC vote under the major-decision rules defined in [GOVERNANCE.md](../GOVERNANCE.md)**. Before the first TSC meeting, the FlagOS founding community acts on its behalf under the same rules.
+- Project contribution acceptance, graduation, and archiving are **major decisions** of the community, decided by **TSC vote under the major-decision rules defined in [GOVERNANCE.md](../GOVERNANCE.md)**. Before the first TSC meeting, the FlagOS founding community acts on its behalf under the same rules.
 - Routine matters follow the lazy consensus rules in GOVERNANCE.
-- **Conflict of interest**: Directly interested parties in a contribution matter (TSC members from the contributing organization or its affiliated organizations) **must recuse** from the vote. This is a special rule for contribution matters on top of the GOVERNANCE conflict-of-interest policy; see [GOVERNANCE.md](../GOVERNANCE.md#conflict-of-interest-coi).
+- **Conflict of interest**: Directly interested parties in a project contribution matter (TSC members from the contributing party or its affiliated organizations, or a TSC member who is the individual contributing party) **must recuse** from the vote. This is a special rule for project contribution matters on top of the GOVERNANCE conflict-of-interest policy; see [GOVERNANCE.md](../GOVERNANCE.md#conflict-of-interest-coi).
 - All decisions are recorded publicly on GitHub.
 
-## 6. Contribution & Formal Acceptance Process
+## 6. Project Contribution & Formal Acceptance Process
 
 ```
 ① Proposal PR → ② 2-week public review → ③ TSC conditional approval → ④ SGA + IP clearance → ⑤ Formal acceptance, incubation begins
 ```
 
-1. **Proposal PR**: The contributing organization fills out [proposal-template.md](proposal-template.md) and submits it as a PR to `incubator/projects/<project-name>/proposal.md`. Questions before submitting can go to <contact@flagos.io>.
+1. **Proposal PR**: The contributing party fills out [proposal-template.md](proposal-template.md) and submits it as a PR to `incubator/projects/<project-name>/proposal.md`. Questions before submitting can go to <contact@flagos.io>.
 2. **2-week public review**: The PR stays open for at least 14 days to collect community feedback. Meanwhile the TSC identifies 1–2 Mentors for the project.
-3. **TSC conditional approval**: The contributing organization presents at a TSC meeting (~30 minutes); the TSC votes under the rules in Section 5. On approval, the proposal PR is merged.
+3. **TSC conditional approval**: The contributing party presents at a TSC meeting (~30 minutes); the TSC votes under the rules in Section 5. On approval, the proposal PR is merged.
    - **Conditional approval only authorizes proceeding to IP due diligence; it does not constitute formal acceptance.**
    - **Validity**: Conditional approval is valid for **12 months** from the vote, extendable by TSC resolution. If the SGA and IP clearance are not completed in time, the proposal is closed (closed/withdrawn) and the project **enters no lifecycle state**; it may be resubmitted later.
    - **If rejected**: The TSC provides written reasons in the PR; the project may resubmit after 6 months.
@@ -94,7 +96,7 @@ Graduation is assessed against the following **six fixed dimensions**, which pro
 3. **Releases & security**: a steady release cadence and basic security-response capability;
 4. **Real adoption**: real users or production usage exists;
 5. **Compliance**: IP and licensing remain continuously compliant, with no unresolved violating dependencies;
-6. **Reduced single-party dependence**: dependence on the original contributing organization is clearly reduced (maintainers not concentrated in a single organization).
+6. **Reduced single-party dependence**: dependence on the original contributing party is clearly reduced (maintainers not concentrated in a single organization).
 
 Graduation is initiated by project maintainers or the Mentor using the [graduation proposal template](graduation-template.md) (evidence per dimension + written Mentor recommendation), takes effect after a TSC vote under the rules in Section 5, and drops the `(incubating)` label.
 
@@ -111,7 +113,7 @@ Archiving is the neutral exit mechanism for a **formally accepted project** (Inc
 - Inability to sustain basic release and security-response capability;
 - The project's maintainer team voluntarily requests to exit.
 
-After archiving, the repository becomes **read-only and remains available**; execution details (notice period, channel disposition, trademarks, reactivation) are in the [archiving runbook](archiving-runbook.md). **Commitment to contributing organizations**: the code license granted under the SGA is **irrevocable**; archiving does not affect anyone's right to fork and use the code. Project trademarks may be returned to the contributing organization by negotiation.
+After archiving, the repository becomes **read-only and remains available**; execution details (notice period, channel disposition, trademarks, reactivation) are in the [archiving runbook](archiving-runbook.md). **Commitment to contributing parties**: the code license granted under the SGA is **irrevocable**; archiving does not affect anyone's right to fork and use the code. Project trademarks may be returned to the contributing party by negotiation.
 
 ## 9. Licensing, Security & Supporting Files
 

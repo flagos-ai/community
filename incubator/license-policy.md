@@ -6,7 +6,7 @@
 
 ## 1. Outbound License
 
-All projects release under **Apache-2.0**. Contributed projects under other licenses must switch during IP clearance. **The SGA covers only what the contributing organization itself has the right to license**; whether the project can switch its outbound license as a whole is determined by the "Contribution Rights Chain" verification in the [IP clearance checklist](ip-checklist.md) — copyright retained by historical external contributors must be resolved item by item via original-license compatibility, retroactive authorization, or rewrite/removal. Exceptions (e.g., MulanPSL-2.0) must be justified in the proposal and approved by the TSC.
+All projects release under **Apache-2.0**. Contributed projects under other licenses must switch during IP clearance. **The SGA covers only what the contributing party itself has the right to license**; whether the project can switch its outbound license as a whole is determined by the "Contribution Rights Chain" verification in the [IP clearance checklist](ip-checklist.md) — copyright retained by historical external contributors must be resolved item by item via original-license compatibility, retroactive authorization, or rewrite/removal. Exceptions (e.g., MulanPSL-2.0) must be justified in the proposal and approved by the TSC.
 
 ## 2. Dependency License Categories
 

@@ -13,19 +13,19 @@ incubator/projects/<project-name>/.
 ## Legal Documents
 
 - [ ] Recipient entity information and signing authorization verified by legal counsel: registered name and unified social credit code, capacity to contract independently and to hold copyright licenses / trademarks / domains, authorized signatory and sealing procedure
-- [ ] Software Grant Agreement (SGA) signed by the contributing organization's legal entity
-- [ ] The contributing organization has provided a code ownership declaration covering outsourced / prior-employer / unclear-origin code risks, with a resolution for each item if any
+- [ ] Software Grant Agreement (SGA) signed by the contributing party's legal entity
+- [ ] The contributing party has provided a code ownership declaration covering outsourced / prior-employer / unclear-origin code risks, with a resolution for each item if any
 - [ ] The software-copyright arrangement agreed in the SGA (assignment / exclusive license / non-exclusive perpetual sublicensable license, as the executed SGA specifies) is effective, or the corresponding registration/recording has been initiated with a defined completion date
 
 ## Contribution Rights Chain
 
-<!-- The SGA covers only what the contributing organization has the right to license; copyright retained by
-     historical external contributors is not relicensed by the contributing organization's signature.
+<!-- The SGA covers only what the contributing party has the right to license; copyright retained by
+     historical external contributors is not relicensed by the contributing party's signature.
      This section verifies the rights basis for switching the outbound license as a whole. -->
 
 - [ ] Historical contributor / commit provenance list generated and archived
 - [ ] The authorization basis for historical external contributions verified (CLA / DCO / original project license terms)
-- [ ] Confirmed that the contributing organization plus the historical authorization chain together cover the right to license all contributed code under the target outbound license
+- [ ] Confirmed that the contributing party plus the historical authorization chain together cover the right to license all contributed code under the target outbound license
 - [ ] Contributions whose authorization cannot be obtained handled item by item: kept under a compatible original license / authorization obtained retroactively / rewritten or removed
 
 ## License Compliance

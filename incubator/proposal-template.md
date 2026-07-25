@@ -16,7 +16,7 @@ Write "N/A" where a field does not apply; do not delete sections.
 - **Project name**:
 - **Website (if any)**:
 - **Current license**:
-- **Contributing organization & signing entity**: <full legal name of the organization or individual>
+- **Contributing party & signing entity**: <full legal name of the organization or individual contributing the project>
 - **Contact**: <name + email>
 
 **Contribution scope (repository list)**:
@@ -50,7 +50,7 @@ Write "N/A" where a field does not apply; do not delete sections.
 |---------|--------------|------|
 | | | |
 
-- **Developer independence**: <How many core developers are salaried by the contributing organization vs. independent? What is the organization's commitment to the project if its business priorities shift?>
+- **Developer independence**: <For an organizational contributing party: how many core developers are salaried by it vs. independent, and what is its commitment if business priorities shift? N/A for an individual contributing party.>
 - **Users & adoption**: <any production usage? citable publicly?>
 - **Release history**: <number of releases, most recent date>
 
@@ -93,7 +93,7 @@ Check to confirm:
 ---
 
 <!-- ==================== Sections below are completed by the community. ====================
-     ================ Contributing organizations: please do not edit. ======================= -->
+     ==================== Contributing parties: please do not edit. ========================= -->
 
 ## Process Records
 
