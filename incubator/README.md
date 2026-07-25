@@ -96,7 +96,7 @@ Graduation is assessed against the following **six fixed dimensions**, which pro
 3. **Releases & security**: a steady release cadence and basic security-response capability;
 4. **Real adoption**: real users or production usage exists;
 5. **Compliance**: IP and licensing remain continuously compliant, with no unresolved violating dependencies;
-6. **Reduced single-party dependence**: dependence on the original contributing party is clearly reduced (maintainers not concentrated in a single organization).
+6. **Reduced single-party dependence**: dependence on the original contributing party is clearly reduced (maintainership and critical project knowledge are not concentrated in a single individual or organization).
 
 Graduation is initiated by project maintainers or the Mentor using the [graduation proposal template](graduation-template.md) (evidence per dimension + written Mentor recommendation), takes effect after a TSC vote under the rules in Section 5, and drops the `(incubating)` label.
 

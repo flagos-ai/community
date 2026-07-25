@@ -13,7 +13,7 @@ incubator/projects/<project-name>/.
 ## Legal Documents
 
 - [ ] Recipient entity information and signing authorization verified by legal counsel: registered name and unified social credit code, capacity to contract independently and to hold copyright licenses / trademarks / domains, authorized signatory and sealing procedure
-- [ ] Software Grant Agreement (SGA) signed by the contributing party's legal entity
+- [ ] SGA signed by the contributing party (by its authorized signatory where the contributing party is a legal entity)
 - [ ] The contributing party has provided a code ownership declaration covering outsourced / prior-employer / unclear-origin code risks, with a resolution for each item if any
 - [ ] The software-copyright arrangement agreed in the SGA (assignment / exclusive license / non-exclusive perpetual sublicensable license, as the executed SGA specifies) is effective, or the corresponding registration/recording has been initiated with a defined completion date
 

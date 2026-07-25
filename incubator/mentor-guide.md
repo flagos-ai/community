@@ -7,7 +7,7 @@
 ## 1. Who Mentors Are
 
 - Mentors are **appointed by the TSC from senior community members** (TSC members, SIG Chairs/Tech Leads, or senior contributors recognized by the TSC), 1–2 per incubating project.
-- Mentors act **in a personal capacity**, not on behalf of their employers; members of the same organization as the project's contributing party **do not serve** as that project's Mentor.
+- Mentors act **in a personal capacity**, not on behalf of their employers. The contributing party **does not serve** as a Mentor for its own project; where the contributing party is an organization, members of that organization or its affiliates do not serve as Mentors for the project.
 - A Mentor is a coach and a bridge, **not the project's decision maker** — technical decisions remain with the project's maintainer team.
 
 ## 2. Responsibilities
