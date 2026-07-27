@@ -1,5 +1,7 @@
 # Contribution Proposal: <Project Name>
 
+> Project records are maintained in English; see the [incubator README](/incubator/README.md) Language section.
+
 <!--
 Copy this template to incubator/projects/<project-name>/proposal.md and submit as a PR
 (process in /incubator/README.md Section 6; questions to contact@flagos.io).

@@ -17,7 +17,7 @@
 如果您计划向 FlagOS 捐赠项目：
 
 1. **确认适合捐赠**：阅读第 4 节准入原则，初步确认项目符合 FlagOS 技术范围、具备维护团队，且代码和相关资产原则上可以完成 IP 清理。
-2. **准备并提交提案**：复制[项目捐赠提案模板](proposal-template.md)至 `incubator/projects/<项目名>/proposal.md`，填写项目、维护团队、捐赠范围、IP 状况及捐赠后计划，向 community 仓库提交 PR。
+2. **准备并提交提案**：复制[项目捐赠提案模板](proposal-template.md)至 `incubator/projects/<项目名>/proposal.md`，填写项目、维护团队、捐赠范围、IP 状况及捐赠后计划，向 community 仓库提交 PR。提案及项目流程档案须使用英文填写（见上方"语言说明"）。
 3. **参与公开评审和 TSC 答辩**：提案公开评审至少 14 天，之后我们会联系您安排约 30 分钟的 TSC 答辩。通过后项目获得条件批准，进入 SGA 与 IP 尽调阶段。
 4. **完成 SGA 与 IP 清理**：在 Mentor、TSC 指定核验人与法律接收主体协助下，完成 [IP 清理清单](ip-checklist.md)并签署 SGA。条件批准有效期为 12 个月。
 5. **正式接收和资产迁移**：SGA 生效且 IP 清理完成后，社区在提案中记录 Final Acceptance，**项目自该日起正式进入孵化**；随后双方按[正式接收执行手册](acceptance-runbook_CN.md)迁移仓库、发布渠道、域名及其他约定资产。
