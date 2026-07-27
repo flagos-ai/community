@@ -1,4 +1,5 @@
 # 软件捐赠协议（SGA）条款框架 / Software Grant Agreement Term Sheet
+
 > **状态：条款框架，非最终法律文本。** 正式协议须由法律顾问基于本框架起草，并适配中国法律语境（特别是软件著作权登记转让与商标转让部分），以满足国内司法实践中的权属认定要求。
 >
 > **Status: term sheet, not final legal text.** The formal agreement must be drafted by legal counsel based on this outline and adapted to the PRC legal context (especially software copyright registration transfer and trademark assignment) to satisfy domestic ownership-evidence requirements.
