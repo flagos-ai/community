@@ -8,16 +8,16 @@
 
 本制度适用于外部捐赠项目；FlagOS 现有子项目的治理不受本目录约束。
 
-**术语说明。**本目录所称**项目捐赠**（英文文档用 project contribution）指将现有外部项目整体捐入 FlagOS 生命周期，不指日常的代码、文档、issue 或 PR 贡献——后者遵循各仓库常规贡献流程。**捐赠方**（contributing party）指提交并在法律上授予本次项目捐赠的机构或个人。
+**术语说明。**本目录所称**项目捐赠**（英文文档用 project contribution）指将现有外部项目整体捐入 FlagOS 生命周期，不指日常的代码、文档、issue 或 PR 贡献——后者遵循各仓库常规贡献流程。**捐赠方**（contributing party）指提交并在法律上授予本次项目捐赠的机构或个人；英文文档中 contributing organization 仅用于机构特有的规则。
 
 **语言说明。**本目录以英文为工作语言。政策与手册类文档**以英文版本为准**——中文 `_CN` 版本供阅读便利，两者不一致时以英文版本为准。项目流程档案（提案、IP 清理清单、转正提案、年度 review）**须以英文填写**。正式签署的 SGA 等法律文件按其自身约定的语言效力条款执行。修改政策或手册须在同一 PR 中同步更新英文与 `_CN` 两个版本。
 
-## 2. 捐赠方快速开始 / Quick Start: Contribute a Project
+## 2. 快速开始：捐赠项目
 
 如果您计划向 FlagOS 捐赠项目：
 
 1. **确认适合捐赠**：阅读第 4 节准入原则，初步确认项目符合 FlagOS 技术范围、具备维护团队，且代码和相关资产原则上可以完成 IP 清理。
-2. **准备并提交提案**：复制[项目捐赠提案模板](proposal-template.md)至 `incubator/projects/<项目名>/proposal.md`，填写项目、维护团队、捐赠范围、IP 状况及捐赠后计划，向 community 仓库提交 PR。**注意：提案及各流程档案（IP 清理清单、转正提案、年度 review）须使用英文填写**；正式签署的法律文件按其自身语言条款执行，中文政策文件仅供阅读参考。
+2. **准备并提交提案**：复制[项目捐赠提案模板](proposal-template.md)至 `incubator/projects/<项目名>/proposal.md`，填写项目、维护团队、捐赠范围、IP 状况及捐赠后计划，向 community 仓库提交 PR。提案及项目流程档案须使用英文填写（见上方"语言说明"）。
 3. **参与公开评审和 TSC 答辩**：提案公开评审至少 14 天，之后我们会联系您安排约 30 分钟的 TSC 答辩。通过后项目获得条件批准，进入 SGA 与 IP 尽调阶段。
 4. **完成 SGA 与 IP 清理**：在 Mentor、TSC 指定核验人与法律接收主体协助下，完成 [IP 清理清单](ip-checklist.md)并签署 SGA。条件批准有效期为 12 个月。
 5. **正式接收和资产迁移**：SGA 生效且 IP 清理完成后，社区在提案中记录 Final Acceptance，**项目自该日起正式进入孵化**；随后双方按[正式接收执行手册](acceptance-runbook_CN.md)迁移仓库、发布渠道、域名及其他约定资产。
@@ -60,7 +60,7 @@ TSC 依据以下原则评审捐赠提案，接收与否的理由公开记录。�
 
 - 捐赠接收、转正、归档属于社区**重大决策**，由 **TSC 按 [GOVERNANCE_CN.md](../GOVERNANCE_CN.md) 规定的重大决策规则投票决定**；TSC 首次会议召开前的过渡期内，由众智FlagOS社区按同一规则代行。
 - 一般事项遵循 GOVERNANCE 的 lazy consensus 规则。
-- **利益冲突**：项目捐赠事项中的直接利益相关者（来自捐赠方或其关联机构的 TSC 成员）**必须回避**表决。此为 GOVERNANCE 利益冲突规则中针对捐赠事项的特别规定，见 [GOVERNANCE_CN.md](../GOVERNANCE_CN.md#利益冲突-conflict-of-interest)。
+- **利益冲突**：项目捐赠事项中的直接利益相关者（来自捐赠方或其关联机构的 TSC 成员，以及本人即个人捐赠方的 TSC 成员）**必须回避**表决。此为 GOVERNANCE 利益冲突规则中针对捐赠事项的特别规定，见 [GOVERNANCE_CN.md](../GOVERNANCE_CN.md#利益冲突-conflict-of-interest)。
 - 所有决策在 GitHub 公开记录。
 
 ## 6. 捐赠与正式接收流程

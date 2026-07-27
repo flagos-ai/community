@@ -1,7 +1,5 @@
 # Annual Review Template
 
-> **Language requirement:** All submitted content must be written in English.
-
 <!--
 Each incubating project submits once a year via an issue in the community repo
 (title: [Annual Review] <project> <year>). After confirmation by the Mentor, the TSC

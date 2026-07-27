@@ -1,6 +1,6 @@
 # Contribution Proposal: <Project Name>
 
-> **Language requirement:** All submitted content must be written in English.
+> Project records are maintained in English; see the [incubator README](/incubator/README.md) Language section.
 
 <!--
 Copy this template to incubator/projects/<project-name>/proposal.md and submit as a PR
