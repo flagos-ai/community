@@ -1,7 +1,5 @@
 # Graduation Proposal: <Project Name>
 
-> **Language requirement:** All submitted content must be written in English.
-
 <!--
 Initiated by project maintainers or the Mentor, submitted as a PR to
 incubator/projects/<project-name>/graduation.md with evidence links per dimension.
