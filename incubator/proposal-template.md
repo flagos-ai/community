@@ -10,13 +10,11 @@ HOW TO USE THIS TEMPLATE
    answer looks like — write to that, not to the minimum. Replace hints with your
    content; comments may be kept (they do not render) or deleted.
 3. Write "N/A" where a field does not apply; do not delete sections.
-   Fields differ in weight: "Commitments" is a hard gate (every box checked);
+4. Fields differ in weight: "Commitments" is a hard gate (every box checked);
    "IP Status Disclosure" is mandatory disclosure feeding the IP-clearance hard gate
    before Final Acceptance; "Community Status" fields have no fixed threshold at
    admission — they calibrate risk. Each section's comment says which, so an honest
    weak answer beats a padded one.
-4. Fill in all fields truthfully — especially "IP Status Disclosure". Issues disclosed
-   early can be worked out; issues concealed will block acceptance at IP clearance.
 5. Do NOT put contract scans, identity documents, or account credentials in this
    public file; your Mentor or legal contact will provide a private channel.
 -->
@@ -34,7 +32,7 @@ HOW TO USE THIS TEMPLATE
 - **Project name**:
 - **Website (if any)**:
 - **Current license**: <the license the project ships under today, e.g. MIT / Apache-2.0>
-- **Contributing party & signing entity**: <full registered legal name of the organization, or the individual's name — this is who will sign the SGA>
+- **Contributing party & signing entity**: <full registered legal name of the organization, or the individual's name — this is who will sign the SGA, and must be the entity that actually holds the rights to the code and assets being granted (a subsidiary signing for IP held by its parent is a mismatch that surfaces late, at clearance)>
 - **Contact**: <name + email>
 
 **Contribution scope (repository list)**:
@@ -124,7 +122,7 @@ HOW TO USE THIS TEMPLATE
 - **Software copyright registration**: <registered or not; under whose name, e.g. "Registered in 2024 under Foo Technology Co., Ltd.">
 - **Trademarks & domains**: <name/logo registered? by whom? willing to transfer or exclusively license? e.g. "'FooKit' word mark registered by Foo Technology; willing to transfer">
 - **Release channels & account assets**: <current state of PyPI / npm / Docker Hub / social accounts; handover happens after acceptance per the [acceptance runbook](/incubator/acceptance-runbook.md)>
-- **Known risks**: <GPL-family dependencies, cryptographic functionality (export compliance), patent issues, ongoing disputes; write "none" if none>
+- **Known risks**: <GPL-family dependencies, cryptographic functionality (export compliance), patent issues, ongoing disputes. If none, state how that was verified rather than a bare "none", e.g. "none found: dependency license scan on 2026-07-01, no cryptographic functionality, no known disputes" — an unverified "none" that unravels at IP clearance delays acceptance more than a disclosed issue would>
 
 **AI artifacts (if applicable)**:
 
