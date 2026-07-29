@@ -42,11 +42,11 @@ Write "N/A" where a field does not apply; do not delete sections.
 
 ## Community Status
 
-- **Core developers & affiliations**:
+- **Core developers & affiliations**: <link to the project's MAINTAINERS file if it carries the same information; otherwise fill in the table below>
 
-| Name/ID | Organization | Role |
-|---------|--------------|------|
-| | | |
+| Name | GitHub ID | Organization | Role |
+|------|-----------|--------------|------|
+| | | | |
 
 - **Developer independence**: <For an organizational contributing party: how many core developers are salaried by it vs. independent, and what is its commitment if business priorities shift? N/A for an individual contributing party.>
 - **Users & adoption**: <any production usage? citable publicly?>
