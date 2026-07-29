@@ -1,6 +1,4 @@
-# FEP-NNNN: verl-hardware-plugin v0.1.0 — Multi-Chip GRPO E2E Tests (MetaX, Iluvatar, Cambricon MLU)
-
-<!-- Rename NNNN to the PR number before merge. -->
+# FEP-0062: verl-hardware-plugin v0.1.0 — Multi-Chip GRPO E2E Tests (MetaX, Iluvatar, Cambricon MLU)
 
 **Status:** `Implementable`
 
@@ -120,13 +118,23 @@ All setup and launch details (image pull, container flags, verl + plugin install
 
 The acceptance criterion is the same for all three chips: the platform initialises to the expected vendor and the GRPO reward curve (`critic/rewards/mean`) **shows a clear upward trend within the first 100 training steps**. Absolute convergence and performance are out of scope for v0.1.0.
 
+### Acceptance Status
+
+| Platform | E2E GRPO run |
+|----------|--------------|
+| MetaX | ✅ passed |
+| Iluvatar | ✅ passed |
+| Cambricon MLU | ❌ failed — tracked in [flagos-ai/community#73](https://github.com/flagos-ai/community/issues/73) |
+
+This FEP moves to `Implemented` once the Cambricon MLU run passes (see the tracking issue for logs and re-run results).
+
 ## Related PRs
 
-<!-- Fill in with actual PR numbers as they land. -->
-
-- [ ] flagos-ai/verl-hardware-plugin#xxx — feat: MetaX platform + FSDP/Megatron engines and GRPO E2E validation
-- [ ] flagos-ai/verl-hardware-plugin#xxx — feat: Iluvatar platform + FSDP/Megatron engines and GRPO E2E validation
-- [ ] flagos-ai/verl-hardware-plugin#xxx — feat: Cambricon MLU platform (CNCL) + FSDP/Megatron engines and GRPO E2E validation
+- [x] [verl-project/verl-hardware-plugin#7](https://github.com/verl-project/verl-hardware-plugin/pull/7) — [Metax] Add metax support
+- [x] [verl-project/verl-hardware-plugin#3](https://github.com/verl-project/verl-hardware-plugin/pull/3) — Add Iluvatar vendor support for verl hardware plugin
+- [x] [verl-project/verl-hardware-plugin#1](https://github.com/verl-project/verl-hardware-plugin/pull/1) — [MLU] feat: add mlu support
+- [x] [verl-project/verl-hardware-plugin#2](https://github.com/verl-project/verl-hardware-plugin/pull/2) — Add FlagOS engines for NVIDIA platform (reference baseline)
+- [x] [verl-project/verl-hardware-plugin#5](https://github.com/verl-project/verl-hardware-plugin/pull/5) — Add e2e check and format check
 
 ## Future Plans
 
@@ -138,3 +146,4 @@ The acceptance criterion is the same for all three chips: the platform initialis
 ## Implementation History
 
 - 2026-07-23: FEP drafted for verl-hardware-plugin v0.1.0 multi-chip GRPO E2E acceptance.
+- 2026-07-29: MetaX and Iluvatar E2E acceptance passed; Cambricon MLU failed, tracked in [flagos-ai/community#73](https://github.com/flagos-ai/community/issues/73). FEP merged as `Implementable`.
