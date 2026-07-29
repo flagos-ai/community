@@ -6,9 +6,13 @@ HOW TO USE THIS TEMPLATE
 1. Copy this file to incubator/projects/<project-name>/proposal.md and submit as a PR
    (process: /incubator/README.md Section 6; questions: contact@flagos.io).
 2. Every field has a short hint in <angle brackets> and most have an example in the
-   HTML comment above it. Replace hints with your content; comments may be kept
-   (they do not render) or deleted.
+   HTML comment above it. Comments also explain WHY the review asks and what a strong
+   answer looks like — write to that, not to the minimum. Replace hints with your
+   content; comments may be kept (they do not render) or deleted.
 3. Write "N/A" where a field does not apply; do not delete sections.
+   Fields differ in weight: "IP Status Disclosure" and "Commitments" are hard gates;
+   "Community Status" fields have no pass/fail bar — they calibrate risk. Each
+   section's comment says which, so an honest weak answer beats a padded one.
 4. Fill in all fields truthfully — especially "IP Status Disclosure". Issues disclosed
    early can be worked out; issues concealed will block acceptance at IP clearance.
 5. Do NOT put contract scans, identity documents, or account credentials in this
@@ -58,9 +62,19 @@ HOW TO USE THIS TEMPLATE
 
 **Fit with the FlagOS mission**:
 <!-- How does the project serve the multi-chip AI system software stack and its
-     ecosystem? (Acceptance principle #1) -->
+     ecosystem? (Acceptance principle #1) Name the layer it lives in and the chips or
+     backends it touches. Example: "FooKit sits at the kernel-optimization layer of the
+     stack: it raises operator performance across NVIDIA, Ascend, and Cambricon
+     backends, directly serving the multi-chip goal." Weak answer: "FooKit is useful
+     for AI infrastructure." -->
 
 ## Community Status
+
+<!-- None of the fields in this section is pass/fail — a 100%-single-company team or a
+     young release history does not disqualify a project (see acceptance principles,
+     README Section 4). They calibrate two things: how much continuity risk the TSC is
+     taking on, and the baseline for graduation dimension #6 ("reduced single-party
+     dependence", README Section 7). Understate nothing, pad nothing. -->
 
 - **Core developers & affiliations**: <fill in the table below, or link an equivalent MAINTAINERS file pinned to a commit SHA (a mutable branch link does not preserve the roster the TSC evaluated); the live roster may be linked separately>
 
@@ -76,16 +90,26 @@ HOW TO USE THIS TEMPLATE
 | | | | |
 
 - **Developer independence**: <organizational contributing party only — how many core developers are salaried by it vs. independent, and what is its commitment if business priorities shift? N/A for an individual contributing party>
+
+<!-- Why asked: contributed projects most often die when the sponsor reassigns its
+     engineers, and graduation dimension #6 requires reducing single-party dependence —
+     this field sets the baseline the project will be measured against. All-employee
+     teams are common and acceptable; what the TSC reads for is the concrete commitment.
+     Example: "All 5 core developers are Foo Technology employees. Foo commits at least
+     2 full-time maintainers through incubation and will nominate external committers
+     as they emerge." Weak answer: "The company fully supports the project." -->
+
 - **Users & adoption**: <known users or production deployments; note which can be cited publicly, e.g. "3 companies in production, 2 citable">
 - **Release history**: <number of releases and the most recent, e.g. "12 releases since 2023-05, latest v2.3.1 on 2026-06-10">
 
 ## IP Status Disclosure
 
-<!-- Verified item by item against /incubator/ip-checklist.md after conditional
-     approval. Disclose known issues here. Issues found later during clearance are
-     documented and resolved then (compatible relicensing, retroactive authorization,
-     rewrite, or removal); material omissions or issues left unresolved may block
-     acceptance. -->
+<!-- HARD GATE: verified item by item against /incubator/ip-checklist.md after
+     conditional approval; no acceptance until the checklist is complete. Disclose known
+     issues here — a disclosed issue gets a resolution path (compatible relicensing,
+     retroactive authorization, rewrite, or removal); material omissions or issues left
+     unresolved may block acceptance. "We have a GPL dependency and plan to replace it
+     in Q3" is a fine answer; silence about it is not. -->
 
 - **Code ownership**: <Is ownership clear? Any outsourced code, prior-employer code, or copied code of unclear origin? e.g. "All code written by employees; one module (src/vendor/) adapted from BSD-licensed upstream, headers retained">
 - **Software copyright registration**: <registered or not; under whose name, e.g. "Registered in 2024 under Foo Technology Co., Ltd.">
@@ -103,11 +127,20 @@ HOW TO USE THIS TEMPLATE
 
 ## Post-Contribution Plan
 
+<!-- The TSC reads this section against acceptance principle #4: a committed maintainer
+     team, not code parked after maintenance has stopped. Concrete beats ambitious — a
+     roadmap of two verifiable milestones outweighs a page of vision. -->
+
 - **Initial maintainers**: <who will maintain after acceptance — names or "same as core developers table">
 - **6–12 month roadmap**: <a few sentences, e.g. "H2 2026: v3.0 with X; H1 2027: support for Y">
-- **Support requested**: <what you need from the community — CI resources, promotion, mentoring focus, etc.>
+- **Support requested**: <what you need from the community — CI resources, promotion, mentoring focus, etc. Be specific: "CI runners with Ascend 910B for per-PR testing" is actionable; "more visibility" is not>
 
 ## Commitments
+
+<!-- HARD GATE: every box must be checked for the proposal to proceed. If any item is a
+     problem for you (e.g. you need a license exception), raise it in "IP Status
+     Disclosure" or with contact@flagos.io before submitting, rather than leaving the
+     box unchecked. -->
 
 Check to confirm:
 
