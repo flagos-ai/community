@@ -62,13 +62,17 @@ HOW TO USE THIS TEMPLATE
 
 ## Community Status
 
-- **Core developers & affiliations**: <link to the project's MAINTAINERS file if it already lists name, GitHub ID, organization and role; otherwise fill in the table below>
+- **Core developers & affiliations**: <fill in the table below, or link an equivalent MAINTAINERS file pinned to a commit SHA (a mutable branch link does not preserve the roster the TSC evaluated); the live roster may be linked separately>
 
-<!-- Example row:
-     | Zhang San | @zhangsan | Foo Technology | Maintainer, Release Manager | -->
+<!-- GitHub ID and organization are what the review relies on: the ID to verify
+     contribution activity, the organization to assess concentration. A display name
+     is optional — legal identity, where clearance requires it, is verified through the
+     private channel, not this public file. Example row:
+     | Zhang San | @zhangsan | Foo Technology | Maintainer, Release Manager |
+     | | @lisi-dev | Independent | Committer | -->
 
-| Name | GitHub ID | Organization | Role |
-|------|-----------|--------------|------|
+| Name (optional) | GitHub ID | Organization / Independent | Role |
+|-----------------|-----------|---------------------------|------|
 | | | | |
 
 - **Developer independence**: <organizational contributing party only — how many core developers are salaried by it vs. independent, and what is its commitment if business priorities shift? N/A for an individual contributing party>
@@ -78,8 +82,10 @@ HOW TO USE THIS TEMPLATE
 ## IP Status Disclosure
 
 <!-- Verified item by item against /incubator/ip-checklist.md after conditional
-     approval. Honest "yes, we have an issue" answers are workable; discoveries during
-     clearance are not. -->
+     approval. Disclose known issues here. Issues found later during clearance are
+     documented and resolved then (compatible relicensing, retroactive authorization,
+     rewrite, or removal); material omissions or issues left unresolved may block
+     acceptance. -->
 
 - **Code ownership**: <Is ownership clear? Any outsourced code, prior-employer code, or copied code of unclear origin? e.g. "All code written by employees; one module (src/vendor/) adapted from BSD-licensed upstream, headers retained">
 - **Software copyright registration**: <registered or not; under whose name, e.g. "Registered in 2024 under Foo Technology Co., Ltd.">
@@ -89,8 +95,11 @@ HOW TO USE THIS TEMPLATE
 
 **AI artifacts (if applicable)**:
 
-- **Model weights**: <contributed along with code? intended license? e.g. "Yes, under Apache-2.0" or "N/A">
-- **Datasets**: <provenance and licenses of training/eval datasets; redistributable? e.g. "Eval set derived from MMLU (MIT), redistributable" or "N/A">
+<!-- A repository license covers code, not necessarily third-party data or weights
+     inside it — state the license of the artifact itself, verified at its source. -->
+
+- **Model weights**: <contributed along with code? license of the weights themselves, and the base model's terms if fine-tuned? e.g. "Yes, weights under Apache-2.0, trained from scratch" or "N/A">
+- **Datasets**: <provenance and license of the dataset content itself; redistributable? e.g. "Eval set created by Foo Technology, contributed under CC BY 4.0, redistribution rights confirmed" or "N/A">
 
 ## Post-Contribution Plan
 
