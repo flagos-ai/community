@@ -10,8 +10,6 @@ This process applies to externally contributed projects; governance of existing 
 
 **Terminology.** In this directory, **project contribution** means contributing an existing external project into the FlagOS lifecycle; it does not refer to ordinary code, documentation, issue, or pull-request contributions, which follow the normal repository contribution process. The **contributing party** is the organization or individual submitting and legally granting the project contribution; **contributing organization** is used only where a rule is specific to organizations.
 
-**Language.** Policy and runbook documents are authoritative in English — the `_CN` translations are provided for convenience, and if the versions differ, the English version prevails. Legally executed documents such as the SGA define their own governing-language rule. Changes to any policy or runbook must update the English and `_CN` files in the same PR.
-
 ## 2. Quick Start: Contribute a Project
 
 If you plan to contribute a project to FlagOS:
