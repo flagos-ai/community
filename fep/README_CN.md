@@ -125,12 +125,14 @@ Provisional ──→ Implementable ──→ Implemented
 
 - 在相关仓库中进行实现
 - 在 FEP 文档的 `Related PRs` 章节中追踪相关 PR
+- 实现落地时在 FEP 的 tracking issue（见 [Milestone 使用](#milestone-使用)）中勾选进度
 - 当范围或设计变更时，通过后续 PR 更新 FEP 文档
 
 ### 5. 收尾
 
 - 所有验收标准满足后，将 Status 更新为 `Implemented`
 - 通过最终 PR 更新 FEP 文档
+- 关闭该 FEP 的 tracking issue —— Milestone 视图中即标记为已交付
 
 ## 文件命名
 
@@ -153,8 +155,9 @@ Provisional ──→ Implementable ──→ Implemented
 
 ## Milestone 使用
 
-- 每个 FlagOS 版本对应一个 Milestone（如 `FlagOS 2.1`）
-- Milestone 设有截止日期
-- 目标版本的 FEP 关联到对应的 Milestone
+- 每个 FlagOS 版本对应一个 Milestone（如 `FlagOS 2.1`），设有截止日期
+- 每个进入版本的 FEP 都有**一个 tracking issue**（`[FEP-XXXX] <标题> tracking`）：FEP 合入时创建，assign 给 FEP Owner，FEP 达到 `Implemented` 时关闭
+- **Milestone 只挂 tracking issue（以及版本发布追踪 issue），不挂 FEP PR** —— 这样 milestone 的 open/closed 数量反映真实交付进度
+- FEP 推迟到后续版本时，将其 tracking issue 移至下一 Milestone，issue 不关闭
 - Release Manager 通过 Milestone 视图追踪进度
 - 各版本实时进度展示在本页顶部的 [🚩 版本追踪](#-版本追踪-release-tracker)
