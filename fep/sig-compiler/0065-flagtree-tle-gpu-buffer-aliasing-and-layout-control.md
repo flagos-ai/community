@@ -1,6 +1,6 @@
 # FEP-0065: FlagTree TLE GPU Buffer Aliasing and Layout Control
 
-**Status:** `Under developement`
+**Status:** `Implementable`
 
 **Created:** 2026-07-24
 
