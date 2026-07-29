@@ -45,14 +45,14 @@ Only two levels: **Incubating** / **Graduated**. Archiving is the neutral exit p
 
 ## 4. Acceptance Principles
 
-The TSC reviews contribution proposals against the following principles, and the reasons for acceptance or rejection are recorded publicly. Principles are numbered for stable reference from other incubator documents (e.g. the proposal template). A candidate project must at minimum:
+The TSC reviews contribution proposals against the following principles, and the reasons for acceptance or rejection are recorded publicly. Each principle carries a stable label (**AP-n**) for cross-reference from other incubator documents; labels are never renumbered or reused — a new principle takes the next unused label regardless of where it is inserted in the list. A candidate project must at minimum:
 
-1. Fit the FlagOS mission and technical scope (the multi-chip AI system software stack and its ecosystem);
-2. Use an open source license compliant with the license policy in Section 9;
-3. Have an IP status that is clearable in principle (known issues are not automatically disqualifying, but a feasible clearance path must exist);
-4. Have a committed initial maintainer team — not code parked after maintenance has stopped;
-5. Be willing to adopt open, neutral community governance, including this community's [GOVERNANCE.md](../GOVERNANCE.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md);
-6. Be complementary to, or clearly differentiated from, existing FlagOS projects, without creating duplicated competition within the community.
+1. **AP-1 (mission fit)** — Fit the FlagOS mission and technical scope (the multi-chip AI system software stack and its ecosystem);
+2. **AP-2 (license)** — Use an open source license compliant with the license policy in Section 9;
+3. **AP-3 (clearable IP)** — Have an IP status that is clearable in principle (known issues are not automatically disqualifying, but a feasible clearance path must exist);
+4. **AP-4 (committed maintainers)** — Have a committed initial maintainer team — not code parked after maintenance has stopped;
+5. **AP-5 (neutral governance)** — Be willing to adopt open, neutral community governance, including this community's [GOVERNANCE.md](../GOVERNANCE.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md);
+6. **AP-6 (complementarity)** — Be complementary to, or clearly differentiated from, existing FlagOS projects, without creating duplicated competition within the community.
 
 ## 5. Decision Body
 
