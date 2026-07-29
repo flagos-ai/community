@@ -10,9 +10,11 @@ HOW TO USE THIS TEMPLATE
    answer looks like — write to that, not to the minimum. Replace hints with your
    content; comments may be kept (they do not render) or deleted.
 3. Write "N/A" where a field does not apply; do not delete sections.
-   Fields differ in weight: "IP Status Disclosure" and "Commitments" are hard gates;
-   "Community Status" fields have no pass/fail bar — they calibrate risk. Each
-   section's comment says which, so an honest weak answer beats a padded one.
+   Fields differ in weight: "Commitments" is a hard gate (every box checked);
+   "IP Status Disclosure" is mandatory disclosure feeding the IP-clearance hard gate
+   before Final Acceptance; "Community Status" fields have no fixed threshold at
+   admission — they calibrate risk. Each section's comment says which, so an honest
+   weak answer beats a padded one.
 4. Fill in all fields truthfully — especially "IP Status Disclosure". Issues disclosed
    early can be worked out; issues concealed will block acceptance at IP clearance.
 5. Do NOT put contract scans, identity documents, or account credentials in this
@@ -70,11 +72,15 @@ HOW TO USE THIS TEMPLATE
 
 ## Community Status
 
-<!-- None of the fields in this section is pass/fail — a 100%-single-company team or a
-     young release history does not disqualify a project (see acceptance principles,
-     README Section 4). They calibrate two things: how much continuity risk the TSC is
-     taking on, and the baseline for graduation dimension #6 ("reduced single-party
-     dependence", README Section 7). Understate nothing, pad nothing. -->
+<!-- No fixed threshold at admission — a 100%-single-company team or a young release
+     history does not disqualify a project (see acceptance principles, README Section 4;
+     note principle #4 still requires a committed initial maintainer team). These fields
+     calibrate the continuity risk the TSC is taking on, and set the baseline the
+     project will be measured against at graduation (README Section 7): core developers
+     & affiliations → dimensions #2 (maintainer sustainability) and #6 (reduced
+     single-party dependence); release history → #3 (releases & security); users &
+     adoption → #4 (real adoption); developer independence → #6.
+     Understate nothing, pad nothing. -->
 
 - **Core developers & affiliations**: <fill in the table below, or link an equivalent MAINTAINERS file pinned to a commit SHA (a mutable branch link does not preserve the roster the TSC evaluated); the live roster may be linked separately>
 
@@ -104,12 +110,15 @@ HOW TO USE THIS TEMPLATE
 
 ## IP Status Disclosure
 
-<!-- HARD GATE: verified item by item against /incubator/ip-checklist.md after
-     conditional approval; no acceptance until the checklist is complete. Disclose known
-     issues here — a disclosed issue gets a resolution path (compatible relicensing,
-     retroactive authorization, rewrite, or removal); material omissions or issues left
-     unresolved may block acceptance. "We have a GPL dependency and plan to replace it
-     in Q3" is a fine answer; silence about it is not. -->
+<!-- MANDATORY DISCLOSURE — feeds the IP-clearance hard gate before Final Acceptance:
+     every item here is verified against /incubator/ip-checklist.md after conditional
+     approval, and no acceptance until that checklist is complete. Known issues at
+     proposal time are allowed if a feasible clearance path exists — a disclosed issue
+     gets a resolution path (compatible relicensing, retroactive authorization, rewrite,
+     or removal); material omissions may block the process. "We have a GPL dependency
+     and will replace it before Final Acceptance (target: Q3)" is an acceptable
+     disclosure — the dependency remains a clearance blocker until resolved — while
+     silence about it is not. -->
 
 - **Code ownership**: <Is ownership clear? Any outsourced code, prior-employer code, or copied code of unclear origin? e.g. "All code written by employees; one module (src/vendor/) adapted from BSD-licensed upstream, headers retained">
 - **Software copyright registration**: <registered or not; under whose name, e.g. "Registered in 2024 under Foo Technology Co., Ltd.">
