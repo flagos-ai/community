@@ -131,12 +131,14 @@ impacted by the feature should also review. If no existing SIG fits, use `sig-ar
 
 - Implementation happens across the relevant repos
 - Track related PRs in the `Related PRs` section of the FEP doc
+- Check off progress in the FEP's tracking issue (see [Milestone Usage](#milestone-usage)) as items land
 - Update the FEP doc via follow-up PRs when scope or design changes
 
 ### 5. Wrap Up
 
 - When all acceptance criteria are met, update Status to `Implemented`
 - This is done via a final PR to update the FEP doc
+- Close the FEP's tracking issue — this marks the FEP delivered in the Milestone view
 
 ## File Naming
 
@@ -159,8 +161,9 @@ impacted by the feature should also review. If no existing SIG fits, use `sig-ar
 
 ## Milestone Usage
 
-- Each FlagOS version has a corresponding Milestone (e.g., `FlagOS 2.1`)
-- Milestones have a deadline set
-- FEPs targeting a version are associated with the corresponding Milestone
+- Each FlagOS version has a corresponding Milestone (e.g., `FlagOS 2.1`) with a deadline set
+- Every FEP targeting a release has **one tracking issue** (`[FEP-XXXX] <title> tracking`), created when the FEP merges, assigned to the FEP Owner, and closed when the FEP reaches `Implemented`
+- **The Milestone holds tracking issues (plus the release tracking issue), not FEP PRs** — so milestone open/closed counts reflect real delivery progress
+- Deferring a FEP to a later release moves its tracking issue to the next Milestone; the issue is not closed
 - Release Manager tracks progress via the Milestone view
 - Live status for every release is surfaced at the top of this page under [🚩 Release Tracker](#-release-tracker)

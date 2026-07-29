@@ -60,7 +60,7 @@ Ways to do this:
 
 1. Open a Draft PR (if further discussion is needed) or a regular PR (if already well-discussed)
 2. The PR title should describe the feature; the PR description can be brief — the FEP document itself carries the details
-3. To target a release, set `Target Version: FlagOS X.Y` in the FEP header — the Release Manager then attaches the PR to the corresponding Milestone (mind the [FEP Freeze date](../release/2.2/schedule.md))
+3. To target a release, set `Target Version: FlagOS X.Y` in the FEP header — on merge, a tracking issue (`[FEP-XXXX] <title> tracking`) is created and attached to the corresponding Milestone (mind the [FEP Freeze date](../release/2.2/schedule.md))
 
 ## Step 5: Drive the Approval
 
@@ -73,6 +73,7 @@ Ways to do this:
 
 - Implement the feature in the relevant repos
 - Track implementation PRs in the FEP document's Related PRs section
+- Check off progress in the FEP's tracking issue as items land
 - Once everything is complete, update Status to `Implemented`
 
 ## FEP Status Transitions
