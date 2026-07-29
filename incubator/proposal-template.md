@@ -10,13 +10,11 @@ HOW TO USE THIS TEMPLATE
    answer looks like — write to that, not to the minimum. Replace hints with your
    content; comments may be kept (they do not render) or deleted.
 3. Write "N/A" where a field does not apply; do not delete sections.
-   Fields differ in weight: "Commitments" is a hard gate (every box checked);
+4. Fields differ in weight: "Commitments" is a hard gate (every box checked);
    "IP Status Disclosure" is mandatory disclosure feeding the IP-clearance hard gate
    before Final Acceptance; "Community Status" fields have no fixed threshold at
    admission — they calibrate risk. Each section's comment says which, so an honest
    weak answer beats a padded one.
-4. Fill in all fields truthfully — especially "IP Status Disclosure". Issues disclosed
-   early can be worked out; issues concealed will block acceptance at IP clearance.
 5. Do NOT put contract scans, identity documents, or account credentials in this
    public file; your Mentor or legal contact will provide a private channel.
 -->
@@ -34,7 +32,7 @@ HOW TO USE THIS TEMPLATE
 - **Project name**:
 - **Website (if any)**:
 - **Current license**: <the license the project ships under today, e.g. MIT / Apache-2.0>
-- **Contributing party & signing entity**: <full registered legal name of the organization, or the individual's name — this is who will sign the SGA>
+- **Contributing party & signing entity**: <full registered legal name of the organization, or the individual's name — this party signs the SGA and must own, control, or be duly authorized to grant the rights it purports to grant; rights or assets held by other parties (affiliates, historical contributors, account holders) must be identified and covered by their own authorization, signature, or transfer documentation. A subsidiary signing for IP held by its parent is a mismatch unless the parent signs or provides valid authority>
 - **Contact**: <name + email>
 
 **Contribution scope (repository list)**:
@@ -58,13 +56,13 @@ HOW TO USE THIS TEMPLATE
 
 **Relationship to existing FlagOS projects**:
 <!-- Complementary or overlapping with FlagGems / FlagTree / FlagScale / FlagCX / FlagPerf?
-     If overlapping, how is it positioned? (Acceptance principle #6) Example:
+     If overlapping, how is it positioned? (Acceptance principle AP-6, README Section 4) Example:
      "Complements FlagGems: FooKit tunes the kernels FlagGems provides; no overlap with
      the other subprojects." -->
 
 **Fit with the FlagOS mission**:
 <!-- How does the project serve the multi-chip AI system software stack and its
-     ecosystem? (Acceptance principle #1) Name the layer it lives in and the chips or
+     ecosystem? (Acceptance principle AP-1, README Section 4) Name the layer it lives in and the chips or
      backends it touches. Example: "FooKit sits at the kernel-optimization layer of the
      stack: it raises operator performance across NVIDIA, Ascend, and Cambricon
      backends, directly serving the multi-chip goal." Weak answer: "FooKit is useful
@@ -74,7 +72,7 @@ HOW TO USE THIS TEMPLATE
 
 <!-- No fixed threshold at admission — a 100%-single-company team or a young release
      history does not disqualify a project (see acceptance principles, README Section 4;
-     note principle #4 still requires a committed initial maintainer team). These fields
+     note principle AP-4 still requires a committed initial maintainer team). These fields
      calibrate the continuity risk the TSC is taking on, and set the baseline the
      project will be measured against at graduation (README Section 7): core developers
      & affiliations → dimensions #2 (maintainer sustainability) and #6 (reduced
@@ -124,7 +122,7 @@ HOW TO USE THIS TEMPLATE
 - **Software copyright registration**: <registered or not; under whose name, e.g. "Registered in 2024 under Foo Technology Co., Ltd.">
 - **Trademarks & domains**: <name/logo registered? by whom? willing to transfer or exclusively license? e.g. "'FooKit' word mark registered by Foo Technology; willing to transfer">
 - **Release channels & account assets**: <current state of PyPI / npm / Docker Hub / social accounts; handover happens after acceptance per the [acceptance runbook](/incubator/acceptance-runbook.md)>
-- **Known risks**: <GPL-family dependencies, cryptographic functionality (export compliance), patent issues, ongoing disputes; write "none" if none>
+- **Known risks**: <GPL-family dependencies, cryptographic functionality (export compliance), patent issues, ongoing disputes. State the basis for each answer rather than a bare "none" — the basis differs by category: a dated dependency license scan for licenses; a code/build inventory for cryptography; "none known after inquiry with our legal/IP owner" is the honest form for patents and disputes. Full verification happens later at IP clearance; the proposal answer only needs to show the question was actually asked>
 
 **AI artifacts (if applicable)**:
 
@@ -136,7 +134,7 @@ HOW TO USE THIS TEMPLATE
 
 ## Post-Contribution Plan
 
-<!-- The TSC reads this section against acceptance principle #4: a committed maintainer
+<!-- The TSC reads this section against acceptance principle AP-4: a committed maintainer
      team, not code parked after maintenance has stopped. Concrete beats ambitious — a
      roadmap of two verifiable milestones outweighs a page of vision. -->
 
