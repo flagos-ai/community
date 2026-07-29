@@ -1,6 +1,6 @@
-# FEP: FlagRelease Multi-Version Automated Migration & Release Pipeline
+# FEP-0069: FlagRelease Multi-Version Automated Migration & Release Pipeline
 
-**Status:** `Implemented`
+**Status:** `Implementable`
 
 **Created:** 2026-07-27
 
@@ -192,18 +192,19 @@ Images publish to Harbor with version tag suffixes (`-v1/-v2/-v3/-v4`). V1/V2/V4
 
 | Goal | Verification Method | Status |
 |------|--------------------|--------|
-| Branch routing is deterministic | Run `inspect_env.py` across all three image types, assert `entry_image_type` and selected pipeline | Implemented |
-| Accuracy hard gate blocks public release | Inject a >5% degradation model, assert V2 stays private | Implemented |
-| Performance never blocks the flow | Inject a sub-80% ratio, assert flow reaches Step 8 with `performance_ok=false` | Implemented |
-| Operator isolation locates bad operators | Group-bisection unit tests on `operator_search.py` | Implemented |
-| Gates prevent self-declared success | `v1_gate.py` / `step7_gate.py` reject incomplete stages | Implemented |
-| Recovery resumes from interruption | Kill mid-run, restart, assert resume from `context.yaml` | Implemented |
-| V4 reduction beats V3 or reverts safely | Two-phase reduction with accuracy final-check | Implemented |
+| Branch routing is deterministic | Run `inspect_env.py` across all three image types, assert `entry_image_type` and selected pipeline | Pending |
+| Accuracy hard gate blocks public release | Inject a >5% degradation model, assert V2 stays private | Pending |
+| Performance never blocks the flow | Inject a sub-80% ratio, assert flow reaches Step 8 with `performance_ok=false` | Pending |
+| Operator isolation locates bad operators | Group-bisection unit tests on `operator_search.py` | Pending |
+| Gates prevent self-declared success | `v1_gate.py` / `step7_gate.py` reject incomplete stages | Pending |
+| Recovery resumes from interruption | Kill mid-run, restart, assert resume from `context.yaml` | Pending |
+| V4 reduction beats V3 or reverts safely | Two-phase reduction with accuracy final-check | Pending |
+
+All rows are verified in [flagos-ai/FlagRelease#20](https://github.com/flagos-ai/FlagRelease/pull/20) and flip to Implemented when it merges.
 
 ## Related PRs
 
-- [x] https://github.com/flagos-ai/FlagRelease/pull/20 — rework FlagOS migration pipeline: dual-branch, multi-version release, gates
-- [ ] https://github.com/flagos-ai/vllm-plugin-FL — plugin operator scheduling path (consumed, not modified here)
+- [ ] https://github.com/flagos-ai/FlagRelease/pull/20 — rework FlagOS migration pipeline: dual-branch, multi-version release, gates
 
 ## Implementation History
 

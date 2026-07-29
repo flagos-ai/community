@@ -10,6 +10,8 @@
 
 **Target Version:** FlagOS 2.1
 
+> **Superseded by [FEP-0069](0069-flagrelease-multi-version-pipeline.md)** (FlagRelease Multi-Version Automated Migration & Release Pipeline) as of FlagOS 2.2.
+
 ---
 
 ## Summary
