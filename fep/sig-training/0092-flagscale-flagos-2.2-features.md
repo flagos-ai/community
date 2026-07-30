@@ -1,4 +1,4 @@
-# FEP: FlagScale Features for FlagOS 2.2
+# FEP-0092: FlagScale Features for FlagOS 2.2
 
 **Status:** `Provisional`
 
