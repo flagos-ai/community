@@ -33,15 +33,15 @@ Repository: https://github.com/flagos-ai/vllm-plugin-FL
 ## Motivation
 
 vllm-plugin-FL 0.2.0 established the plugin as a multi-chip vLLM backend on a
-single pinned vLLM version. Real deployments now need two things: a defined
-adaptation matrix across the vendor fleet (instead of ad-hoc per-chip status),
-and a path off per-vendor vLLM forks — vLLM's Empty build makes the framework
-itself device-neutral so every platform can share one vLLM release, with the
-plugin (FlagGems operators + FlagCX communication + vendor dispatch backends)
-supplying the hardware layer. On top of that, with multiple operator
-implementations available per op (FlagGems / vendor-native / reference),
-choosing the fastest one per platform by hand does not scale — hence
-operator-granularity auto-tuning.
+single pinned vLLM version. The 2.2 cycle addresses two deployment
+needs: a defined adaptation matrix across the vendor platforms (instead of
+ad-hoc per-chip status), and a path off per-vendor vLLM forks — vLLM's Empty
+build makes the framework itself device-neutral so every platform can share
+one vLLM release, with the plugin (FlagGems operators + FlagCX communication
++ vendor dispatch backends) supplying the hardware layer. In addition, with
+multiple operator implementations available per op (FlagGems / vendor-native
+/ reference), selecting the fastest one per platform manually is costly, so
+this cycle adds operator-granularity auto-tuning.
 
 ### Goals
 
@@ -173,5 +173,4 @@ per-vendor CI workflows).
 
 ## Implementation History
 
-- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle, from the
-  framework-group 2.2 release plan.
+- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle.
