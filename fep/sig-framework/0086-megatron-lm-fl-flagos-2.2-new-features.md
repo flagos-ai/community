@@ -51,9 +51,8 @@ DeepSeek-V4-family) that FlagOS users train.
        published. -->
 - **G2 (Upstream platform abstraction):** Drive the platform abstraction
   merge into upstream NVIDIA Megatron-LM.
-  <!-- TODO: define the acceptance form — upstream PR(s) opened? merged? RFC
-       accepted? An upstream-dependent goal needs a completion criterion that
-       is within the team's control. -->
+  <!-- TODO: define the acceptance form — upstream PR(s) opened? merged?
+       RFC accepted? -->
 - **G3 (Stretch — core upgrade):** Upgrade the Megatron-LM core base from
   0.17.1 to v0.18.2, preserving all FL patches (platform plugin, overrides,
   dualpipev, hetero, engram).
@@ -67,7 +66,7 @@ DeepSeek-V4-family) that FlagOS users train.
 
 ### Non-Goals
 
-<!-- TODO: confirm/extend. Candidates based on current scope: -->
+<!-- TODO: confirm/extend. -->
 
 - Low-precision (FP8/INT8) training for the new model families.
 - Inference optimization for the new models (FlagScale / inference-plugin
