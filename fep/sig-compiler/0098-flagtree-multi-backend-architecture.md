@@ -37,10 +37,10 @@ FlagTree integrates many AI-chip backends into one repository (FEP-0013).
 Today's backends already span NVIDIA, AMD, Cambricon, HCU, Iluvatar, MetaX,
 Moore Threads, Kunlunxin (XPU), Enflame, Thrive, Sunrise, and RPU (visible under
 `third_party/` and in the per-backend CI workflows). Scaling this to more
-backends and Triton versions surfaces two structural problems and one process
+backends and Triton versions raises two structural problems and one process
 problem:
 
-- **Specialization sprawl.** Each backend has legitimate specialization needs,
+- **Unmanaged specialization.** Each backend has legitimate specialization needs,
   but historically these were met either by editing trunk code directly (which
   couples the trunk to one vendor and breaks others) or by copying the whole
   code into a backend directory (which loses trunk reuse and makes Triton
@@ -98,7 +98,7 @@ before the backend code lands. On the CI branch
 branch currently holds `amd, enflame, f2reduce, hcu, mthreads, nvidia, proton,
 rpu, thrive, tle`.
 
-The net-new backend code for 2.2 — the TileIR lowering (NVIDIA and Moore
+The new backend code for 2.2 — the TileIR lowering (NVIDIA and Moore
 Threads), the T-Head 3.6 backend, and the Enflame 3.7 backend — is not yet in
 tree; the `tileir3.6` CI workflows exist but no `tileir` backend directory does.
 Each new backend is added under `third_party/<backend>/` following the unified
@@ -228,7 +228,7 @@ MAX_JOBS=32 python3 -m pip install . --no-build-isolation
 - [ ] FlagTree — Moore Threads spec-path migration (`feat/mthreads-spec-path-third-party.*`)
 - [ ] FlagTree — Iluvatar python specialization (`refactor/iluvatar-python-specialization`)
 - [ ] FlagTree — FlagGems CI gate (`triton_v3.6_test_flagGems`, `addflaggemstest`)
-- [ ] FlagTree — TileIR / T-Head / Enflame 3.7 backends (net-new)
+- [ ] FlagTree — TileIR / T-Head / Enflame 3.7 backends (not yet in tree)
 
 ## Implementation History
 
@@ -237,5 +237,5 @@ MAX_JOBS=32 python3 -m pip install . --no-build-isolation
   `FLAGTREE_BACKEND`, C++ include-hijack + CMake auto-scan) and CI scaffolding
   for new backends (`tileir3.6-*`, FlagGems-test branches) exist on feature
   branches; the four new backend implementations, the full backend migration on
-  `main`/3.7, and the CI gates are the net-new 2.2 work. Owner and per-track
+  `main`/3.7, and the CI gates are the remaining 2.2 work. Owner and per-track
   acceptance scope pending fill-in before FEP Freeze.
