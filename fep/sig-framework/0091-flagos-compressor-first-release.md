@@ -151,5 +151,5 @@ modules, so new formats/methods extend without core changes.
 
 ## Implementation History
 
-- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle, from
-  the framework-group 2.2 release plan; repository bootstrapped 2026-07-14.
+- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle;
+  repository bootstrapped 2026-07-14.
