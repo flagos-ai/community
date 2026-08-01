@@ -40,14 +40,13 @@ Repository: https://github.com/flagos-ai/FlagScale
 
 ## Motivation
 
-FlagOS 2.2 requires FlagScale to keep pace on three fronts at once: the
-frontier model families its users train (DeepSeek-V4, Qwen3.5, multimodal
-and VLA models), the reliability demands of large distributed runs
-(straggler detection, performance monitoring, checkpoint portability), and
-the multi-platform architecture direction of FlagOS (function-level override
-plugin, native NPU integration, unified multi-chip CI). This cycle's work
-advances all three without breaking the established Megatron-LM-FL-based
-training stack.
+The 2.2 cycle advances FlagScale on three fronts: current model families
+(DeepSeek-V4, Qwen3.5, multimodal and VLA models), reliability of large
+distributed runs (straggler detection, performance monitoring, checkpoint
+portability), and the multi-platform architecture direction of FlagOS
+(function-level override plugin, native NPU integration, unified multi-chip
+CI), while keeping the established Megatron-LM-FL-based training stack
+unchanged.
 
 ### Goals
 
@@ -85,8 +84,8 @@ training stack.
 
 ### Non-Goals
 
-- FlagScale-Agent (the autonomous training/inference agent system) — a
-  separate line item in the 2.2 release plan, to be proposed in its own FEP.
+- FlagScale-Agent (the autonomous training/inference agent system) — to be
+  proposed in its own FEP.
 - New inference-serving features beyond the VLA entrypoint unification
   (inference serving otherwise follows the existing FlagScale serve stack).
 - Upstream Megatron-LM-FL / TransformerEngine-FL feature work (covered by
@@ -182,6 +181,6 @@ functional tests:
 
 ## Implementation History
 
-- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle, from
-  the framework-group 2.2 release plan; all listed items already merged on
-  `main`, pending release-level acceptance definition.
+- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle; all
+  listed items already merged on `main`, pending release-level acceptance
+  definition.
