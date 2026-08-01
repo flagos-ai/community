@@ -33,14 +33,14 @@ Repository: https://github.com/flagos-ai/sglang-plugin-FL
 
 ## Motivation
 
-v0.1.0 proved the three-layer out-of-tree adaptation architecture (ATen ops
-via FlagGems dispatch, SGLang fused kernels via HookRegistry AROUND hooks,
-communication via CommunicatorFL on FlagCX) on NVIDIA, Ascend, and MUSA. The
-2.2 cycle scales that architecture across the vendor fleet to a 10-platform
+v0.1.0 validated the three-layer out-of-tree adaptation architecture (ATen
+ops via FlagGems dispatch, SGLang fused kernels via HookRegistry AROUND
+hooks, communication via CommunicatorFL on FlagCX) on NVIDIA, Ascend, and
+MUSA. The 2.2 cycle extends that architecture to a 10-platform adaptation
 matrix, starts the same device-decoupling (Empty) direction as
 vllm-plugin-FL so SGLang deployments stop depending on vendor-specific
-builds, and pays down the testing debt — v0.1.0 shipped with manual
-verification; CI/CD needs a real test pyramid to build on.
+builds, and establishes the plugin's own test suites — v0.1.0 shipped with
+manual verification only — as the foundation for CI/CD.
 
 ### Goals
 
@@ -71,8 +71,8 @@ verification; CI/CD needs a real test pyramid to build on.
 
 ### Non-Goals
 
-- Feature parity with vllm-plugin-FL's operator auto-tuning (not in the 2.2
-  plan for the SGLang plugin).
+- Feature parity with vllm-plugin-FL's operator auto-tuning (not in scope
+  for the SGLang plugin this cycle).
 - Upstreaming changes into SGLang itself (the plugin remains strictly
   out-of-tree).
 - Serving-layer features (router, disaggregation) beyond what SGLang v0.5.11
@@ -169,5 +169,4 @@ verified through it.
 
 ## Implementation History
 
-- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle, from the
-  framework-group 2.2 release plan.
+- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle.
