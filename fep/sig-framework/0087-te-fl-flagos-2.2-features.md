@@ -54,11 +54,11 @@ attention (FSA) backend.
 - **G2 (Stretch — upstream v2.16):** Synchronize the upstream base from v2.14
   to v2.16, preserving the FlagOS plugin system (plugin OP API signatures,
   `te_device_type()` multi-backend dispatch) as in previous upstream syncs.
-  Marked stretch in the release plan; slipping it does not block the release.
+  Marked stretch; slipping it does not block the release.
 - **G3 (FSA sparse attention):** Provide an FSA sparse attention backend with
   a Triton implementation and a CUDA implementation.
-  <!-- TODO: the release plan explicitly leaves the benefit "to be discussed";
-       define the target workloads, the expected gain over the dense fused
+  <!-- TODO: the performance benefit is still under evaluation; define
+       the target workloads, the expected gain over the dense fused
        attention path, and the acceptance criterion before this moves to
        Implementable. No FSA code is on main yet. -->
 
@@ -161,5 +161,5 @@ existing workflows (`build.yml`, `attach-wheels-to-release.yml`).
 
 ## Implementation History
 
-- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle, from the
-  framework-group 2.2 release plan; FSA benefit evaluation outstanding.
+- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle; FSA
+  benefit evaluation outstanding.
