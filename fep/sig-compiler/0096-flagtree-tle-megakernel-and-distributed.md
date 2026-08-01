@@ -41,8 +41,7 @@ extends TLE along two new axes that matter for LLM serving:
 - **Latency.** For single-batch decode, per-layer kernel launches and the
   round-trips they imply dominate latency. Compiling an entire decode step into
   one persistent, cooperatively-scheduled kernel removes launch overhead and
-  keeps weights and activations resident, which is where the commercial value
-  of low-latency inference (GLM / MiMo-class workloads) comes from.
+  keeps weights and activations resident.
 - **Scale.** Multi-device LLM inference needs communication fused with
   computation to hide transfer latency behind compute. Giving TLE first-class
   distributed primitives, lowered onto FlagCX, lets FlagTree express
@@ -111,7 +110,7 @@ into a full decode step and schedules them cooperatively on one launch.
         accepts, and how a HuggingFace config maps to mega-kernel fragments.
      2. Scheduler — pull-based cooperative scheduling model, occupancy /
         persistent-CTA strategy, how weights and KV stay resident.
-     3. Relationship to FlagOS-RT / TileRT positioning noted in the plan. -->
+     3. Relationship to FlagOS-RT / TileRT positioning. -->
 
 ### Feature 2: Distributed Primitives and Comm-Compute Fusion
 
@@ -142,7 +141,7 @@ the `third_party/tle` dialect:
 Distributed-operator examples already exist on
 `triton_v3.6.x_add_intra_node_test_demo` — `test_tle_intra_node_allgather.py`,
 `test_tle_intra_node_reduce_scatter.py` and TMA / atomic-barrier variants —
-and NVSHMEM support is prototyped on `triton_v3.6.x_support_nvshmem_lxy`.
+and NVSHMEM support is prototyped on a separate feature branch.
 
 The 2.2 deliverable is to land these primitives on the release branch, complete
 the FlagCX multi-chip lowering, and validate comm-compute fusion parity with
