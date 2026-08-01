@@ -33,10 +33,10 @@ Repository: https://github.com/flagos-ai/FlagTree
 
 ## Motivation
 
-TLE is FlagTree's vehicle for expressing performance-oriented kernel structure
-that block-level Triton cannot: warp specialization (FEP-0027 `tle.pipe`),
-explicit shared-memory aliasing and layout control (FEP-0065). FlagOS 2.2
-extends TLE along two new axes that matter for LLM serving:
+TLE expresses performance-oriented kernel structure that block-level Triton
+cannot: warp specialization (FEP-0027 `tle.pipe`), explicit shared-memory
+aliasing and layout control (FEP-0065). FlagOS 2.2 extends TLE in two
+directions for LLM serving:
 
 - **Latency.** For single-batch decode, per-layer kernel launches and the
   round-trips they imply dominate latency. Compiling an entire decode step into
@@ -101,8 +101,8 @@ branch carries the compiler-side changes the paradigm needs — extensions to
 (`lib/Analysis/Allocation.cpp`, `lib/Analysis/Membar.cpp`), and layout handling
 (`RemoveLayoutConversions.cpp`).
 
-The model-level entry point (HuggingFace definition → Triton mega-kernel) is the
-net-new work for 2.2: a front-end that composes the per-operation mega kernels
+The model-level entry point (HuggingFace definition → Triton mega-kernel) is
+the new work for 2.2: a front-end that composes the per-operation mega kernels
 into a full decode step and schedules them cooperatively on one launch.
 
 <!-- TODO (design):
@@ -124,7 +124,7 @@ Device-side helpers include `n_pes` and `_get_local_rank`, and the barrier
 carries `BarrierKind {arrive, wait, sync}` and `MemoryOrder {relaxed, acquire,
 release, acqrel}`.
 
-Signal/wait `load`/`store` and the FlagCX lowering are in flight across the
+Signal/wait `load`/`store` and the FlagCX lowering are under development on the
 `add_signal_primitives_for_tle_dist`, `add_put_value_primitives`, and
 `feature/tle_remote_node` branches, which add the MLIR ops and their lowering in
 the `third_party/tle` dialect:
@@ -227,5 +227,5 @@ sizes.
 - 2026-08-01: FEP created as `Provisional` for the FlagOS 2.2 cycle. MegaKernel
   scheduler prototype and TLE distributed API present on feature branches;
   model-level MegaKernel front-end, FlagCX multi-chip lowering, and
-  comm-compute fusion parity are the net-new 2.2 work. Owner and quantified
+  comm-compute fusion parity are the remaining 2.2 work. Owner and quantified
   acceptance targets (G2, G4, G5) pending fill-in before FEP Freeze.
