@@ -29,8 +29,8 @@ foundation delivered in FlagOS 2.1
    non-CUDA-compatible vendors integrate the vendor C++ operator library
    covering the operator range used by `transformers` and `diffusers`.
 3. **torch-fl package release** — publish installable `torch_fl` wheels
-   against PyTorch **2.8–2.10** (2.11 dropped: no vendor has shipped official
-   support for it), split per vendor (e.g. `torch-fl-ascend`, `torch-fl-mx`)
+   against PyTorch **2.8–2.10** (2.11 excluded: no vendor has shipped
+   official support for it), split per vendor (e.g. `torch-fl-ascend`, `torch-fl-mx`)
    because the bundled libtorch makes a single wheel impractically large.
 4. **Initial FlagCX integration** — `torch.distributed` basic capability on
    the `flagos` device: standard communication operators and DDP support,
@@ -40,13 +40,12 @@ Repository: https://github.com/flagos-ai/PyTorch-Plugin-FL
 
 ## Motivation
 
-v0.1.0 proved the PrivateUse1 `flagos` device with per-operator backend
-routing on CUDA and Ascend. The 2.2 cycle turns that foundation into a
-releasable multi-vendor product: a defined 5-chip support matrix validated on
-real models, a quantified FlagGems coverage bar with a deterministic fallback
-story per vendor class, actual installable wheels on PyTorch versions vendors
-ship against, and the first step from single-device execution to distributed
-training via FlagCX.
+v0.1.0 validated the PrivateUse1 `flagos` device with per-operator backend
+routing on CUDA and Ascend. The 2.2 cycle extends this foundation in four
+directions: a defined 5-chip support matrix validated on real models, a
+quantified FlagGems coverage target with a defined fallback path per vendor
+class, installable wheels on the PyTorch versions vendors support, and
+initial distributed-training support via FlagCX.
 
 ### Goals
 
@@ -131,9 +130,9 @@ Two-tier dispatch policy per vendor class:
 
 Publish `torch_fl` as installable wheels:
 
-- **PyTorch version range 2.8–2.10.** The earlier 2.11 target is dropped
-  because no vendor has shipped an official release supporting it; the final
-  per-vendor pin follows vendor support statements.
+- **PyTorch version range 2.8–2.10.** PyTorch 2.11 is excluded because no
+  vendor has shipped an official release supporting it; the final per-vendor
+  pin follows vendor support statements.
 - **Per-vendor wheels** (`torch-fl-ascend`, `torch-fl-mx`, ...): the bundled
   forked libtorch is large (the MetaX boxing wheel is ~1.1 GB, above the
   PyPI 100 MB limit), so wheels are split by vendor and distributed via
@@ -206,5 +205,4 @@ workflow #32).
 
 ## Implementation History
 
-- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle, from the
-  framework-group 2.2 release plan.
+- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle.
