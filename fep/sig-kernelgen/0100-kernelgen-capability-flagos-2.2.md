@@ -47,9 +47,10 @@ KernelGen in end-to-end inference optimization.
   multi-chip tool and knowledge-base onboarding standard.
   <!-- TODO: what the refactor changes; what the onboarding standard specifies
        and how a new chip is judged onboarded. -->
-- **G2 (FlagOS-Coder v1):** Deliver v1 of FlagOS-Coder.
-  <!-- TODO: scope of FlagOS-Coder v1 — inputs, outputs, and the v1 acceptance
-       bar. -->
+- **G2 (FlagOS-Coder v1):** Deliver v1 of FlagOS-Coder, a 32B model that
+  supports operator generation and tuning on 5+ chips.
+  <!-- TODO: the v1 acceptance bar — inputs, outputs, and how "supports
+       generation and tuning" is measured per chip. -->
 - **G3 (Operator coverage map):** Deliver the operator coverage map (the
   Operator Coverage Map named as a follow-up in FEP-0093).
   <!-- TODO: what the map covers (operators × chips × status?), how it is
@@ -90,7 +91,8 @@ Five capabilities on top of the FEP-0093 knowledge/tool substrate:
 
 - **KernelGen 2.2 refactor** — refactor the generation core and define the
   standard by which a new chip's tooling and knowledge base are onboarded.
-- **FlagOS-Coder v1** — first release of FlagOS-Coder.
+- **FlagOS-Coder v1** — first release of FlagOS-Coder, a 32B model for operator
+  generation and tuning across 5+ chips.
 - **Operator coverage map** — the coverage map FEP-0093 names as a downstream
   consumer of the resource registry.
 - **Operator agent + multi-chip leaderboard** — an agent that generates/optimizes
