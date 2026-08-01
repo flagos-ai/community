@@ -34,8 +34,8 @@ Repository: https://github.com/flagos-ai/FlagTree
 
 ## Motivation
 
-FlagTree's value proposition is a single trunk pipeline shared across many chip
-backends. Improvements in that shared layer benefit all backends at once,
+FlagTree provides a single trunk pipeline shared across many chip backends.
+Improvements in that shared layer benefit all backends at once,
 whereas today several optimizations are either absent or left to each vendor's
 downstream fork:
 
@@ -49,10 +49,10 @@ downstream fork:
   and register pressure; reducing them directly improves throughput.
 - **Warp specialization.** Warp-specialized kernels (FEP-0027) depend on
   correct and efficient producer/consumer synchronization; coarse or implicit
-  barriers leave performance on the table.
+  barriers cost performance.
 - **Instruction scheduling.** Reordering independent instructions and fusing
-  compatible ones increases parallelism and hides load latency, which the
-  default lowering does not always exploit.
+  compatible ones increases parallelism and hides load latency; the default
+  lowering does not fully exploit either.
 
 ### Goals
 
@@ -226,5 +226,5 @@ pre-optimization baseline on the same hardware.
   predictor hook, layout passes, warp-specialization passes, and pipeliner
   scheduling infrastructure exist in the trunk / on feature branches; the
   ML-predictor realization (FlagOSTune) and the four measured performance
-  targets are the net-new 2.2 work. Owner and quantified gains pending fill-in
+  targets are the remaining 2.2 work. Owner and quantified gains pending fill-in
   before FEP Freeze.
