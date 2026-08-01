@@ -98,8 +98,7 @@ additions over stock Triton:
   pruning path);
 - tuned-meta deduplication (`seen_tuned_metas`) so identical metas are not
   re-tuned;
-- dependency-analysis-driven auto-pairing of parameters ("自动从依赖分析结果中
-  获取参数配对").
+- dependency-analysis-driven auto-pairing of tuning parameters.
 
 FlagOSTune is the machine-learning realization of the `perf_model` hook: a
 trained predictor that ranks or filters candidate configurations from
