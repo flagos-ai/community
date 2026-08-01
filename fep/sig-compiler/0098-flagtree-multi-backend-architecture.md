@@ -145,7 +145,7 @@ branches.
 ### Track 3: CI/CD Integration Validation
 
 The goal is to bring the FlagOS-model-release gate forward to the dev CI merge
-stage, in one or both of two ways the plan names:
+stage, in one or both of two ways:
 
 - **Option A — FlagGems op-list gate.** CI validates the FlagGems operator
   library against a fixed op list (the historically-passing ops), with the op
