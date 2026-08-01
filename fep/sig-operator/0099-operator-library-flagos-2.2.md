@@ -49,19 +49,20 @@ tracked against a single target rather than split across two workflows.
 - **G1 (Operator scale):** Reach 635 total operators, composed of 334 manually
   implemented and 301 KernelGen-generated (flagos-ai/community#93). Includes
   the sub-targets in the [Operator Count](#operator-count) table.
-- **G2 (Attention operators):** Deliver high-performance Attention-class
-  operators matching NVIDIA state-of-the-art, running on 5+ domestic chips.
-  <!-- TODO: list the specific Attention operators in scope; name the target
-       chips; define the NVIDIA SOTA baseline (hardware, version) and the
-       parity tolerance per operator. -->
-- **G3 (TLE key operators):** Deliver key operators built on TLE, using the
-  compiler-side TLE capability (flagos-ai/community#96).
-  <!-- TODO: name the key operators built on TLE and the acceptance metric per
-       operator. -->
-- **G4 (General optimization techniques):** Apply low-bit, MegaKernel fusion,
-  reduction layout, and shape-aware multi-path dispatch to named operators.
-  <!-- TODO: for each technique, name the operators it is applied to and the
-       measured effect. -->
+- **G2 (Attention operators):** Deliver 6 high-performance Attention-class
+  operators — Flash MLA, Flash KDA, GDN2, GLA, NSA and SageAttention — at
+  NVIDIA-GPU state-of-the-art, then extend to 5+ domestic chips with
+  performance above each vendor's native implementation. Targets in
+  [Performance Targets](#performance-targets).
+- **G3 (TLE key operators):** Deliver 5 high-value operators on the model core
+  compute path, covering KV Cache, MHC, sparse-Attention fusion and FP8
+  quantization, built on the compiler-side TLE capability
+  (flagos-ai/community#96), at NVIDIA-GPU state-of-the-art, then extend to 5+
+  domestic chips with performance above native. Targets in
+  [Performance Targets](#performance-targets).
+- **G4 (General optimization techniques):** Apply low-bit / mixed precision,
+  MegaKernel fusion, reduction-layout optimization, and shape-aware multi-path
+  dispatch across the operators named in Feature 4.
 
 ### Non-Goals
 
@@ -84,34 +85,44 @@ total. The per-library and per-target breakdown is in the
 
 ### Feature 2: Attention Operators
 
-Deliver high-performance Attention-class operators targeting NVIDIA
-state-of-the-art, running on 5+ domestic chips.
+Deliver 6 Attention-class operators — Flash MLA, Flash KDA, GDN2, GLA, NSA and
+SageAttention (video-generation models) — at NVIDIA-GPU state-of-the-art, then
+extend to 5+ domestic chips with performance above each vendor's native
+implementation. Per-operator NVIDIA-GPU targets are in
+[Performance Targets](#performance-targets).
 
-<!-- TODO (design): list the Attention operators in scope (e.g. the
-     Flash-family variants), the target chips, and the optimization approach
-     per operator. -->
+<!-- TODO (design): per operator, the optimization approach and the target
+     domestic chips. -->
 
 ### Feature 3: TLE Key Operators
 
-Deliver key operators built on the Triton Language Extension. The TLE
-capability itself (MegaKernel, distributed primitives, buffer aliasing) is
+Deliver 5 high-value operators on the model core compute path — covering KV
+Cache, MHC, sparse-Attention fusion and FP8 quantization — at NVIDIA-GPU
+state-of-the-art, then extend to 5+ domestic chips with performance above
+native. The TLE capability itself (MegaKernel, distributed primitives) is
 provided by the compiler side (flagos-ai/community#96); this feature is the
 operator-side adoption of it.
 
-<!-- TODO (design): name the key operators built on TLE and how each uses the
-     TLE capability. -->
+<!-- TODO (design): map each of the 5 operators to its function
+     (reshape_and_cache / reshape_and_cache_flash, mhc_bwd,
+     fused_indexer_q_rope_quant, Topk, ...) and how each uses TLE. -->
 
 ### Feature 4: General Optimization Techniques
 
 Apply reusable optimization techniques across operators:
 
-- **Low-bit** — [TODO: operators and bit widths]
-- **MegaKernel fusion** — [TODO: fused operator groups]
-- **Reduction layout** — [TODO: operators]
-- **Shape-aware multi-path dispatch** — [TODO: operators]
-
-<!-- TODO (design): for each technique, the named operators it applies to and
-     the measured effect. -->
+- **Low-bit / mixed precision** — FP8/FP4 storage, online dequantization and
+  high-precision accumulation, covering `per_token_group_quant_fp8`,
+  `fp8_fp4_mega_moe`, `fused_marlin_moe`, `w8a8_block_fp8_bmm`.
+- **MegaKernel fusion** — fuse dequantization, matmul, activation and routing
+  weighting to cut intermediate memory traffic and kernel launches, mainly
+  covering `fp8_fp4_mega_moe`, `fused_marlin_moe`.
+- **Reduction-layout optimization** — separate kernels and parallel strategies
+  for contiguous vs. non-contiguous reduction dimensions, covering `prod`,
+  `std`, `log_softmax`, `any`.
+- **Shape-aware multi-path dispatch** — select a plain or linearized execution
+  path by shape, data layout and hardware, covering `sparse_attention`, `mul`,
+  `index`.
 
 ## Design Details
 
@@ -136,34 +147,51 @@ Total: **635** = **334** manually implemented + **301** KernelGen-generated
 
 ### KernelGen-generated (301)
 
-Generated via KernelGen (flagos-ai/community#93). Named sub-targets:
+Generated via KernelGen (flagos-ai/community#93), running on 5+ domestic chips.
+Named sub-targets:
 
 | Sub-target | Count |
 |---|---|
 | gems-SGLang | ≥35 |
 | gems-vLLM | 3 |
-| [TODO: telecom operators] | 4 |
-| [TODO: named party] | 3 |
+| Telecom-model operators | 4 |
+| Mianbi operators | 3 |
 | [TODO: remaining generated operators] | [TODO] |
 | **Total** | **301** |
 
-<!-- TODO: label the two [TODO] sub-targets with their actual scope, and
-     itemize the remaining generated operators so the sub-target counts sum to
-     301. -->
+<!-- TODO: itemize the remaining generated operators so the named sub-targets
+     sum to 301. The four named sub-targets above are the ones called out in
+     the source; the balance is not itemized there. -->
 
 ## Performance Targets
 
-Representative operator speedups (vs. [TODO: baseline — NVIDIA SOTA hardware
-and version]). Status is Pending until measured on the release hardware.
+Each speedup is against the baseline named in its row. Status is Pending until
+re-measured on the release hardware.
+
+### G2: Attention operators (NVIDIA GPU)
+
+| Operator | Target | Baseline | Status |
+|---|---|---|---|
+| Flash MLA | 0.916–1.213× | vLLM CUDA version | Pending |
+| Flash KDA | 1.15× | official FlashKDA CUDA version | Pending |
+| GDN2 | 1.5–2× | fla Triton version | Pending |
+| GLA | fwd 1.18–1.27× / fwd+bwd 1.03–1.12× | fla Triton version | Pending |
+| NSA | 1.01–1.28× | fla Triton version | Pending |
+| SageAttention | [TODO] | [TODO] | Pending |
+
+### G3: TLE key operators (NVIDIA H800)
 
 | Operator | Target | Status |
 |---|---|---|
-| Flash MLA | 0.916–1.213× | Pending |
 | reshape_and_cache | 185.874× | Pending |
-| [TODO: remaining named operators] | [TODO] | Pending |
+| reshape_and_cache_flash | 138.981× | Pending |
+| mhc_bwd | 155.972× | Pending |
+| fused_indexer_q_rope_quant | 19.592× | Pending |
+| Topk (with TLE primitives) | 2.03× | Pending |
 
-<!-- TODO: define the baseline precisely (hardware, version, workload) and add
-     the remaining operators with performance targets from the roadmap. -->
+<!-- TODO: SageAttention target/baseline; per-operator baselines for the H800
+     TLE speedups (workload/shape); domestic-chip "above native" targets for
+     both G2 and G3. -->
 
 ## Packaging
 
