@@ -121,16 +121,13 @@ Five capabilities on top of the FEP-0093 knowledge/tool substrate:
 
 ## Packaging
 
-Shipped as part of the `kernelgen` Python package.
+N/A for now. KernelGen is not a pip-installable package — it is delivered as
+the web platform (https://kernelgen.flagos.io), the MCP service, and IDE
+skills in the flagos-ai/kernelgen repo.
 
-```bash
-git clone https://github.com/flagos-ai/kernelgen.git
-cd kernelgen && pip install .
-```
-
-<!-- TODO: per-deliverable packaging — whether FlagOS-Coder, the coverage map,
-     the agents and Workbuddy ship in the kernelgen wheel or separately;
-     platform and toolkit requirements per target chip. -->
+<!-- TODO: per-deliverable delivery form — how FlagOS-Coder (model weights),
+     the coverage map, the agents and Workbuddy ship; platform and toolkit
+     requirements per target chip. -->
 
 ## Test Plan
 
