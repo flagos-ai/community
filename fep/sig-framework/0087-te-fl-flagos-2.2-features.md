@@ -86,7 +86,7 @@ cycle:
   (#91, open).
 - Hygon: `multi_tensor_scale_tensor` via transformer_engine_hygon 2.13 (#85);
   library path resolution fallback (#82).
-- KunlunXin: TE-FL backend patch integration (#84, open).
+- KunlunXin: TE-FL backend patch integration (#84).
 - FlagOS backend operators: Triton fused RoPE kernels (#83), layernorm (#72),
   bias support for generic GEMM (#70).
 
@@ -156,7 +156,7 @@ existing workflows (`build.yml`, `attach-wheels-to-release.yml`).
 - [x] flagos-ai/TransformerEngine-FL#85 — hcu: multi_tensor_scale_tensor via transformer_engine_hygon 2.13
 - [x] flagos-ai/TransformerEngine-FL#83 — Add FlagOS Triton fused RoPE kernels
 - [x] flagos-ai/TransformerEngine-FL#79 — [ascend] Native MegatronAdaptor integration
-- [ ] flagos-ai/TransformerEngine-FL#84 — Integrate KunLunXin TE-FL backend patches
+- [x] flagos-ai/TransformerEngine-FL#84 — Integrate KunLunXin TE-FL backend patches
 - [ ] flagos-ai/TransformerEngine-FL#91 — [CICD] Add Ascend NPU unit test support
 
 ## Implementation History
