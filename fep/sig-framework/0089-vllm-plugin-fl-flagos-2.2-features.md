@@ -63,8 +63,8 @@ this cycle adds operator-granularity auto-tuning.
   <!-- TODO: name the 5 committed vendors. -->
 - **G3 (Empty mode support):** The plugin runs against a device-less vLLM
   build ("empty" platform), providing the missing device pieces itself —
-  e.g. avoiding `vllm._C` dependencies (#325) and falling back to Triton
-  cache ops when vLLM C extensions are absent (#319).
+  e.g. routing cache ops through the flag_gems dispatch layer instead of
+  vLLM's compiled C extensions (#333, open).
 - **G4 (Operator auto-tuning):** Operator-granularity automatic selection of
   the best implementation per hardware platform through the dispatch layer's
   policy mechanism.
@@ -96,7 +96,8 @@ Representative work already on main or in flight this cycle:
 - Ascend: vLLM upgraded to 0.20.2 (#307); Qwen3.6 baseline optimization
   (#301, open).
 - MetaX: CI workflow (#304); MoE optimizations and contiguous prefill (#320,
-  open); Empty-build fixes (#325, #319, open).
+  open); flag_gems-dispatch cache-op routing for builds without vLLM C
+  extensions (#333, open).
 - Moore Threads: MTT S5000 adaptation for vLLM 0.24.0 (#308, open) + S5000 CI
   (#314, open).
 - Iluvatar: BI-V150 adaptation for vLLM 0.24.0 (#310, open).
@@ -112,8 +113,8 @@ vLLM's Empty build compiles the framework without a device backend; the
 plugin then supplies platform detection, operators (FlagGems / vendor), and
 communication (FlagCX) — so all vendors consume the same vLLM wheel instead
 of per-vendor forks. Work involves removing the plugin's residual
-assumptions that vLLM's compiled C extensions exist (#325, #319) and
-validating the empty path per vendor on the 0.24.0 track.
+assumptions that vLLM's compiled C extensions exist (#333) and validating
+the empty path per vendor on the 0.24.0 track.
 
 <!-- TODO (design): how the empty platform is registered/selected, the
      definitive list of vLLM C-extension call sites the plugin must replace,
@@ -167,8 +168,7 @@ per-vendor CI workflows).
 - [x] flagos-ai/vllm-plugin-FL#311 — [CICD] Add Hygon CI image workflow
 - [ ] flagos-ai/vllm-plugin-FL#308 — adapt(musa): MTT S5000 backend adaptation for vLLM 0.24.0
 - [ ] flagos-ai/vllm-plugin-FL#310 — adapt(iluvatar): BI-V150 backend adaptation for vLLM 0.24.0
-- [ ] flagos-ai/vllm-plugin-FL#325 — fix(metax): avoid vllm._C dependency in activation ops for empty builds
-- [ ] flagos-ai/vllm-plugin-FL#319 — fix(metax): fall back to Triton cache ops when vllm C extensions are missing
+- [ ] flagos-ai/vllm-plugin-FL#333 — feat(metax): route reshape_and_cache_flash through flag_gems dispatch
 - [ ] flagos-ai/vllm-plugin-FL#322 — WIP: Add PPU-native DeepGEMM BF16 unquantized MoE
 
 ## Implementation History
