@@ -187,7 +187,7 @@ golden values), and the multi-platform CI workflows.
 - [x] flagos-ai/Megatron-LM-FL#68 — Native Integration of MegatronAdaptor (Ascend)
 - [ ] flagos-ai/Megatron-LM-FL#57 — Add context parallel support for dsv4 sparse attention
 - [ ] flagos-ai/Megatron-LM-FL#69 — Support models with DSA structure (GLM5/5.1/5.2)
-- [ ] flagos-ai/Megatron-LM-FL#86 — Add fused DSA kernel for sm90
+- [x] flagos-ai/Megatron-LM-FL#86 — Add fused DSA kernel for sm90
 - [ ] flagos-ai/Megatron-LM-FL#88 — Add support for FlashSparseAttention
 
 ## Implementation History
