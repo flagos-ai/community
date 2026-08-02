@@ -200,8 +200,8 @@ workflow #32).
 - [x] flagos-ai/PyTorch-Plugin-FL#30 — Missing base collectives + FlagCX plain-signature fallback
 - [x] flagos-ai/PyTorch-Plugin-FL#34 — FlagCX distributed path on MetaX
 - [x] flagos-ai/PyTorch-Plugin-FL#24 — Full FlagGems routing consistency tests + main_ops CI subset
-- [ ] flagos-ai/PyTorch-Plugin-FL#36 — FlagGems factory device index (all backends) + DCU comm vendor routing
-- [ ] flagos-ai/PyTorch-Plugin-FL#37 — feat(metax): real device Event + pin_memory in `_to_copy`
+- [x] flagos-ai/PyTorch-Plugin-FL#36 — FlagGems factory device index (all backends) + DCU comm vendor routing
+- [x] flagos-ai/PyTorch-Plugin-FL#37 — feat(metax): real device Event + pin_memory in `_to_copy`
 
 ## Implementation History
 
