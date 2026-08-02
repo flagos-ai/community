@@ -89,16 +89,17 @@ downstream fork:
 
 ### Track 1: FlagOSTune (ML-predicted AutoTune)
 
-The FlagTree autotuner (`python/triton/runtime/autotuner.py`, extended on the
-`optimize_autotuner_20260119*` branch family) already carries FlagTree-specific
-additions over stock Triton:
+Stock Triton's autotuner already exposes a `perf_model` hook
+(`prune_configs_by["perf_model"]`) that predicts a config's running time and
+prunes the search space before measurement, but ships no model for it. The
+FlagTree autotuner (`python/triton/runtime/autotuner.py`, extended on the
+`optimize_autotuner_20260119*` branch family) adds FlagTree-specific
+enhancements on top:
 
-- a `perf_model` hook that predicts a config's running time and prunes the
-  search space (`prune_configs_by["perf_model"]`, applied in the config
-  pruning path);
 - tuned-meta deduplication (`seen_tuned_metas`) so identical metas are not
   re-tuned;
-- dependency-analysis-driven auto-pairing of tuning parameters.
+- dependency-analysis-driven auto-pairing of tuning parameters
+  (`dep_analyzer.analyze_kernel_dependencies`).
 
 FlagOSTune is the machine-learning realization of the `perf_model` hook: a
 trained predictor that ranks or filters candidate configurations from
