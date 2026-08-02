@@ -87,9 +87,9 @@ first-class FlagOS component.
   weight-only in this release; only the MSE method is accepted by the
   recipe schema).
 - Activation quantization (W4A16 means activations stay 16-bit).
-- INT8 weight quantization — in progress (#3) but not part of the first
+- INT8 weight quantization — merged on main (#3) but not part of the first
   release's acceptance.
-  <!-- TODO: confirm whether INT8 lands in 2.2 or the next cycle. -->
+  <!-- TODO: confirm whether INT8 is accepted in 2.2 or the next cycle. -->
 
 ## Proposal
 
@@ -147,7 +147,7 @@ modules, so new formats/methods extend without core changes.
 
 - [x] flagos-ai/FlagOS-Compressor#1 — feat: bootstrap FlagCompressor — safetensors weight-format conversion with BF16 dequant and policy-driven INT4 quantization
 - [x] flagos-ai/FlagOS-Compressor#2 — feat: support fused MoE INT4 packing and compressed-tensors output
-- [ ] flagos-ai/FlagOS-Compressor#3 — feat(quantization): add INT8 weight quantization
+- [x] flagos-ai/FlagOS-Compressor#3 — feat(quantization): add INT8 weight quantization
 
 ## Implementation History
 
