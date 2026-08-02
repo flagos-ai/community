@@ -34,9 +34,9 @@ Repository: https://github.com/flagos-ai/FlagTree
 ## Motivation
 
 FlagTree integrates many AI-chip backends into one repository (FEP-0013).
-Today's backends already span NVIDIA, AMD, Cambricon, HCU, Iluvatar, MetaX,
-Moore Threads, Kunlunxin (XPU), Enflame, Thrive, Sunrise, and RPU (visible under
-`third_party/` and in the per-backend CI workflows). Scaling this to more
+Today's backends already span NVIDIA, AMD, HCU, Iluvatar, MetaX,
+Moore Threads, Kunlunxin (XPU), Enflame, Thrive, Sunrise, RPU, and TileIR
+(visible under `third_party/` and in the per-backend CI workflows). Scaling this to more
 backends and Triton versions raises two structural problems and one process
 problem:
 
@@ -98,11 +98,13 @@ before the backend code lands. On the CI branch
 branch currently holds `amd, enflame, f2reduce, hcu, mthreads, nvidia, proton,
 rpu, thrive, tle`.
 
-The new backend code for 2.2 — the TileIR lowering (NVIDIA and Moore
-Threads), the T-Head 3.6 backend, and the Enflame 3.7 backend — is not yet in
-tree; the `tileir3.6` CI workflows exist but no `tileir` backend directory does.
-Each new backend is added under `third_party/<backend>/` following the unified
-specialization conventions in Track 2.
+Of the new backend code for 2.2, the TileIR backend skeleton is already on
+`main` under `third_party/tileir/` (landed with flagos-ai/FlagTree#739,
+alongside the `tileir3.6-*` CI workflows); the 2.2 work there is completing
+the TileIR lowering and the Moore Threads path on top of it. The T-Head 3.6
+backend and the Enflame 3.7 backend are not yet in tree. Each new backend is
+added under `third_party/<backend>/` following the unified specialization
+conventions in Track 2.
 
 <!-- TODO (design): per backend — target Triton branch, dependency on TileIR
      lowering, and whether it reuses an existing backend's codegen. -->
@@ -228,7 +230,7 @@ MAX_JOBS=32 python3 -m pip install . --no-build-isolation
 - [ ] FlagTree — Moore Threads spec-path migration (`feat/mthreads-spec-path-third-party.*`)
 - [ ] FlagTree — Iluvatar python specialization (`refactor/iluvatar-python-specialization`)
 - [ ] FlagTree — FlagGems CI gate (`triton_v3.6_test_flagGems`, `addflaggemstest`)
-- [ ] FlagTree — TileIR / T-Head / Enflame 3.7 backends (not yet in tree)
+- [ ] FlagTree — TileIR backend completion (`third_party/tileir`, landed via flagos-ai/FlagTree#739); T-Head 3.6 / Enflame 3.7 backends (not yet in tree)
 
 ## Implementation History
 
@@ -236,6 +238,7 @@ MAX_JOBS=32 python3 -m pip install . --no-build-isolation
   unified specialization mechanism (`flagtree_spec.py` `__path__` hijack +
   `FLAGTREE_BACKEND`, C++ include-hijack + CMake auto-scan) and CI scaffolding
   for new backends (`tileir3.6-*`, FlagGems-test branches) exist on feature
-  branches; the four new backend implementations, the full backend migration on
-  `main`/3.7, and the CI gates are the remaining 2.2 work. Owner and per-track
+  branches, and the TileIR backend skeleton is on `main` (FlagTree#739);
+  completing the four new backends, the full backend migration on `main`/3.7,
+  and the CI gates are the remaining 2.2 work. Owner and per-track
   acceptance scope pending fill-in before FEP Freeze.
