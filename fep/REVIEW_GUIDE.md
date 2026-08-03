@@ -58,9 +58,26 @@ Approvers reviewing a FEP should check each item against the following checklist
 - [ ] **Is the documentation plan clear?** Does the Packaging section specify build and distribution methods?
 - [ ] **Is the license compatible?** If new dependencies are introduced, are the licenses compatible?
 
+### F. What Reviewers Do Not Do
+
+- **Do not fill in `Target Version` or `Related PRs`** — both are the FEP Owner's declarations. Comment if they look wrong; leave the edit to the Owner.
+- **Do not require `Implementable` before merge** — FEPs merge at `Provisional` once the (Required) sections are in place and the direction is agreed. Design completeness is a follow-up PR, not a merge gate.
+- **Do not flag release-timeline risk in design reviews** — the Feature Freeze governs FEP merge and code submission; whether an Owner can make the date is the Owner's and Release Manager's call.
+
 ---
 
-## 3. Review Opinion Types
+## 3. Merge Checklist
+
+When approving a FEP for merge, the merging Approver:
+
+1. Confirms the file is renamed `NNNN-title-slug.md` (NNNN = PR number) and the title reads `FEP-NNNN`
+2. Confirms PR labels: `FEP` + `sig/*` (or `wg/*`); if the FEP targets a release, `target/X.Y` matching the doc's `Target Version`. This is the last point where the target label is set freely — after merge it changes only through the Release Manager ([Labels](README.md#labels))
+3. Squash-merges with the PR title as the commit subject and an empty body
+4. Creates the tracking issue: `[FEP-XXXX] <title> tracking`, labeled `FEP` + `sig/*`, assigned to the FEP Owner, attached to the release Milestone (no `target/*` label on the issue)
+
+---
+
+## 4. Review Opinion Types
 
 | Opinion Type | Meaning | When to Use |
 |--------------|---------|-------------|
@@ -71,7 +88,7 @@ Approvers reviewing a FEP should check each item against the following checklist
 
 ---
 
-## 4. Common Rejection Reasons
+## 5. Common Rejection Reasons
 
 Below are the most common reasons a FEP is rejected or requires significant revision. Approvers should clearly call these out in their review when encountered:
 
@@ -86,7 +103,7 @@ Below are the most common reasons a FEP is rejected or requires significant revi
 
 ---
 
-## 5. Special Process for Cross-SIG FEPs
+## 6. Special Process for Cross-SIG FEPs
 
 When a FEP involves ≥2 SIGs:
 
@@ -117,7 +134,7 @@ Please complete your review by YYYY-MM-DD. If you have objections, please state 
 
 ---
 
-## 6. Urgent FEP Channel
+## 7. Urgent FEP Channel
 
 Emergency situations such as security patches, critical bug fixes, or CI blockers may use the fast-track channel:
 
@@ -128,7 +145,7 @@ Emergency situations such as security patches, critical bug fixes, or CI blocker
 
 ---
 
-## 7. Approver Code of Conduct
+## 8. Approver Code of Conduct
 
 - **Response time**: Initial feedback must be provided within 2 weeks of receiving a review request. If no feedback is given beyond 2 weeks, the Chair may reassign
 - **Constructiveness**: When rejecting, you must provide reasons and alternatives. A review that only says "no" provides no value
