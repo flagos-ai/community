@@ -9,7 +9,7 @@
 
 | Date | Event | What it means |
 |------|-------|---------------|
-| **2026-08-31** | **Feature Freeze** | FEPs targeting 2.2 must be merged, and their implementation code submitted in the module repositories. After this date: acceptance testing, bug fixes, tuning, and FEP doc updates only — no new FEPs into 2.2, no new feature code. |
+| **2026-08-31** | **Feature Freeze** | FEPs targeting 2.2 must be merged, and their implementation code submitted in the module repositories. After this date: acceptance testing, bug fixes, tuning, and FEP doc updates only — no new FEPs into 2.2, no new 2.2 feature code. Feature work for later releases continues on `main`. |
 | 2026-09-01 → 09-24 | **Testing & stabilization** | Testing runs against each FEP's Test Plan (multi-chip matrix). Only bug fixes land; no new features. |
 | **2026-09-28** | **Release** | FlagOS 2.2 GA. FEPs with acceptance criteria met flip Status to `Implemented`. |
 
@@ -17,7 +17,7 @@
 
 ## Freeze rules
 
-- **In or out**: a FEP is in 2.2 once its PR is merged with the `target/2.2` label ([FEP lifecycle](../../fep/README.md#fep-lifecycle)). The freeze closes both doors at once — FEP merge and feature code.
+- **In or out**: a FEP is in 2.2 once its PR is merged with the `target/2.2` label ([FEP lifecycle](../../fep/README.md#fep-lifecycle)). The freeze closes both 2.2 doors at once — FEP merge and 2.2 feature code.
 - **Missed the freeze?** The FEP retargets the next release: `Deferred`, tracking issue re-milestoned, `target/2.2` label swapped.
 - **Exception**: security patches, critical bug fixes, and CI blockers may use the `[URGENT]` fast-track channel defined in the [FEP Review Guide](../../fep/REVIEW_GUIDE.md#7-urgent-fep-channel), subject to TSC approval.
 - **Graduation**: `Implemented` requires an executable Test Plan (commands + environment + expected results, multi-chip scenarios covered) passed during the testing window. A merged FEP whose acceptance fails partially keeps Status `Implementable`, with a follow-up acceptance issue on the milestone.

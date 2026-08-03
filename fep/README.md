@@ -141,7 +141,7 @@ impacted by the feature should also review. If no existing SIG fits, use `sig-ar
 - Track related PRs in the `Related PRs` section of the FEP doc
 - Check off progress and attach acceptance evidence (environment, logs, metrics) in the tracking issue
 - Update the FEP doc via follow-up PRs: fill design TODOs, then raise Status to `Implementable`
-- After Feature Freeze: acceptance testing, bug fixes, tuning, and FEP doc updates only — no new feature code
+- After Feature Freeze: acceptance testing, bug fixes, tuning, and FEP doc updates only — no new feature code for that release; feature work for later releases continues on `main`
 
 ### 5. Wrap Up
 
@@ -180,11 +180,11 @@ A FEP's path through a release is carried by two artifacts — the FEP **PR** (d
 |-------|---------|--------|------|
 | `FEP` | FEP PR and tracking issue | Author / merger | On creation |
 | `sig/*`, `wg/*` | FEP PR and tracking issue | Author / merger | On creation |
-| `target/X.Y` | **FEP PR only** | FEP Owner | When declaring the target release; swapped on `Deferred` |
+| `target/X.Y` | **FEP PR only** | Owner (before merge) / Release Manager (after merge) | On declaring the target release; post-merge changes only per the rules below |
 
 Release identity is carried once per artifact: the `target/*` label on the PR, the milestone on the tracking issue. Do not add version labels to tracking issues, and do not attach FEP PRs to milestones.
 
-**`target/*` changes on a merged PR go through the Release Manager only**, in one of two cases: retargeting on `Deferred`, or entering a release after merge when the Owner declares a `Target Version` via follow-up PR. In both cases the tracking issue's milestone is updated in the same step — the follow-up PR and the milestone change are the audit record. Adding a `target/*` label to a merged PR by itself does not put the FEP into a release.
+**`target/*` changes on a merged PR go through the Release Manager only**, in one of two cases: retargeting on `Deferred`, or entering a release after merge when the Owner declares a `Target Version` via follow-up PR — the latter only before that release's Feature Freeze; after the freeze the only way in is the `[URGENT]` channel ([Review Guide](REVIEW_GUIDE.md#7-urgent-fep-channel)). In both cases the tracking issue's milestone is updated in the same step — the follow-up PR and the milestone change are the audit record. Adding a `target/*` label to a merged PR by itself does not put the FEP into a release.
 
 ### Milestone
 

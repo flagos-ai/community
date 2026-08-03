@@ -135,7 +135,7 @@ FEP PR 带着某版本的 `target/X.Y` 标签合入，即**进入该版本**。�
 - 在 FEP 文档的 `Related PRs` 章节中追踪相关 PR
 - 在 tracking issue 中勾选进度、附验收凭据（环境、日志、指标）
 - 通过后续 PR 更新 FEP 文档：补齐设计 TODO，然后将 Status 升为 `Implementable`
-- 特性冻结后：只做验收测试、bug 修复、调优和 FEP 文档更新，不再进新特性代码
+- 特性冻结后：只做验收测试、bug 修复、调优和 FEP 文档更新，不再进该版本的新特性代码；后续版本的特性开发在 `main` 上继续
 
 ### 5. 收尾
 
@@ -174,11 +174,11 @@ FEP PR 带着某版本的 `target/X.Y` 标签合入，即**进入该版本**。�
 |------|--------|------|------|
 | `FEP` | FEP PR 和 tracking issue | 作者 / 合入者 | 创建时 |
 | `sig/*`, `wg/*` | FEP PR 和 tracking issue | 作者 / 合入者 | 创建时 |
-| `target/X.Y` | **仅 FEP PR** | FEP Owner | 申报目标版本时；`Deferred` 时更换 |
+| `target/X.Y` | **仅 FEP PR** | 合入前 Owner / 合入后 Release Manager | 申报目标版本时；合入后的变更仅按下述规则执行 |
 
 每个载体的版本归属只记一处：PR 用 `target/*` 标签，tracking issue 用 milestone。不要给 tracking issue 打版本标签，也不要把 FEP PR 挂到 milestone。
 
-**已合入 PR 的 `target/*` 变更只能由 Release Manager 执行**，且仅限两种情形：`Deferred` 顺延换标，或合入后 Owner 通过后续 PR 申报 `Target Version` 补充进入某版本。两种情形都必须在同一步同步 tracking issue 的 milestone——后续 PR 和 milestone 变更即审计记录。单独给已合入 PR 补打 `target/*` 标签不构成进入版本。
+**已合入 PR 的 `target/*` 变更只能由 Release Manager 执行**，且仅限两种情形：`Deferred` 顺延换标，或合入后 Owner 通过后续 PR 申报 `Target Version` 补充进入某版本——后者仅允许在该版本特性冻结之前；冻结后进入该版本只能走 `[URGENT]` 通道（[评审指南](REVIEW_GUIDE.md#7-urgent-fep-channel)）。两种情形都必须在同一步同步 tracking issue 的 milestone——后续 PR 和 milestone 变更即审计记录。单独给已合入 PR 补打 `target/*` 标签不构成进入版本。
 
 ### Milestone
 
