@@ -9,20 +9,21 @@
 
 | Date | Event | What it means |
 |------|-------|---------------|
-| **2026-08-14** | **FEP Freeze** | FEPs targeting 2.2 must be approved (`Implementable`) and merged, with a complete Test Plan. After this date, no new FEPs are attached to the 2.2 milestone — late FEPs move to the next release. |
-| **2026-08-31** | **Code Freeze** | All implementation PRs tracked by 2.2 FEPs must be merged in their module repositories. |
+| **2026-08-31** | **Feature Freeze** | FEPs targeting 2.2 must be merged, and their implementation code submitted in the module repositories. After this date: acceptance testing, bug fixes, tuning, and FEP doc updates only — no new FEPs into 2.2, no new 2.2 feature code. Feature work for later releases continues on `main`. |
 | 2026-09-01 → 09-24 | **Testing & stabilization** | Testing runs against each FEP's Test Plan (multi-chip matrix). Only bug fixes land; no new features. |
 | **2026-09-28** | **Release** | FlagOS 2.2 GA. FEPs with acceptance criteria met flip Status to `Implemented`. |
 
+> **Recommended submission cutoff: 2026-08-17.** Approver initial feedback takes up to 2 weeks ([Review Guide](../../fep/REVIEW_GUIDE.md#8-approver-code-of-conduct)); FEP PRs opened later may not complete review before the freeze.
+
 ## Freeze rules
 
-- **Gate**: attachment to the [2.2 milestone](https://github.com/flagos-ai/community/milestone/2) is the tracking mechanism. The Release Manager stops attaching new FEPs after FEP Freeze.
-- **Missed the freeze?** The FEP retargets the next release (`Deferred` if previously targeted 2.2), per the [FEP lifecycle](../../fep/README.md#fep-lifecycle).
-- **Exception**: security patches, critical bug fixes, and CI blockers may use the `[URGENT]` fast-track channel defined in the [FEP Review Guide](../../fep/REVIEW_GUIDE.md#6-urgent-fep-channel), subject to TSC approval.
-- **Test Plan requirement**: a FEP is not `Implementable` without an executable Test Plan (commands + environment + expected results, multi-chip scenarios covered) — this is what the testing window runs against.
+- **In or out**: a FEP is in 2.2 once its PR is merged with the `target/2.2` label ([FEP lifecycle](../../fep/README.md#fep-lifecycle)). The freeze closes both 2.2 doors at once — FEP merge and 2.2 feature code.
+- **Missed the freeze?** The FEP retargets the next release: `Deferred`, tracking issue re-milestoned, `target/2.2` label swapped.
+- **Exception**: security patches, critical bug fixes, and CI blockers may use the `[URGENT]` fast-track channel defined in the [FEP Review Guide](../../fep/REVIEW_GUIDE.md#7-urgent-fep-channel), subject to TSC approval.
+- **Graduation**: `Implemented` requires an executable Test Plan (commands + environment + expected results, multi-chip scenarios covered) passed during the testing window. A merged FEP whose acceptance fails partially keeps Status `Implementable`, with a follow-up acceptance issue on the milestone.
 
 ## Roles
 
-- **FEP Owners**: set `Target Version: FlagOS 2.2` in your FEP before FEP Freeze and drive implementation before Code Freeze.
-- **Release Manager**: enforces milestone attachment cut-off, tracks progress via the milestone view, runs Go/No-Go per the [release process](../README.md); **at FEP Freeze, compiles the 2.2 test matrix** — links to every attached FEP's Test Plan — into [tracking issue #47](https://github.com/flagos-ai/community/issues/47) for the testing window.
+- **FEP Owners**: get your FEP merged and implementation code submitted before Feature Freeze; drive acceptance during the testing window.
+- **Release Manager**: maintains the 2.2 test matrix in [tracking issue #47](https://github.com/flagos-ai/community/issues/47) — a row added per FEP as its tracking issue is created, final snapshot at Feature Freeze; tracks progress via the milestone view; runs Go/No-Go per the [release process](../README.md).
 - **SIG Approvers / TSC**: complete FEP reviews in time for authors to meet the freeze (initial feedback within 2 weeks per the Review Guide).

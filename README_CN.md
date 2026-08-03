@@ -29,11 +29,11 @@ FlagOS 是一个统一的、开源的 AI 系统软件栈，专为多芯片场景
 
 | 我想… | 角色 | 从这里开始 |
 |-------|------|-----------|
-| **提交新特性**(跨模块、新芯片、新仓库) | 特性开发者 / FEP Owner | [FEP 流程](fep/README_CN.md) → [编写指引](contributors/fep-guide.md) → 注意 [**2.2 FEP 冻结:2026-08-14**](release/2.2/schedule_CN.md) |
+| **提交新特性**(跨模块、新芯片、新仓库) | 特性开发者 / FEP Owner | [FEP 流程](fep/README_CN.md) → [编写指引](contributors/fep-guide.md) → 注意 [**2.2 特性冻结:2026-08-31**](release/2.2/schedule_CN.md) |
 | **让我的芯片接入** FlagOS | 芯片厂商 | [芯片厂商指南](contributors/chip-vendor-guide.md) → 范例 [FEP-0033(SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
 | **修 bug / 提小 PR** | 代码贡献者 | [CONTRIBUTING.md](CONTRIBUTING_CN.md) → 目标仓库自己的 `CONTRIBUTING.md` |
 | **评审 FEP** | SIG Approver / TSC | [评审指南](fep/REVIEW_GUIDE.md) → [FEP Tracker 看板](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |
-| **参与版本测试** | 测试者 / QA | [2.2 时间表](release/2.2/schedule_CN.md) → [追踪 issue #47](https://github.com/flagos-ai/community/issues/47)(测试矩阵在 FEP 冻结日汇编) |
+| **参与版本测试** | 测试者 / QA | [2.2 时间表](release/2.2/schedule_CN.md) → [追踪 issue #47](https://github.com/flagos-ai/community/issues/47)(测试矩阵按 FEP 滚动维护,特性冻结日定稿) |
 | **了解版本进度** | Release Manager / 任何人 | [🚩 版本追踪](fep/README_CN.md#-版本追踪-release-tracker) · [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
 | **加入或创建 SIG** | 新成员 / 组织 | [sigs/](sigs/) → [角色定义](contributors/roles_CN.md) |
 | **了解治理机制** | 所有人 | [GOVERNANCE.md](GOVERNANCE_CN.md) · [MAINTAINERS.md](MAINTAINERS.md) |
@@ -48,11 +48,11 @@ flowchart LR
         P[Provisional] --> IA[Implementable] --> IM[Implemented]
     end
     subgraph Cycle["版本周期(每个版本循环一次)"]
-        S[提交与评审] --> FF[FEP 冻结] --> CF[代码冻结] --> T[测试期] --> R[发布]
+        S[提交与评审] --> FF[特性冻结] --> T[测试期] --> R[发布]
     end
     P -.作者撰写.-> S
-    IA -.冻结前须批准.-> FF
-    CF -.实现合入各模块仓库.-> T
+    P -.带 target 标签合入即进入版本.-> FF
+    FF -.实现代码已提交.-> T
     IM -.发布时验收达成.-> R
 
     OW([FEP Owner]):::role -.负责.-> P
@@ -63,8 +63,8 @@ flowchart LR
 ```
 
 - **FEP Owner**:推动提案从 `Provisional` 走到 `Implemented`,并申报 `Target Version`。
-- **SIG Approver / TSC**:评审设计,批准至 `Implementable`(要求 Test Plan 完整)。
-- **Release Manager**:执行冻结日期,通过 milestone 追踪进度。
+- **SIG Approver / TSC**:评审设计;FEP 以 `Provisional` 状态合入,设计完整后升 `Implementable`。
+- **Release Manager**:执行特性冻结,通过 milestone 追踪进度。
 - **测试者**:在测试期依据各 FEP 的 Test Plan 验证已合入的功能。
 
 完整规则:[FEP 生命周期](fep/README_CN.md#fep-生命周期)。当前周期的具体日期见:[release/2.2/schedule_CN.md](release/2.2/schedule_CN.md)。

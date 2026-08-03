@@ -60,21 +60,23 @@ Ways to do this:
 
 1. Open a Draft PR (if further discussion is needed) or a regular PR (if already well-discussed)
 2. The PR title should describe the feature; the PR description can be brief — the FEP document itself carries the details
-3. To target a release, set `Target Version: FlagOS X.Y` in the FEP header — on merge, a tracking issue (`[FEP-XXXX] <title> tracking`) is created and attached to the corresponding Milestone (mind the [FEP Freeze date](../release/2.2/schedule.md))
+3. Label the PR `FEP` + `sig/*` (or `wg/*`)
+4. To target a release, set `Target Version: FlagOS X.Y` in the FEP header and add the `target/X.Y` label. Merging before the release's Feature Freeze puts the FEP into that release; on merge, a tracking issue (`[FEP-XXXX] <title> tracking`) is created and attached to the corresponding Milestone. Dates: `release/X.Y/schedule.md`
 
 ## Step 5: Drive the Approval
 
 - The SIG Approver (or the TSC during the bootstrap phase) will provide initial feedback within 2 weeks
 - Actively respond to review comments and update the document
 - If multiple SIGs are involved, an Approver from each relevant SIG must approve
-- Once approved, update Status to `Implementable` and merge the PR
+- FEPs merge at `Provisional` once the (Required) sections are in place and the SIG agrees on direction; `Implementable` is raised later via follow-up PR when the design is complete
 
 ## Step 6: Implement & Wrap Up
 
-- Implement the feature in the relevant repos
+- Implement the feature in the relevant repos; implementation code must be submitted by the release's Feature Freeze
 - Track implementation PRs in the FEP document's Related PRs section
-- Check off progress in the FEP's tracking issue as items land
-- Once everything is complete, update Status to `Implemented`
+- Check off progress and attach acceptance evidence (environment, logs, metrics) in the FEP's tracking issue
+- Once acceptance passes, update Status to `Implemented` and close the tracking issue
+- Missed the freeze: the FEP is `Deferred` to the next release — tracking issue re-milestoned, `target/*` label swapped
 
 ## FEP Status Transitions
 
@@ -87,8 +89,8 @@ Provisional ──→ Implementable ──→ Implemented
 
 | Status | Meaning |
 |--------|---------|
-| Provisional | Draft, under discussion within the SIG |
-| Implementable | Design approved, ready to begin implementation |
+| Provisional | Draft, under discussion within the SIG (FEPs merge at this status) |
+| Implementable | Design complete, Test Plan executable |
 | Implemented | Code merged, acceptance complete |
 | Deferred | Postponed to a later release |
 | Rejected | Will not proceed (PR must still be merged to preserve the decision record) |

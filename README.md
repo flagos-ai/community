@@ -29,11 +29,11 @@ FlagOS is a unified, open-source AI system software stack designed for multi-chi
 
 | I want to… | Role | Start here |
 |------------|------|------------|
-| **Propose a new feature** (cross-module, new chip, new repo) | Feature developer / FEP Owner | [FEP process](fep/README.md) → [authoring guide](contributors/fep-guide.md) → mind the [**2.2 FEP Freeze: 2026-08-14**](release/2.2/schedule.md) |
+| **Propose a new feature** (cross-module, new chip, new repo) | Feature developer / FEP Owner | [FEP process](fep/README.md) → [authoring guide](contributors/fep-guide.md) → mind the [**2.2 Feature Freeze: 2026-08-31**](release/2.2/schedule.md) |
 | **Onboard my chip** to FlagOS | Chip vendor | [Chip vendor guide](contributors/chip-vendor-guide.md) → example [FEP-0033 (SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
 | **Fix a bug / send a small PR** | Code contributor | [CONTRIBUTING.md](CONTRIBUTING.md) → the target repo's own `CONTRIBUTING.md` |
 | **Review FEPs** | SIG Approver / TSC | [Review guide](fep/REVIEW_GUIDE.md) → [FEP Tracker board](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |
-| **Test a release** | Tester / QA | [2.2 schedule](release/2.2/schedule.md) → [tracking issue #47](https://github.com/flagos-ai/community/issues/47) (test matrix compiled at FEP Freeze) |
+| **Test a release** | Tester / QA | [2.2 schedule](release/2.2/schedule.md) → [tracking issue #47](https://github.com/flagos-ai/community/issues/47) (test matrix maintained per FEP, finalized at Feature Freeze) |
 | **Track release progress** | Release Manager / anyone | [🚩 Release Tracker](fep/README.md#-release-tracker) · [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
 | **Join or start a SIG** | New member / org | [sigs/](sigs/) → [roles](contributors/roles.md) |
 | **Understand governance** | Everyone | [GOVERNANCE.md](GOVERNANCE.md) · [MAINTAINERS.md](MAINTAINERS.md) |
@@ -48,11 +48,11 @@ flowchart LR
         P[Provisional] --> IA[Implementable] --> IM[Implemented]
     end
     subgraph Cycle["Release cycle (repeats every version)"]
-        S[Submit and review] --> FF[FEP Freeze] --> CF[Code Freeze] --> T[Testing window] --> R[Release]
+        S[Submit and review] --> FF[Feature Freeze] --> T[Testing window] --> R[Release]
     end
     P -.author writes.-> S
-    IA -.approved by FEP Freeze.-> FF
-    CF -.implementation merged in module repos.-> T
+    P -.merged with target label = in the release.-> FF
+    FF -.implementation code submitted.-> T
     IM -.acceptance met at release.-> R
 
     OW([FEP Owner]):::role -.owns.-> P
@@ -63,8 +63,8 @@ flowchart LR
 ```
 
 - **FEP Owner** drives a proposal from `Provisional` to `Implemented`, and declares its `Target Version`.
-- **SIG Approver / TSC** reviews the design and approves it to `Implementable` (with a complete Test Plan).
-- **Release Manager** enforces the freeze dates and tracks progress via the milestone.
+- **SIG Approver / TSC** reviews the design; FEPs merge at `Provisional`, and `Implementable` follows when the design is complete.
+- **Release Manager** enforces the Feature Freeze and tracks progress via the milestone.
 - **Tester** validates each merged FEP against its Test Plan during the testing window.
 
 Full rules: [FEP lifecycle](fep/README.md#fep-lifecycle). Concrete dates for the current cycle: [release/2.2/schedule.md](release/2.2/schedule.md).
