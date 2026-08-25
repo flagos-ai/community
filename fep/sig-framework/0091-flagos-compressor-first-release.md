@@ -14,7 +14,7 @@
 
 ## Summary
 
-**(Required)** This FEP proposes the first release (v0.1.0) of
+This FEP proposes the first release (v0.1.0) of
 FlagOS-Compressor, the FlagOS weight-format conversion and quantization
 tool, in the FlagOS 2.2 cycle. The tool reads a local HuggingFace sharded
 `safetensors` model directory and writes a new model directory. It covers
@@ -30,7 +30,6 @@ four areas:
 4. `inspect`, `--dry-run`, and `validate` for planning a run and checking
    the output directory before it reaches an inference stack.
 
-The tool was bootstrapped as FlagCompressor and renamed FlagOS-Compressor.
 As a new module and repository, this FEP also serves as the module's
 admission proposal, which the FEP rules require for a new repository.
 
@@ -38,9 +37,9 @@ Repository: https://github.com/flagos-ai/FlagOS-Compressor
 
 Release branch for 2.2 acceptance:
 https://github.com/flagos-ai/FlagOS-Compressor/tree/release/v0.1.0
-(cut at commit `eecf2fa`, 2026-08-04). Everything this FEP claims for 2.2
-is scoped to that branch. `main` has since taken calibrated quantization
-work (PR #6) that is outside this release; see Non-Goals.
+(cut at commit `eecf2fa`, 2026-08-04). This FEP is scoped to that branch.
+`main` has since taken calibrated quantization work (PR #6) that is outside
+this release; see Non-Goals.
 
 ## Motivation
 
@@ -54,13 +53,10 @@ stacks already read.
 Module-level control matters because routed experts, shared experts,
 attention projections, and dense MLP weights differ both in sensitivity and
 in kernel availability. A run often needs to quantize routed experts while
-leaving attention in BF16, or the reverse. One-shot conversion scripts do
-not offer that selection, cannot express a mixed-precision product, and
-leave no reproducible record of what was quantized.
+leaving attention in BF16, or the reverse. One-shot conversion scripts do not
+offer that selection and leave no record of what was quantized.
 
 ### Goals
-
-**(Required)**
 
 - **G1 (BF16 dequantization):** MXFP4 (E2M1 + E8M0, 32-value groups) and
   block FP8 (E8M0 scale per padded 128x128 tile) inputs dequantize to BF16;
@@ -134,16 +130,14 @@ A command-line tool, `flagos-compressor`, with four subcommands:
   weights to BF16.
 - `validate --input <dir> [--json]` — check a produced directory.
 
-Input and output must be different directories. A run is expected to go
-`inspect` → `quantize --dry-run` → `quantize` → `validate`, because
-`--dry-run` prints the resolved W/A bit widths, strategy, group size, the
-per-format tensor counts, and the count of scaled byte tensors whose layout
-was not recognized. That count must be zero before a real run; the tool
-refuses to guess an unrecognized layout rather than emitting silently wrong
-weights.
+Input and output must be different directories. A run goes `inspect`,
+`quantize --dry-run`, `quantize`, `validate`. The dry run prints the resolved
+W/A bit widths, strategy, group size, the per-format tensor counts, and the
+count of scaled byte tensors whose layout was not recognized. That count must
+be zero before a real run; an unrecognized layout is refused, not guessed.
 
-Selection safety rules the planner enforces, all of which surface at
-`--dry-run` time:
+Selection rules the planner enforces, all of which surface at `--dry-run`
+time:
 
 - A regex may not split a fused inference unit, and may not select part of
   a routed-expert bank. Either the whole bank is quantized or none of it is.
@@ -179,11 +173,11 @@ editing the planner.
 
 Fused 3D routed-expert banks get their axis order from a `MoeLayout`
 adapter chosen by `config.json` (`model_type`, nested `text_config`
-`model_type`, then `architectures`), not from the tensor name. This is
-deliberate: Qwen3.5-MoE stores `[num_experts, out, in]` while Qwen3-VL-MoE
+`model_type`, then `architectures`), not from the tensor name. Qwen3.5-MoE
+stores `[num_experts, out, in]` while Qwen3-VL-MoE
 stores `[num_experts, in, out]`, and both use the same
-`experts.gate_up_proj` / `experts.down_proj` names. Selecting by name would
-quantize along the wrong axis for one of them, so v0.1.0 registers only the
+`experts.gate_up_proj` / `experts.down_proj` names, so selecting by name would
+quantize along the wrong axis for one of them. v0.1.0 registers only the
 verified Qwen3.5-MoE layout and raises
 `Fused routed-expert quantization is not supported for this model` for
 anything else. On quantization the bank is expanded into standard
@@ -193,7 +187,7 @@ Peak memory during the MSE search is bounded by a group chunk size
 (`--chunk-size`, default 4096 for INT4 and 1024 for INT8) rather than by
 holding a whole layer's candidate set.
 
-Each run writes machine-readable provenance next to the weights:
+Each run writes provenance next to the weights:
 `quantization_manifest.json` (schema `flagos-compressor.provenance.v1`:
 per-tensor format, bit width, strategy, scale name, storage and logical
 shape) and `quantization_report.json` (counts, elapsed time, requested
@@ -246,7 +240,7 @@ driver.
 
 ## Test Plan
 
-**(Required)** The repository carries a `tests/` suite covering the tensor
+The repository carries a `tests/` suite covering the tensor
 classifier, policy and planner, INT4 and INT8 quantization, fused MoE INT4,
 FP4 decoding, recipes, compressed-tensors config, and an end-to-end path:
 
@@ -298,10 +292,9 @@ flagos-compressor validate --input "$OUT/source-bf16"
 Expected result: `inspect` reports the source weights as `fp4_e2m1_e8m0` or
 `fp8_block_e8m0` with `unmatched quantized: 0`; `convert` writes a BF16
 directory plus `conversion_report.json`; `validate` prints `Valid`. On a
-BF16 or FP16 input, `convert` instead fails with
-`No supported FP8/FP4 tensors were found`, which is the correct behavior and
-is recorded as such. Numerical check against a reference dequantization is
-pending the tolerance TODO above.
+BF16 or FP16 input, `convert` is expected to fail with
+`No supported FP8/FP4 tensors were found`. Numerical check against a
+reference dequantization is pending the tolerance TODO above.
 
 ### G2 — INT4 / INT8 export
 
@@ -309,12 +302,12 @@ Feature: W4A16, W8A16 group, W8A16 channel, W8A8. Run on
 `$MODEL_QWEN_DENSE`, varying only the quantization flags:
 
 ```bash
-# W8A16 group-128 — the conservative baseline, generated first
+# W8A16 group-128
 flagos-compressor quantize --input "$MODEL_QWEN_DENSE" \
   --output "$OUT/dense-w8a16-g128" \
   --select linear --bits 8 --strategy group --group-size 128 --backend cuda
 
-# W4A16 group-32 — maximum weight compression
+# W4A16 group-32
 flagos-compressor quantize --input "$MODEL_QWEN_DENSE" \
   --output "$OUT/dense-w4a16-g32" \
   --select linear --bits 4 --strategy group --group-size 32 --backend cuda
@@ -431,14 +424,12 @@ product, the manifest carries expanded
 `experts.<id>.<projection>.weight` and `weight_scale` entries rather than
 fused bank names. A model with a fused 3D expert bank and no registered
 layout must fail before writing weights, with
-`Fused routed-expert quantization is not supported for this model`; that
-guard is not to be bypassed for acceptance.
+`Fused routed-expert quantization is not supported for this model`.
 
 One case applies to any model whose `self_attn` contains an auxiliary
 `indexer` submodule. Its inner weights carry attention-like leaf names, so
-`--select attention` picks them up even though they are not a general
-quantization target. Check whether a candidate model has them, and exclude
-them if so:
+`--select attention` picks them up. Check whether a candidate model has them,
+and exclude them if so:
 
 ```bash
 grep -o 'self_attn\.indexer' "$INPUT/model.safetensors.index.json" | head -1
@@ -480,12 +471,11 @@ versions, whether the log reports the intended scheme, and whether any
 kernel fallback occurred. A BF16 or source-float reference is served on the
 same stack for an accuracy A/B, and peak memory, TTFT, TPOT, and throughput
 are recorded alongside it. Load and accuracy acceptance is planned on
-NVIDIA GPU, PPU, and Hygon DCU; each target is verified independently, since
-a valid product does not imply a kernel exists on a given chip.
+NVIDIA GPU, PPU, and Hygon DCU, each verified independently, since a valid
+product does not imply a kernel exists on a given chip.
 
-A `Valid` product that fails to load is a serving-side result, not a
-product-side one, and is recorded against the stack and chip rather than
-against this FEP's G1–G5.
+A `Valid` product that fails to load is recorded against the stack and chip
+rather than against G1–G5.
 
 <!-- TODO: name the serving stack and version used for the load tests, and
      the accuracy datasets for the A/B, once vllm-plugin-FL's
