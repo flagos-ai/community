@@ -1,10 +1,10 @@
 # FEP-0091: FlagOS-Compressor — Model Quantization Framework (First Release)
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Created:** 2026-07-30
 
-**Owner:** [TODO: @github-username]
+**Owner:** [@rdzhu225](https://github.com/rdzhu225)
 
 **SIG:** sig-framework
 
@@ -511,7 +511,10 @@ included), merged 2026-07-29.
 - 2026-07-14: repository bootstrapped.
 - 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle.
 - 2026-08-04: `release/v0.1.0` cut at commit `eecf2fa`, after PR #5.
+- 2026-08-24: `v0.1.0-rc1` tagged at `eecf2fa`.
 - 2026-08-25: FEP scope aligned to the release branch — INT8, per-channel
   INT8, and dynamic-token W8A8 moved from Non-Goals into G2; calibrated
   methods recorded as out of scope; Test Plan rewritten with the acceptance
   commands and expected results.
+- 2026-08-25: Status raised to `Implementable` — implementation complete on
+  `release/v0.1.0`, acceptance testing ahead.
