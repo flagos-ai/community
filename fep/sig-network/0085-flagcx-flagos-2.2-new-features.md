@@ -21,12 +21,13 @@ release cycle, on top of v0.13.0:
    supported chip backends; extend the FlagCX Device API adaptor interface to
    2 additional domestic chips (Kunlunxin plus one more vendor).
 2. **PD-disaggregation support and optimization for inference** — run
-   prefill-decode disaggregation for GLM5.2 on the T-Head platform with ≥3%
+   prefill-decode disaggregation for GLM5.2 on T-Head and MetaX with ≥3%
    end-to-end gain over the Mooncake TransferEngine baseline, building on the
    P2P Engine introduced in v0.13.0
    ([FEP-0021](0021-flagcx-v0.13.0-new-features.md)).
-3. **Distributed operators** — fused AllGather+GEMM and GEMM+AllReduce
-   operators (FlagTree) on NVIDIA, benchmarked against torch-native.
+3. **Distributed operators** — AllGather and ReduceScatter, plus the fused
+   AllGather+GEMM and GEMM+ReduceScatter operators, targeting intra-node and
+   inter-node performance on par with Triton-distributed.
 
 Repository: https://github.com/flagos-ai/FlagCX
 
@@ -55,35 +56,38 @@ matrix grows to include T-Head and more Device API-capable backends.
   <!-- TODO: name the second vendor once committed, and the Device API
        primitive subset that must pass tests to count as supported. -->
 - **G3 (PD disaggregation):** GLM5.2 prefill-decode disaggregation runs
-  end-to-end on the T-Head platform using the FlagCX P2P Engine as the KV
+  end-to-end on T-Head and MetaX using the FlagCX P2P Engine as the KV
   transfer substrate, with ≥3% end-to-end gain over Mooncake TransferEngine
-  (its default configuration) on the same setup. It currently runs on T-Head
-  at parity with the baseline; the gain comes from the optimization work in
-  this cycle. MetaX is a stretch target: its base platform optimization is
-  not done and GLM does not yet run normally there, so MetaX PD acceptance
-  moves out unless that lands first.
+  (its default configuration) on the same setup.
+  Status 2026-08-24: runs on T-Head at parity with the baseline, with the
+  optimization work for the gain in progress and prioritized there. MetaX
+  is gated on the platform's base optimization, which is not done — GLM
+  does not yet run normally on MetaX, so its acceptance lands later in the
+  cycle.
   <!-- TODO: metric definition for the ≥3% (throughput/TTFT/goodput) and
        workload profile. -->
-- **G4 (Distributed operators):** Fused AllGather+GEMM and GEMM+AllReduce
-  operators in FlagTree (`python/tutorials/tle/raw/nvshmem/02-allgather-gemm`
-  and `03-gemm-allreduce`) on NVIDIA. Both operators are adapted and tested;
-  benchmark harness (`benchmark.py`) times against torch-native as the
-  baseline and reports speedup. The operators build on FlagCX Device API + IR
-  bindings and NVSHMEM; vendor scope is NVIDIA (sm90+).
-  <!-- TODO: Triton-distributed baseline — whether to add a third variant to
-       benchmark.py or run their upstream benchmark separately, and which
-       version/commit. GEMM+ReduceScatter does not exist in FlagTree as of
-       2026-08-25; confirm whether it ships in this cycle or the FEP scope
-       should reflect the two operators that exist (AG+GEMM, GEMM+AR). -->
+- **G4 (Distributed operators):** AllGather and ReduceScatter, plus the
+  fused AllGather+GEMM and GEMM+ReduceScatter operators, with intra-node
+  and inter-node performance on par with Triton-distributed. The operators
+  build on the FlagCX Device API + IR bindings and NVSHMEM; vendor scope
+  this cycle is NVIDIA (sm90+).
+  Status 2026-08-24: adapted on NVIDIA; most scenarios outperform
+  torch-native, and the gap to Triton-distributed is being optimized. In
+  the FlagTree tree today the fused implementations are
+  `python/tutorials/tle/raw/nvshmem/02-allgather-gemm` (with a benchmark
+  harness against torch-native) and `03-gemm-allreduce`.
+  <!-- TODO: code locations for standalone AllGather / ReduceScatter and
+       GEMM+ReduceScatter (not in the FlagTree tree as of 2026-08-25), and
+       the Triton-distributed comparison method — add a variant to
+       benchmark.py or run their upstream benchmark, and which
+       version/commit defines "on par". -->
 
 ### Non-Goals
 
 - Device API CustomAllReduce / IR bindings support on vendors beyond the ones
   named in G2 (tracked per-vendor in future cycles).
-- PD disaggregation on platforms other than T-Head (and MetaX as a stretch)
-  in this cycle.
-- Fused operators beyond AllGather+GEMM and GEMM+AllReduce (e.g. standalone
-  AllGather/ReduceScatter, GEMM+ReduceScatter, AlltoAll+GEMM for MoE).
+- PD disaggregation on platforms other than T-Head and MetaX in this cycle.
+- Fused operators beyond the four listed in G4 (e.g. AlltoAll+GEMM for MoE).
 - Ascend enablement: blocked on a PCI-probe interface issue on the Ascend
   side; not pursued standalone in this cycle, tracked together with the
   sglang-plugin Huawei P0 work, which hits the same problem.
@@ -120,41 +124,50 @@ Builds on the v0.13.0 P2P Engine (one-sided RDMA, vectorized read/write,
 topology-aware NIC selection) and its NIXL integration
 (`plugin/nixl/flagcx_p2p_on_nixl_v1.1.0.patch`). This cycle takes that
 substrate to a production inference scenario: GLM5.2 PD disaggregation on
-T-Head, with 1 prefill + 1 decode instance (8+8 cards) and inter-instance KV
-transfers over the network; the setup runs in containers. Baseline for the
-≥3% gain is Mooncake TransferEngine in its default configuration on the same
-topology. Current state: runs end-to-end on T-Head at roughly baseline
+T-Head and MetaX, with 1 prefill + 1 decode instance (8+8 cards) and
+inter-instance KV transfers over the network; the setup runs in containers.
+Baseline for the ≥3% gain is Mooncake TransferEngine in its default
+configuration on the same topology.
+
+Status 2026-08-24: runs end-to-end on T-Head at roughly baseline
 performance; the optimization work targeting the gain is in progress and is
-prioritized on T-Head. On MetaX, the platform's base optimization is not done
-and GLM does not yet run normally, so MetaX follows later.
+prioritized on T-Head. MetaX waits on the platform's base optimization —
+GLM does not yet run normally there — so its PD acceptance comes later in
+the cycle.
 
 <!-- TODO (design): source of the optimization — transfer overlap, NIC
      selection, noncontiguous KV layout handling, or other. -->
 
 ### Feature 3: Distributed Operators
 
-Fused AllGather+GEMM and GEMM+AllReduce operators in FlagTree
-(`python/tutorials/tle/raw/nvshmem/02-allgather-gemm` and `03-gemm-allreduce`),
-sm90+ only. Both operators are adapted and tested on NVIDIA with a benchmark
-harness that times against torch-native (separate AG, separate GEMM, and the
-fused path) and reports speedup per layer shape. The operators use FlagCX
-Device API + IR bindings and NVSHMEM for intra-node and inter-node transfers.
+Standalone AllGather / ReduceScatter and fused AllGather+GEMM /
+GEMM+ReduceScatter operators, targeting intra-node and inter-node
+performance on par with Triton-distributed. The operators use the FlagCX
+Device API + IR bindings and NVSHMEM for intra-node and inter-node
+transfers; vendor scope this cycle is NVIDIA (sm90+).
 
-Repository: https://github.com/flagos-ai/FlagTree
+Status 2026-08-24: adapted on NVIDIA, with most scenarios outperforming
+torch-native and the gap to Triton-distributed being optimized. What is in
+the FlagTree tree today (https://github.com/flagos-ai/FlagTree, under
+`python/tutorials/tle/raw/nvshmem/`): `02-allgather-gemm` and
+`03-gemm-allreduce`. The AG+GEMM directory carries a benchmark harness:
+it sweeps seven layer shapes (LLaMA-7B / 3.1-8B / 3.1-70B / 3.1-405B,
+Mistral-7B, Qwen2-72B, GPT-3-175B) at M=8192 (configurable via `--M`),
+fp16 or bf16, gates correctness first (`assert_allclose` at
+`atol=1e-3, rtol=1e-3` per rank), then times six variants — fused total,
+AG-only, GEMM-only, on both the FlagTree and torch sides — and
+`--dump_csv` writes `csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup
+per shape. Run:
+`torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (at least 2 GPUs,
+`WORLD_SIZE % LOCAL_WORLD_SIZE == 0`).
 
-The benchmark sweeps seven layer shapes (LLaMA-7B / 3.1-8B / 3.1-70B / 3.1-405B,
-Mistral-7B, Qwen2-72B, GPT-3-175B) at M=8192 (configurable via `--M`), fp16 or
-bf16. Correctness is gated first (`assert_allclose` at `atol=1e-3, rtol=1e-3`
-per rank before timing), then six timing variants run: fused total, AG-only,
-GEMM-only, on both FlagTree and torch sides. `--dump_csv` writes
-`csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup per shape.
-
-Run: `torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (requires at least
-2 GPUs, `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`).
-
-<!-- TODO: Triton-distributed baseline — whether to add a third variant to
-     benchmark.py or run their upstream benchmark separately, and which
-     version/commit. -->
+<!-- TODO:
+     1. Code locations for standalone AllGather / ReduceScatter and for
+        GEMM+ReduceScatter — neither is in the FlagTree tree as of
+        2026-08-25 (03- is GEMM+AllReduce).
+     2. Triton-distributed comparison method — add a third timing variant
+        to benchmark.py or run their upstream benchmark, and which
+        version/commit defines "on par". -->
 
 ## Design Details
 
@@ -207,7 +220,7 @@ make USE_NVIDIA=1 COMPILE_KERNEL=1 -j$(nproc)
 |---|---|
 | T-Head backend | T-Head PPU |
 | Device API adaptor expansion | Kunlunxin + 1 vendor [TODO: name when committed] |
-| PD disaggregation (GLM5.2) | T-Head (MetaX stretch, gated on base optimization) |
+| PD disaggregation (GLM5.2) | T-Head, MetaX (MetaX gated on its base platform optimization) |
 | Distributed operators | NVIDIA |
 
 ## Test Plan
@@ -247,36 +260,42 @@ lands.
 <!-- TODO: per new vendor — build flag, required Device API test binaries
      (test/device_api unit tests, test_allreduce_intranode, ...), hardware. -->
 
-### G3: PD disaggregation (GLM5.2 on T-Head)
+### G3: PD disaggregation (GLM5.2 on T-Head / MetaX)
 
 Acceptance runs on vendor hardware; results (environment, logs, metrics) are
 attached to the tracking issue by the testing party. Topology: 1P+1D, 8+8
-cards, KV transfers over the network, containerized.
+cards, KV transfers over the network, containerized. T-Head is testable now;
+MetaX follows once its base platform optimization lands and GLM runs there.
 
 | Test | Command | Expected result |
 |---|---|---|
 | KV transfer micro-benchmark | `test/perf/kv_transfer/kv_transfer_benchmark.py` on the target platform (connector modes per its README) <!-- TODO: args, expected bandwidth --> | Transfer bandwidth within expected range |
-| E2E PD disaggregation | <!-- TODO: prefill/decode instance launch commands, workload driver, metric collection --> | GLM5.2 serves correctly in PD mode on T-Head; ≥3% gain in [TODO: metric] vs. Mooncake TransferEngine (default) on the same setup |
+| E2E PD disaggregation | <!-- TODO: prefill/decode instance launch commands, workload driver, metric collection --> | GLM5.2 serves correctly in PD mode; ≥3% gain in [TODO: metric] vs. Mooncake TransferEngine (default) on the same setup |
 
 ### G4: Distributed operators
 
-FlagTree `python/tutorials/tle/raw/nvshmem/02-allgather-gemm` and
-`03-gemm-allreduce`, NVIDIA sm90+ only. Benchmark harness
-(`02-allgather-gemm/benchmark.py`) sweeps seven layer shapes (LLaMA-7B /
+Four operators in scope: AllGather, ReduceScatter, AllGather+GEMM,
+GEMM+ReduceScatter; acceptance target is intra-node and inter-node
+performance on par with Triton-distributed. NVIDIA sm90+ this cycle.
+
+The command below is the harness that exists in the FlagTree tree today
+(`02-allgather-gemm/benchmark.py`): it sweeps seven layer shapes (LLaMA-7B /
 3.1-8B / 3.1-70B / 3.1-405B, Mistral-7B, Qwen2-72B, GPT-3-175B) at M=8192
-(configurable via `--M`), fp16 or bf16. Correctness gated first
+(configurable via `--M`), fp16 or bf16, gates correctness first
 (`assert_allclose` at `atol=1e-3, rtol=1e-3` per rank), then times six
 variants: fused total, AG-only, GEMM-only, on both FlagTree and torch sides.
 
 | Test | Command | Expected result |
 |---|---|---|
-| AllGather+GEMM | `cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm && torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (requires ≥2 GPUs, sm90+, `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`) | Correctness passes per rank; FlagTree fused path outperforms torch-native total latency in the covered shapes; csv written to `csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup column |
+| AllGather+GEMM | `cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm && torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (requires ≥2 GPUs, sm90+, `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`) | Correctness passes per rank; fused path outperforms torch-native total latency in the covered shapes; csv written to `csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup column |
+| GEMM+AllReduce | `03-gemm-allreduce` — test command TBD | Correctness passes; latency vs. torch-native recorded |
+| AllGather / ReduceScatter (standalone) | [TODO: code location and command] | Performance on par with Triton-distributed, intra- and inter-node |
+| GEMM+ReduceScatter | [TODO: code location and command] | Performance on par with Triton-distributed, intra- and inter-node |
 
-GEMM+AllReduce operator exists at `03-gemm-allreduce`; test command TBD.
-
-<!-- TODO: Triton-distributed baseline — whether to add a third timing variant
-     to benchmark.py or run their upstream benchmark separately, which
-     version/commit, and what the acceptance gap is. -->
+<!-- TODO: Triton-distributed comparison method — no baseline exists in the
+     tree today; either add a third timing variant to benchmark.py or run
+     their upstream benchmark, fixing the version/commit and the tolerance
+     that counts as "on par". -->
 
 ## Related PRs
 
@@ -297,3 +316,6 @@ GEMM+AllReduce operator exists at `03-gemm-allreduce`; test command TBD.
   Device API PR expected ~09-10; MetaX PD moved to stretch (base platform
   optimization pending); Ascend deferred behind the sglang-plugin Huawei P0.
 - 2026-08-25: FEP updated to the synced scope; Owner set.
+- 2026-08-25: Goals restored to the development-side feature list (PD on
+  T-Head and MetaX; four distributed operators with the Triton-distributed
+  parity target), with the 08-24 status and the open items kept as TODOs.
