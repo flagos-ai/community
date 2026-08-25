@@ -25,9 +25,8 @@ release cycle, on top of v0.13.0:
    end-to-end gain over the Mooncake TransferEngine baseline, building on the
    P2P Engine introduced in v0.13.0
    ([FEP-0021](0021-flagcx-v0.13.0-new-features.md)).
-3. **Distributed operators** — AllGather / ReduceScatter and the fused
-   AllGather+GEMM / GEMM+ReduceScatter operators on NVIDIA, benchmarked
-   against torch-native and Triton-distributed.
+3. **Distributed operators** — fused AllGather+GEMM and GEMM+AllReduce
+   operators (FlagTree) on NVIDIA, benchmarked against torch-native.
 
 Repository: https://github.com/flagos-ai/FlagCX
 
@@ -65,14 +64,17 @@ matrix grows to include T-Head and more Device API-capable backends.
   moves out unless that lands first.
   <!-- TODO: metric definition for the ≥3% (throughput/TTFT/goodput) and
        workload profile. -->
-- **G4 (Distributed operators):** Provide AllGather, ReduceScatter,
-  AllGather+GEMM and GEMM+ReduceScatter operators on NVIDIA (they build on
-  the Device API and IR bindings, so vendor scope follows Device API
-  availability). Adaptation is complete on NVIDIA; performance beats
-  torch-native in most scenarios, while parity with Triton-distributed is
-  still being optimized.
-  <!-- TODO: repo/PR pointers for the operator implementation, benchmark
-       tolerance vs. Triton-distributed, message-size range and topology. -->
+- **G4 (Distributed operators):** Fused AllGather+GEMM and GEMM+AllReduce
+  operators in FlagTree (`python/tutorials/tle/raw/nvshmem/02-allgather-gemm`
+  and `03-gemm-allreduce`) on NVIDIA. Both operators are adapted and tested;
+  benchmark harness (`benchmark.py`) times against torch-native as the
+  baseline and reports speedup. The operators build on FlagCX Device API + IR
+  bindings and NVSHMEM; vendor scope is NVIDIA (sm90+).
+  <!-- TODO: Triton-distributed baseline — whether to add a third variant to
+       benchmark.py or run their upstream benchmark separately, and which
+       version/commit. GEMM+ReduceScatter does not exist in FlagTree as of
+       2026-08-25; confirm whether it ships in this cycle or the FEP scope
+       should reflect the two operators that exist (AG+GEMM, GEMM+AR). -->
 
 ### Non-Goals
 
@@ -80,7 +82,8 @@ matrix grows to include T-Head and more Device API-capable backends.
   named in G2 (tracked per-vendor in future cycles).
 - PD disaggregation on platforms other than T-Head (and MetaX as a stretch)
   in this cycle.
-- Fused operators beyond the four listed in G4 (e.g. AlltoAll+GEMM for MoE).
+- Fused operators beyond AllGather+GEMM and GEMM+AllReduce (e.g. standalone
+  AllGather/ReduceScatter, GEMM+ReduceScatter, AlltoAll+GEMM for MoE).
 - Ascend enablement: blocked on a PCI-probe interface issue on the Ascend
   side; not pursued standalone in this cycle, tracked together with the
   sglang-plugin Huawei P0 work, which hits the same problem.
@@ -130,17 +133,28 @@ and GLM does not yet run normally, so MetaX follows later.
 
 ### Feature 3: Distributed Operators
 
-Provide standalone AllGather / ReduceScatter and communication-computation
-fused AllGather+GEMM / GEMM+ReduceScatter operators. They sit on the Device
-API and IR bindings, so this cycle's vendor scope is NVIDIA. Adaptation is
-complete on NVIDIA: most scenarios outperform torch-native; parity with
-Triton-distributed is the optimization target and is not yet reached
-everywhere.
+Fused AllGather+GEMM and GEMM+AllReduce operators in FlagTree
+(`python/tutorials/tle/raw/nvshmem/02-allgather-gemm` and `03-gemm-allreduce`),
+sm90+ only. Both operators are adapted and tested on NVIDIA with a benchmark
+harness that times against torch-native (separate AG, separate GEMM, and the
+fused path) and reports speedup per layer shape. The operators use FlagCX
+Device API + IR bindings and NVSHMEM for intra-node and inter-node transfers.
 
-<!-- TODO (design):
-     1. Where the operator code lands (repo/PRs) and the API surface exposed.
-     2. Benchmark protocol vs. torch-native and Triton-distributed —
-        versions, message sizes, GEMM shapes, topology. -->
+Repository: https://github.com/flagos-ai/FlagTree
+
+The benchmark sweeps seven layer shapes (LLaMA-7B / 3.1-8B / 3.1-70B / 3.1-405B,
+Mistral-7B, Qwen2-72B, GPT-3-175B) at M=8192 (configurable via `--M`), fp16 or
+bf16. Correctness is gated first (`assert_allclose` at `atol=1e-3, rtol=1e-3`
+per rank before timing), then six timing variants run: fused total, AG-only,
+GEMM-only, on both FlagTree and torch sides. `--dump_csv` writes
+`csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup per shape.
+
+Run: `torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (requires at least
+2 GPUs, `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`).
+
+<!-- TODO: Triton-distributed baseline — whether to add a third variant to
+     benchmark.py or run their upstream benchmark separately, and which
+     version/commit. -->
 
 ## Design Details
 
@@ -246,14 +260,23 @@ cards, KV transfers over the network, containerized.
 
 ### G4: Distributed operators
 
-Baselines: torch-native collectives+GEMM, and Triton-distributed
-[TODO: version/commit], same hardware, same message sizes. NVIDIA only this
-cycle.
+FlagTree `python/tutorials/tle/raw/nvshmem/02-allgather-gemm` and
+`03-gemm-allreduce`, NVIDIA sm90+ only. Benchmark harness
+(`02-allgather-gemm/benchmark.py`) sweeps seven layer shapes (LLaMA-7B /
+3.1-8B / 3.1-70B / 3.1-405B, Mistral-7B, Qwen2-72B, GPT-3-175B) at M=8192
+(configurable via `--M`), fp16 or bf16. Correctness gated first
+(`assert_allclose` at `atol=1e-3, rtol=1e-3` per rank), then times six
+variants: fused total, AG-only, GEMM-only, on both FlagTree and torch sides.
 
 | Test | Command | Expected result |
 |---|---|---|
-| AllGather / ReduceScatter | <!-- TODO: benchmark command --> | Outperforms torch-native in the covered scenarios; gap to Triton-distributed recorded per message size |
-| AllGather+GEMM / GEMM+ReduceScatter | <!-- TODO: benchmark command, GEMM shapes --> | Outperforms torch-native in the covered scenarios; gap to Triton-distributed recorded per shape |
+| AllGather+GEMM | `cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm && torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (requires ≥2 GPUs, sm90+, `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`) | Correctness passes per rank; FlagTree fused path outperforms torch-native total latency in the covered shapes; csv written to `csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup column |
+
+GEMM+AllReduce operator exists at `03-gemm-allreduce`; test command TBD.
+
+<!-- TODO: Triton-distributed baseline — whether to add a third timing variant
+     to benchmark.py or run their upstream benchmark separately, which
+     version/commit, and what the acceptance gap is. -->
 
 ## Related PRs
 
