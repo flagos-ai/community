@@ -41,8 +41,8 @@ Repository: https://github.com/flagos-ai/PyTorch-Plugin-FL
 ## Motivation
 
 v0.1.0 validated the PrivateUse1 `flagos` device with per-operator backend
-routing on CUDA and Ascend. The 2.2 cycle brings the accepted platform count
-to five (Hygon, MetaX, Ascend, T-Head, Moore Threads) validated on LLM/VLM/Omni
+routing on CUDA and Ascend. The 2.2 cycle adds Hygon, MetaX, T-Head, and Moore
+Threads alongside Ascend for a five-chip acceptance set validated on LLM/VLM/Omni
 models, a 90%+ FlagGems coverage target with per-vendor-class fallback,
 installable wheels on PyTorch 2.8–2.10, and `torch.distributed` via FlagCX.
 
