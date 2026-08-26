@@ -32,20 +32,19 @@ foundation delivered in FlagOS 2.1
    against PyTorch **2.8–2.10** (2.11 excluded: no vendor has shipped
    official support for it), split per vendor (e.g. `torch-fl-ascend`, `torch-fl-mx`)
    because the bundled libtorch makes a single wheel impractically large.
-4. **Initial FlagCX integration** — `torch.distributed` basic capability on
-   the `flagos` device: standard communication operators and DDP support,
-   with an FSDP feasibility spike (not committed for this release).
+4. **FlagCX integration** — `torch.distributed` on the `flagos` device:
+   standard collectives and DDP support, with an FSDP spike (not committed
+   for this release).
 
 Repository: https://github.com/flagos-ai/PyTorch-Plugin-FL
 
 ## Motivation
 
 v0.1.0 validated the PrivateUse1 `flagos` device with per-operator backend
-routing on CUDA and Ascend. The 2.2 cycle extends this foundation in four
-directions: a defined 5-chip support matrix validated on real models, a
-quantified FlagGems coverage target with a defined fallback path per vendor
-class, installable wheels on the PyTorch versions vendors support, and
-initial distributed-training support via FlagCX.
+routing on CUDA and Ascend. The 2.2 cycle brings the accepted platform count
+to five (Hygon, MetaX, Ascend, T-Head, Moore Threads) validated on LLM/VLM/Omni
+models, a 90%+ FlagGems coverage target with per-vendor-class fallback,
+installable wheels on PyTorch 2.8–2.10, and `torch.distributed` via FlagCX.
 
 ### Goals
 
@@ -86,10 +85,9 @@ initial distributed-training support via FlagCX.
 
 ### Feature 1: 5-Chip Adaptation with Model Validation
 
-Per-vendor accelerator integrations continue the v0.1.0 architecture
-(PrivateUse1 dispatch + per-operator backend routing via
-`torch_fl/configs/backends_*.conf`). State on main relevant to the five
-target chips:
+Per-vendor accelerator integrations use the v0.1.0 architecture (PrivateUse1
+dispatch + per-operator backend routing via
+`torch_fl/configs/backends_*.conf`). State on main for the five target chips:
 
 - **Hygon (DCU):** supported via the DTK CUDA-compatibility layer
   (flagos-ai/PyTorch-Plugin-FL#22), FlagGems enabled on DCU (#29).
@@ -150,7 +148,7 @@ backend:
 - Standard collectives (the base collective set; missing base collectives and
   a FlagCX plain-signature fallback landed in #30).
 - DDP training support.
-- FSDP: feasibility spike only; findings recorded, support not promised.
+- FSDP: spike only; findings recorded, support not committed.
 
 <!-- TODO: collective coverage list, process-group registration mechanism,
      and which of the 5 chips are in scope for distributed acceptance
@@ -158,9 +156,9 @@ backend:
 
 ## Design Details
 
-The v0.1.0 architecture (FEP-0025) is unchanged at the core: PrivateUse1
-ATen dispatch, `Dispatcher<FnPtr>` per-operator routing, per-platform
-accelerator layer. This cycle adds vendor breadth (Feature 1), the boxing /
+The v0.1.0 core (FEP-0025) is unchanged: PrivateUse1 ATen dispatch,
+`Dispatcher<FnPtr>` per-operator routing, per-platform accelerator layer.
+This cycle adds the remaining vendor backends (Feature 1), the boxing /
 vendor-library fallback tiers (Feature 2), packaging (Feature 3), and the
 distributed layer (Feature 4).
 
