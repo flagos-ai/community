@@ -35,8 +35,9 @@ Repository: https://github.com/flagos-ai/TransformerEngine-FL
 FlagOS 2.1 established TransformerEngine-FL as a multi-backend TE distribution
 with a plugin system dispatching to vendor operator implementations. The 2.2
 cycle completes a 10-vendor adaptation matrix (replacing ad-hoc per-vendor
-status), upgrades the upstream base to v2.16, and adds an FSA sparse attention
-backend.
+status) and adds an FSA sparse attention backend, whose final scope depends on
+the performance evaluation. The upstream base upgrade to v2.16 is a stretch
+goal.
 
 ### Goals
 
