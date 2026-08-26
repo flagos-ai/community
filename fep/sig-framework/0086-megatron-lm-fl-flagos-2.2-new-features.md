@@ -18,24 +18,23 @@
 FlagOS 2.2 release cycle, on top of v0.2.0:
 
 1. **Vendor adaptation** — complete platform adaptation for 10 chip vendors
-   with a published adaptation matrix; push the platform abstraction layer
-   toward upstream Megatron-LM adoption.
+   with a published adaptation matrix; merge the platform abstraction layer
+   into upstream Megatron-LM.
 2. **[Stretch] Upstream upgrade** — synchronize with Megatron-LM core v0.18.2
    (current: 0.17.1).
-3. **New model support** — Qwen3.5/3.6 and DeepSeek-V4 next-generation model
-   support, including the related colocated training and CSA/HCA/DSA core
-   modules and optimization strategies.
+3. **New model support** — Qwen3.5/3.6 and DeepSeek-V4 training, including
+   colocated training and CSA/HCA/DSA attention modules with optimization
+   strategies.
 
 Repository: https://github.com/flagos-ai/Megatron-LM-FL
 
 ## Motivation
 
 Megatron-LM-FL is the multi-vendor training backend of FlagOS. The 2.2 cycle
-extends the platform plugin system established in v0.2.0 (FEP-0026: NPU, TXDA
-backends and multi-vendor dispatch) toward full 10-vendor coverage with a
-verifiable adaptation matrix, and keeps model coverage current with the
-next-generation MoE/sparse-attention architectures (Qwen3.5/3.6,
-DeepSeek-V4-family) that FlagOS users train.
+adds four more chip backends to the platform plugin system established in
+v0.2.0 (FEP-0026: NPU, TXDA backends and multi-vendor dispatch), bringing the
+total to 10 vendors with a published adaptation matrix. Model support adds
+Qwen3.5/3.6 and DeepSeek-V4-family MoE/sparse-attention architectures.
 
 ### Goals
 
@@ -49,16 +48,16 @@ DeepSeek-V4-family) that FlagOS users train.
   <!-- TODO: name the remaining vendors to reach 10; define the matrix
        dimensions (models × parallelism modes × precision?) and where it is
        published. -->
-- **G2 (Upstream platform abstraction):** Drive the platform abstraction
-  merge into upstream NVIDIA Megatron-LM.
+- **G2 (Upstream platform abstraction):** Merge the platform abstraction
+  into upstream NVIDIA Megatron-LM.
   <!-- TODO: define the acceptance form — upstream PR(s) opened? merged?
        RFC accepted? -->
 - **G3 (Stretch — core upgrade):** Upgrade the Megatron-LM core base from
   0.17.1 to v0.18.2, preserving all FL patches (platform plugin, overrides,
   dualpipev, hetero, engram).
 - **G4 (New models):** Support Qwen3.5/3.6 and DeepSeek-V4 model training,
-  including the related colocated training capability and CSA/HCA/DSA core
-  modules and optimization strategies.
+  including colocated training and CSA/HCA/DSA attention modules with
+  optimization strategies.
   <!-- TODO: DeepSeek-V4 base support (CSA/HCA, Hash Router, mHC, Engram,
        MTP) shipped in v0.2.0 (FEP-0026) — specify the 2.2 increment: DSA
        attention variant and fused kernels? context parallelism for sparse
@@ -92,7 +91,7 @@ mechanism (#74), Enflame backend (#45), TXDA platform upgraded to core 0.17.0
 
 ### Feature 2: Platform Abstraction Upstreaming
 
-Push the platform abstraction (vendor-neutral device/platform dispatch layer)
+Merge the platform abstraction (vendor-neutral device/platform dispatch layer)
 into upstream NVIDIA Megatron-LM, so that FL platform plugins can attach to
 upstream releases without carrying a fork-wide patch set.
 
@@ -109,12 +108,12 @@ engram, and the experimental attention variants.
 ### Feature 4: New Model Support (Qwen3.5/3.6, DeepSeek-V4 family)
 
 Add training support for Qwen3.5/3.6 and the DeepSeek-V4 model family,
-covering the colocated training capability and the CSA/HCA/DSA attention
-modules with their optimization strategies. Related in-flight work: DSA
-attention variant and fused kernels (`experimental_attention_variant/dsa.py`,
-#86 fused DSA kernel for sm90, #88 FlashSparseAttention, #81 flash sparse
-attn patch), context parallel support for DSV4 sparse attention (#57),
-GLM5/5.1/5.2 DSA-structure models (#69).
+including colocated training and CSA/HCA/DSA attention modules with
+optimization strategies. In-flight work: DSA attention variant and fused
+kernels (`experimental_attention_variant/dsa.py`, #86 fused DSA kernel for
+sm90, #88 FlashSparseAttention, #81 flash sparse attn patch), context
+parallel support for DSV4 sparse attention (#57), GLM5/5.1/5.2 DSA-structure
+models (#69).
 
 <!-- TODO (design):
      1. Qwen3.5/3.6 — architecture deltas vs. Qwen3 (MoE config, attention),
