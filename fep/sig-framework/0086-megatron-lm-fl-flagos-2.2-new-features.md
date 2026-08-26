@@ -18,8 +18,8 @@
 FlagOS 2.2 release cycle, on top of v0.2.0:
 
 1. **Vendor adaptation** — complete platform adaptation for 10 chip vendors
-   with a published adaptation matrix; merge the platform abstraction layer
-   into upstream Megatron-LM.
+   with a published adaptation matrix; propose the platform abstraction layer
+   upstream to Megatron-LM.
 2. **[Stretch] Upstream upgrade** — synchronize with Megatron-LM core v0.18.2
    (current: 0.17.1).
 3. **New model support** — Qwen3.5/3.6 and DeepSeek-V4 training, including
@@ -48,8 +48,9 @@ Qwen3.5/3.6 and DeepSeek-V4-family MoE/sparse-attention architectures.
   <!-- TODO: name the remaining vendors to reach 10; define the matrix
        dimensions (models × parallelism modes × precision?) and where it is
        published. -->
-- **G2 (Upstream platform abstraction):** Merge the platform abstraction
-  into upstream NVIDIA Megatron-LM.
+- **G2 (Upstream platform abstraction):** Propose the platform abstraction
+  upstream to NVIDIA Megatron-LM. Acceptance is NVIDIA's decision, so the
+  goal is the proposal, not a guaranteed merge.
   <!-- TODO: define the acceptance form — upstream PR(s) opened? merged?
        RFC accepted? -->
 - **G3 (Stretch — core upgrade):** Upgrade the Megatron-LM core base from
@@ -91,9 +92,9 @@ mechanism (#74), Enflame backend (#45), TXDA platform upgraded to core 0.17.0
 
 ### Feature 2: Platform Abstraction Upstreaming
 
-Merge the platform abstraction (vendor-neutral device/platform dispatch layer)
-into upstream NVIDIA Megatron-LM, so that FL platform plugins can attach to
-upstream releases without carrying a fork-wide patch set.
+Propose the platform abstraction (vendor-neutral device/platform dispatch
+layer) upstream to NVIDIA Megatron-LM, so that FL platform plugins can attach
+to upstream releases without carrying a fork-wide patch set.
 
 <!-- TODO (design): which abstraction interfaces are proposed upstream; link
      to the upstream RFC/PR once opened. -->
