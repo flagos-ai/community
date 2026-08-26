@@ -34,10 +34,9 @@ Repository: https://github.com/flagos-ai/TransformerEngine-FL
 
 FlagOS 2.1 established TransformerEngine-FL as a multi-backend TE distribution
 with a plugin system dispatching to vendor operator implementations. The 2.2
-cycle continues along both established axes — vendor breadth (a complete
-10-vendor matrix instead of ad-hoc per-vendor status) and upstream currency
-(v2.16) — and begins extending the attention operator space with a sparse
-attention (FSA) backend.
+cycle completes a 10-vendor adaptation matrix (replacing ad-hoc per-vendor
+status), upgrades the upstream base to v2.16, and adds an FSA sparse attention
+backend.
 
 ### Goals
 
@@ -75,10 +74,9 @@ attention (FSA) backend.
 
 ### Feature 1: Vendor Adaptation Matrix (10 platforms)
 
-Work in this cycle continues the per-vendor backend pattern under
+Per-vendor backend implementations under
 `transformer_engine/plugin/core/backends/vendor/<vendor>/` (device management,
-flash attention, operator registration). Landed or in flight on main this
-cycle:
+flash attention, operator registration). Landed or in flight on main:
 
 - Tsingmicro TXDA backend (flagos-ai/TransformerEngine-FL#88).
 - Ascend: `transformer_engine_npu` integration and reference-backend GEMM fix
@@ -90,19 +88,18 @@ cycle:
 - FlagOS backend operators: Triton fused RoPE kernels (#83), layernorm (#72),
   bias support for generic GEMM (#70).
 
-The deliverable beyond the code is the **adaptation matrix**: a per-vendor ×
-per-capability table (published in the repository docs) recording what each of
-the 10 platforms supports.
+Deliverable: an **adaptation matrix** (published in the repository docs)
+documenting per-vendor × per-capability support across all 10 platforms.
 
 <!-- TODO: matrix location (docs/ page vs README), row/column definition, and
      whether CI enforces it per vendor. -->
 
 ### Feature 2 (Stretch): Upstream v2.16 Synchronization
 
-Same tree-replacement strategy as the v2.9 → v2.14 sync delivered in 2.1
-(FEP-0026): integrate upstream changes, then re-apply the plugin-system
-preservation patches (plugin OP API signature sync, `te_device_type()`
-patching of new upstream CUDA hardcoding, renamed-symbol fixes).
+Same tree-replacement strategy as the v2.9 → v2.14 sync in 2.1 (FEP-0026):
+integrate upstream changes, then re-apply the plugin-system patches (plugin OP
+API signature sync, `te_device_type()` patching of new upstream CUDA
+hardcoding, renamed-symbol fixes).
 
 <!-- TODO: after a v2.16 diff review — list the upstream features pulled in
      and any plugin API breaks requiring vendor-backend changes. -->
@@ -112,9 +109,9 @@ patching of new upstream CUDA hardcoding, renamed-symbol fixes).
 Add FSA as a new sparse attention backend selectable through the existing
 attention backend dispatch, with two implementations:
 
-- **Triton implementation** — vendor-neutral path aligned with the FlagOS
-  backend's Triton operator direction.
-- **CUDA implementation** — NVIDIA-native path.
+- **Triton implementation** — vendor-neutral, using FlagOS backend Triton
+  operators.
+- **CUDA implementation** — NVIDIA-native.
 
 <!-- TODO (design, before Implementable):
      1. FSA algorithm reference and sparsity pattern support.
