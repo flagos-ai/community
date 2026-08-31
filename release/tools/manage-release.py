@@ -31,7 +31,10 @@ from pathlib import Path
 def parse_manifest(filepath):
     """Parse a release YAML manifest, extracting repo name, url, version tag, and branch.
 
-    Returns a list of dicts with keys: name, url, version, branch, default_branch
+    Returns a list of dicts with keys: name, url, version, branch, default_branch,
+    base_branch. base_branch is the ref the release branch is cut from; it comes from
+    a "基线分支:" comment and falls back to default_branch. Entries that share a repo
+    but track different upstream lines (e.g. FlagTree's Triton variants) need it.
     """
     repos = []
     with open(filepath) as f:
@@ -42,7 +45,7 @@ def parse_manifest(filepath):
         repo_match = re.match(r"^  (\S+):\s*$", line)
         if repo_match:
             name = repo_match.group(1)
-            url = version = branch = None
+            url = version = branch = base_branch = None
             default_branch = "main"
             for j in range(i + 1, min(i + 30, len(lines))):
                 l = lines[j]
@@ -52,7 +55,9 @@ def parse_manifest(filepath):
                     url = re.search(r"url:\s*(\S+)", l).group(1)
                 if "version:" in l and version is None:
                     version = re.search(r"version:\s*(\S+)", l).group(1)
-                if "分支:" in l and branch is None:
+                if "基线分支:" in l and base_branch is None:
+                    base_branch = re.search(r"基线分支:\s*(\S+)", l).group(1)
+                elif "分支:" in l and branch is None:
                     branch = re.search(r"分支:\s*(\S+)", l).group(1)
                 if "默认分支: master" in l:
                     default_branch = "master"
@@ -65,6 +70,7 @@ def parse_manifest(filepath):
                     "version": version,
                     "branch": branch,
                     "default_branch": default_branch,
+                    "base_branch": base_branch or default_branch,
                 })
             else:
                 print(f"⚠ 跳过 {name}: url={url}, version={version}, branch={branch}")
@@ -96,12 +102,13 @@ def process_repo(repo, workdir, release="unknown", dry_run=False):
     version = repo["version"]
     branch = repo["branch"]
     default_branch = repo["default_branch"]
+    base_branch = repo.get("base_branch") or default_branch
     repodir = os.path.join(workdir, name)
     failures = []
 
     print(f"\n{'='*60}")
     print(f"📦 {name}")
-    print(f"   分支: {branch}  |  tag: {version}  |  默认分支: {default_branch}")
+    print(f"   分支: {branch}  |  tag: {version}  |  基线分支: {base_branch}")
     print(f"{'='*60}")
 
     # --- Clone ---
@@ -119,8 +126,8 @@ def process_repo(repo, workdir, release="unknown", dry_run=False):
                     failures.append("clone")
                     return False
             else:
-                run(f"git checkout {default_branch}", cwd=repodir)
-                run(f"git pull origin {default_branch}", cwd=repodir)
+                run(f"git checkout {base_branch}", cwd=repodir)
+                run(f"git pull origin {base_branch}", cwd=repodir)
     else:
         print(f"  ⬇ clone {url}")
         if not dry_run:
@@ -139,9 +146,9 @@ def process_repo(repo, workdir, release="unknown", dry_run=False):
     if branch_exists:
         print(f"  ∟ 远程分支 origin/{branch} 已存在，跳过创建")
     else:
-        print(f"  🌿 创建分支 {branch} (基于 {default_branch})")
+        print(f"  🌿 创建分支 {branch} (基于 {base_branch})")
         if not dry_run:
-            _, rc = run(f"git checkout -b {branch} origin/{default_branch}", cwd=repodir)
+            _, rc = run(f"git checkout -b {branch} origin/{base_branch}", cwd=repodir)
             if rc != 0:
                 failures.append("branch")
             else:

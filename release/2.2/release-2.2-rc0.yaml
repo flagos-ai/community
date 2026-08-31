@@ -28,6 +28,11 @@
 #   - tag:  带 v 前缀 + .postN 迭代后缀，例如 v0.14.0-rc0.post1
 #   - 每个模块用自己的版本号，基线为 2.1 正式版本号（见各条目"当前版本"注释）
 #
+# 注释字段说明（manage-release.py 依赖这两个字段）：
+#   - "分支:"     rc0 集成分支名，工具会创建并推送它
+#   - "基线分支:" rc0 分支从哪个上游分支拉出；缺省时取默认分支。
+#                同一仓库拆多个条目、各自跟不同上游线时必须写（见 FlagTree）
+#
 # ⚠️ 注意: FlagGems / FlagGems-sglang / FlagDNN / FlagBLAS 的默认分支是 master，
 #          其他模块都是 main。
 # =============================================================================
@@ -38,14 +43,31 @@ repositories:
   # L0 — 基础设施层（编译底座 + 通信库）
   # ===========================================================================
 
-  flagtree:
+  # FlagTree 按 Triton 版本拆多个条目，指向同一仓库的不同分支。
+  # 2.2 只关注三个：3.6（即 main）、3.5、3.3；2.1 的 3.2 不再纳入。
+  flagtree-triton3.6:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: v0.7.0-rc0.post1
-    # 分支: 0.7.0-rc0
-    # 当前版本: v0.6.0 / 默认分支: main
-    # 注: 2.1 正式版按 Triton 变体分 4 个条目（+triton3.2/3.3/3.5/3.6），
-    #     rc0 阶段沿用 2.1 rc0/rc2 惯例，先用单条目集成，变体在正式版拆分
+    version: v0.7.0-rc0.post1+triton3.6
+    # 分支: 0.7.0-rc0-triton3.6
+    # 基线分支: main
+    # 当前版本: 0.6.0+triton3.6 / 默认分支: main
+
+  flagtree-triton3.5:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: v0.7.0-rc0.post1+triton3.5
+    # 分支: 0.7.0-rc0-triton3.5
+    # 基线分支: triton_v3.5.x
+    # 当前版本: 0.6.0+triton3.5 / 默认分支: main
+
+  flagtree-triton3.3:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: v0.7.0-rc0.post1+triton3.3
+    # 分支: 0.7.0-rc0-triton3.3
+    # 基线分支: triton_v3.3.x
+    # 当前版本: 0.6.0+triton3.3 / 默认分支: main
 
   flagcx:
     type: git
