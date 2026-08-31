@@ -44,11 +44,17 @@ repositories:
   # ===========================================================================
 
   # FlagTree 按 Triton 版本拆多个条目，指向同一仓库的不同分支。
-  # 2.2 只关注三个：3.6（即 main）、3.5、3.3；2.1 的 3.2 不再纳入。
+  # 2.2 只关注三个：3.6（即 main，与 triton_v3.6.x 同一 commit 2e62581）、3.5、3.3；
+  # 2.1 的 3.2 不再纳入。
+  #
+  # ⚠️ FlagTree tag 格式例外：本仓库近期 tag 一律不带 v 前缀、rc 不带连字符，
+  #    上游既有格式为 0.5.0rc2.post1+triton3.6、0.6.0+triton3.6（已核实）。
+  #    因此这三条不套用 README 的 v{X}-rcN.postN 规则，沿用上游写法。
+  #    上游当前最新：0.6.2a1 / 0.6.1；+triton 变体族最新为 0.6.0+tritonX。
   flagtree-triton3.6:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: v0.7.0-rc0.post1+triton3.6
+    version: 0.7.0rc0.post1+triton3.6
     # 分支: 0.7.0-rc0-triton3.6
     # 基线分支: main
     # 当前版本: 0.6.0+triton3.6 / 默认分支: main
@@ -56,7 +62,7 @@ repositories:
   flagtree-triton3.5:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: v0.7.0-rc0.post1+triton3.5
+    version: 0.7.0rc0.post1+triton3.5
     # 分支: 0.7.0-rc0-triton3.5
     # 基线分支: triton_v3.5.x
     # 当前版本: 0.6.0+triton3.5 / 默认分支: main
@@ -64,7 +70,7 @@ repositories:
   flagtree-triton3.3:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: v0.7.0-rc0.post1+triton3.3
+    version: 0.7.0rc0.post1+triton3.3
     # 分支: 0.7.0-rc0-triton3.3
     # 基线分支: triton_v3.3.x
     # 当前版本: 0.6.0+triton3.3 / 默认分支: main
@@ -85,7 +91,8 @@ repositories:
     url: https://github.com/flagos-ai/FlagGems.git
     version: v5.4.0-rc0.post1
     # 分支: 5.4.0-rc0
-    # 当前版本: v5.3.0 / 默认分支: master ← 注意：不是 main
+    # 当前版本: v5.3.5 / 默认分支: master ← 注意：不是 main
+    # 注: 2.1 正式版为 v5.3.0，其后 main 上已发到 v5.3.5，并有 v5.4.0.dev0
 
   flagfft:
     type: git
@@ -168,7 +175,9 @@ repositories:
     url: https://github.com/flagos-ai/vllm-plugin-FL.git
     version: v0.3.0-rc0.post1
     # 分支: 0.3.0-rc0
-    # 当前版本: v0.2.0 / 默认分支: main
+    # 当前版本: v0.2.1 / 默认分支: main
+    # 注: 2.1 正式版为 v0.2.0，其后 main 上已发 v0.2.1；
+    #     上游已存在 v0.3.0-rc0 tag（非本流程所打），本次 rc0 tag 用 .post1 后缀区分
 
   sglang-plugin-fl:
     type: git
@@ -189,7 +198,8 @@ repositories:
     url: https://github.com/flagos-ai/Megatron-LM-FL.git
     version: v0.3.0-rc0.post1
     # 分支: 0.3.0-rc0
-    # 当前版本: v0.2.0 / 默认分支: main
+    # 当前版本: v0.2.1 / 默认分支: main
+    # 注: 2.1 正式版为 v0.2.0，其后 main 上已发 v0.2.1
 
   flagos-compressor:
     type: git
@@ -231,10 +241,3 @@ repositories:
     # 分支: 0.3.0-rc0
     # 当前版本: v0.2.0 / 默认分支: main
     # 注: 2.1 正式版为 v0.1.0，其后已在 main 上发布 v0.2.0，故 2.2 基线取 v0.2.0
-
-  skills:
-    type: git
-    url: https://github.com/flagos-ai/skills.git
-    version: v1.2.0-rc0.post1
-    # 分支: 1.2.0-rc0
-    # 当前版本: v1.1.0 / 默认分支: main

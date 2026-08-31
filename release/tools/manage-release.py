@@ -3,7 +3,7 @@
 FlagOS Release Branch & Tag Manager
 
 从 release-*.yaml 中读取模块清单，自动化：
-  1. 为每个模块创建对应的 release 分支（基于默认分支）
+  1. 为每个模块创建对应的 release 分支（基于"基线分支"，缺省时为默认分支）
   2. 在分支上打上 version 指定的 tag
   3. 推送分支 + tag 到 origin
 
