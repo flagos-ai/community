@@ -28,7 +28,8 @@
 #   - tag:  带 v 前缀 + .postN 迭代后缀，例如 v0.14.0-rc0.post1
 #   - 每个模块用自己的版本号，基线为 2.1 正式版本号（见各条目"当前版本"注释）
 #
-# ⚠️ 注意: FlagGems / FlagDNN / FlagBLAS 的默认分支是 master，其他模块都是 main。
+# ⚠️ 注意: FlagGems / FlagGems-sglang / FlagDNN / FlagBLAS 的默认分支是 master，
+#          其他模块都是 main。
 # =============================================================================
 
 repositories:
@@ -120,6 +121,14 @@ repositories:
     # 分支: 0.2.0-rc0
     # 当前版本: v0.1.0 / 默认分支: main
 
+  flaggems-sglang:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-sglang.git
+    version: v0.1.0-rc0.post1
+    # 分支: 0.1.0-rc0
+    # 当前版本: 无已发布 tag / 默认分支: master
+    # 注: 2.2 新增，2.1 清单中不存在；仓库尚无 tag，首个版本从 0.1.0 起
+
   # ===========================================================================
   # L2 — 框架适配层（PyTorch 插件 + 训练/推理框架 + 量化）
   # ===========================================================================
@@ -185,20 +194,6 @@ repositories:
     version: v2.1.0-rc0.post1
     # 分支: 2.1.0-rc0
     # 当前版本: v2.0.0 / 默认分支: main
-
-  flagquantum:
-    type: git
-    url: https://github.com/flagos-ai/FlagQuantum.git
-    version: v0.2.0-rc0.post1
-    # 分支: 0.2.0-rc0
-    # 当前版本: v0.1.0 / 默认分支: main
-
-  flagos-robo:
-    type: git
-    url: https://github.com/flagos-ai/FlagOS-Robo.git
-    version: v0.2.0-rc0.post1
-    # 分支: 0.2.0-rc0
-    # 当前版本: v0.1.0 / 默认分支: main
 
   kernelgen:
     type: git
