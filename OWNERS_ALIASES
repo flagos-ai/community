@@ -58,3 +58,9 @@ aliases:
     # - github-id
   sig-chip-reviewers:
     # - github-id
+
+  # sig-edge
+  sig-edge-approvers:
+    - kevinzs2048
+  sig-edge-reviewers:
+    - kevinzs2048

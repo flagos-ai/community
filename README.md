@@ -142,8 +142,8 @@ Join discussions and help other contributors:
 - Mentor new contributors
 
 ### 🏛️ Join or Create a SIG
-SIGs (Special Interest Groups) are where technical work happens. Each SIG covers a specific domain — operators, compilers, networking, training, and more.
-- **[Browse existing SIGs](sigs/)** to find one that matches your interests and attend a meeting
+SIGs (Special Interest Groups) are where technical work happens. Each SIG covers a specific domain — operators, compilers, networking, training, edge computing, and more.
+- **[Browse existing SIGs](sigs/)** to find one that matches your interests; for edge hardware and edge-side SDK work, see **[sig-edge](sigs/sig-edge/)**
 - **[Create a new SIG](GOVERNANCE.md#sig-special-interest-group)** — need ≥1 Chair, ≥1 Tech Lead, ≥3 members, and a charter. Submit a PR to get started
 
 ## Communication Channels

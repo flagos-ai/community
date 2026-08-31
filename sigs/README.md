@@ -1,6 +1,6 @@
 # FlagOS SIG Overview
 
-## Bootstrap Phase SIGs (7)
+## Active SIGs (8)
 
 | SIG | Modules | Layer | Meetings |
 |-----|---------|-------|----------|
@@ -11,6 +11,7 @@
 | [sig-training](sig-training/) | FlagScale | L3 | TBD |
 | [sig-kernelgen](sig-kernelgen/) | KernelGen, KernelGenBench | L3 | TBD |
 | [sig-chip](sig-chip/) | Datacenter chip adaptation (NVIDIA, Hygon, Iluvatar, MetaX, and 9 others — 13 total) | — | TBD |
+| [sig-edge](sig-edge/) | Edge hardware and edge-side SDK | — | TBD |
 
 ## Incubating Working Groups (2)
 
@@ -31,7 +32,6 @@ The following areas have been identified as important but no Chair candidate has
 | sig-release | [_planned/sig-release.md](_planned/sig-release.md) | Release cadence increases, requiring a standing body |
 | sig-agent | [_planned/sig-agent.md](_planned/sig-agent.md) | Skills module attracts active external contributors |
 | sig-tools | [_planned/sig-tools.md](_planned/sig-tools.md) | FlagRelease has external contributors |
-| sig-edge | [_planned/sig-edge.md](_planned/sig-edge.md) | Clear contributors and users emerge on the edge side |
 | sig-architecture | [_planned/sig-architecture.md](_planned/sig-architecture.md) | Held by TSC members concurrently; no standalone SIG for now |
 | sig-os | [_planned/sig-os.md](_planned/sig-os.md) | Wave 1 unified packaging (FEP-19) lands and a Chair candidate emerges |
 | sig-riscv | [_planned/sig-riscv.md](_planned/sig-riscv.md) | `riscv64` build experiments (FEP-34) land and a Chair candidate emerges |

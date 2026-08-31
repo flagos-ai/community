@@ -29,7 +29,7 @@ Locate the SIG that corresponds to the module(s) involved in your proposal:
 | FlagPerf | [sig-benchmark](../sigs/_planned/sig-benchmark.md) | Planned |
 | FlagRelease | [sig-tools](../sigs/_planned/sig-tools.md) | Planned |
 | Skills | [sig-agent](../sigs/_planned/sig-agent.md) | Planned |
-| Edge hardware | [sig-edge](../sigs/_planned/sig-edge.md) | Planned |
+| Edge hardware | [sig-edge](../sigs/sig-edge/) | Active |
 | OS packaging / distribution integration (openKylin, openEuler) | [sig-os](../sigs/_planned/sig-os.md) | Planned |
 | Experimental RISC-V support | [sig-riscv](../sigs/_planned/sig-riscv.md) | Planned |
 | FlagQuantum | [wg-ai4s](../wg/wg-ai4s/) | Incubating |
