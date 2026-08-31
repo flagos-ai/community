@@ -80,7 +80,13 @@ def run(cmd, cwd=None):
     return result.stdout.strip(), result.returncode
 
 
-def process_repo(repo, workdir, dry_run=False):
+def release_label(manifest_path):
+    """Derive the FlagOS release label (e.g. "2.2") from a manifest path."""
+    m = re.search(r"release-(\d+\.\d+)", Path(manifest_path).name)
+    return m.group(1) if m else "unknown"
+
+
+def process_repo(repo, workdir, release="unknown", dry_run=False):
     """Clone, create branch, and tag a single repo.
 
     Returns True on success, False on any failure (so caller can continue).
@@ -164,7 +170,7 @@ def process_repo(repo, workdir, dry_run=False):
             # 确保在正确的分支上
             run(f"git checkout {branch}", cwd=repodir)
             run(f"git pull origin {branch}", cwd=repodir)
-            _, rc = run(f"git tag -a {version} -m 'FlagOS 2.1 release: {version}'", cwd=repodir)
+            _, rc = run(f"git tag -a {version} -m 'FlagOS {release} release: {version}'", cwd=repodir)
             if rc != 0:
                 failures.append("tag")
             else:
@@ -202,7 +208,8 @@ def main():
     args = parser.parse_args()
 
     repos = parse_manifest(args.manifest)
-    print(f"📋 从 {args.manifest} 解析到 {len(repos)} 个模块")
+    release = release_label(args.manifest)
+    print(f"📋 从 {args.manifest} 解析到 {len(repos)} 个模块（FlagOS {release}）")
 
     if args.dry_run:
         print("🔍 DRY-RUN 模式：仅预览，不实际操作\n")
@@ -213,7 +220,7 @@ def main():
 
     results = []
     for repo in filtered:
-        ok = process_repo(repo, args.workdir, dry_run=args.dry_run)
+        ok = process_repo(repo, args.workdir, release=release, dry_run=args.dry_run)
         results.append((repo["name"], ok))
 
     print(f"\n{'='*60}")

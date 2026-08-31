@@ -6,9 +6,10 @@ on:
       manifest:
         description: 'release YAML 清单路径（相对 release/）'
         required: true
-        default: '2.1/release-2.1-rc2.yaml'
+        default: '2.2/release-2.2-rc0.yaml'
         type: choice
         options:
+          - 2.2/release-2.2-rc0.yaml
           - 2.1/release-2.1-rc0.yaml
           - 2.1/release-2.1-rc2.yaml
           - 2.1/release-2.1.yaml

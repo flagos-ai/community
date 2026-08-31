@@ -1,0 +1,230 @@
+# =============================================================================
+# FlagOS 2.2 RC0 — 源码仓库清单（vcstool 格式）
+# =============================================================================
+# 用途：批量拉取所有模块的 rc0 已验证快照
+# 用法：
+#   pip install vcstool
+#   mkdir flagos-2.2-rc0 && cd flagos-2.2-rc0
+#   vcs import src < release-2.2-rc0.yaml
+#
+# version / 分支 / tag 关系：
+#   - version 字段指向当前已验证的 tag（其他用户拉取锁定版本）
+#   - 注释中的"分支"是开发集成线，修复在上面累积
+#   - 每次验证通过后打递增 tag（rc0.post1 → rc0.post2 → ...），并更新 version
+#
+#   工作流：
+#     git checkout -b 0.14.0-rc0            # 拉 rc0 分支（一次）
+#     git push origin 0.14.0-rc0
+#     ... 修复 ...
+#     git tag v0.14.0-rc0.post1              # 第一轮验证
+#     git push origin v0.14.0-rc0.post1
+#     # manifest: version: v0.14.0-rc0.post1 ← 更新
+#     ... 修复 ...
+#     git tag v0.14.0-rc0.post2              # 第二轮验证
+#     # manifest: version: v0.14.0-rc0.post2 ← 更新
+#
+# 命名规则（详见 ../README_CN.md §1）：
+#   - 分支: 不带 v 前缀、不带 release/ 前缀，例如 0.14.0-rc0
+#   - tag:  带 v 前缀 + .postN 迭代后缀，例如 v0.14.0-rc0.post1
+#   - 每个模块用自己的版本号，基线为 2.1 正式版本号（见各条目"当前版本"注释）
+#
+# ⚠️ 注意: FlagGems / FlagDNN / FlagBLAS 的默认分支是 master，其他模块都是 main。
+# =============================================================================
+
+repositories:
+
+  # ===========================================================================
+  # L0 — 基础设施层（编译底座 + 通信库）
+  # ===========================================================================
+
+  flagtree:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: v0.7.0-rc0.post1
+    # 分支: 0.7.0-rc0
+    # 当前版本: v0.6.0 / 默认分支: main
+    # 注: 2.1 正式版按 Triton 变体分 4 个条目（+triton3.2/3.3/3.5/3.6），
+    #     rc0 阶段沿用 2.1 rc0/rc2 惯例，先用单条目集成，变体在正式版拆分
+
+  flagcx:
+    type: git
+    url: https://github.com/flagos-ai/flagcx.git
+    version: v0.14.0-rc0.post1
+    # 分支: 0.14.0-rc0
+    # 当前版本: v0.13.0 / 默认分支: main
+
+  # ===========================================================================
+  # L1 — 计算库层（核心算子 + 领域算子）
+  # ===========================================================================
+
+  flaggems:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems.git
+    version: v5.4.0-rc0.post1
+    # 分支: 5.4.0-rc0
+    # 当前版本: v5.3.0 / 默认分支: master ← 注意：不是 main
+
+  flagfft:
+    type: git
+    url: https://github.com/flagos-ai/FlagFFT.git
+    version: v0.2.0-rc0.post1
+    # 分支: 0.2.0-rc0
+    # 当前版本: v0.1.0 / 默认分支: main
+
+  flagsparse:
+    type: git
+    url: https://github.com/flagos-ai/FlagSparse.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+
+  flagdnn:
+    type: git
+    url: https://github.com/flagos-ai/FlagDNN.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: master ← 注意：不是 main
+
+  flagblas:
+    type: git
+    url: https://github.com/flagos-ai/FlagBLAS.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: master ← 注意：不是 main
+
+  flagtensor:
+    type: git
+    url: https://github.com/flagos-ai/FlagTensor.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+
+  flagaudio:
+    type: git
+    url: https://github.com/flagos-ai/FlagAudio.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+
+  flagattention:
+    type: git
+    url: https://github.com/flagos-ai/FlagAttention.git
+    version: v0.4.0-rc0.post1
+    # 分支: 0.4.0-rc0
+    # 当前版本: v0.3.0 / 默认分支: main
+
+  flaggems-vllm:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-vllm.git
+    version: v0.2.0-rc0.post1
+    # 分支: 0.2.0-rc0
+    # 当前版本: v0.1.0 / 默认分支: main
+
+  # ===========================================================================
+  # L2 — 框架适配层（PyTorch 插件 + 训练/推理框架 + 量化）
+  # ===========================================================================
+
+  torch-fl:
+    type: git
+    url: https://github.com/flagos-ai/Torch-FL.git
+    version: v0.2.0-rc0.post1
+    # 分支: 0.2.0-rc0
+    # 当前版本: v0.1.0 / 默认分支: main
+    # 注: 2.1 中名为 pytorch-plugin-fl，仓库已更名 PyTorch-Plugin-FL → Torch-FL
+
+  vllm-plugin-fl:
+    type: git
+    url: https://github.com/flagos-ai/vllm-plugin-FL.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+
+  sglang-plugin-fl:
+    type: git
+    url: https://github.com/flagos-ai/sglang-plugin-FL.git
+    version: v0.2.0-rc0.post1
+    # 分支: 0.2.0-rc0
+    # 当前版本: v0.1.0 / 默认分支: main
+
+  transformerengine-fl:
+    type: git
+    url: https://github.com/flagos-ai/TransformerEngine-FL.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+
+  megatron-lm-fl:
+    type: git
+    url: https://github.com/flagos-ai/Megatron-LM-FL.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+
+  verl-fl:
+    type: git
+    url: https://github.com/flagos-ai/verl-FL.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+
+  flagos-compressor:
+    type: git
+    url: https://github.com/flagos-ai/FlagOS-Compressor.git
+    version: v0.1.0-rc0.post1
+    # 分支: 0.1.0-rc0
+    # 当前版本: v0.1.0-rc1 / 默认分支: main
+    # 注: 2.2 新增模块（FEP #91 量化框架），2.1 清单中不存在
+
+  # ===========================================================================
+  # L3 — 应用/工具层（编排框架 + 工具 + 文档）
+  # ===========================================================================
+
+  flagscale:
+    type: git
+    url: https://github.com/flagos-ai/FlagScale.git
+    version: v2.1.0-rc0.post1
+    # 分支: 2.1.0-rc0
+    # 当前版本: v2.0.0 / 默认分支: main
+
+  flagquantum:
+    type: git
+    url: https://github.com/flagos-ai/FlagQuantum.git
+    version: v0.2.0-rc0.post1
+    # 分支: 0.2.0-rc0
+    # 当前版本: v0.1.0 / 默认分支: main
+
+  flagos-robo:
+    type: git
+    url: https://github.com/flagos-ai/FlagOS-Robo.git
+    version: v0.2.0-rc0.post1
+    # 分支: 0.2.0-rc0
+    # 当前版本: v0.1.0 / 默认分支: main
+
+  kernelgen:
+    type: git
+    url: https://github.com/flagos-ai/KernelGen.git
+    version: v2.2.0-rc0.post1
+    # 分支: 2.2.0-rc0
+    # 当前版本: v2.1.0 / 默认分支: main
+
+  kernelgenbench:
+    type: git
+    url: https://github.com/flagos-ai/KernelGenBench.git
+    version: v0.2.0-rc0.post1
+    # 分支: 0.2.0-rc0
+    # 当前版本: v0.1.0 / 默认分支: main
+
+  flagrelease:
+    type: git
+    url: https://github.com/flagos-ai/flagrelease.git
+    version: v0.3.0-rc0.post1
+    # 分支: 0.3.0-rc0
+    # 当前版本: v0.2.0 / 默认分支: main
+    # 注: 2.1 正式版为 v0.1.0，其后已在 main 上发布 v0.2.0，故 2.2 基线取 v0.2.0
+
+  skills:
+    type: git
+    url: https://github.com/flagos-ai/skills.git
+    version: v1.2.0-rc0.post1
+    # 分支: 1.2.0-rc0
+    # 当前版本: v1.1.0 / 默认分支: main
