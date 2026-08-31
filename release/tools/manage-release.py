@@ -3,7 +3,7 @@
 FlagOS Release Branch & Tag Manager
 
 从 release-*.yaml 中读取模块清单，自动化：
-  1. 为每个模块创建对应的 release 分支（基于默认分支）
+  1. 为每个模块创建对应的 release 分支（基于"基线分支"，缺省时为默认分支）
   2. 在分支上打上 version 指定的 tag
   3. 推送分支 + tag 到 origin
 
@@ -31,7 +31,10 @@ from pathlib import Path
 def parse_manifest(filepath):
     """Parse a release YAML manifest, extracting repo name, url, version tag, and branch.
 
-    Returns a list of dicts with keys: name, url, version, branch, default_branch
+    Returns a list of dicts with keys: name, url, version, branch, default_branch,
+    base_branch. base_branch is the ref the release branch is cut from; it comes from
+    a "基线分支:" comment and falls back to default_branch. Entries that share a repo
+    but track different upstream lines (e.g. FlagTree's Triton variants) need it.
     """
     repos = []
     with open(filepath) as f:
@@ -42,7 +45,7 @@ def parse_manifest(filepath):
         repo_match = re.match(r"^  (\S+):\s*$", line)
         if repo_match:
             name = repo_match.group(1)
-            url = version = branch = None
+            url = version = branch = base_branch = None
             default_branch = "main"
             for j in range(i + 1, min(i + 30, len(lines))):
                 l = lines[j]
@@ -52,19 +55,21 @@ def parse_manifest(filepath):
                     url = re.search(r"url:\s*(\S+)", l).group(1)
                 if "version:" in l and version is None:
                     version = re.search(r"version:\s*(\S+)", l).group(1)
-                if "分支:" in l and branch is None:
+                if "基线分支:" in l and base_branch is None:
+                    base_branch = re.search(r"基线分支:\s*(\S+)", l).group(1)
+                elif "分支:" in l and branch is None:
                     branch = re.search(r"分支:\s*(\S+)", l).group(1)
                 if "默认分支: master" in l:
                     default_branch = "master"
 
             if url and version and branch:
-                ssh_url = re.sub(r"https://github\.com/", "git@github.com:", url)
                 repos.append({
                     "name": name,
-                    "url": ssh_url,
+                    "url": url,
                     "version": version,
                     "branch": branch,
                     "default_branch": default_branch,
+                    "base_branch": base_branch or default_branch,
                 })
             else:
                 print(f"⚠ 跳过 {name}: url={url}, version={version}, branch={branch}")
@@ -80,7 +85,13 @@ def run(cmd, cwd=None):
     return result.stdout.strip(), result.returncode
 
 
-def process_repo(repo, workdir, dry_run=False):
+def release_label(manifest_path):
+    """Derive the FlagOS release label (e.g. "2.2") from a manifest path."""
+    m = re.search(r"release-(\d+\.\d+)", Path(manifest_path).name)
+    return m.group(1) if m else "unknown"
+
+
+def process_repo(repo, workdir, release="unknown", dry_run=False):
     """Clone, create branch, and tag a single repo.
 
     Returns True on success, False on any failure (so caller can continue).
@@ -90,12 +101,13 @@ def process_repo(repo, workdir, dry_run=False):
     version = repo["version"]
     branch = repo["branch"]
     default_branch = repo["default_branch"]
+    base_branch = repo.get("base_branch") or default_branch
     repodir = os.path.join(workdir, name)
     failures = []
 
     print(f"\n{'='*60}")
     print(f"📦 {name}")
-    print(f"   分支: {branch}  |  tag: {version}  |  默认分支: {default_branch}")
+    print(f"   分支: {branch}  |  tag: {version}  |  基线分支: {base_branch}")
     print(f"{'='*60}")
 
     # --- Clone ---
@@ -113,8 +125,8 @@ def process_repo(repo, workdir, dry_run=False):
                     failures.append("clone")
                     return False
             else:
-                run(f"git checkout {default_branch}", cwd=repodir)
-                run(f"git pull origin {default_branch}", cwd=repodir)
+                run(f"git checkout {base_branch}", cwd=repodir)
+                run(f"git pull origin {base_branch}", cwd=repodir)
     else:
         print(f"  ⬇ clone {url}")
         if not dry_run:
@@ -133,9 +145,9 @@ def process_repo(repo, workdir, dry_run=False):
     if branch_exists:
         print(f"  ∟ 远程分支 origin/{branch} 已存在，跳过创建")
     else:
-        print(f"  🌿 创建分支 {branch} (基于 {default_branch})")
+        print(f"  🌿 创建分支 {branch} (基于 {base_branch})")
         if not dry_run:
-            _, rc = run(f"git checkout -b {branch} origin/{default_branch}", cwd=repodir)
+            _, rc = run(f"git checkout -b {branch} origin/{base_branch}", cwd=repodir)
             if rc != 0:
                 failures.append("branch")
             else:
@@ -164,7 +176,7 @@ def process_repo(repo, workdir, dry_run=False):
             # 确保在正确的分支上
             run(f"git checkout {branch}", cwd=repodir)
             run(f"git pull origin {branch}", cwd=repodir)
-            _, rc = run(f"git tag -a {version} -m 'FlagOS 2.1 release: {version}'", cwd=repodir)
+            _, rc = run(f"git tag -a {version} -m 'FlagOS {release} release: {version}'", cwd=repodir)
             if rc != 0:
                 failures.append("tag")
             else:
@@ -202,7 +214,8 @@ def main():
     args = parser.parse_args()
 
     repos = parse_manifest(args.manifest)
-    print(f"📋 从 {args.manifest} 解析到 {len(repos)} 个模块")
+    release = release_label(args.manifest)
+    print(f"📋 从 {args.manifest} 解析到 {len(repos)} 个模块（FlagOS {release}）")
 
     if args.dry_run:
         print("🔍 DRY-RUN 模式：仅预览，不实际操作\n")
@@ -213,7 +226,7 @@ def main():
 
     results = []
     for repo in filtered:
-        ok = process_repo(repo, args.workdir, dry_run=args.dry_run)
+        ok = process_repo(repo, args.workdir, release=release, dry_run=args.dry_run)
         results.append((repo["name"], ok))
 
     print(f"\n{'='*60}")
@@ -223,7 +236,10 @@ def main():
         print(f"❌ 失败: {', '.join(failed)}")
     if args.dry_run:
         print(f"🔍 以上为预览，使用去掉 --dry-run 执行实际操作")
+        return 0
+    # 非零退出码，避免部分模块建分支/打 tag 失败时 CI 仍显示成功
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
