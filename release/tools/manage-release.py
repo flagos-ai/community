@@ -63,10 +63,9 @@ def parse_manifest(filepath):
                     default_branch = "master"
 
             if url and version and branch:
-                ssh_url = re.sub(r"https://github\.com/", "git@github.com:", url)
                 repos.append({
                     "name": name,
-                    "url": ssh_url,
+                    "url": url,
                     "version": version,
                     "branch": branch,
                     "default_branch": default_branch,
@@ -237,7 +236,10 @@ def main():
         print(f"❌ 失败: {', '.join(failed)}")
     if args.dry_run:
         print(f"🔍 以上为预览，使用去掉 --dry-run 执行实际操作")
+        return 0
+    # 非零退出码，避免部分模块建分支/打 tag 失败时 CI 仍显示成功
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
