@@ -142,8 +142,8 @@ FlagOS 项目包含多个专业化的代码仓库：
 - 指导新贡献者
 
 ### 🏛️ 加入或创建 SIG
-SIG（特别兴趣小组）是技术工作的核心组织。每个 SIG 覆盖一个特定技术领域——算子、编译器、通信、训练等。
-- **[浏览现有 SIG](sigs/)** 找到你感兴趣的方向，参加例会
+SIG（特别兴趣小组）是技术工作的核心组织。每个 SIG 覆盖一个特定技术领域——算子、编译器、通信、训练、端侧计算等。
+- **[浏览现有 SIG](sigs/)** 找到你感兴趣的方向；端侧硬件与端侧 SDK 相关工作请参阅 **[sig-edge](sigs/sig-edge/)**
 - **[创建新 SIG](GOVERNANCE_CN.md#sig-special-interest-group)** — 需 ≥1 名 Chair、≥1 名 Tech Lead、≥3 名初始成员、Charter 草案。向 TSC 提交 PR 即可发起
 
 ## 交流渠道

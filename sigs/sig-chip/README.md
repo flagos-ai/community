@@ -33,7 +33,7 @@
 **Out of Scope:**
 - Operator implementation → sig-operator (but chip-specific optimization proposals require sig-chip review)
 - Framework adaptation → sig-framework
-- Edge hardware → sig-edge (planned)
+- Edge hardware → sig-edge
 - Benchmark data collection → sig-benchmark (planned)
 
 ## Members

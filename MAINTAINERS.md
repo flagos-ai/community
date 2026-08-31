@@ -71,6 +71,13 @@ FlagOS project maintainer roster. This file is maintained by the TSC and updated
 | Chair | (TBD) | — | Pending |
 | Tech Lead | (TBD) | — | Pending |
 
+### sig-edge
+
+| Role | Name | GitHub | Status |
+|------|------|--------|--------|
+| Chair | (TBD) | — | Pending |
+| Tech Lead | Kevin Zhao | [@kevinzs2048](https://github.com/kevinzs2048) | Active |
+
 ## Working Group Organizers
 
 ### wg-embodied

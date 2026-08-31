@@ -26,7 +26,7 @@ FEP (FlagOS Enhancement Proposal) 是 FlagOS 的特性管理机制。每个跨�
 
 ## SIG 分组
 
-### 活跃 SIG (7 个)
+### 活跃 SIG (8 个)
 
 | SIG | 模块 |
 |-----|---------|
@@ -37,6 +37,7 @@ FEP (FlagOS Enhancement Proposal) 是 FlagOS 的特性管理机制。每个跨�
 | `sig-training` | FlagScale |
 | `sig-kernelgen` | KernelGen, KernelGenBench |
 | `sig-chip` | 数据中心芯片适配 |
+| `sig-edge` | 端侧硬件与 FlagOS 端侧 SDK |
 
 ### 规划中 / 孵化中
 
@@ -47,7 +48,6 @@ FEP (FlagOS Enhancement Proposal) 是 FlagOS 的特性管理机制。每个跨�
 | `sig-benchmark` | 规划中 SIG | FlagPerf |
 | `sig-agent` | 规划中 SIG | Skills |
 | `sig-tools` | 规划中 SIG | FlagRelease |
-| `sig-edge` | 规划中 SIG | 端侧硬件与 FlagOS 端侧 SDK |
 | `sig-architecture` | 规划中 SIG | 跨模块功能、流程变更 |
 | `sig-os` | 规划中 SIG | 操作系统打包、发行版集成（openKylin、openEuler） |
 | `sig-riscv` | 规划中 SIG | RISC-V 实验性支持 — 编译适配、依赖分析 |

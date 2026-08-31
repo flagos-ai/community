@@ -28,7 +28,7 @@ Live FEP progress per FlagOS release. Badges read from the GitHub Milestones API
 
 ## SIG Groups
 
-### Active SIGs (7)
+### Active SIGs (8)
 
 | SIG | Modules |
 |-----|---------|
@@ -39,6 +39,7 @@ Live FEP progress per FlagOS release. Badges read from the GitHub Milestones API
 | `sig-training` | FlagScale |
 | `sig-kernelgen` | KernelGen, KernelGenBench |
 | `sig-chip` | Datacenter chip adaptation |
+| `sig-edge` | Edge hardware and edge-side SDK |
 
 ### Planned / Incubating
 
@@ -49,7 +50,6 @@ The following areas have been identified but lack Approvers; FEPs are reviewed d
 | `sig-benchmark` | Planned SIG | FlagPerf |
 | `sig-agent` | Planned SIG | Skills |
 | `sig-tools` | Planned SIG | FlagRelease |
-| `sig-edge` | Planned SIG | Edge Hardware and Edge side SDK for FlagOS |
 | `sig-architecture` | Planned SIG | Cross-module features, process changes |
 | `sig-os` | Planned SIG | OS-level packaging, distribution integration (openKylin, openEuler) |
 | `sig-riscv` | Planned SIG | Experimental RISC-V support — compile adaptation, dependency analysis |
