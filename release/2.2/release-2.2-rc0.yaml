@@ -171,14 +171,27 @@ repositories:
     # 当前版本: v0.1.0 / 默认分支: main
     # 注: 2.1 中名为 pytorch-plugin-fl，仓库已更名 PyTorch-Plugin-FL → Torch-FL
 
+  # vllm-plugin-FL 按 vLLM 版本线拆两个条目，指向同一仓库的不同分支，2.2 两条线都测：
+  #   - main        跟 vLLM 0.24.0 → 0.3.0-rc0
+  #   - release/0.2 跟 vLLM 0.20.2 → 0.2.2-rc0
   vllm-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/vllm-plugin-FL.git
     version: v0.3.0-rc0.post1
     # 分支: 0.3.0-rc0
+    # 基线分支: main
     # 当前版本: v0.2.1 / 默认分支: main
     # 注: 2.1 正式版为 v0.2.0，其后 main 上已发 v0.2.1；
     #     上游已存在 v0.3.0-rc0 tag（非本流程所打），本次 rc0 tag 用 .post1 后缀区分
+
+  vllm-plugin-fl-0.2:
+    type: git
+    url: https://github.com/flagos-ai/vllm-plugin-FL.git
+    version: v0.2.2-rc0.post1
+    # 分支: 0.2.2-rc0
+    # 基线分支: release/0.2
+    # 当前版本: v0.2.1 / 默认分支: main
+    # 注: release/0.2 线（vLLM 0.20.2），该线最新 tag v0.2.1，release/0.2 领先其 6 个提交
 
   sglang-plugin-fl:
     type: git
