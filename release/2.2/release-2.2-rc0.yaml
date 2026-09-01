@@ -208,7 +208,7 @@ repositories:
     version: v0.1.0-rc0.post1
     # 分支: 0.1.0-rc0
     # 基线分支: release/v0.1.0
-    # 当前版本: v0.1.0-rc1 / 默认分支: main
+    # 当前版本: 无已发布 tag / 默认分支: main
     # 注: 2.2 新增模块（FEP #91 量化框架），2.1 清单中不存在
     # 注: rc0 从 release/v0.1.0 拉出，不从 main 拉；main 领先该发布分支 12 个提交，
     #     这些提交不进 2.2 rc0
