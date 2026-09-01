@@ -31,7 +31,8 @@
 # 注释字段说明（manage-release.py 依赖这两个字段）：
 #   - "分支:"     rc0 集成分支名，工具会创建并推送它
 #   - "基线分支:" rc0 分支从哪个上游分支拉出；缺省时取默认分支。
-#                同一仓库拆多个条目、各自跟不同上游线时必须写（见 FlagTree）
+#                同一仓库拆多个条目、各自跟不同上游线时必须写（见 FlagTree）；
+#                rc0 要从发布分支而非默认分支拉出时也必须写（见 flagos-compressor）
 #
 # ⚠️ 注意: FlagGems / FlagGems-sglang / FlagDNN / FlagBLAS 的默认分支是 master，
 #          其他模块都是 main。
@@ -206,8 +207,11 @@ repositories:
     url: https://github.com/flagos-ai/FlagOS-Compressor.git
     version: v0.1.0-rc0.post1
     # 分支: 0.1.0-rc0
+    # 基线分支: release/v0.1.0
     # 当前版本: v0.1.0-rc1 / 默认分支: main
     # 注: 2.2 新增模块（FEP #91 量化框架），2.1 清单中不存在
+    # 注: rc0 从 release/v0.1.0 拉出，不从 main 拉；main 领先该发布分支 12 个提交，
+    #     这些提交不进 2.2 rc0
 
   # ===========================================================================
   # L3 — 应用/工具层（编排框架 + 工具 + 文档）
