@@ -89,7 +89,7 @@ repositories:
   flaggems:
     type: git
     url: https://github.com/flagos-ai/FlagGems.git
-    version: v5.4.0-rc1.post1
+    version: v5.4.0-rc1.post2
     # 分支: 5.4.0-rc1
     # rc0: v5.4.0-rc0.post1 / 默认分支: master ← 注意：不是 main
     # 注: master 已合入 setuptools_scm 改为 only-version（#5885），post tag 落在
