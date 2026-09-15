@@ -2,7 +2,8 @@ name: Sync FlagOS 2.2 issues to release quality project
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    # Avoid the top of the hour, when GitHub Actions is busiest.
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -63,3 +64,73 @@ jobs:
           done < "$missing_issues"
 
           echo "Matched $(wc -l < "$all_issues" | tr -d ' ') issues; added $added missing issues."
+
+      - name: Reconcile deterministic project status
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          project_id=$(gh project view "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json --jq '.id')
+          status_field_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Status") | .id')
+          triage_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Triage") | .id')
+          confirmed_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Confirmed") | .id')
+          done_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Done") | .id')
+          deferred_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Deferred") | .id')
+
+          query='query($owner:String!,$number:Int!){organization(login:$owner){projectV2(number:$number){items(first:100){nodes{id content{... on Issue{number state stateReason assignees(first:20){nodes{login}}}} fieldValues(first:30){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}}}}}}}}}'
+          project_items="$RUNNER_TEMP/flagos-2.2-project-items.json"
+          transitions="$RUNNER_TEMP/flagos-2.2-status-transitions.tsv"
+          gh api graphql -f query="$query" \
+            -F owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER" > "$project_items"
+
+          jq -r \
+            '.data.organization.projectV2.items.nodes[]
+            | select(.content != null)
+            | {id, number: .content.number, state: .content.state,
+               reason: .content.stateReason,
+               assignees: [.content.assignees.nodes[].login],
+               status: ([.fieldValues.nodes[]
+                         | select(.field.name == "Status") | .name][0] // "UNSET")}
+            | (.desired = (
+                if .state == "CLOSED" and .reason == "NOT_PLANNED" then "Deferred"
+                elif .state == "CLOSED" and .reason == "COMPLETED" then "Done"
+                elif .state == "OPEN" and (.assignees | length) == 0 then "Triage"
+                elif .state == "OPEN" and .reason == "REOPENED" then
+                  (if (.assignees | length) == 0 then "Triage" else "Confirmed" end)
+                elif .state == "OPEN" and .status == "UNSET" then "Confirmed"
+                else .status
+                end))
+            | select(.desired != .status)
+            | [.id, .number, .status, .desired] | @tsv' \
+            "$project_items" > "$transitions"
+
+          updated=0
+          while IFS=$'\t' read -r item_id issue_number old_status desired; do
+            [ -n "$item_id" ] || continue
+            case "$desired" in
+              Triage) option_id="$triage_id" ;;
+              Confirmed) option_id="$confirmed_id" ;;
+              Done) option_id="$done_id" ;;
+              Deferred) option_id="$deferred_id" ;;
+              *) continue ;;
+            esac
+            gh project item-edit \
+              --id "$item_id" \
+              --project-id "$project_id" \
+              --field-id "$status_field_id" \
+              --single-select-option-id "$option_id" > /dev/null
+            updated=$((updated + 1))
+          done < "$transitions"
+
+          echo "Deterministic status updates: $updated"
