@@ -1,0 +1,16 @@
+name: FlagOS schedule probe
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report scheduler heartbeat
+        run: echo "schedule probe ${GITHUB_RUN_ID} at $(date -u +%FT%TZ)"
