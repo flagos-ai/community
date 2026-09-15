@@ -2,8 +2,9 @@ name: Sync FlagOS 2.2 issues to release quality project
 
 on:
   schedule:
-    # Avoid the top of the hour, when GitHub Actions is busiest.
-    - cron: "7,22,37,52 * * * *"
+    # Run every 15 minutes so new RC issues and Project status changes settle
+    # into the shared views without requiring a manual refresh.
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 permissions:
