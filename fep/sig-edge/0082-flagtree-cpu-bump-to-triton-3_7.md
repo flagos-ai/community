@@ -14,192 +14,165 @@
 
 ## Summary
 
-**(Required)** This FEP proposes upgrading the FlagTree CPU backend and
-[`flagtree-cpu`](https://github.com/flagos-ai/flagtree-cpu) integration to the Triton 3.7
-compiler line. The upgrade covers the CPU backend only. Its supported and acceptance platform
-is Linux on Arm64 (`aarch64`); GPU, NPU, x86_64 CPU, Windows, and macOS are outside this FEP's
-validation scope.
+**(Required)** This FEP moves the [`flagtree-cpu`](https://github.com/flagos-ai/flagtree-cpu)
+Arm64 CPU backend to Triton 3.7.2. The test revision is
+[`triton_v3.7.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x) at
+`2c35990a30e96665f8f9b5e158562288b4011048`. Its Python package imports as `triton`,
+and `TRITON_CPU_BACKEND=1` selects the CPU backend. Acceptance is on Linux `aarch64`.
 
-The work is a compiler-baseline migration, not a new operator or performance feature. It will
-forward-port the existing Arm64 CPU backend, TritonCPU dialect and lowering passes, runtime,
-and TLE integration while preserving the user-facing FlagTree CPU workflow. The implementation
-will pin an exact Triton 3.7.x commit and its matching LLVM revision. At the time of this draft,
-the upstream stable reference is
-[`v3.7.1`](https://github.com/triton-lang/triton/releases/tag/v3.7.1).
+This is a compiler migration. The branch carries the CPU backend, TritonCPU lowering, runtime,
+and Arm64 support onto the 3.7 line. It does not itself add a W8A8 model kernel. The downstream
+vLLM environment in [FEP-0083](https://github.com/flagos-ai/community/pull/82) uses this compiler
+revision with FlagGems and vllm-plugin-FL.
 
 ## Motivation
 
-FlagTree's published support matrix currently exposes CPU support on the
-[`triton_v3.3.x`](https://github.com/flagos-ai/FlagTree/tree/triton_v3.3.x) line, while
-`flagtree-cpu` also has a
-[`triton_v3.6.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.6.x) development
-branch. Upstream Triton has moved to the 3.7 release line, but there is no corresponding
-FlagTree CPU line. This leaves the CPU backend behind the compiler version used for current
-Triton development and increases the cost of every future update.
-
-FlagTree will also add support for Triton 3.7. Because `flagtree-cpu` supplies the CPU
-backend integrated into FlagTree, the two projects must keep corresponding Triton versions.
-Aligning both projects on the 3.7 line keeps their frontend semantics, compiler interfaces,
-MLIR/LLVM baseline, and extension points compatible. If FlagTree moves to 3.7 while the CPU
-backend remains on 3.3 or 3.6, CPU integration would require a cross-version compatibility
-layer or repeated backports, increasing maintenance cost and the risk of build-time or JIT
-failures.
-
-The CPU backend cannot be upgraded by changing a Python package version alone. It depends on
-Triton internals across several layers:
-
-- the Python backend, driver, target, compiler-stage, cache, and launcher interfaces;
-- the TritonCPU MLIR dialect, TableGen definitions, pass registration, and TTIR-to-LLVM
-  lowering;
-- Triton's CMake and pybind extension interfaces;
-- the LLVM revision pinned by Triton; and
-- the Arm64 runtime and TLE operations linked into the generated CPU module.
-
-These interfaces and the LLVM pin have changed across Triton 3.3, 3.4, 3.5, 3.6, and 3.7.
-Continuing to carry the CPU backend on older branches makes fixes harder to share with newer
-FlagTree work, increases downstream version skew, and turns a later upgrade into a larger,
-riskier rebase.
-
-Triton 3.7 is also a better long-term integration point for backend extensions. It adds
-documented hooks for out-of-tree TTIR/TTGIR passes and dialect plugins, alongside compiler,
-frontend, build, and LLVM updates. The CPU upgrade should use these supported extension points
-where they can replace local patch points without redesigning the backend. This reduces the
-amount of CPU-specific code that must be reapplied to each Triton release.
+Earlier CPU development used Triton 3.3 and 3.6 interfaces. Frontend, CMake, MLIR, LLVM,
+launcher, and cache interfaces changed across releases, so the Arm64 backend needs a coherent
+3.7 source and toolchain baseline. The `triton_v3.7.x` line now exists; the test task is to
+verify its exact revision builds, selects the CPU target, compiles a real kernel, and runs the
+FlagGems ARM operator added by
+[FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904).
 
 ### Goals
 
 **(Required)**
 
-- Establish a Triton 3.7.x CPU development line in `flagtree-cpu` and integrate it with the
-  corresponding FlagTree compiler line.
-- Forward-port the existing CPU backend registration, compiler pipeline, launcher, runtime,
-  TritonCPU dialect, lowering passes, and Arm64 TLE support to Triton 3.7.x.
-- Preserve the existing FlagTree CPU selection and Triton-kernel authoring experience; the
-  version bump must not require users to rewrite kernels solely because the backend moved to
-  Triton 3.7.
-- Keep the acceptance scope explicit: Linux Arm64 (`aarch64`) CPU only.
-- Pin and record the exact Triton commit, LLVM revision, Python version range, and build
-  toolchain used by the implementation.
-- Inventory remaining FlagTree/flagtree-cpu patches against upstream Triton 3.7 and use
-  upstream plugin hooks where practical, so subsequent Triton upgrades have a smaller
-  maintenance surface.
-- Preserve correctness and avoid material performance regressions for the existing Arm64 CPU
-  operator set. Exact acceptance criteria will be added with the implementation.
+- Build and import Triton 3.7.2 with its Arm64 CPU backend on Linux `aarch64`.
+- Keep the 3.7 CPU source, declared LLVM revision, and SLEEF submodule pinned for reproduction.
+- Compile and execute a CPU Triton kernel with the same authoring interface used before the bump.
+- Verify a downstream FlagGems quantized kernel against a PyTorch numerical reference.
+- Record cold-JIT latency and representative performance on the same host without claiming a
+  cross-machine throughput threshold.
 
 ### Non-Goals
 
-- Any GPU or NPU backend migration, including NVIDIA, AMD, Ascend, or other accelerator
-  backends.
-- Support or acceptance claims for x86_64 CPU, Windows, or macOS. Existing code paths may
-  remain, but this FEP does not validate them.
-- Adding new TLE operators, model integrations, quantization formats, or ISA-specific
-  optimizations solely as part of the version bump.
-- A full redesign of `flagtree-cpu` as a completely independent out-of-tree backend. Triton
-  3.7 extension hooks may be adopted incrementally where they reduce maintenance risk.
-- Upgrading FlagGems, PyTorch, or other downstream projects beyond the minimum compatibility
-  changes required to exercise the FlagTree CPU path.
-- Maintaining binary or compiler-cache compatibility between Triton 3.3/3.6 and Triton 3.7.
+- GPU, NPU, x86_64, macOS, and Windows acceptance.
+- Adding model integration, W8A8 operators, or new quantization formats in this compiler FEP.
+- Binary or compiler-cache compatibility with Triton 3.3 or 3.6.
 
 ## Proposal
 
-Create a coordinated Triton 3.7.x CPU line rather than applying isolated compatibility
-patches to the existing 3.3 or 3.6 branches. The implementation starts from a fixed upstream
-3.7.x release commit, then forward-ports the CPU-specific changes as reviewable layers:
-
-1. **Compiler baseline:** adopt the Triton 3.7 source baseline and its pinned LLVM toolchain.
-2. **CPU backend interface:** migrate CPU target discovery, backend options, compiler stages,
-   driver, launcher, and cache integration to the 3.7 interfaces.
-3. **Dialect and lowering:** migrate the TritonCPU dialect, TableGen output, pass pipelines,
-   pybind bindings, and LLVM lowering.
-4. **Arm64 runtime and TLE:** reconnect the existing Arm64 feature detection, runtime
-   functions, and TLE operations without expanding the operator scope.
-5. **FlagTree integration:** expose the migrated backend through FlagTree's existing CPU
-   selection path and document the exact source revisions used together.
-
-From a user perspective, kernels remain regular Triton kernels and the backend remains named
-`cpu`. FlagTree builds continue to select the CPU backend through `FLAGTREE_BACKEND=cpu`.
-Internal developer-only switches in `flagtree-cpu` may remain, but they must not replace the
-FlagTree-facing interface.
-
-The migration will prefer a clean 3.7 baseline plus isolated CPU changes over mixing unrelated
-backend commits into the CPU branch. Existing 3.3 and 3.6 branches remain available during the
-transition for comparison and rollback; this FEP does not require deleting or rewriting their
-history.
+The 3.7 line forward-ports CPU target discovery, driver, launcher, runtime, TritonCPU dialect,
+and lowering as one buildable tree. Use its pinned LLVM revision rather than a host LLVM chosen
+independently. `TRITON_CPU_BACKEND=1` selects the CPU backend; regular `@triton.jit` kernels
+continue to launch through the `cpu` target. Keep caches from older Triton lines separate.
 
 ## Design Details
 
-The table below identifies the expected migration surfaces. Exact code changes will be
-recorded by the implementation PRs.
+The pinned tree declares LLVM revision
+`87717bf9f81f7b29466c5d9a30a3453bdfc93941` in `cmake/llvm-hash.txt` and SLEEF
+submodule `93f04d869471ce4d007abaebb8c6a7bc62749f61`. Initialize submodules before
+building: a checkout without SLEEF fails during CMake configuration. The test revision also
+contains ARM I8MM/dot lowering and CPU `round`/`rint` libdevice support. The earlier
+`77433cf0534d0cddf8717da654628f3f9e48cea9` checkout built but failed six of seven
+FlagGems W4A8 tests on CIX P1; it is a failure baseline, not the acceptance revision.
 
-| Area | Triton 3.7 migration requirement |
-|---|---|
-| Source and LLVM baseline | Pin a stable Triton 3.7.x commit and the LLVM revision declared by that commit; do not reuse the older LLVM pin implicitly. |
-| Python backend | Adapt CPU backend/driver registration, target representation, compiler options, stage construction, module loading, cache keys, and launcher signatures to 3.7 APIs. |
-| MLIR dialect and passes | Rebuild TritonCPU TableGen artifacts and update dialect registration, pass APIs, type conversion, and TTIR-to-CPU/LLVM lowering for the 3.7 MLIR interfaces. |
-| Extension boundary | Use Triton 3.7 pass/dialect plugin hooks where they cover existing integration needs; document any remaining in-tree patch points. |
-| Build system | Update CMake targets, pybind registration, generated headers, and extension enablement to match the 3.7 build layout. |
-| Arm64 runtime | Preserve runtime feature detection and safe ISA dispatch for the existing Arm64 code paths; do not make a newer optional ISA an unconditional build or runtime requirement. |
-| Version and cache identity | Include the Triton/LLVM/CPU-backend revisions in version reporting and cache identity; stale 3.3/3.6 artifacts must not be reused by 3.7. |
-
-### Arm64 Platform Boundary
-
-Acceptance under this FEP is limited to Linux hosts reporting `aarch64`/`arm64`. The exact
-distribution, compiler version, minimum ISA features, and reference machine will be fixed when
-development produces a buildable baseline and the Test Plan is written. Until then, this
-document makes no package-availability or tested-hardware claim.
-
-### Compatibility Expectations
-
-- Existing supported Triton CPU kernels should continue to compile without changes unless an
-  upstream 3.7 language change makes a source update unavoidable.
-- Existing Arm64 TLE operations should keep their public names and semantics.
-- Compiler caches produced by older Triton lines are incompatible and must be isolated or
-  invalidated.
-- Performance improvement is not required for acceptance, but material regressions against the
-  pre-upgrade Arm64 baseline must be investigated before this FEP can become `Implemented`.
-
-### Main Risks
-
-- **Internal API churn:** the CPU backend uses compiler interfaces that are not all stable
-  public APIs. The migration should keep compatibility changes separated by layer.
-- **LLVM behavior changes:** a new LLVM pin can change AArch64 code generation, correctness,
-  or performance even when the Triton kernel is unchanged. The final test plan must compare
-  both correctness and representative performance.
-- **Extension-boundary mismatch:** Triton 3.7 plugin hooks may not cover every existing CPU
-  customization. Remaining patches must be documented rather than hidden in a broad rebase.
-- **Scope expansion:** unrelated operators and accelerator changes make version-bump failures
-  harder to diagnose. They should be tracked in separate work.
+The initial reference is CIX P1 (CD8180), Linux `aarch64`, Python 3.11.2, PyTorch
+`2.11.0+cpu`, GCC 14.2.0, and CMake 3.31.6. Other Arm64 processors need their own ISA and
+correctness checks. This FEP tests the `flagtree-cpu` package directly; a separate FlagTree
+repository build is outside this test environment.
 
 ## Packaging
 
-**(Required)**
+**(Required)** Build from source in an isolated directory. On Debian 13, install `git`,
+`build-essential`, `ninja-build`, `cmake`, and `pipx` first. Four build jobs are conservative
+for a 32 GiB CIX P1.
 
-TBD. Implementation has not started. Packaging format, supported build environment, exact
-build commands, and artifact publication will be added after the Triton 3.7 CPU integration
-is buildable.
+```bash
+pipx install 'uv==0.8.24'
+export PATH="$HOME/.local/bin:$PATH"
+uv python install 3.11
+export WORK_DIR="$HOME/flagtree-cpu-3.7-test"
+mkdir -p "$WORK_DIR"
+git clone --branch triton_v3.7.x --depth 1 \
+  https://github.com/flagos-ai/flagtree-cpu.git "$WORK_DIR/flagtree-cpu"
+git -C "$WORK_DIR/flagtree-cpu" checkout --detach \
+  2c35990a30e96665f8f9b5e158562288b4011048
+git -C "$WORK_DIR/flagtree-cpu" submodule update --init --recursive
+cd "$WORK_DIR"
+uv venv --python 3.11 .venv
+source .venv/bin/activate
+uv pip install -r flagtree-cpu/python/requirements.txt
+uv pip install --extra-index-url https://download.pytorch.org/whl/cpu \
+  --index-strategy unsafe-best-match 'torch==2.11.0+cpu' pytest
+TRITON_HOME="$WORK_DIR/.triton-build" TRITON_BUILD_PROTON=OFF MAX_JOBS=4 \
+  uv pip install --no-build-isolation --editable "$WORK_DIR/flagtree-cpu"
+```
+
+Do not install a public `triton` wheel over this checkout: that wheel does not contain this
+CPU backend. `FLAGTREE_BACKEND=cpu` alone is not the verified selector for this package.
 
 ## Test Plan
 
-**(Required)**
+**(Required)** Run these steps from `$WORK_DIR`. An outer directory named `triton` can shadow
+the installed Python package.
 
-TBD. Implementation has not started. The test plan will be written once the migrated backend
-can compile and run on Linux Arm64. No other architecture will be used as an acceptance
-platform for this FEP.
+1. Confirm the source, LLVM pin, import path, and CPU target:
+
+   ```bash
+   test "$(git -C "$WORK_DIR/flagtree-cpu" rev-parse HEAD)" = \
+     2c35990a30e96665f8f9b5e158562288b4011048
+   test "$(cat "$WORK_DIR/flagtree-cpu/cmake/llvm-hash.txt")" = \
+     87717bf9f81f7b29466c5d9a30a3453bdfc93941
+   TRITON_CPU_BACKEND=1 python - <<'PY'
+   import platform
+   from pathlib import Path
+   import triton
+
+   target = triton.runtime.driver.active.get_current_target()
+   print(platform.machine(), triton.__version__, Path(triton.__file__).resolve(), target)
+   assert platform.machine().lower() in {"aarch64", "arm64"}
+   assert triton.__version__ == "3.7.2"
+   assert "flagtree-cpu" in str(Path(triton.__file__).resolve())
+   assert target.backend == "cpu"
+   PY
+   ```
+
+2. Put the kernel in a **Python file**. Triton JIT cannot inspect a function defined on
+   standard input:
+
+   ```bash
+   cat > "$WORK_DIR/vector_add.py" <<'PY'
+   import torch
+   import triton
+   import triton.language as tl
+
+   @triton.jit
+   def add_one(x, y, BLOCK: tl.constexpr):
+       offsets = tl.arange(0, BLOCK)
+       tl.store(y + offsets, tl.load(x + offsets) + 1)
+
+   x = torch.arange(128, dtype=torch.float32)
+   y = torch.empty_like(x)
+   add_one[(1,)](x, y, BLOCK=128)
+   torch.testing.assert_close(y, x + 1)
+   print("CPU vector add PASS", triton.runtime.driver.active.get_current_target())
+   PY
+   TRITON_CPU_BACKEND=1 python "$WORK_DIR/vector_add.py"
+   ```
+
+3. Install the exact FlagGems #5904 head
+   `1fda4b11ae528c02ae5187cda551af4a61a514c5` in this environment with
+   `FLAGGEMS_VENDOR=arm`, then run its `tests/test_arm_w4a8_g128.py` suite as shown in
+   [FEP-0083](https://github.com/flagos-ai/community/pull/82). Require **7 passed, 0 skipped**.
+   It executes the Triton W4A8 kernel and compares
+   with a PyTorch reference. A model returning HTTP 200 does not replace this compiler check.
+
+Capture source SHA, LLVM pin, host/ISA, compiler version, test output, and cold-JIT time.
+Investigate a material slowdown against the older CPU line on the same host before changing
+the FEP status to `Implemented`.
 
 ## Related PRs
 
-No implementation PRs exist at the time of this draft.
-
-## References
-
-- [FEP-0015: Arm64 CPU Backend for FlagOS (TLE + Triton-CPU)](./0015-arm64-cpu-backend-flagtree-tle.md)
-- [FlagTree](https://github.com/flagos-ai/FlagTree)
-- [flagtree-cpu](https://github.com/flagos-ai/flagtree-cpu)
-- [Triton 3.7.0 release notes](https://github.com/triton-lang/triton/releases/tag/v3.7.0)
-- [Triton 3.7.1 release notes](https://github.com/triton-lang/triton/releases/tag/v3.7.1)
+- [ ] [`flagtree-cpu/triton_v3.7.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x) at `2c35990a...` — CPU line under acceptance test.
+- [x] [FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904) — downstream ARM W4A8 operator, merged 2026-09-04.
+- [ ] [vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — downstream vLLM 0.24 ARM CPU integration.
 
 ## Implementation History
 
-- 2026-07-29: Initial provisional draft. Scope limited to the FlagTree CPU backend with Linux
-  Arm64 as the only acceptance platform; Packaging and Test Plan deferred until development
-  starts.
+- 2026-07-29: Initial Triton 3.7 CPU migration proposal.
+- 2026-09-04: CIX P1 source-build revalidation identified `2c35990a...` as the passing
+  revision; the earlier `77433cf...` failed six of seven FlagGems W4A8 tests.
+- 2026-09-15: Pinned source/LLVM/SLEEF revisions and added executable enable and test steps.
+  On CIX P1, CPU target selection, vector add, and FlagGems W4A8 passed.
