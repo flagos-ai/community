@@ -1,0 +1,65 @@
+name: Sync FlagOS 2.2 issues to release quality project
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flagos-2.2-project-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-issues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.TEAMMEMBER_TOKEN }}
+      PROJECT_NUMBER: "9"
+      PROJECT_OWNER: flagos-ai
+
+    steps:
+      - name: Add missing RC issues to the project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          all_issues="$RUNNER_TEMP/flagos-2.2-issues.txt"
+          project_issues="$RUNNER_TEMP/project-issues.txt"
+          missing_issues="$RUNNER_TEMP/missing-issues.txt"
+          : > "$all_issues"
+
+          for label in flagos2.2-rc0 flagos2.2-rc1 flagos2.2-rc2; do
+            for state in open closed; do
+              gh search issues \
+                --owner "$PROJECT_OWNER" \
+                --label "$label" \
+                --state "$state" \
+                --limit 1000 \
+                --json url \
+                --jq '.[].url' >> "$all_issues"
+            done
+          done
+
+          sort -u -o "$all_issues" "$all_issues"
+          gh project item-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" \
+            --limit 1000 \
+            --format json \
+            --jq '.items[].content.url' \
+            | sort -u > "$project_issues"
+          comm -23 "$all_issues" "$project_issues" > "$missing_issues"
+
+          added=0
+          while IFS= read -r issue_url; do
+            [ -n "$issue_url" ] || continue
+            gh project item-add "$PROJECT_NUMBER" \
+              --owner "$PROJECT_OWNER" \
+              --url "$issue_url" > /dev/null
+            added=$((added + 1))
+          done < "$missing_issues"
+
+          echo "Matched $(wc -l < "$all_issues" | tr -d ' ') issues; added $added missing issues."
