@@ -149,6 +149,7 @@ jobs:
             | (.desired = (
                 if .state == "CLOSED" and .reason == "NOT_PLANNED" then "Deferred"
                 elif .state == "CLOSED" and .reason == "COMPLETED" then "Done"
+                elif .state == "OPEN" and .status == "Deferred" and .reason != "REOPENED" then "Deferred"
                 elif .state == "OPEN" and (.assignees | length) == 0 then "Triage"
                 elif .state == "OPEN" and .reason == "REOPENED" then
                   (if (.assignees | length) == 0 then "Triage" else "Confirmed" end)
