@@ -18,9 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      # FLAGOS_PROJECT_TOKEN is repo-scoped. Keep TEAMMEMBER_TOKEN as a
-      # temporary fallback while the new secret is being provisioned.
-      GH_TOKEN: ${{ secrets.FLAGOS_PROJECT_TOKEN || secrets.TEAMMEMBER_TOKEN }}
+      # Use the repository-scoped token. The default GITHUB_TOKEN and the
+      # legacy organization token do not have the Projects scope required by
+      # this workflow.
+      GH_TOKEN: ${{ secrets.FLAGOS_PROJECT_TOKEN }}
       PROJECT_NUMBER: "9"
       PROJECT_OWNER: flagos-ai
 
@@ -153,7 +154,7 @@ jobs:
             --owner "$PROJECT_OWNER" --format json \
             --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Deferred") | .id')
 
-          query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor){nodes{id content{... on Issue{number state stateReason assignees(first:20){nodes{login}} closedByPullRequestsReferences(first:20,includeClosedPrs:true){nodes{state mergedAt baseRefName}}}} fieldValues(first:30){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}}}}} pageInfo{hasNextPage endCursor}}}}}'
+          query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor){nodes{id content{__typename ... on Issue{number state stateReason assignees(first:20){nodes{login}} closedByPullRequestsReferences(first:50,includeClosedPrs:true){nodes{state mergedAt baseRefName}}}} fieldValues(first:50){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}} ... on ProjectV2ItemFieldPullRequestValue{pullRequests(first:50){nodes{state mergedAt baseRefName}} field{... on ProjectV2Field{name}}}}}} pageInfo{hasNextPage endCursor}}}}}'
           project_items="$RUNNER_TEMP/flagos-2.2-project-items.json"
           transitions="$RUNNER_TEMP/flagos-2.2-status-transitions.tsv"
           gh api graphql --paginate --slurp -f query="$query" \
@@ -161,16 +162,23 @@ jobs:
 
           jq -r \
             '.[] | .data.organization.projectV2.items.nodes[]
-            | select(.content != null)
+            | select(.content.__typename == "Issue")
             | {id, number: .content.number, state: .content.state,
                reason: .content.stateReason,
                assignees: [.content.assignees.nodes[].login],
-               pull_requests: [.content.closedByPullRequestsReferences.nodes[]],
+               pull_requests: ([.content.closedByPullRequestsReferences.nodes[]]
+                 + [.fieldValues.nodes[]
+                    | select(.field.name == "Linked pull requests")
+                    | .pullRequests.nodes[]]
+                 | unique),
                status: ([.fieldValues.nodes[]
                          | select(.field.name == "Status") | .name][0] // "UNSET")}
             | (.desired = (
                 if .state == "CLOSED" and .reason == "NOT_PLANNED" then "Deferred"
-                elif .state == "CLOSED" and .reason == "COMPLETED" then "Done"
+                # GitHub can return a null reason for older closed issues.
+                # Closed is nevertheless a completed quality item unless it
+                # was explicitly closed as not planned.
+                elif .state == "CLOSED" then "Done"
                 elif .state == "OPEN" and .reason == "REOPENED" then
                   (if (.assignees | length) == 0 then "Triage" else "Confirmed" end)
                 elif .state == "OPEN" and .status == "Deferred" then "Deferred"
@@ -178,7 +186,7 @@ jobs:
                 # A merged PR only means Verification when it landed on an
                 # RC branch. A merge to main is still Fixing for 2.2.
                 elif .state == "OPEN" and ([.pull_requests[]
-                  | select(.state == "MERGED" and (.baseRefName | test("rc[0-2]"; "i")))] | length) > 0 then "Verification"
+                  | select(.state == "MERGED" and ((.baseRefName // "") | test("(^|[-_/])rc[0-2]($|[-_/.])"; "i")))] | length) > 0 then "Verification"
                 elif .state == "OPEN" and ([.pull_requests[]
                   | select(.state == "OPEN" or .state == "MERGED")] | length) > 0 then "Fixing"
                 elif .state == "OPEN" and (.assignees | length) == 0 then "Triage"
