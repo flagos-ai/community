@@ -176,7 +176,7 @@ jobs:
                 elif .state == "OPEN" and .status == "Deferred" then "Deferred"
                 elif .state == "OPEN" and .status == "Verification" then "Verification"
                 # A merged PR only means Verification when it landed on an
-                # RC/release branch. A merge to main is still Fixing for 2.2.
+                # RC branch. A merge to main is still Fixing for 2.2.
                 elif .state == "OPEN" and ([.pull_requests[]
                   | select(.state == "MERGED" and (.baseRefName | test("rc[0-2]"; "i")))] | length) > 0 then "Verification"
                 elif .state == "OPEN" and ([.pull_requests[]
