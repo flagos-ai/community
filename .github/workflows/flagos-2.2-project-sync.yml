@@ -153,6 +153,7 @@ jobs:
                 elif .state == "OPEN" and (.assignees | length) == 0 then "Triage"
                 elif .state == "OPEN" and .reason == "REOPENED" then
                   (if (.assignees | length) == 0 then "Triage" else "Confirmed" end)
+                elif .state == "OPEN" and .status == "Triage" and (.assignees | length) > 0 then "Confirmed"
                 elif .state == "OPEN" and .status == "UNSET" then "Confirmed"
                 else .status
                 end))
