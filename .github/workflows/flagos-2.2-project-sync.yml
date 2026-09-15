@@ -125,6 +125,12 @@ jobs:
           confirmed_id=$(gh project field-list "$PROJECT_NUMBER" \
             --owner "$PROJECT_OWNER" --format json \
             --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Confirmed") | .id')
+          fixing_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Fixing") | .id')
+          verification_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Verification") | .id')
           done_id=$(gh project field-list "$PROJECT_NUMBER" \
             --owner "$PROJECT_OWNER" --format json \
             --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Done") | .id')
@@ -132,7 +138,7 @@ jobs:
             --owner "$PROJECT_OWNER" --format json \
             --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Deferred") | .id')
 
-          query='query($owner:String!,$number:Int!){organization(login:$owner){projectV2(number:$number){items(first:100){nodes{id content{... on Issue{number state stateReason assignees(first:20){nodes{login}}}} fieldValues(first:30){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}}}}}}}}}'
+          query='query($owner:String!,$number:Int!){organization(login:$owner){projectV2(number:$number){items(first:100){nodes{id content{... on Issue{number state stateReason assignees(first:20){nodes{login}} closedByPullRequestsReferences(first:20){nodes{state mergedAt baseRefName}}}} fieldValues(first:30){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}}}}}}}}}'
           project_items="$RUNNER_TEMP/flagos-2.2-project-items.json"
           transitions="$RUNNER_TEMP/flagos-2.2-status-transitions.tsv"
           gh api graphql -f query="$query" \
@@ -144,15 +150,19 @@ jobs:
             | {id, number: .content.number, state: .content.state,
                reason: .content.stateReason,
                assignees: [.content.assignees.nodes[].login],
+               pull_requests: [.content.closedByPullRequestsReferences.nodes[]],
                status: ([.fieldValues.nodes[]
                          | select(.field.name == "Status") | .name][0] // "UNSET")}
             | (.desired = (
                 if .state == "CLOSED" and .reason == "NOT_PLANNED" then "Deferred"
                 elif .state == "CLOSED" and .reason == "COMPLETED" then "Done"
-                elif .state == "OPEN" and .status == "Deferred" and .reason != "REOPENED" then "Deferred"
-                elif .state == "OPEN" and (.assignees | length) == 0 then "Triage"
                 elif .state == "OPEN" and .reason == "REOPENED" then
                   (if (.assignees | length) == 0 then "Triage" else "Confirmed" end)
+                elif .state == "OPEN" and .status == "Deferred" then "Deferred"
+                elif .state == "OPEN" and .status == "Verification" then "Verification"
+                elif .state == "OPEN" and ([.pull_requests[].state] | index("MERGED")) then "Verification"
+                elif .state == "OPEN" and ([.pull_requests[].state] | index("OPEN")) then "Fixing"
+                elif .state == "OPEN" and (.assignees | length) == 0 then "Triage"
                 elif .state == "OPEN" and .status == "Triage" and (.assignees | length) > 0 then "Confirmed"
                 elif .state == "OPEN" and .status == "UNSET" then "Confirmed"
                 else .status
@@ -167,6 +177,8 @@ jobs:
             case "$desired" in
               Triage) option_id="$triage_id" ;;
               Confirmed) option_id="$confirmed_id" ;;
+              Fixing) option_id="$fixing_id" ;;
+              Verification) option_id="$verification_id" ;;
               Done) option_id="$done_id" ;;
               Deferred) option_id="$deferred_id" ;;
               *) continue ;;
