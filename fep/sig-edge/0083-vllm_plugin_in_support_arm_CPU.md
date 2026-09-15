@@ -14,370 +14,386 @@
 
 ## Summary
 
-**(Required)** This FEP enables
-[`vllm-plugin-FL`](https://github.com/flagos-ai/vllm-plugin-FL) to run local model inference
-on Linux Arm64 CPUs. It reuses vLLM's existing Arm64 CPU platform, worker, model runner,
-attention, KV-cache, scheduling, and multiprocessing support. This FEP does not add another
-Arm64 platform implementation to vLLM or duplicate its CPU runtime.
+**(Required)** This FEP enables [`vllm-plugin-FL`](https://github.com/flagos-ai/vllm-plugin-FL)
+on Linux Arm64 CPUs while reusing vLLM's built-in `CpuPlatform`, worker, attention, KV cache,
+and serving API. The current implementation candidate is
+[vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) at
+`0252496764901de4d464ab64c09d995c954be646`, tested with vLLM `0.24.0+cpu`,
+[FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904), and
+[`flagtree-cpu/triton_v3.7.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x).
 
-The plugin-side work is to provide the Arm CPU quantized inference paths directly in the
-`vllm-plugin-FL` main repository. The plugin will support both W4A8 and W8A8 local inference
-and select the requested mode at runtime.
-
-The initial baseline is vLLM `0.20.2` with its corresponding PyTorch `2.11` environment. The
-acceptance platform is Linux AArch64 with `asimddp` (dot-product), `i8mm`, and BF16 CPU
-features.
+The plugin's ARM CPU implementation recognizes `compressed-tensors` **packed W4A8-G128**
+checkpoints and routes their linear operators to FlagGems. The
+[`FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS`](https://modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS)
+checkpoint is **`int-quantized` channel-wise W8A8**. In this source environment it uses
+vLLM's native CPU INT8 linear kernel. It is a useful end-to-end W8A8 inference and plugin
+coexistence test; it does not demonstrate a FlagGems-accelerated W8A8 CPU route. That route
+needs separate implementation and acceptance evidence before this FEP can be `Implemented`.
 
 ## Motivation
 
-vLLM already supports Arm64 CPU inference. Therefore, the missing capability is not another
-CPU platform abstraction, CPU worker, distributed backend, or memory-management
-implementation. The required work is confined to `vllm-plugin-FL`: connect its model
-registration and optimized Arm operators to vLLM's native CPU execution path, and make W4A8
-and W8A8 available from the main plugin package.
-
-Without this integration, installing the main plugin does not provide a complete, selectable
-Arm64 quantized inference path. W8A8 also depends on native assets, compiler symbols, cache
-identity, and packaging rules that must be managed by the same repository as its Python model
-integration.
-
-The adaptation therefore provides both quantized linear implementations behind one model
-registration entry point. W4A8 and W8A8 share one Triton CPU compiler build while retaining
-independent operator namespaces, packing rules, native symbols, cache ABI values, and runtime
-selection.
+The earlier FEP draft was based on vLLM 0.20.2 and prototype `FL_CPU_INT4`/`FL_CPU_INT8`
+flags. Those flags and native-asset assumptions do not describe PR #433. Test colleagues need
+instructions that reproduce the current code and distinguish three outcomes: the FlagTree CPU
+compiler works, the packed W4A8 adapter and FlagGems operator work, and the published W8A8
+checkpoint completes inference through the kernel actually selected at runtime.
 
 ### Goals
 
 **(Required)**
 
-- Run vLLM local model inference on Linux Arm64 with `vllm-plugin-FL` enabled, reusing
-  upstream vLLM's existing CPU runtime.
-- Provide W4A8 and W8A8 implementations in the `vllm-plugin-FL` main repository.
-- Allow one installed plugin to select W4A8 or W8A8 through explicit environment variables.
-- Make W8A8 take precedence when both W4A8 and W8A8 are requested, avoiding double model
-  patching.
-- Keep the W4A8 and W8A8 Triton operator namespaces and Inductor patches independent so both
-  implementations can coexist in one Python process.
-- Use one KleidiAI-enabled `libtriton.so` and the existing shared compiler builder operation
-  for both paths.
-- Package all W8A8 native assets and provide a reproducible Arm64 asset build script.
-- Validate decode and prefill correctness, strict/fallback behavior, wheel completeness, and
-  end-to-end local inference on the Arm64 reference platform.
+- Select vLLM 0.24's stock CPU platform when the host, vLLM build, and FlagGems backend are Arm64 CPU.
+- Preserve packed W4A8-G128 weights and scales, then run the FlagGems ARM W4A8 operator.
+- Keep the Qwen GDN stride compatibility hook idempotent and isolated from accelerator builds.
+- Load the pinned MiniCPM5 W8A8 release checkpoint and return non-empty HTTP inference.
+- Verify from logs whether W8A8 used native vLLM or a future FlagGems path; do not infer it
+  from the checkpoint name or from the HTTP response.
+- Add an optimized ARM W8A8 plugin path in a follow-up implementation, with a kernel-selection
+  and numerical test, if W8A8 acceleration remains an acceptance goal for FlagOS 2.2.
 
 ### Non-Goals
 
-- Reimplementing or replacing vLLM's Arm64 CPU platform, worker, model runner, CPU attention,
-  KV-cache management, scheduler, multiprocessing, or Gloo support.
-- Adding an `ArmCpuPlatformFL`, `ArmCPUWorkerFL`, or other parallel CPU runtime hierarchy.
-- OpenAI-compatible serving, multi-node execution, tensor parallelism greater than 1, or
-  pipeline parallelism in the initial acceptance scope.
-- x86_64 CPU, GPU, NPU, macOS, or Windows support.
-- New quantization formats other than the existing W4A8 and W8A8 paths.
-- Adding a new Triton compiler operation solely for W8A8.
-- Changing upstream vLLM APIs or its Arm64 installation procedure.
+- Replacing vLLM's CPU worker, attention, scheduler, or KV-cache implementation.
+- Treating W4A8 and W8A8 checkpoints as interchangeable or switching their checkpoint format
+  with an environment flag.
+- Claiming CIX image-local native/KleidiAI kernels are delivered by PR #433 alone.
 
 ## Proposal
 
-Keep vLLM responsible for the complete Arm CPU runtime and limit the plugin changes to model
-registration and optimized quantized linear operators:
+Install a vLLM `0.24.0+cpu` build, FlagTree CPU/Triton 3.7.2, FlagGems with its ARM backend,
+and the plugin. Before the first vLLM or FlagGems import, set `FLAGGEMS_VENDOR=arm` and
+`TRITON_CPU_BACKEND=1`. `VLLM_PLUGINS=fl` isolates the installed `fl` plugin in a test process.
+The plugin automatically returns vLLM's `CpuPlatform` on a Linux `aarch64` CPU build. There
+is no dedicated `FL_CPU_INT4` or `FL_CPU_INT8` switch for PR #433's ARM CPU path.
 
-```text
-vLLM local inference on Arm64
-        |
-        +-- upstream vLLM CPU platform / worker / model runner
-        |
-        +-- vllm-plugin-FL register_model()
-                |
-                +-- FL_CPU_INT8=1 --> W8A8 backend --> return
-                |
-                +-- otherwise, FL_CPU_INT4=1 --> existing W4A8 backend
-                |
-                +-- neither enabled --> existing non-quantized vLLM CPU path
-```
+The checkpoint metadata chooses the linear scheme:
 
-The main repository contains the W4A8 and W8A8 operator files, native assets, backend
-selection, and model-enable logic. They are released, versioned, and tested as one plugin.
+| Checkpoint contract | Current route in this environment |
+|---|---|
+| `pack-quantized`, symmetric INT4 group-wise G128 weight, dynamic per-token INT8 activation | Plugin W4A8 adapter -> FlagGems `w4a8_g128_linear()` -> FlagTree CPU JIT |
+| `int-quantized`, symmetric INT8 per-channel weight, dynamic per-token INT8 activation | vLLM `CompressedTensorsW8A8Int8` -> `CPUInt8ScaledMMLinearKernel` (oneDNN path) |
 
-### Model Registration
-
-`vllm_fl/__init__.py::register_model()` is the single selection point. The required order is:
-
-```python
-if FL_CPU_INT8:
-    validate FL_CPU_INT8_BACKEND
-    enable the selected W8A8 backend
-    return
-
-if FL_CPU_INT4:
-    validate FL_CPU_INT4_BACKEND
-    enable the existing W4A8 backend
-```
-
-`FL_CPU_INT8` has higher priority than `FL_CPU_INT4`. The early return is required so the same
-model is not patched by both paths when both variables are set. The existing W4A8 behavior
-must remain unchanged when `FL_CPU_INT8` is unset or `0`.
+The MiniCPM5 W8A8 release has 42 `LlamaForCausalLM` layers, BF16 embeddings and `lm_head`,
+and an INT8 model body. Its configuration declares up to 131072 positions. The smoke procedure
+below uses 512 positions to reduce cold-start cost; it is not a long-context acceptance test.
 
 ## Design Details
 
-### Arm64 Operator Integration
+PR #433 owns ARM CPU platform registration, packed W4A8 checkpoint metadata and weight
+conversion, kernel lifecycle, and Qwen GDN CPU compatibility. FlagGems #5904 owns the public
+W4A8-G128 packer and Triton operator. The ARM CPU hooks are installed only when the selected
+platform is CPU, the host is `aarch64`/`arm64`, and FlagGems reports vendor `arm`; otherwise
+the existing platform route remains active. Repeated plugin registration must not patch the
+same vLLM method twice.
 
-The W4A8 implementation remains in place. The following W8A8 implementation files and native
-assets are added to the main repository:
-
-| File | Purpose |
-|---|---|
-| `vllm_fl/ops/cpu_int8_tleraw.py` | Primary W8A8 TLE path; mirrors the role of `cpu_int4_tleraw.py`. |
-| `vllm_fl/ops/cpu_int8_tle_wrapper.c` | W8A8 TLE native implementation with dot-product GEMV and i8mm GEMM. |
-| `vllm_fl/ops/cpu_int8_kai.py` | Optional eager KleidiAI W8A8 backend. |
-| `vllm_fl/ops/cpu_int8_kai_wrapper.c` | Native wrapper for the eager KleidiAI backend. |
-| `vllm_fl/ops/cpu_int8_pack.py` | Optional PyTorch `_weight_int8pack_mm` W8A16 compatibility backend. |
-| `vllm_fl/ops/libkai_w8a8.so` | Prebuilt W8A8 packing library loaded at runtime. |
-| `vllm_fl/ops/libkai_w8a8_ukernels.o` | W8A8 microkernel object linked by the TLE path. |
-
-`cpu_int8_pack.py` is retained as an alternative compatibility path, but it computes W8A16
-through PyTorch's native INT8 pack operation and is not the primary W8A8 acceptance backend.
-The recommended and default W8A8 backend is `tleraw`.
-
-### Runtime Configuration
-
-The merged plugin supports the following Arm CPU variables:
-
-| Variable | Values | Meaning |
-|---|---|---|
-| `FL_CPU_INT8` | `0` / `1` | Enable the W8A8 model path. It takes priority over W4A8. |
-| `FL_CPU_INT8_BACKEND` | `tleraw`, `kleidiai`, `torchpack` | Select the W8A8 implementation; default is `tleraw`. |
-| `FL_CPU_INT4` | `0` / `1` | Enable the existing W4A8 model path. |
-| `FL_CPU_INT4_BACKEND` | `tleraw` | Select the W4A8 implementation; no other value is accepted. |
-| `FL_INT4_LMHEAD` | `0` / `1` | Include `lm_head` in W4A8 quantization. |
-| `FL_INT8_LMHEAD` | `0` / `1` | Include `lm_head` in W8A8 quantization. |
-| `FL_CPU_INT4_STRICT` | `0` / `1` | Raise on W4A8 conversion failure instead of falling back to BF16. |
-| `FL_CPU_INT8_STRICT` | `0` / `1` | Raise on W8A8 conversion failure instead of falling back to BF16. |
-| `FL_KAI_W4A8_DIR` | path | W4A8 pack-library source/build directory. |
-| `KLEIDIAI_ROOT` | path | KleidiAI source root used by the W4A8 online pack build. |
-
-`FL_KAI_W4A8_DIR` and `KLEIDIAI_ROOT` apply only to W4A8. W8A8 loads the packaged
-`libkai_w8a8.so` and does not require KleidiAI headers to be compiled during inference.
-
-Typical selections are:
-
-```bash
-# W4A8
-export FL_CPU_INT4=1
-export FL_CPU_INT4_BACKEND=tleraw
-export FL_CPU_INT8=0
-
-# W8A8
-export FL_CPU_INT8=1
-export FL_CPU_INT8_BACKEND=tleraw
-```
-
-### W4A8 and W8A8 Coexistence
-
-The two paths share the model-integration pattern but keep their quantization and runtime
-identities separate:
-
-| Area | W4A8 | W8A8 |
-|---|---|---|
-| Weight quantization | Signed INT4, per block with `BL=32` | Symmetric INT8, per row with `scale=amax/127` |
-| Primary operator | `fltleraw::linear_w4a8` | `flint8tle::linear_w8a8` |
-| Primary backend | `tleraw` | `tleraw` |
-| Packing dependency | Online build using KleidiAI sources | Packaged `libkai_w8a8.so` |
-| Inductor import | `gemm_w4a8_i8mm` | `gemm_w8a8_tle` |
-| Patch marker | `_fl_w4a8_builtin_patched` | `_fl_w8a8_builtin_patched` |
-| Cache ABI | Independently maintained W4A8 value | Independently maintained W8A8 value |
-
-The `torch.library.triton_op` namespaces must remain different. Likewise, each path
-monkey-patches `AsyncCompile.triton` only with its own builtin import and uses its own
-idempotence marker. Reusing one namespace or patch marker would make import order determine
-which implementation survives.
-
-### Shared Compiler Integration
-
-W4A8 and W8A8 intentionally reuse the compiler builder operation
-`create_cpu_gemm_q4_0_v2_smmla_bf16`, defined under
-`third_party/cpu/language/cpu/tle_ops.py`. The W8A8 Python builtin
-`gemm_w8a8_tle` still emits this existing operation. Its
-`neon.register_c_function` binding points to the W8A8 external implementation, while W4A8
-binds its own external symbol.
-
-Despite the historical `q4_0` name, no new compiler operation is needed for W8A8. The
-quantization-specific behavior is supplied by the registered native function behind the
-shared builder operation.
-
-The known-good compiler source containing the required KleidiAI integration is
-`arm64-dev/backend/main`. A `libtriton.so` built only from the checked-out INT8 V2 branch is
-insufficient because that branch does not contain the KleidiAI changes. The implementation
-must:
-
-1. use `arm64-dev/backend/main` as the compiler source baseline;
-2. record the exact commit used;
-3. rebuild `libtriton.so` after checkout; and
-4. use that single rebuilt library for both W4A8 and W8A8.
-
-When the Triton 3.7 CPU line described by
-[FEP-0082](./0082-flagtree-cpu-bump-to-triton-3_7.md) becomes the FlagTree baseline, the
-shared builder operation and KleidiAI integration above must be present in its matching
-`flagtree-cpu` line.
-
-### Torch Inductor and Native Dispatch Constraints
-
-The merged implementation must preserve the following constraints from the working Arm64
-paths:
-
-- Operators must use `triton_op` together with `wrap_triton`. Reverting to the older
-  `custom_op` launch wrapper introduces a large decode-performance regression.
-- Prefill (`M > 1`) versus decode (`M = 1`) dispatch must occur in the backing C function.
-  vLLM CPU uses `DYNAMO_TRACE_ONCE`; a Python shape branch observed during warmup cannot be
-  relied upon to retain the correct guard for later decode shapes.
-- W4A8 and W8A8 keep independent `TLE_CACHE_ABI` values. The current values are `20260717`
-  for W4A8 and `20260720` for W8A8. Any change to external C source, linked object content, or
-  native calling convention must bump the corresponding value because Inductor does not hash
-  those native inputs.
-- Python startup ordering must not pre-populate an incorrect `has_triton_package` result.
-  The `.pth`/`sitecustomize` order must ensure the intended Triton package is discoverable
-  before Inductor caches Triton availability; otherwise the observed failure is an
-  `AttrsDescriptor` `NameError`.
-
-### Version and Platform Constraints
-
-| Component | Required baseline |
-|---|---|
-| Operating system | Linux AArch64 |
-| CPU features | `asimddp`/dot-product, `i8mm`, and BF16 |
-| vLLM | `0.20.2` |
-| PyTorch | `2.11`, matching the vLLM environment |
-| vllm-plugin-FL | Main repository with both W4A8 and W8A8 paths |
-| Triton CPU compiler | KleidiAI-enabled build from `arm64-dev/backend/main`, exact commit pinned |
-
-Both quantized paths call `_validate_cpu_features()` and must fail early with a clear message
-when the required Arm instructions are unavailable. They must not silently execute an
-incompatible native kernel.
+The W8A8 release checkpoint uses `format: int-quantized`, so it does not match the plugin's
+packed W4A8 adapter. PR #433's FlagGems W8A8 linear bridge belongs to the accelerator-shaped
+OOT platform, not to the stock ARM CPU platform returned by this integration. A W8A8 HTTP
+response is therefore a compatibility result until a separate ARM W8A8 operator is selected
+and measured. Image-specific `QUANT_MODE=w8`/`FL_CPU_INT8` launchers refer to a different
+runtime and are not part of this four-source test environment.
 
 ## Packaging
 
-**(Required)** The `vllm-plugin-FL` wheel must contain the Python implementations and the W8A8
-native assets:
+**(Required)** Reproduce on Linux `aarch64` with Python 3.11, PyTorch `2.11.0+cpu`, and
+vLLM `0.24.0+cpu`. The example host is CIX P1 with 32 GiB RAM. On Debian 13, install
+`git`, `curl`, `build-essential`, `ccache`, `ninja-build`, `cmake`, `gcc-12`, `g++-12`,
+`libnuma-dev`, `libtcmalloc-minimal4`, and `pipx` first. Do not put a clone called `vllm`
+in Python's current import directory during package verification.
 
-- `vllm_fl/ops/libkai_w8a8.so`;
-- `vllm_fl/ops/libkai_w8a8_ukernels.o`; and
-- the W8A8 Python and C wrapper sources required by the runtime/JIT path.
+### Step 1: Create a clean Python environment and pin the four sources
 
-These files must be listed in the package configuration and source manifest. Asset presence is
-part of wheel validation because the W8A8 loader otherwise fails with
-`FileNotFoundError`.
+```bash
+pipx install 'uv==0.8.24'
+export PATH="$HOME/.local/bin:$PATH"
+uv python install 3.11
+export WORK_DIR="$HOME/arm64-vllm024-test"
+mkdir -p "$WORK_DIR"
+cd "$WORK_DIR"
+uv venv --python 3.11 .venv
+source .venv/bin/activate
 
-The main repository must also include `tools/build_arm_int8_assets.sh` and connect it to the
-Arm64 package build flow. The script is the reproducible way to rebuild the W8A8 pack library
-and microkernel object. A missing asset error should direct developers to this script.
+fetch_commit() {
+  repo_url=$1
+  repo_dir=$2
+  source_sha=$3
+  git init -q "$WORK_DIR/$repo_dir"
+  git -C "$WORK_DIR/$repo_dir" remote add origin "$repo_url"
+  git -C "$WORK_DIR/$repo_dir" fetch --depth 1 origin "$source_sha"
+  git -C "$WORK_DIR/$repo_dir" checkout --detach "$source_sha"
+  test "$(git -C "$WORK_DIR/$repo_dir" rev-parse HEAD)" = "$source_sha"
+}
+fetch_commit https://github.com/vllm-project/vllm.git vllm \
+  ee0da84ab9e04ac7610e28580af62c365e898389
+fetch_commit https://github.com/flagos-ai/flagtree-cpu.git flagtree-cpu \
+  2c35990a30e96665f8f9b5e158562288b4011048
+fetch_commit https://github.com/flagos-ai/FlagGems.git FlagGems \
+  1fda4b11ae528c02ae5187cda551af4a61a514c5
+fetch_commit https://github.com/flagos-ai/vllm-plugin-FL.git vllm-plugin-FL \
+  0252496764901de4d464ab64c09d995c954be646
+git -C "$WORK_DIR/flagtree-cpu" submodule update --init --recursive
+```
 
-Both W4A8 and W8A8 use the same KleidiAI-enabled `libtriton.so`.
+The FlagGems commit is the merged #5904 head. The plugin commit is the current #433 head;
+PR #433 is still open. Record all four `git rev-parse HEAD` outputs in the test report.
+`flagtree-cpu` revision `2c35990a...` is required: the earlier `77433cf...` checkout fails
+six of seven ARM W4A8 numerical tests.
+
+### Step 2: Install the CPU packages
+
+```bash
+cat > "$WORK_DIR/constraints.txt" <<'EOF'
+torch==2.11.0
+torchaudio==2.11.0
+torchvision==0.26.0
+transformers==5.15.1
+tokenizers==0.22.2
+compressed-tensors==0.17.0
+numpy==2.3.5
+numba==0.65.0
+llvmlite==0.47.0
+safetensors==0.8.0
+sqlalchemy==2.0.48
+EOF
+
+uv pip install -r "$WORK_DIR/vllm/requirements/cpu.txt" \
+  --constraint "$WORK_DIR/constraints.txt" --index-strategy unsafe-best-match
+uv pip install 'cmake==4.4.2' 'ninja==1.13.0' 'pybind11==3.0.3' \
+  'setuptools==77.0.3' 'setuptools-scm==9.2.0' \
+  'setuptools-rust==1.13.0' 'scikit-build-core==0.12.2' \
+  pytest --constraint "$WORK_DIR/constraints.txt"
+
+export BUILD_JOBS=4
+TRITON_HOME="$WORK_DIR/.triton-build" TRITON_BUILD_PROTON=OFF MAX_JOBS="$BUILD_JOBS" \
+  uv pip install --no-build-isolation --constraint "$WORK_DIR/constraints.txt" \
+  --editable "$WORK_DIR/flagtree-cpu"
+VLLM_TARGET_DEVICE=cpu VLLM_VERSION_OVERRIDE=0.24.0+cpu MAX_JOBS="$BUILD_JOBS" \
+  uv pip install --no-build-isolation --constraint "$WORK_DIR/constraints.txt" \
+  --editable "$WORK_DIR/vllm"
+unset VLLM_VENDOR
+FLAGGEMS_VENDOR=arm uv pip install --no-build-isolation \
+  --constraint "$WORK_DIR/constraints.txt" --editable "$WORK_DIR/FlagGems"
+uv pip install --no-build-isolation --constraint "$WORK_DIR/constraints.txt" \
+  --editable "$WORK_DIR/vllm-plugin-FL"
+```
+
+The `flagtree-cpu` installation supplies import name `triton`; do not replace it with the
+public Triton wheel. On the reference CIX P1, `MAX_JOBS=4` keeps native compilation within
+32 GiB. These are source/editable test packages; release wheel and image publication are
+separate work.
 
 ## Test Plan
 
-**(Required)** All acceptance testing is performed on Linux AArch64 with `asimddp`, `i8mm`,
-and BF16. This FEP validates local inference only; serving is outside the initial scope.
+**(Required)** Run all steps, save the commands and logs, and report passed/skipped/failed
+counts. The FlagGems and plugin suites verify the W4A8 implementation independently of the
+MiniCPM5 W8A8 model test.
 
-### 1. Repository and Packaging Validation
+### Step 3: Verify the installed CPU platform and run operator tests
 
-- Build the main `vllm-plugin-FL` wheel on Arm64.
-- Inspect the wheel and verify that every W8A8 Python file, wrapper source,
-  `libkai_w8a8.so`, and `libkai_w8a8_ukernels.o` is present.
-- Install the wheel in a clean environment containing vLLM `0.20.2`, PyTorch `2.11`, and the
-  rebuilt KleidiAI-enabled `libtriton.so`.
-- Import the W4A8 and W8A8 modules in either order and verify that both Triton operator
-  namespaces and both Inductor patch markers remain registered.
+```bash
+cd "$WORK_DIR/vllm-plugin-FL"
+source "$WORK_DIR/.venv/bin/activate"
+export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
+python - <<'PY'
+from pathlib import Path
+import platform
+import torch
+import triton
+import flag_gems
+import vllm
+import vllm._C
+import vllm_fl
+from vllm.platforms import current_platform
 
-### 2. Selection and Fallback Validation
+print(platform.machine(), torch.__version__, triton.__version__, vllm.__version__)
+print(Path(triton.__file__).resolve(), Path(vllm_fl.__file__).resolve())
+print(flag_gems.vendor_name, type(current_platform).__name__, current_platform.device_type)
+assert platform.machine().lower() in {"aarch64", "arm64"}
+assert torch.__version__ == "2.11.0+cpu"
+assert triton.__version__ == "3.7.2"
+assert vllm.__version__ == "0.24.0+cpu"
+assert flag_gems.vendor_name == "arm"
+assert type(current_platform).__name__ == "CpuPlatform"
+assert current_platform.device_type == "cpu"
+PY
 
-Exercise the model registration matrix:
+cd "$WORK_DIR/FlagGems"
+python -m pytest -ra tests/test_arm_w4a8_g128.py
+cd "$WORK_DIR/vllm-plugin-FL"
+python -m pytest -ra \
+  tests/unit_tests/test_arm_cpu_registration.py \
+  tests/unit_tests/patches/test_arm_cpu_gdn.py \
+  tests/unit_tests/quantization/test_arm_cpu_w4a8.py
+```
 
-| `FL_CPU_INT4` | `FL_CPU_INT8` | Expected result |
-|---|---|---|
-| `0` | `0` | Normal upstream vLLM CPU inference; no quantized model patch. |
-| `1` | `0` | Existing W4A8 `tleraw` path. |
-| `0` | `1` | Selected W8A8 backend; `tleraw` by default. |
-| `1` | `1` | W8A8 only; W4A8 is not also applied. |
+Require **7 passed, 0 skipped** for FlagGems and **16 passed, 0 skipped** for the plugin.
+[FEP-0082](https://github.com/flagos-ai/community/pull/83) contains an independent
+vector-add check for the FlagTree CPU compiler.
 
-Additional checks:
+### Step 4: Fetch and verify the release W8A8 checkpoint
 
-- invalid `FL_CPU_INT4_BACKEND` and `FL_CPU_INT8_BACKEND` values fail with actionable errors;
-- strict mode raises when the requested conversion cannot be applied; and
-- non-strict mode falls back to BF16 without leaving a partially converted model.
+Use the exact ModelScope repository commit and its two LFS blob identities. The published
+model card mentions `SHA256SUMS`, but that file is absent at the pinned repository revision;
+the following explicit checks are executable against the actual repository.
 
-### 3. Operator Correctness
+```bash
+export MODEL_DIR="$HOME/Models/MiniCPM5-2B-W8A8-arm-FlagOS"
+mkdir -p "$MODEL_DIR"
+git init -q "$MODEL_DIR"
+git -C "$MODEL_DIR" remote add origin \
+  https://www.modelscope.cn/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS.git
+GIT_LFS_SKIP_SMUDGE=1 git -C "$MODEL_DIR" fetch --depth 1 origin \
+  e53463a1587ac1a3446efc761c50652a1306ef5e
+GIT_LFS_SKIP_SMUDGE=1 git -C "$MODEL_DIR" checkout --detach \
+  e53463a1587ac1a3446efc761c50652a1306ef5e
+truncate -s 0 "$MODEL_DIR/model-00000-of-00001.safetensors" "$MODEL_DIR/tokenizer.json"
+curl --fail --location --retry 3 --continue-at - --output \
+  "$MODEL_DIR/model-00000-of-00001.safetensors" \
+  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/master/model-00000-of-00001.safetensors'
+curl --fail --location --retry 3 --continue-at - --output "$MODEL_DIR/tokenizer.json" \
+  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/master/tokenizer.json'
+(cd "$MODEL_DIR" && printf '%s  %s\n' \
+  'ce27c62b10b4e7bbecbf84b7c820d3b293f9f7ff93a5963aecd785009abda905' \
+  'model-00000-of-00001.safetensors' | sha256sum -c -)
+(cd "$MODEL_DIR" && printf '%s  %s\n' \
+  '3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81' \
+  'tokenizer.json' | sha256sum -c -)
+test "$(git -C "$MODEL_DIR" rev-parse HEAD)" = \
+  e53463a1587ac1a3446efc761c50652a1306ef5e
+python - <<'PY'
+import json
+import os
+from pathlib import Path
 
-For W4A8 and W8A8, compare the optimized linear result with the corresponding dequantized BF16
-reference across:
+config = json.loads((Path(os.environ["MODEL_DIR"]) / "config.json").read_text())
+group = next(iter(config["quantization_config"]["config_groups"].values()))
+weights = group["weights"]
+activations = group["input_activations"]
+assert config["architectures"] == ["LlamaForCausalLM"]
+assert config["num_hidden_layers"] == 42
+assert config["quantization_config"]["format"] == "int-quantized"
+assert weights["num_bits"] == 8 and weights["strategy"] == "channel"
+assert weights["symmetric"] and not weights["dynamic"]
+assert activations["num_bits"] == 8 and activations["strategy"] == "token"
+assert activations["symmetric"] and activations["dynamic"]
+print("W8A8 checkpoint metadata PASS")
+PY
+```
 
-- decode shapes with `M=1`;
-- prefill shapes with `M>1`;
-- aligned and boundary K/N sizes used by the supported models; and
-- `lm_head` disabled and enabled.
+The weight is 3,054,963,160 bytes. Keep `config.json`, tokenizer files, and weights from the
+same repository. If the release weight checksum changes, stop and request a new pinned model
+revision rather than treating another file as the validated checkpoint.
 
-The W8A8 matrix covers `tleraw` and `kleidiai`; `torchpack` is checked separately as W8A16.
-Tests must prove that decode uses dot-product GEMV and prefill uses i8mm GEMM through the C-side
-shape dispatch. Strict tests must also prove that the selected optimized operator ran rather
-than silently falling back.
+### Step 5: Start the model service (terminal A)
 
-### 4. End-to-End Local Inference
+First check the CIX P1 core layout with `lscpu -e=CPU,CORE,ONLINE,MAXMHZ`. The reference board
+uses its eight Cortex-A720 cores `0,1,6,7,8,9,10,11`; adapt affinity on another Arm64 host.
+Cold Triton JIT may take many minutes, including after `--enforce-eager`. On the reference
+board the first request compiled vLLM's CPU attention slot-mapping kernel in
+`triton/backends/cpu/compiler.py::make_asm`; this was observed from the live worker stack,
+not inferred from HTTP latency alone.
 
-Run the same supported model checkpoint and deterministic prompt set through:
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+export MODEL_DIR="$HOME/Models/MiniCPM5-2B-W8A8-arm-FlagOS"
+cd "$WORK_DIR/vllm-plugin-FL"
+source "$WORK_DIR/.venv/bin/activate"
+export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
+export A720_CORES=0,1,6,7,8,9,10,11
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
+export VLLM_CPU_OMP_THREADS_BIND="$A720_CORES"
+export VLLM_CPU_KVCACHE_SPACE=1
+export VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
+export TRITON_CACHE_DIR="$WORK_DIR/.cache/triton-2c35990"
+export TORCHINDUCTOR_CACHE_DIR="$WORK_DIR/.cache/inductor-2c35990"
+export VLLM_CACHE_ROOT="$WORK_DIR/.cache/vllm-2c35990"
+mkdir -p "$TRITON_CACHE_DIR" "$TORCHINDUCTOR_CACHE_DIR" "$VLLM_CACHE_ROOT"
+set -o pipefail
+taskset -c "$A720_CORES" vllm serve "$MODEL_DIR" \
+  --host 127.0.0.1 --port 18042 --served-model-name minicpm5-w8a8 \
+  --dtype bfloat16 --enforce-eager --max-model-len 512 \
+  --max-num-seqs 1 --max-num-batched-tokens 512 \
+  --generation-config vllm --distributed-executor-backend uni \
+  --disable-log-stats --language-model-only 2>&1 | tee "$WORK_DIR/server.log"
+```
 
-1. upstream vLLM BF16 CPU inference;
-2. `vllm-plugin-FL` W4A8 `tleraw`; and
-3. `vllm-plugin-FL` W8A8 `tleraw`.
+Expected log evidence: `Platform plugin fl is activated`, `device_config=cpu`,
+`Resolved architecture: LlamaForCausalLM`, and
+`Selected CPUInt8ScaledMMLinearKernel for CompressedTensorsW8A8Int8`.
+That last line proves this checkpoint selected vLLM's CPU INT8 path; it is not evidence for a
+FlagGems W8A8 route.
 
-Pass criteria:
+### Step 6: Call the API and check output (terminal B)
 
-- the model loads and generates non-empty output in all three modes;
-- W4A8 and W8A8 complete both prompt processing and multi-token decode;
-- no CUDA/NPU platform is required;
-- both quantized paths use the same rebuilt `libtriton.so`; and
-- output quality is checked against the fixed BF16 reference prompts and tolerances recorded
-  by the implementation PR.
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+curl --noproxy '*' --fail-with-body --max-time 10 \
+  http://127.0.0.1:18042/health
+curl --noproxy '*' --fail-with-body --max-time 10 \
+  http://127.0.0.1:18042/v1/models
+curl --noproxy '*' --fail-with-body --max-time 1800 \
+  --output "$WORK_DIR/chat-response.json" \
+  http://127.0.0.1:18042/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  --data '{"model":"minicpm5-w8a8","messages":[{"role":"user","content":"请只回答数字：1+1等于几？"}],"chat_template_kwargs":{"enable_thinking":false},"max_tokens":16,"temperature":0}'
+python - <<'PY'
+import json
+import os
+from pathlib import Path
 
-The implementation PR must pin the model, revision, prompt set, maximum sequence length,
-thread affinity, and numerical tolerances so the result is reproducible.
+work_dir = Path(os.environ["WORK_DIR"])
+response = json.loads((work_dir / "chat-response.json").read_text())
+assert response["choices"][0]["message"]["content"].strip() == "2"
+assert response["usage"]["completion_tokens"] > 0
+server_log = (work_dir / "server.log").read_text()
+assert "Platform plugin fl is activated" in server_log
+assert "Selected CPUInt8ScaledMMLinearKernel for CompressedTensorsW8A8Int8" in server_log
+print("HTTP inference PASS", response["usage"], response["choices"][0]["message"]["content"])
+PY
+```
 
-### 5. Cache and Performance Regression
+Keep the complete service log, HTTP response, model checksums, and test-suite output. Stop
+terminal A with Ctrl-C after the request. This check is batch-one functional smoke; it does
+not establish quality, long-context behavior, W8A8 FlagGems acceleration, or a CIX throughput
+number. To accept a future accelerated W8A8 route, require a selected-kernel log/trace,
+numerical comparison against dequantized BF16, prefill and decode coverage, and no silent
+fallback. A compatible packed W4A8 checkpoint also needs end-to-end generation coverage
+before the full FEP is marked `Implemented`.
 
-- Run W4A8, then W8A8, then W4A8 again in clean processes and verify that no cache entry or
-  import patch from one path corrupts the other.
-- Modify or rebuild each native asset in a development test and verify that bumping its own
-  `TLE_CACHE_ABI` invalidates the corresponding cache.
-- Record prefill throughput and decode tokens per second for BF16, W4A8 `tleraw`, W8A8
-  `tleraw`, and W8A8 `kleidiai` on the same pinned host.
-- Confirm that the primary paths use `triton_op` plus `wrap_triton` and do not regress to the
-  legacy `custom_op` launch path.
+### CIX P1 source-environment test record (2026-09-15)
 
-The initial performance numbers are recorded as characterization rather than a cross-machine
-absolute threshold. Any regression against the existing W4A8 main-repository result or the
-known W8A8 prototype result on the same host blocks the FEP from moving to `Implemented`.
-
-## Risks and Mitigations
-
-| Risk | Mitigation |
+| Check | Observed result |
 |---|---|
-| Both quantization paths patch the same model | Enforce W8A8 priority and return immediately after `enable_int8()`. |
-| Triton operator or import names collide | Keep separate namespaces, imports, and idempotence markers. |
-| Native asset changes reuse stale Inductor output | Maintain and bump independent W4A8/W8A8 cache ABI values. |
-| Python shape dispatch selects the warmup path permanently | Dispatch on `M` inside the backing C function. |
-| Wheel works from source but fails after installation | Validate native asset contents from an installed wheel in a clean environment. |
-| Wrong Triton checkout lacks KleidiAI support | Build and pin `libtriton.so` from `arm64-dev/backend/main`. |
+| Source and model SHA pins | All four source commits, ModelScope `e53463a...`, weight and tokenizer SHA256 matched |
+| FlagTree CPU target and kernel | Triton `3.7.2`, target `cpu/aarch64`; vector add passed |
+| FlagGems #5904 W4A8-G128 | 7 passed, 0 skipped |
+| Plugin #433 ARM registration/W4A8/GDN | 16 passed, 0 skipped |
+| MiniCPM5 W8A8 load | `LlamaForCausalLM`, `compressed-tensors`, CPU platform; selected `CPUInt8ScaledMMLinearKernel` |
+| HTTP service | `/health` and `/v1/models` HTTP 200 |
+| First chat request, empty Triton cache | HTTP 200 after 931.6 seconds; 19 prompt and 27 completion tokens, non-empty text |
+| Warm deterministic math request | HTTP 200 in 0.396 seconds; 24 prompt and 2 completion tokens, content `2` |
+
+The first open-ended request asked for a one-sentence FlagOS description. Its answer was
+factually wrong, so non-empty generation is recorded as a **functional** pass only. The
+deterministic math request above supplies a minimal answer check; no BF16 comparison,
+perplexity, or broader model-quality evaluation was run. Live worker sampling during the
+931.6-second request showed `make_asm -> compute_slot_mappings` in vLLM's CPU attention path.
+This cold compilation latency is a test-environment observation, not a steady-state model
+throughput figure.
 
 ## Related PRs
 
-No implementation PRs exist at the time of this draft.
-
-## References
-
-- [vllm-plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL)
-- [vLLM 0.20.2 CPU installation](https://docs.vllm.ai/en/v0.20.2/getting_started/installation/cpu/)
-- [FEP-0015: Arm64 CPU Backend for FlagOS (TLE + Triton-CPU)](./0015-arm64-cpu-backend-flagtree-tle.md)
-- [FEP-0082: FlagTree CPU Backend Upgrade to Triton 3.7](./0082-flagtree-cpu-bump-to-triton-3_7.md)
+- [ ] [vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — ARM CPU packed W4A8 and GDN integration; open.
+- [x] [FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904) — ARM W4A8-G128 API; merged.
+- [ ] [`flagtree-cpu/triton_v3.7.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x) at `2c35990a...` — CPU compiler baseline under FEP-0082 acceptance.
+- [ ] Follow-up ARM CPU W8A8 optimized plugin/operator implementation, if this remains a FlagOS 2.2 goal.
 
 ## Implementation History
 
-- 2026-07-29: Reworked the draft around the verified implementation scope: reuse upstream
-  vLLM Arm64 CPU support and provide W4A8/W8A8 local inference in the `vllm-plugin-FL` main
-  repository.
+- 2026-07-29: Initial proposal included prototype mode flags and native assets for vLLM 0.20.2.
+- 2026-09-15: Updated to the current vLLM 0.24, plugin #433, FlagGems #5904, and FlagTree
+  CPU 3.7.2 revisions. On CIX P1, FlagGems W4A8 tests passed 7/7 and plugin ARM tests passed
+  16/16. The published W8A8 checkpoint loaded with the native vLLM CPU INT8 kernel and
+  completed HTTP inference. The test record above separates cold JIT, warm inference, and
+  the remaining W8A8 FlagGems acceleration and quality acceptance work.
