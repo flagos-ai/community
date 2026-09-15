@@ -89,7 +89,7 @@ repositories:
   flaggems:
     type: git
     url: https://github.com/flagos-ai/FlagGems.git
-    version: v5.4.0-rc2.post1
+    version: v5.4.0-rc2.post2
     # 分支: 5.4.0-rc2
     # rc1: v5.4.0-rc1.post2 / 默认分支: master ← 注意：不是 main
 
