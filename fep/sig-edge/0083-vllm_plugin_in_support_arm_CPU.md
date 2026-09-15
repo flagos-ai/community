@@ -35,6 +35,11 @@ On CIX P1, a **losslessly repacked copy** of the public
 checkpoint completed offline and HTTP inference through the plugin and FlagGems W4A8 CPU
 path. The as-published checkpoint declares `int-quantized`; the packed adapter in PR #433
 does not select FlagGems for that format without the storage conversion in Step 8 below.
+With the Step 2 CPU JIT patch and an empty Triton cache, the same deterministic W4A8
+request finished in 11.452 seconds after model initialization; W8A8 finished in 9.552
+seconds. These first-request times replace the previously observed 915.78/931.6-second
+unpatched cold-cache behavior for the tested configuration. They do not establish a
+production throughput target: warm W4A8 decoding measured about 7.6 token/s on one CIX P1.
 
 ## Motivation
 
@@ -80,6 +85,14 @@ The checkpoint metadata chooses the linear scheme:
 |---|---|
 | `pack-quantized`, symmetric INT4 group-wise G128 weight, dynamic per-token INT8 activation | Plugin W4A8 adapter -> FlagGems `w4a8_g128_linear()` -> FlagTree CPU JIT |
 | `int-quantized`, symmetric INT8 per-channel weight, dynamic per-token INT8 activation | vLLM `CompressedTensorsW8A8Int8` -> `CPUInt8ScaledMMLinearKernel` (oneDNN path) |
+
+The pinned vLLM commit also launches several GPU-sized Triton bookkeeping and sampling
+kernels on its CPU worker. With an empty CPU JIT cache, LLVM code generation of these
+1024/8192-element vectors can stall for minutes. Apply the CPU-only
+[vLLM 0.24.0 cold-JIT patch](patches/vllm-0.24.0-arm-cold-jit-128.patch) in Step 2 before
+building vLLM. It sets eight affected CPU launch sizes to 128 and leaves GPU launch sizes
+unchanged. This is a test-environment source patch, not part of plugin #433, FlagGems #5904,
+or the pinned upstream vLLM commit; record its SHA256 alongside the four source SHAs.
 
 The MiniCPM5 W8A8 release has 42 `LlamaForCausalLM` layers, BF16 embeddings and `lm_head`,
 and an INT8 model body. Its configuration declares up to 131072 positions. The smoke procedure
@@ -153,6 +166,19 @@ six of seven ARM W4A8 numerical tests.
 export PATH="$HOME/.local/bin:$PATH"
 export WORK_DIR="$HOME/arm64-vllm024-test"
 source "$WORK_DIR/.venv/bin/activate"
+curl --fail --location --retry 3 --output "$WORK_DIR/vllm-arm-cold-jit.patch" \
+  'https://raw.githubusercontent.com/kevinzs2048/community/vllm-arm64/fep/sig-edge/patches/vllm-0.24.0-arm-cold-jit-128.patch'
+printf '%s  %s\n' \
+  'a2f53cae6a5759590c4637378f673b7c4edb23986f8f51ffe811a14058027959' \
+  "$WORK_DIR/vllm-arm-cold-jit.patch" | sha256sum -c -
+if git -C "$WORK_DIR/vllm" apply --reverse --check \
+  "$WORK_DIR/vllm-arm-cold-jit.patch"; then
+  echo 'vLLM CPU cold-JIT patch already applied'
+else
+  git -C "$WORK_DIR/vllm" apply --check "$WORK_DIR/vllm-arm-cold-jit.patch"
+  git -C "$WORK_DIR/vllm" apply "$WORK_DIR/vllm-arm-cold-jit.patch"
+fi
+git -C "$WORK_DIR/vllm" diff --check
 cat > "$WORK_DIR/constraints.txt" <<'EOF'
 torch==2.11.0
 torchaudio==2.11.0
@@ -199,6 +225,9 @@ Arm ComputeLibrary tag `v52.6.0` and oneDNN commit
 `9c5be1cc59e368aebf0909e6cf20f981ea61462a` unless compatible local source caches
 are supplied through the `ACL_ROOT_DIR` environment variable and CMake's
 `FETCHCONTENT_SOURCE_DIR_ONEDNN` variable (via `CMAKE_ARGS`).
+The patch changes Python launch parameters in the editable vLLM source; it does not remove
+the initial package/native-extension build. On a Step 2 rerun, the reverse-apply check above
+detects an existing patch so the source edit is not duplicated.
 
 ## Test Plan
 
@@ -309,10 +338,11 @@ revision rather than treating another file as the validated checkpoint.
 
 First check the CIX P1 core layout with `lscpu -e=CPU,CORE,ONLINE,MAXMHZ`. The reference board
 uses its eight Cortex-A720 cores `0,1,6,7,8,9,10,11`; adapt affinity on another Arm64 host.
-Cold Triton JIT may take many minutes, including after `--enforce-eager`. On the reference
-board the first request compiled vLLM's CPU attention slot-mapping kernel in
-`triton/backends/cpu/compiler.py::make_asm`; this was observed from the live worker stack,
-not inferred from HTTP latency alone.
+Without the Step 2 vLLM patch, an empty Triton cache can take many minutes even with
+`--enforce-eager`. On the reference board a pristine vLLM first request compiled the CPU
+slot-mapping kernel in `triton/backends/cpu/compiler.py::make_asm`. With the patch, first-use
+JIT remains necessary but the tested eight kernels compile in seconds; Step 10 measures this
+separately from package compilation and warm decoding.
 
 ```bash
 export WORK_DIR="$HOME/arm64-vllm024-test"
@@ -518,10 +548,11 @@ export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
 export VLLM_ENABLE_V1_MULTIPROCESSING=0 VLLM_CPU_KVCACHE_SPACE=1
 export VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
 export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
-export VLLM_CPU_OMP_THREADS_BIND=0,1,6,7,8,9,10,11
+export A720_CORES=0,1,6,7,8,9,10,11
+export VLLM_CPU_OMP_THREADS_BIND="$A720_CORES"
 export TRITON_CACHE_DIR="$WORK_DIR/.cache/triton-2c35990"
 mkdir -p "$TRITON_CACHE_DIR"
-python - <<'PY'
+taskset -c "$A720_CORES" python - <<'PY'
 import os
 import flag_gems.quantized_linear as flag_linear
 from vllm import LLM, SamplingParams
@@ -559,7 +590,8 @@ PY
 
 For an HTTP smoke test, leave `VLLM_ENABLE_V1_MULTIPROCESSING` at its default and use the
 same packed model. Start the service in terminal A; adjust core affinity on another Arm64
-host. An empty Triton cache can make the first request take many minutes.
+host. If an empty Triton cache still takes minutes with the Step 2 patch, save the worker
+stack and compiler log rather than accepting it as expected cold-start behavior.
 
 ```bash
 export WORK_DIR="$HOME/arm64-vllm024-test"
@@ -619,6 +651,109 @@ source-dependency download remain separate acceptance checks. The release config
 symmetric dynamic token activations, while FlagGems #5904's ARM kernels perform asymmetric
 dynamic token quantization; quantify any accuracy impact before claiming full model correctness.
 
+### Step 10: Measure a genuinely empty Triton cache for each model
+
+Run this after both model directories exist and the Step 2 vLLM patch is applied. `mktemp -d`
+creates a distinct empty Triton cache for each run; do not use the shared cache from Steps
+5 and 9. The timer begins after Python package imports, then reports model initialization
+and the first deterministic chat request separately. The shell's full process wall time will
+also include Python/Torch/plugin imports. Bind the main process as well as OpenMP threads to
+the chosen big cores, because LLVM JIT compilation runs on the main process.
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+mkdir -p "$WORK_DIR/.cache"
+mkdir -p "$WORK_DIR/.test-scripts"
+cd "$WORK_DIR/vllm-plugin-FL"
+cat > "$WORK_DIR/.test-scripts/cold-model-smoke.py" <<'PY'
+import json
+import os
+import time
+from pathlib import Path
+
+kind = os.environ["MODEL_KIND"]
+cache = Path(os.environ["TRITON_CACHE_DIR"])
+assert kind in {"w4", "w8"}, kind
+assert cache.is_dir() and not any(cache.iterdir()), cache
+
+from vllm import LLM, SamplingParams
+
+calls = {"pack": 0, "linear": 0}
+if kind == "w4":
+    import flag_gems.quantized_linear as flag_linear
+
+    original_pack = flag_linear.pack_rhs_qsi4c128p
+    original_linear = flag_linear.w4a8_g128_linear
+
+    def audited_pack(*args, **kwargs):
+        calls["pack"] += 1
+        return original_pack(*args, **kwargs)
+
+    def audited_linear(*args, **kwargs):
+        calls["linear"] += 1
+        return original_linear(*args, **kwargs)
+
+    flag_linear.pack_rhs_qsi4c128p = audited_pack
+    flag_linear.w4a8_g128_linear = audited_linear
+
+started = time.perf_counter()
+llm = LLM(model=os.environ["MODEL_DIR"], dtype="bfloat16", enforce_eager=True,
+          max_model_len=256, max_num_batched_tokens=256, max_num_seqs=1)
+loaded = time.perf_counter()
+if kind == "w4":
+    assert calls["pack"] == 168, calls
+before = calls["linear"]
+output = llm.chat(
+    messages=[{"role": "user", "content": "请只回答数字：1+1等于几？"}],
+    sampling_params=SamplingParams(max_tokens=16, temperature=0),
+    chat_template_kwargs={"enable_thinking": False},
+)[0]
+ended = time.perf_counter()
+answer = output.outputs[0].text.strip()
+assert answer == "2", answer
+if kind == "w4":
+    assert calls["linear"] - before == 336, calls
+print(json.dumps({"model": kind, "answer": answer,
+                  "model_init_s": round(loaded - started, 3),
+                  "first_request_s": round(ended - loaded, 3),
+                  "total_s": round(ended - started, 3),
+                  "pack_calls": calls["pack"],
+                  "request_linear_calls": calls["linear"] - before,
+                  "cache": str(cache)}))
+PY
+
+export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
+export VLLM_ENABLE_V1_MULTIPROCESSING=0 VLLM_CPU_KVCACHE_SPACE=1
+export VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
+export A720_CORES=0,1,6,7,8,9,10,11
+export VLLM_CPU_OMP_THREADS_BIND="$A720_CORES"
+export MODEL_KIND=w8 MODEL_DIR="$HOME/Models/MiniCPM5-2B-W8A8-arm-FlagOS"
+export TRITON_CACHE_DIR
+set -o pipefail
+TRITON_CACHE_DIR=$(mktemp -d "$WORK_DIR/.cache/cold-w8-XXXXXX")
+taskset -c "$A720_CORES" python "$WORK_DIR/.test-scripts/cold-model-smoke.py" \
+  2>&1 | tee "$WORK_DIR/cold-w8.log"
+grep 'Selected CPUInt8ScaledMMLinearKernel for CompressedTensorsW8A8Int8' \
+  "$WORK_DIR/cold-w8.log"
+
+export MODEL_KIND=w4 MODEL_DIR="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS-packed"
+TRITON_CACHE_DIR=$(mktemp -d "$WORK_DIR/.cache/cold-w4-XXXXXX")
+taskset -c "$A720_CORES" python "$WORK_DIR/.test-scripts/cold-model-smoke.py" \
+  2>&1 | tee "$WORK_DIR/cold-w4.log"
+```
+
+On the reference CIX P1 with the patch, W8A8 answered `2` with **12.773 s** model init
+and **9.552 s** first request; W4A8 answered `2` with **22.140 s** model init,
+**11.452 s** first request, 168 pack calls, and 336 request linear calls. These runs used
+single-process offline inference, batch one and a 256-token context. A multi-minute result
+after the patch is a regression to investigate, not an expected property of an empty cache.
+Running the exact Step 10 shell block extracted from this FEP again gave W8A8
+12.692 s init / **9.772 s** first request and W4A8 22.237 s init /
+**11.629 s** first request, with the same answers, W8A8 selected-kernel log, and
+W4A8 FlagGems counts.
+
 ### CIX P1 source-environment test record (2026-09-15)
 
 | Check | Observed result |
@@ -629,7 +764,7 @@ dynamic token quantization; quantify any accuracy impact before claiming full mo
 | Plugin #433 ARM registration/W4A8/GDN | 16 passed, 0 skipped |
 | MiniCPM5 W8A8 load | `LlamaForCausalLM`, `compressed-tensors`, CPU platform; selected `CPUInt8ScaledMMLinearKernel` |
 | HTTP service | `/health` and `/v1/models` HTTP 200 |
-| First chat request, empty Triton cache | HTTP 200 after 931.6 seconds; 19 prompt and 27 completion tokens, non-empty text |
+| First chat request, empty Triton cache, unpatched vLLM | HTTP 200 after 931.6 seconds; 19 prompt and 27 completion tokens, non-empty text |
 | Warm deterministic math request | HTTP 200 in 0.396 seconds; 24 prompt and 2 completion tokens, content `2` |
 | Public W4A8 model identity | ModelScope `f125bb2...`; release weight and tokenizer SHA256 matched |
 | W4A8 storage conversion | All 294 original INT4 tensors packed and exactly recovered; derived weight SHA256 `0bc220b3...` |
@@ -639,7 +774,7 @@ dynamic token quantization; quantify any accuracy impact before claiming full mo
 The first open-ended request asked for a one-sentence FlagOS description. Its answer was
 factually wrong, so non-empty generation is recorded as a **functional** pass only. The
 deterministic math request above supplies a minimal answer check; no BF16 comparison,
-perplexity, or broader model-quality evaluation was run. Live worker sampling during the
+perplexity, or broader model-quality evaluation was run. Live worker sampling during the unpatched
 931.6-second request showed `make_asm -> compute_slot_mappings` in vLLM's CPU attention path.
 This cold compilation latency is a test-environment observation, not a steady-state model
 throughput figure.
@@ -652,17 +787,48 @@ throughput figure.
 | FEP-0082 FlagTree check | Fixed source and LLVM hashes, `cpu/aarch64` target, and vector add passed. |
 | Operator tests | FlagGems W4A8-G128 **7 passed, 0 skipped**; plugin ARM registration/GDN/W4A8 **16 passed, 0 skipped**. |
 | Model artifacts | Both public W8A8 and W4A8 release weight/tokenizer SHA256 checks passed in new model directories; W4A8 294-tensor lossless repack and derived SHA256 passed. |
-| W4A8 audited inference, empty request JIT cache | 24 prompt/2 completion tokens, answer `2`; 168 FlagGems pack calls at load, 336 W4A8 linear calls in the actual request; first request **915.78 seconds**. |
+| W4A8 audited inference, empty request JIT cache, unpatched vLLM | 24 prompt/2 completion tokens, answer `2`; 168 FlagGems pack calls at load, 336 W4A8 linear calls in the actual request; first request **915.78 seconds**. |
 | W4A8 HTTP | `/health`, `/v1/models`, and math chat HTTP 200; answer `2`; all three client checks took 0.51 seconds, repeated chat 0.332 seconds. |
 | W8A8 HTTP | Selected `CPUInt8ScaledMMLinearKernel`, all three endpoints HTTP 200, math answer `2`; client checks took 0.56 seconds after the W4A8 CPU-attention JIT cache was populated. |
 
-The first W4A8 request was sampled inside vLLM's CPU attention
+The first unpatched W4A8 request was sampled inside vLLM's CPU attention
 `compute_slot_mappings -> triton/backends/cpu/compiler.py::make_asm`. A 915.78-second
 cold request is a material performance issue despite functional success. The warm timings
 cover a 24-prompt, 2-completion-token smoke request and cannot establish model throughput.
 Measure cold startup, time to first token, and decode throughput separately before any
 performance acceptance. The Ctrl-C API-server shutdown emitted resource-tracker warnings
 about semaphores and shared memory; this did not affect the successful HTTP requests.
+
+### CPU cold-JIT diagnosis and patched reproduction (2026-09-16)
+
+The empty-cache stall was traced to GPU-sized Triton launches reused by vLLM's CPU worker,
+not to MiniCPM5 weight loading or the FlagGems W4A8 matrix multiply. A targeted
+`_compute_slot_mappings_kernel` compile with block size 1024 spent 289.617 s in FlagTree
+CPU's `make_asm` on a Cortex-A720; with block size 128 it spent 0.663 s. The old LLVM IR
+included 1024-wide integer division and masked memory operations. A ten-second `perf`
+sample of compilation was dominated by LLVM live-range and register-allocation routines.
+After fixing slot mapping alone, an empty request next stalled at block-table gather; after
+fixing both, a truly empty Triton cache exposed gumbel sampling, staged KV writes, input
+preparation, and the nonzero-temperature path. The linked Step 2 patch gives these eight
+CPU call sites block size 128 and preserves their original GPU values.
+
+| Check, fully empty Triton cache unless noted | Observed result on CIX P1 |
+|---|---|
+| Patch identity | `a2f53cae6a5759590c4637378f673b7c4edb23986f8f51ffe811a14058027959`; applies cleanly to vLLM `ee0da84...` |
+| W4A8 deterministic chat, patched | Model init 22.140 s; first request **11.452 s**; answer `2`; 168 FlagGems pack and 336 request W4A8 linear calls |
+| W8A8 deterministic chat, patched | Model init 12.773 s; first request **9.552 s**; answer `2`; native `CPUInt8ScaledMMLinearKernel` |
+| Exact FEP Step 10 rerun, W4A8/W8A8 | Separate empty caches; W4A8 init 22.237 s / request **11.629 s**; W8A8 init 12.692 s / request **9.772 s**; both answered `2` |
+| W4A8 temperature 0.7, seeded, isolated new temperature JIT | `_temperature_kernel` ASM 0.298 s; first request 3.847 s; non-empty 16-token answer and 2688 request W4A8 linear calls |
+| W4A8 warm HTTP, 43-input/64-output tokens | Median first content token 0.518 s, total 8.759 s, decode **7.64 token/s** |
+| W4A8 warm HTTP, 357-input/64-output tokens | Median first content token 2.370 s, total 10.790 s, decode **7.48 token/s** |
+
+The warm HTTP figures used five single-user streamed requests with `ignore_eos=true`,
+`--max-model-len 1024`, and the eight A720 cores. They are comparable to the unpatched
+7.50/7.40 token/s runs: the cold-JIT patch did not materially change warm throughput.
+The tested CPU patch is a local source fix; it still requires upstream review and does not
+cover all optional vLLM sampling features, concurrent requests, longer contexts, or model
+quality. Keep those items in performance and correctness acceptance rather than calling
+the toolchain production-ready from a two-token answer.
 
 ## Related PRs
 
@@ -683,3 +849,7 @@ about semaphores and shared memory; this did not affect the successful HTTP requ
   A losslessly repacked test copy completed audited offline inference via FlagGems W4A8 and
   OpenAI-compatible HTTP inference on CIX P1. The published `int-quantized` file itself
   still needs the Step 8 storage conversion for PR #433's packed CPU adapter.
+- 2026-09-16: Isolated vLLM CPU Triton launch sizes as the cause of the multi-minute
+  empty-cache request. Added a SHA-pinned CPU-only source patch and a two-model cold-cache
+  regression step. On CIX P1, patched W4A8/W8A8 first requests completed in 11.452/9.552
+  seconds after model initialization; W4A8 warm decoding remained about 7.6 token/s.

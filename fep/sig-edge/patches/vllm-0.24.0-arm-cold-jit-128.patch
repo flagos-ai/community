@@ -1,0 +1,104 @@
+diff --git a/vllm/v1/worker/gpu/block_table.py b/vllm/v1/worker/gpu/block_table.py
+index 8d41ba5..26a4fe4 100644
+--- a/vllm/v1/worker/gpu/block_table.py
++++ b/vllm/v1/worker/gpu/block_table.py
+@@ -137,6 +137,7 @@ class BlockTables:
+         num_reqs_padded: int,
+     ) -> tuple[torch.Tensor, ...]:
+         num_reqs = idx_mapping.shape[0]
++        triton_block_size = 128 if self.device.type == "cpu" else 1024
+         # Launch kernel with num_reqs_padded to fuse zeroing of padded rows.
+         _gather_block_tables_kernel[(self.num_kv_cache_groups, num_reqs_padded)](
+             idx_mapping,
+@@ -146,7 +147,7 @@ class BlockTables:
+             self.num_blocks.gpu,
+             self.num_blocks.gpu.stride(0),
+             num_reqs,
+-            BLOCK_SIZE=1024,  # type: ignore
++            BLOCK_SIZE=triton_block_size,  # type: ignore
+         )
+         return tuple(bt[:num_reqs_padded] for bt in self.input_block_tables)
+ 
+@@ -166,6 +167,7 @@ class BlockTables:
+     ) -> torch.Tensor:
+         num_reqs = idx_mapping.shape[0]
+         num_groups = self.num_kv_cache_groups
++        triton_block_size = 128 if self.device.type == "cpu" else 1024
+         _compute_slot_mappings_kernel[(num_groups, num_reqs + 1)](
+             self.max_num_batched_tokens,
+             idx_mapping,
+@@ -180,7 +182,7 @@ class BlockTables:
+             CP_SIZE=self.cp_size,
+             CP_INTERLEAVE=self.cp_interleave,
+             PAD_ID=PAD_SLOT_ID,
+-            TRITON_BLOCK_SIZE=1024,  # type: ignore
++            TRITON_BLOCK_SIZE=triton_block_size,  # type: ignore
+         )
+         return self.slot_mappings[:, :num_tokens_padded]
+ 
+diff --git a/vllm/v1/worker/gpu/buffer_utils.py b/vllm/v1/worker/gpu/buffer_utils.py
+index f8336fa..e684701 100644
+--- a/vllm/v1/worker/gpu/buffer_utils.py
++++ b/vllm/v1/worker/gpu/buffer_utils.py
+@@ -194,7 +194,7 @@ class StagedWriteTensor:
+             write_contents,
+             cu_lens_uva,
+             None,
+-            BLOCK_SIZE=1024,
++            BLOCK_SIZE=128 if self.device.type == "cpu" else 1024,
+             MULTI_GROUP=False,
+         )
+         # Clear the staged writes
+@@ -264,7 +264,7 @@ class FusedStagedWriter:
+             contents_gpu,
+             cu_lens_uva,
+             group_ids_uva,
+-            BLOCK_SIZE=1024,
++            BLOCK_SIZE=128 if self.device.type == "cpu" else 1024,
+             MULTI_GROUP=True,
+         )
+         for t in tensors:
+diff --git a/vllm/v1/worker/gpu/input_batch.py b/vllm/v1/worker/gpu/input_batch.py
+index 6b750fe..edb0d03 100644
+--- a/vllm/v1/worker/gpu/input_batch.py
++++ b/vllm/v1/worker/gpu/input_batch.py
+@@ -227,7 +227,7 @@ def prepare_prefill_inputs(
+         all_token_ids.stride(0),
+         prefill_len,
+         num_computed_tokens,
+-        BLOCK_SIZE=1024,
++        BLOCK_SIZE=128 if input_ids.device.type == "cpu" else 1024,
+     )
+ 
+ 
+@@ -285,7 +285,7 @@ def prepare_pos_seq_lens(
+         query_start_loc,
+         num_computed_tokens,
+         seq_lens.shape[0],
+-        BLOCK_SIZE=1024,
++        BLOCK_SIZE=128 if pos.device.type == "cpu" else 1024,
+     )
+ 
+ 
+diff --git a/vllm/v1/worker/gpu/sample/gumbel.py b/vllm/v1/worker/gpu/sample/gumbel.py
+index fab53fe..9d5c085 100644
+--- a/vllm/v1/worker/gpu/sample/gumbel.py
++++ b/vllm/v1/worker/gpu/sample/gumbel.py
+@@ -46,7 +46,7 @@ def apply_temperature(
+     temperature: torch.Tensor,
+ ) -> None:
+     num_tokens, vocab_size = logits.shape
+-    BLOCK_SIZE = 8192
++    BLOCK_SIZE = 128 if logits.device.type == "cpu" else 8192
+     num_blocks = triton.cdiv(vocab_size, BLOCK_SIZE)
+     _temperature_kernel[(num_tokens, num_blocks)](
+         logits,
+@@ -214,7 +214,7 @@ def gumbel_sample(
+     use_fp64: bool = False,
+ ) -> torch.Tensor:
+     num_tokens, vocab_size = logits.shape
+-    BLOCK_SIZE = 1024
++    BLOCK_SIZE = 128 if logits.device.type == "cpu" else 1024
+     num_blocks = triton.cdiv(vocab_size, BLOCK_SIZE)
+     local_argmax = logits.new_empty(num_tokens, num_blocks, dtype=torch.int64)
+     local_max_dtype = torch.float64 if use_fp64 else torch.float32
