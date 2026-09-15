@@ -163,6 +163,24 @@ Capture source SHA, LLVM pin, host/ISA, compiler version, test output, and cold-
 Investigate a material slowdown against the older CPU line on the same host before changing
 the FEP status to `Implemented`.
 
+The 128-element vector-add and FlagGems W4A8 checks above establish the pinned compiler
+and operator path. They do not exercise all vLLM 0.24 CPU launch sizes. On the same CIX P1,
+an unpatched vLLM empty-cache MiniCPM5 request spent 915.78 s (W4A8) or 931.6 s (W8A8):
+vLLM reused GPU-sized 1024/8192-element Triton bookkeeping/sampling launches on ARM CPU,
+and LLVM `make_asm` became pathological. A targeted slot-mapping compile spent 289.617 s
+at block 1024 versus 0.663 s at block 128; `perf` sampling pointed to LLVM live-range
+and register-allocation work. This is a downstream vLLM launch-parameter problem, while
+the FlagTree CPU package and FlagGems operator tests in this FEP passed.
+
+For a **model-level** cold-cache test, follow
+[FEP-0083 Steps 1–10](https://github.com/flagos-ai/community/pull/82) and apply its
+[CPU-only vLLM 0.24.0 patch](https://github.com/kevinzs2048/community/blob/vllm-arm64/fep/sig-edge/patches/vllm-0.24.0-arm-cold-jit-128.patch)
+before the editable vLLM installation. On CIX P1 with that patch and genuinely empty
+Triton caches, W4A8 and W8A8 deterministic first requests completed in 11.452/9.552 s
+after 22.140/12.773 s model initialization. W4A8 warm HTTP decoding was about
+7.6 token/s; this remains a separate performance-acceptance concern. Do not treat the
+small vector-add JIT time alone as the end-to-end cold-start latency.
+
 ## Related PRs
 
 - [ ] [`flagtree-cpu/triton_v3.7.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x) at `2c35990a...` — CPU line under acceptance test.
@@ -176,3 +194,6 @@ the FEP status to `Implemented`.
   revision; the earlier `77433cf...` failed six of seven FlagGems W4A8 tests.
 - 2026-09-15: Pinned source/LLVM/SLEEF revisions and added executable enable and test steps.
   On CIX P1, CPU target selection, vector add, and FlagGems W4A8 passed.
+- 2026-09-16: Documented the downstream vLLM CPU launch-size cold-JIT issue and the
+  reproducible CPU-only patch and two-model cold-cache test in FEP-0083. Compiler and
+  operator acceptance remains independent of model throughput acceptance.
