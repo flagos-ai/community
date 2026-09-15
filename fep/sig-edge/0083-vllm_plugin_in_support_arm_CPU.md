@@ -818,6 +818,7 @@ CPU call sites block size 128 and preserves their original GPU values.
 | W4A8 deterministic chat, patched | Model init 22.140 s; first request **11.452 s**; answer `2`; 168 FlagGems pack and 336 request W4A8 linear calls |
 | W8A8 deterministic chat, patched | Model init 12.773 s; first request **9.552 s**; answer `2`; native `CPUInt8ScaledMMLinearKernel` |
 | Exact FEP Step 10 rerun, W4A8/W8A8 | Separate empty caches; W4A8 init 22.237 s / request **11.629 s**; W8A8 init 12.692 s / request **9.772 s**; both answered `2` |
+| W4A8/W8A8 first HTTP chat after fresh server readiness | Separate empty caches and default vLLM multiprocessing; W4A8 HTTP 200 / answer `2` in **10.086 s**; W8A8 HTTP 200 / answer `2` in **8.406 s** |
 | W4A8 temperature 0.7, seeded, isolated new temperature JIT | `_temperature_kernel` ASM 0.298 s; first request 3.847 s; non-empty 16-token answer and 2688 request W4A8 linear calls |
 | W4A8 warm HTTP, 43-input/64-output tokens | Median first content token 0.518 s, total 8.759 s, decode **7.64 token/s** |
 | W4A8 warm HTTP, 357-input/64-output tokens | Median first content token 2.370 s, total 10.790 s, decode **7.48 token/s** |
@@ -825,6 +826,12 @@ CPU call sites block size 128 and preserves their original GPU values.
 The warm HTTP figures used five single-user streamed requests with `ignore_eos=true`,
 `--max-model-len 1024`, and the eight A720 cores. They are comparable to the unpatched
 7.50/7.40 token/s runs: the cold-JIT patch did not materially change warm throughput.
+In the fresh HTTP runs, the service became ready about 58 s (W8A8) or 68 s (W4A8)
+after its first vLLM log. That process startup includes multiprocess imports, model
+loading, and warmup. Both fresh HTTP runs used a 256-token maximum context; the W8A8
+Step 5 smoke uses 512. The 8.406/10.086-second HTTP figures begin **after** `/health`
+returned 200 and measure the first chat request only. Keep startup and first-request
+limits separate in acceptance.
 The tested CPU patch is a local source fix; it still requires upstream review and does not
 cover all optional vLLM sampling features, concurrent requests, longer contexts, or model
 quality. Keep those items in performance and correctness acceptance rather than calling
@@ -852,4 +859,6 @@ the toolchain production-ready from a two-token answer.
 - 2026-09-16: Isolated vLLM CPU Triton launch sizes as the cause of the multi-minute
   empty-cache request. Added a SHA-pinned CPU-only source patch and a two-model cold-cache
   regression step. On CIX P1, patched W4A8/W8A8 first requests completed in 11.452/9.552
-  seconds after model initialization; W4A8 warm decoding remained about 7.6 token/s.
+  seconds after model initialization. Fresh multiprocess HTTP first requests also returned
+  `2` in 10.086/8.406 seconds after readiness; W4A8 warm decoding remained about
+  7.6 token/s.
