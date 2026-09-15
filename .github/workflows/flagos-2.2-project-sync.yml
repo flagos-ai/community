@@ -18,11 +18,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      GH_TOKEN: ${{ secrets.TEAMMEMBER_TOKEN }}
+      # FLAGOS_PROJECT_TOKEN is repo-scoped. Keep TEAMMEMBER_TOKEN as a
+      # temporary fallback while the new secret is being provisioned.
+      GH_TOKEN: ${{ secrets.FLAGOS_PROJECT_TOKEN || secrets.TEAMMEMBER_TOKEN }}
       PROJECT_NUMBER: "9"
       PROJECT_OWNER: flagos-ai
 
     steps:
+      - name: Validate GitHub Project access
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh project view "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json --jq '.id' > /dev/null; then
+            echo "::error::The Actions token needs GitHub Projects access. Configure FLAGOS_PROJECT_TOKEN with project scope."
+            exit 1
+          fi
+
       - name: Add missing RC issues to the project
         shell: bash
         run: |
@@ -52,22 +64,25 @@ jobs:
 
           sort -u -o "$all_issues" "$all_issues"
 
-          project_query='query($owner:String!,$number:Int!){organization(login:$owner){projectV2(number:$number){items(first:100,archivedStates:[ARCHIVED,NOT_ARCHIVED]){nodes{id isArchived content{__typename ... on Issue{url}}}}}}}'
-          gh api graphql -f query="$project_query" \
+          project_query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor,archivedStates:[ARCHIVED,NOT_ARCHIVED]){nodes{id isArchived content{__typename ... on Issue{url}}} pageInfo{hasNextPage endCursor}}}}}'
+          gh api graphql --paginate --slurp -f query="$project_query" \
             -F owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER" > "$project_items"
 
           jq -r '
-            .data.organization.projectV2.items.nodes[]
+            .[] | .data.organization.projectV2.items.nodes[]
             | select(.content.__typename == "Issue" and .isArchived == false)
             | .content.url' "$project_items" | sort -u > "$active_project_issues"
           jq -r '
-            .data.organization.projectV2.items.nodes[]
+            .[] | .data.organization.projectV2.items.nodes[]
             | select(.content.__typename == "Issue" and .isArchived == true)
             | [.content.url, .id] | @tsv' "$project_items" \
             | sort -u > "$archived_project_issues"
-          jq -r '
-            .data.organization.projectV2.items.nodes[]
+          allowed_urls=$(jq -R -s 'split("\n") | map(select(length > 0))' "$all_issues")
+          jq -r --argjson allowed "$allowed_urls" '
+            .[] | .data.organization.projectV2.items.nodes[]
             | select(.isArchived == false and (.content == null or .content.__typename == "Issue"))
+            | . as $item
+            | select($item.content == null or (($allowed | index($item.content.url)) == null))
             | [.id, (.content.url // "")] | @tsv' "$project_items" \
             > "$stale_issues"
 
@@ -138,14 +153,14 @@ jobs:
             --owner "$PROJECT_OWNER" --format json \
             --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Deferred") | .id')
 
-          query='query($owner:String!,$number:Int!){organization(login:$owner){projectV2(number:$number){items(first:100){nodes{id content{... on Issue{number state stateReason assignees(first:20){nodes{login}} closedByPullRequestsReferences(first:20){nodes{state mergedAt baseRefName}}}} fieldValues(first:30){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}}}}}}}}}'
+          query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor){nodes{id content{... on Issue{number state stateReason assignees(first:20){nodes{login}} closedByPullRequestsReferences(first:20,includeClosedPrs:true){nodes{state mergedAt baseRefName}}}} fieldValues(first:30){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}}}}} pageInfo{hasNextPage endCursor}}}}}'
           project_items="$RUNNER_TEMP/flagos-2.2-project-items.json"
           transitions="$RUNNER_TEMP/flagos-2.2-status-transitions.tsv"
-          gh api graphql -f query="$query" \
+          gh api graphql --paginate --slurp -f query="$query" \
             -F owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER" > "$project_items"
 
           jq -r \
-            '.data.organization.projectV2.items.nodes[]
+            '.[] | .data.organization.projectV2.items.nodes[]
             | select(.content != null)
             | {id, number: .content.number, state: .content.state,
                reason: .content.stateReason,
@@ -160,8 +175,12 @@ jobs:
                   (if (.assignees | length) == 0 then "Triage" else "Confirmed" end)
                 elif .state == "OPEN" and .status == "Deferred" then "Deferred"
                 elif .state == "OPEN" and .status == "Verification" then "Verification"
-                elif .state == "OPEN" and ([.pull_requests[].state] | index("MERGED")) then "Verification"
-                elif .state == "OPEN" and ([.pull_requests[].state] | index("OPEN")) then "Fixing"
+                # A merged PR only means Verification when it landed on an
+                # RC/release branch. A merge to main is still Fixing for 2.2.
+                elif .state == "OPEN" and ([.pull_requests[]
+                  | select(.state == "MERGED" and (.baseRefName | test("rc[0-2]"; "i")))] | length) > 0 then "Verification"
+                elif .state == "OPEN" and ([.pull_requests[]
+                  | select(.state == "OPEN" or .state == "MERGED")] | length) > 0 then "Fixing"
                 elif .state == "OPEN" and (.assignees | length) == 0 then "Triage"
                 elif .state == "OPEN" and .status == "Triage" and (.assignees | length) > 0 then "Confirmed"
                 elif .state == "OPEN" and .status == "UNSET" then "Confirmed"
