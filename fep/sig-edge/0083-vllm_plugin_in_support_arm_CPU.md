@@ -16,7 +16,7 @@
 
 **(Required)** This FEP enables [`vllm-plugin-FL`](https://github.com/flagos-ai/vllm-plugin-FL)
 on Linux Arm64 CPUs while reusing vLLM's built-in `CpuPlatform`, worker, attention, KV cache,
-and serving API. The current implementation candidate is
+and serving API. The pinned implementation is
 [vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) at
 `0252496764901de4d464ab64c09d995c954be646`, tested with vLLM `0.24.0+cpu`,
 [FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904), and
@@ -29,6 +29,12 @@ checkpoint is **`int-quantized` channel-wise W8A8**. In this source environment 
 vLLM's native CPU INT8 linear kernel. It is a useful end-to-end W8A8 inference and plugin
 coexistence test; it does not demonstrate a FlagGems-accelerated W8A8 CPU route. That route
 needs separate implementation and acceptance evidence before this FEP can be `Implemented`.
+
+On CIX P1, a **losslessly repacked copy** of the public
+[`FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS`](https://modelscope.cn/models/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS)
+checkpoint completed offline and HTTP inference through the plugin and FlagGems W4A8 CPU
+path. The as-published checkpoint declares `int-quantized`; the packed adapter in PR #433
+does not select FlagGems for that format without the storage conversion in Step 8 below.
 
 ## Motivation
 
@@ -46,6 +52,8 @@ checkpoint completes inference through the kernel actually selected at runtime.
 - Preserve packed W4A8-G128 weights and scales, then run the FlagGems ARM W4A8 operator.
 - Keep the Qwen GDN stride compatibility hook idempotent and isolated from accelerator builds.
 - Load the pinned MiniCPM5 W8A8 release checkpoint and return non-empty HTTP inference.
+- Losslessly repackage the public MiniCPM5 W4A8-G128 release checkpoint, then verify
+  end-to-end generation and the actual FlagGems W4A8 call path.
 - Verify from logs whether W8A8 used native vLLM or a future FlagGems path; do not infer it
   from the checkpoint name or from the HTTP response.
 - Add an optimized ARM W8A8 plugin path in a follow-up implementation, with a kernel-selection
@@ -134,14 +142,17 @@ fetch_commit https://github.com/flagos-ai/vllm-plugin-FL.git vllm-plugin-FL \
 git -C "$WORK_DIR/flagtree-cpu" submodule update --init --recursive
 ```
 
-The FlagGems commit is the merged #5904 head. The plugin commit is the current #433 head;
-PR #433 is still open. Record all four `git rev-parse HEAD` outputs in the test report.
+The FlagGems commit is the merged #5904 head. The plugin commit is the merged #433 PR head;
+record all four `git rev-parse HEAD` outputs in the test report.
 `flagtree-cpu` revision `2c35990a...` is required: the earlier `77433cf...` checkout fails
 six of seven ARM W4A8 numerical tests.
 
 ### Step 2: Install the CPU packages
 
 ```bash
+export PATH="$HOME/.local/bin:$PATH"
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
 cat > "$WORK_DIR/constraints.txt" <<'EOF'
 torch==2.11.0
 torchaudio==2.11.0
@@ -179,8 +190,15 @@ uv pip install --no-build-isolation --constraint "$WORK_DIR/constraints.txt" \
 
 The `flagtree-cpu` installation supplies import name `triton`; do not replace it with the
 public Triton wheel. On the reference CIX P1, `MAX_JOBS=4` keeps native compilation within
-32 GiB. These are source/editable test packages; release wheel and image publication are
-separate work.
+32 GiB. Its source build fetches pinned LLVM and auxiliary NVIDIA tool archives even for
+the CPU backend; permit access to `oaitriton.blob.core.windows.net` and
+`developer.download.nvidia.com`, and rerun Step 2 if a transfer is interrupted. A compatible
+`TRITON_HOME` cache can be reused across attempts. These are source/editable test packages;
+release wheel and image publication are separate work. The vLLM CPU build also fetches
+Arm ComputeLibrary tag `v52.6.0` and oneDNN commit
+`9c5be1cc59e368aebf0909e6cf20f981ea61462a` unless compatible local source caches
+are supplied through the `ACL_ROOT_DIR` environment variable and CMake's
+`FETCHCONTENT_SOURCE_DIR_ONEDNN` variable (via `CMAKE_ARGS`).
 
 ## Test Plan
 
@@ -191,6 +209,7 @@ MiniCPM5 W8A8 model test.
 ### Step 3: Verify the installed CPU platform and run operator tests
 
 ```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
 cd "$WORK_DIR/vllm-plugin-FL"
 source "$WORK_DIR/.venv/bin/activate"
 export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
@@ -237,6 +256,8 @@ model card mentions `SHA256SUMS`, but that file is absent at the pinned reposito
 the following explicit checks are executable against the actual repository.
 
 ```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
 export MODEL_DIR="$HOME/Models/MiniCPM5-2B-W8A8-arm-FlagOS"
 mkdir -p "$MODEL_DIR"
 git init -q "$MODEL_DIR"
@@ -249,9 +270,9 @@ GIT_LFS_SKIP_SMUDGE=1 git -C "$MODEL_DIR" checkout --detach \
 truncate -s 0 "$MODEL_DIR/model-00000-of-00001.safetensors" "$MODEL_DIR/tokenizer.json"
 curl --fail --location --retry 3 --continue-at - --output \
   "$MODEL_DIR/model-00000-of-00001.safetensors" \
-  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/master/model-00000-of-00001.safetensors'
+  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/e53463a1587ac1a3446efc761c50652a1306ef5e/model-00000-of-00001.safetensors'
 curl --fail --location --retry 3 --continue-at - --output "$MODEL_DIR/tokenizer.json" \
-  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/master/tokenizer.json'
+  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/e53463a1587ac1a3446efc761c50652a1306ef5e/tokenizer.json'
 (cd "$MODEL_DIR" && printf '%s  %s\n' \
   'ce27c62b10b4e7bbecbf84b7c820d3b293f9f7ff93a5963aecd785009abda905' \
   'model-00000-of-00001.safetensors' | sha256sum -c -)
@@ -358,8 +379,245 @@ terminal A with Ctrl-C after the request. This check is batch-one functional smo
 not establish quality, long-context behavior, W8A8 FlagGems acceleration, or a CIX throughput
 number. To accept a future accelerated W8A8 route, require a selected-kernel log/trace,
 numerical comparison against dequantized BF16, prefill and decode coverage, and no silent
-fallback. A compatible packed W4A8 checkpoint also needs end-to-end generation coverage
-before the full FEP is marked `Implemented`.
+fallback. Steps 7-9 below supply end-to-end W4A8 generation coverage with a distinct,
+public checkpoint; the W8A8 model in Steps 4-6 cannot verify the W4A8 route.
+
+### Step 7: Fetch and verify the public W4A8-G128 checkpoint
+
+Run this after Step 3 to test the FlagGems W4A8 model route. Steps 4-6 are a separate W8A8
+compatibility test. The release W4A8 files are at ModelScope revision
+`f125bb2aa4c62cfbac922474176ccf705ef94518`. Both the weight and tokenizer are Git LFS
+blobs; do not leave their pointer files in the model directory.
+
+```bash
+export W4_SOURCE="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS"
+mkdir -p "$W4_SOURCE"
+git init -q "$W4_SOURCE"
+git -C "$W4_SOURCE" remote add origin \
+  https://www.modelscope.cn/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS.git
+GIT_LFS_SKIP_SMUDGE=1 git -C "$W4_SOURCE" fetch --depth 1 origin \
+  f125bb2aa4c62cfbac922474176ccf705ef94518
+GIT_LFS_SKIP_SMUDGE=1 git -C "$W4_SOURCE" checkout --detach \
+  f125bb2aa4c62cfbac922474176ccf705ef94518
+truncate -s 0 "$W4_SOURCE/model-00000-of-00001.safetensors" "$W4_SOURCE/tokenizer.json"
+curl --fail --location --retry 3 --continue-at - --output \
+  "$W4_SOURCE/model-00000-of-00001.safetensors" \
+  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS/resolve/f125bb2aa4c62cfbac922474176ccf705ef94518/model-00000-of-00001.safetensors'
+curl --fail --location --retry 3 --continue-at - --output "$W4_SOURCE/tokenizer.json" \
+  'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS/resolve/f125bb2aa4c62cfbac922474176ccf705ef94518/tokenizer.json'
+(cd "$W4_SOURCE" && printf '%s  %s\n' \
+  'e6f8bf8cf7d9498f8dc8895f515c52531cdf90f79c0aad274c9e541b6ece79df' \
+  'model-00000-of-00001.safetensors' | sha256sum -c -)
+(cd "$W4_SOURCE" && printf '%s  %s\n' \
+  '3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81' \
+  'tokenizer.json' | sha256sum -c -)
+test "$(git -C "$W4_SOURCE" rev-parse HEAD)" = \
+  f125bb2aa4c62cfbac922474176ccf705ef94518
+```
+
+The public configuration declares `compressed-tensors` `int-quantized`, symmetric INT4 G128
+body weights, dynamic symmetric per-token INT8 activations, and BF16 embeddings and
+`lm_head`. It is the same MiniCPM5 model family, but a different checkpoint from the W8A8
+release in Step 4. Keep the files from one revision together.
+
+### Step 8: Convert only the W4 storage layout to the plugin's packed format
+
+This does **not** quantize BF16 weights. It packs each already-quantized signed INT4 weight
+tensor into compressed-tensors int32 storage, checks exact recovery, keeps the original scales
+and BF16 tensors, and changes the `format` labels required by PR #433. The source stays intact.
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+export W4_SOURCE="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS"
+export W4_PACKED="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS-packed"
+python - <<'PY'
+import json
+import os
+import shutil
+from pathlib import Path
+
+import torch
+from compressed_tensors.compressors.pack_quantized.helpers import pack_to_int32, unpack_from_int32
+from safetensors import safe_open
+from safetensors.torch import save_file
+
+source = Path(os.environ["W4_SOURCE"])
+packed_dir = Path(os.environ["W4_PACKED"])
+assert not packed_dir.exists() or not any(packed_dir.iterdir()), packed_dir
+for file in source.iterdir():
+    if file.is_file():
+        with file.open("rb") as handle:
+            assert not handle.read(64).startswith(
+                b"version https://git-lfs.github.com/spec/v1"
+            ), f"unresolved Git LFS pointer: {file}"
+
+config = json.loads((source / "config.json").read_text())
+quant = config["quantization_config"]
+group = next(iter(quant["config_groups"].values()))
+weights, activations = group["weights"], group["input_activations"]
+assert quant["format"] == "int-quantized"
+assert group.get("format", quant["format"]) == "int-quantized"
+assert weights["num_bits"] == 4 and weights["group_size"] == 128
+assert weights["strategy"] == "group" and weights["symmetric"]
+assert activations["num_bits"] == 8 and activations["strategy"] == "token"
+assert activations["dynamic"]
+
+output = {}
+count = 0
+with safe_open(source / "model-00000-of-00001.safetensors", framework="pt", device="cpu") as f:
+    keys = set(f.keys())
+    for name in sorted(keys):
+        tensor = f.get_tensor(name)
+        if name.endswith(".weight") and tensor.dtype == torch.int8:
+            assert tensor.ndim == 2 and tensor.shape[0] % 4 == 0
+            assert tensor.shape[1] % 128 == 0 and name + "_scale" in keys
+            assert -8 <= int(tensor.min()) and int(tensor.max()) <= 7
+            packed = pack_to_int32(tensor, 4)
+            assert torch.equal(unpack_from_int32(packed, 4, tensor.shape), tensor), name
+            stem = name.removesuffix(".weight")
+            output[stem + ".weight_packed"] = packed.contiguous()
+            output[stem + ".weight_shape"] = torch.tensor(tensor.shape, dtype=torch.int64)
+            count += 1
+        else:
+            output[name] = tensor.contiguous()
+assert count == config["num_hidden_layers"] * 7 == 294, count
+
+packed_dir.mkdir(parents=True, exist_ok=True)
+save_file(output, packed_dir / "model.safetensors")
+quant["format"] = group["format"] = "pack-quantized"
+(packed_dir / "config.json").write_text(json.dumps(config, indent=2) + "\n")
+for file in source.iterdir():
+    if file.is_file() and file.name not in {
+        "model-00000-of-00001.safetensors", "model.safetensors.index.json", "config.json"
+    }:
+        shutil.copy2(file, packed_dir / file.name)
+print("lossless W4A8 packing PASS", count, packed_dir)
+PY
+(cd "$W4_PACKED" && printf '%s  %s\n' \
+  '0bc220b3da79f4af1b77dc9231bf7dec417d0a0a8e344e41da6f3f502b76ac7e' \
+  'model.safetensors' | sha256sum -c -)
+```
+
+If an LFS pointer is detected or the derived checksum differs, stop before starting vLLM.
+The converted artifact is a **test copy**, not a new published FlagRelease revision.
+
+### Step 9: Prove FlagGems W4A8 is used, then test the HTTP service
+
+Use a single-process offline audit so the Python call counters cover the model worker. The
+checks require the FlagGems packer at load and the FlagGems W4A8 linear during the actual
+request, beyond any warmup calls. On CIX P1 the 168 packed linears are vLLM's fused
+projections of the 294 original quantized tensors.
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+cd "$WORK_DIR/vllm-plugin-FL"
+export W4_PACKED="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS-packed"
+export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
+export VLLM_ENABLE_V1_MULTIPROCESSING=0 VLLM_CPU_KVCACHE_SPACE=1
+export VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
+export VLLM_CPU_OMP_THREADS_BIND=0,1,6,7,8,9,10,11
+export TRITON_CACHE_DIR="$WORK_DIR/.cache/triton-2c35990"
+mkdir -p "$TRITON_CACHE_DIR"
+python - <<'PY'
+import os
+import flag_gems.quantized_linear as flag_linear
+from vllm import LLM, SamplingParams
+
+calls = {"pack": 0, "linear": 0}
+original_pack = flag_linear.pack_rhs_qsi4c128p
+original_linear = flag_linear.w4a8_g128_linear
+
+def audited_pack(*args, **kwargs):
+    calls["pack"] += 1
+    return original_pack(*args, **kwargs)
+
+def audited_linear(*args, **kwargs):
+    calls["linear"] += 1
+    return original_linear(*args, **kwargs)
+
+flag_linear.pack_rhs_qsi4c128p = audited_pack
+flag_linear.w4a8_g128_linear = audited_linear
+llm = LLM(model=os.environ["W4_PACKED"], dtype="bfloat16", enforce_eager=True,
+          max_model_len=256, max_num_batched_tokens=256, max_num_seqs=1)
+assert calls["pack"] == 168, calls
+before = calls["linear"]
+output = llm.chat(
+    messages=[{"role": "user", "content": "请只回答数字：1+1等于几？"}],
+    sampling_params=SamplingParams(max_tokens=16, temperature=0.0),
+    chat_template_kwargs={"enable_thinking": False},
+)[0]
+answer = output.outputs[0].text.strip()
+assert answer == "2", answer
+assert calls["linear"] - before == 336, calls
+print("W4A8 FlagGems inference PASS", answer, calls,
+      "inference_calls", calls["linear"] - before)
+PY
+```
+
+For an HTTP smoke test, leave `VLLM_ENABLE_V1_MULTIPROCESSING` at its default and use the
+same packed model. Start the service in terminal A; adjust core affinity on another Arm64
+host. An empty Triton cache can make the first request take many minutes.
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+cd "$WORK_DIR/vllm-plugin-FL"
+export W4_PACKED="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS-packed"
+export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
+export VLLM_CPU_KVCACHE_SPACE=1
+export TRITON_CACHE_DIR="$WORK_DIR/.cache/triton-2c35990"
+mkdir -p "$TRITON_CACHE_DIR"
+unset VLLM_ENABLE_V1_MULTIPROCESSING
+export A720_CORES=0,1,6,7,8,9,10,11
+export VLLM_CPU_OMP_THREADS_BIND="$A720_CORES"
+export VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
+set -o pipefail
+taskset -c "$A720_CORES" vllm serve "$W4_PACKED" \
+  --host 127.0.0.1 --port 18043 --served-model-name minicpm5-w4a8 \
+  --dtype bfloat16 --enforce-eager --max-model-len 256 \
+  --max-num-batched-tokens 256 --max-num-seqs 1 \
+  --generation-config vllm --distributed-executor-backend uni \
+  --disable-log-stats --language-model-only 2>&1 | tee "$WORK_DIR/w4a8-server.log"
+```
+
+In terminal B, send the same deterministic request and save its response:
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+curl --noproxy '*' --fail-with-body --max-time 10 \
+  http://127.0.0.1:18043/health
+curl --noproxy '*' --fail-with-body --max-time 10 \
+  http://127.0.0.1:18043/v1/models
+curl --noproxy '*' --fail-with-body --max-time 1800 \
+  --output "$WORK_DIR/w4a8-chat-response.json" \
+  http://127.0.0.1:18043/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  --data '{"model":"minicpm5-w4a8","messages":[{"role":"user","content":"请只回答数字：1+1等于几？"}],"chat_template_kwargs":{"enable_thinking":false},"max_tokens":16,"temperature":0}'
+python - <<'PY'
+import json
+import os
+from pathlib import Path
+
+response = json.loads((Path(os.environ["WORK_DIR"]) / "w4a8-chat-response.json").read_text())
+assert response["choices"][0]["message"]["content"].strip() == "2"
+assert response["usage"]["completion_tokens"] > 0
+print("W4A8 HTTP inference PASS", response["usage"])
+PY
+```
+
+On the reference CIX P1, the offline request produced 24 prompt and 2 completion tokens,
+with 336 FlagGems W4A8 linear calls after warmup. The warm HTTP request returned 200 in
+0.411 seconds. Save the source and derived checksums, offline audit output, response, and
+service log. This verifies batch-one functional inference through FlagGems; numerical
+agreement with a BF16 reference, model-quality evaluation, long context, and a fully cold
+source-dependency download remain separate acceptance checks. The release config declares
+symmetric dynamic token activations, while FlagGems #5904's ARM kernels perform asymmetric
+dynamic token quantization; quantify any accuracy impact before claiming full model correctness.
 
 ### CIX P1 source-environment test record (2026-09-15)
 
@@ -373,6 +631,10 @@ before the full FEP is marked `Implemented`.
 | HTTP service | `/health` and `/v1/models` HTTP 200 |
 | First chat request, empty Triton cache | HTTP 200 after 931.6 seconds; 19 prompt and 27 completion tokens, non-empty text |
 | Warm deterministic math request | HTTP 200 in 0.396 seconds; 24 prompt and 2 completion tokens, content `2` |
+| Public W4A8 model identity | ModelScope `f125bb2...`; release weight and tokenizer SHA256 matched |
+| W4A8 storage conversion | All 294 original INT4 tensors packed and exactly recovered; derived weight SHA256 `0bc220b3...` |
+| W4A8 audited offline inference | 168 FlagGems packed linears; 336 linear calls during a 24-prompt, 2-completion-token request; answer `2` |
+| W4A8 HTTP service | `/health`, `/v1/models`, and math chat HTTP 200; answer `2`; warm request 0.411 seconds |
 
 The first open-ended request asked for a one-sentence FlagOS description. Its answer was
 factually wrong, so non-empty generation is recorded as a **functional** pass only. The
@@ -382,9 +644,29 @@ perplexity, or broader model-quality evaluation was run. Live worker sampling du
 This cold compilation latency is a test-environment observation, not a steady-state model
 throughput figure.
 
+### Fresh CIX P1 reproduction (2026-09-15, Python 3.11.13)
+
+| Check | Observed result |
+|---|---|
+| Fresh source and venv installation | All four exact source commits fetched; FlagTree CPU and vLLM CPU native extensions rebuilt; PyTorch `2.11.0+cpu`, Triton `3.7.2`, vLLM `0.24.0+cpu`, `CpuPlatform` verified. Pinned LLVM/NVIDIA build caches and local Arm ComputeLibrary `v52.6.0`/oneDNN `9c5be1...` sources were reused after transfer failures. |
+| FEP-0082 FlagTree check | Fixed source and LLVM hashes, `cpu/aarch64` target, and vector add passed. |
+| Operator tests | FlagGems W4A8-G128 **7 passed, 0 skipped**; plugin ARM registration/GDN/W4A8 **16 passed, 0 skipped**. |
+| Model artifacts | Both public W8A8 and W4A8 release weight/tokenizer SHA256 checks passed in new model directories; W4A8 294-tensor lossless repack and derived SHA256 passed. |
+| W4A8 audited inference, empty request JIT cache | 24 prompt/2 completion tokens, answer `2`; 168 FlagGems pack calls at load, 336 W4A8 linear calls in the actual request; first request **915.78 seconds**. |
+| W4A8 HTTP | `/health`, `/v1/models`, and math chat HTTP 200; answer `2`; all three client checks took 0.51 seconds, repeated chat 0.332 seconds. |
+| W8A8 HTTP | Selected `CPUInt8ScaledMMLinearKernel`, all three endpoints HTTP 200, math answer `2`; client checks took 0.56 seconds after the W4A8 CPU-attention JIT cache was populated. |
+
+The first W4A8 request was sampled inside vLLM's CPU attention
+`compute_slot_mappings -> triton/backends/cpu/compiler.py::make_asm`. A 915.78-second
+cold request is a material performance issue despite functional success. The warm timings
+cover a 24-prompt, 2-completion-token smoke request and cannot establish model throughput.
+Measure cold startup, time to first token, and decode throughput separately before any
+performance acceptance. The Ctrl-C API-server shutdown emitted resource-tracker warnings
+about semaphores and shared memory; this did not affect the successful HTTP requests.
+
 ## Related PRs
 
-- [ ] [vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — ARM CPU packed W4A8 and GDN integration; open.
+- [x] [vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — ARM CPU packed W4A8 and GDN integration; merged 2026-09-09.
 - [x] [FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904) — ARM W4A8-G128 API; merged.
 - [ ] [`flagtree-cpu/triton_v3.7.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x) at `2c35990a...` — CPU compiler baseline under FEP-0082 acceptance.
 - [ ] Follow-up ARM CPU W8A8 optimized plugin/operator implementation, if this remains a FlagOS 2.2 goal.
@@ -397,3 +679,7 @@ throughput figure.
   16/16. The published W8A8 checkpoint loaded with the native vLLM CPU INT8 kernel and
   completed HTTP inference. The test record above separates cold JIT, warm inference, and
   the remaining W8A8 FlagGems acceleration and quality acceptance work.
+- 2026-09-15: Public MiniCPM5 W4A8 release weight and tokenizer were pinned and verified.
+  A losslessly repacked test copy completed audited offline inference via FlagGems W4A8 and
+  OpenAI-compatible HTTP inference on CIX P1. The published `int-quantized` file itself
+  still needs the Step 8 storage conversion for PR #433's packed CPU adapter.
