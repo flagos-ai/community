@@ -3,14 +3,20 @@ set -euo pipefail
 test "$(uname -s)" = Linux && test "$(uname -m)" = aarch64 || fail 'Linux aarch64 is required'
 source /etc/os-release
 test "$ID" = debian && test "$VERSION_ID" = 13 || fail 'setup targets Debian 13'
+if [ "${SKIP_SYSTEM_PACKAGES:-0}" != 1 ]; then
+  APT=(apt-get)
+  if [ "$EUID" -ne 0 ]; then
+    command -v sudo >/dev/null || fail 'sudo is required for system packages; ask the administrator to install prerequisites'
+    APT=(sudo apt-get)
+  fi
+  "${APT[@]}" update
+  "${APT[@]}" install -y git curl ca-certificates procps util-linux build-essential \
+    ninja-build cmake zlib1g-dev libxml2-dev pipx
+fi
 uname -a
 free -h
 df -h "$HOME"
-lscpu | grep -E 'Architecture|Flags'
-if [ "${SKIP_SYSTEM_PACKAGES:-0}" != 1 ]; then
-  sudo apt-get update
-  sudo apt-get install -y git build-essential ninja-build cmake pipx
-fi
+LC_ALL=C lscpu | grep -E 'Architecture|Flags'
 export PATH="$HOME/.local/bin:$PATH"
 uv() {
   if [ -x "$HOME/.local/bin/uv" ] && [ "$("$HOME/.local/bin/uv" --version)" = 'uv 0.8.24' ]; then

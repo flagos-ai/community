@@ -63,9 +63,15 @@ not the acceptance revision. Initializing SLEEF is required for CMake configurat
 Reference: Debian 13 `aarch64`, 32 GiB CIX P1, Python 3.11 and PyTorch `2.11.0+cpu`.
 `setup` installs system dependencies with sudo, fetches exact sources, initializes
 submodules, uses uv `0.8.24` and builds with four jobs. Reserve about 8 GiB for the LLVM
-cache plus build trees. Allow GitHub, PyTorch's wheel index,
+cache plus build trees. Allow GitHub, PyPI (or a configured mirror), PyTorch's wheel index,
 `oaitriton.blob.core.windows.net` and `developer.download.nvidia.com`; the CPU build
 also fetches auxiliary NVIDIA tools. Retry with the same work directory/build cache.
+Use the test host's working proxy/package-index configuration for the setup account.
+
+**The scripted setup requires Debian 13; Debian 12 is not covered by this procedure.**
+Have Git available before checkout. Setup uses sudo for a regular login or apt directly for root.
+Setup installs host diagnostics before using them on minimal systems. Budget at least
+25 GiB free for this independent environment, or 60 GiB for both PRs and model files.
 
 ### Enable and test
 
@@ -83,6 +89,7 @@ The default `WORK_DIR` is `$HOME/flagtree-cpu-3.7-test`; export it once to chang
 location. `BUILD_JOBS` defaults to 4. `SKIP_SYSTEM_PACKAGES=1` skips apt installation
 when prerequisites are present. This environment is independent of FEP-0083 and
 does not require that PR's scripts or vLLM. Upstream sources must have no tracked edits.
+Each PR needs its own `WORK_DIR`; when switching PRs, update a custom value as well.
 
 ## Test Plan
 
@@ -98,8 +105,13 @@ can inspect its source. Numerical tests use the FlagGems install in this same en
 
 Keep `$WORK_DIR/logs/setup.log`, `test.log`, package versions and pytest JUnit XML.
 The scripts stop on failure, wrong revisions or skipped numerical tests.
+Only the seven FlagGems numerical cases overlap with community PR #82. This PR's
+CPU-target and empty-cache vector checks are compiler acceptance; model inference
+and warm TTFT/TPS are tested through PR #82. Run shared cases in each environment.
 The script entries were rerun on 2026-09-16: setup passed; empty-cache vector add
-3.026 s, cached execution below displayed 0.001 s; FlagGems 7/7 in 3.44 s.
+1.568 s, cached execution below displayed 0.001 s; FlagGems 7/7 in 3.31 s.
+Minimal Debian 13 system-package/uv/Python bootstrap also passed; the native
+compiler test reused the existing build and used a new kernel cache.
 The 128-element vector-add example does not alter vLLM's BLOCK_SIZE.
 
 ### Model-level limitation
