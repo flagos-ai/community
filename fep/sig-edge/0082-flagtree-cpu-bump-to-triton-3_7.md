@@ -80,14 +80,35 @@ repository build is outside this test environment.
 for a 32 GiB CIX P1.
 
 ```bash
+sudo apt-get update
+sudo apt-get install -y git build-essential ninja-build cmake pipx
+uname -m
+free -h
+df -h "$HOME"
+```
+
+The reference host reports `aarch64` and 32 GiB RAM. Reserve free disk for the
+approximately 8 GiB pinned LLVM cache and the native build tree; record host, RAM,
+free disk, and the CPU features with `lscpu | grep -E 'Architecture|Flags'`.
+
+```bash
 pipx install 'uv==0.8.24'
 export PATH="$HOME/.local/bin:$PATH"
 uv python install 3.11
 export WORK_DIR="$HOME/flagtree-cpu-3.7-test"
 mkdir -p "$WORK_DIR"
-git clone --branch triton_v3.7.x --depth 1 \
-  https://github.com/flagos-ai/flagtree-cpu.git "$WORK_DIR/flagtree-cpu"
+git init -q "$WORK_DIR/flagtree-cpu"
+if ! git -C "$WORK_DIR/flagtree-cpu" remote get-url origin >/dev/null 2>&1; then
+  git -C "$WORK_DIR/flagtree-cpu" remote add origin \
+    https://github.com/flagos-ai/flagtree-cpu.git
+fi
+test "$(git -C "$WORK_DIR/flagtree-cpu" remote get-url origin)" = \
+  https://github.com/flagos-ai/flagtree-cpu.git
+git -C "$WORK_DIR/flagtree-cpu" fetch --depth 1 origin \
+  2c35990a30e96665f8f9b5e158562288b4011048
 git -C "$WORK_DIR/flagtree-cpu" checkout --detach \
+  2c35990a30e96665f8f9b5e158562288b4011048
+test "$(git -C "$WORK_DIR/flagtree-cpu" rev-parse HEAD)" = \
   2c35990a30e96665f8f9b5e158562288b4011048
 git -C "$WORK_DIR/flagtree-cpu" submodule update --init --recursive
 cd "$WORK_DIR"
@@ -95,18 +116,32 @@ uv venv --python 3.11 .venv
 source .venv/bin/activate
 uv pip install -r flagtree-cpu/python/requirements.txt
 uv pip install --extra-index-url https://download.pytorch.org/whl/cpu \
-  --index-strategy unsafe-best-match 'torch==2.11.0+cpu' pytest
+  --index-strategy unsafe-best-match 'torch==2.11.0+cpu' 'numpy==2.3.5' pytest
 TRITON_HOME="$WORK_DIR/.triton-build" TRITON_BUILD_PROTON=OFF MAX_JOBS=4 \
   uv pip install --no-build-isolation --editable "$WORK_DIR/flagtree-cpu"
 ```
 
 Do not install a public `triton` wheel over this checkout: that wheel does not contain this
 CPU backend. `FLAGTREE_BACKEND=cpu` alone is not the verified selector for this package.
+The source build downloads the pinned LLVM archive and auxiliary NVIDIA tool archives
+even when the run selects the CPU backend. Permit access to
+`oaitriton.blob.core.windows.net` and `developer.download.nvidia.com`; if a transfer
+is interrupted, rerun the editable-install command with the same `TRITON_HOME` so its
+compatible third-party cache can be reused.
 
 ## Test Plan
 
-**(Required)** Run these steps from `$WORK_DIR`. An outer directory named `triton` can shadow
-the installed Python package.
+**(Required)** Restore the environment in a new terminal, run the repository's required
+incremental `make` build, then execute the numbered checks from `$WORK_DIR`. An outer
+directory named `triton` can shadow the installed Python package.
+
+```bash
+export WORK_DIR="$HOME/flagtree-cpu-3.7-test"
+source "$WORK_DIR/.venv/bin/activate"
+PATH="$WORK_DIR/.venv/bin:$PATH" \
+  make -C "$WORK_DIR/flagtree-cpu" PYTHON="$WORK_DIR/.venv/bin/python"
+cd "$WORK_DIR"
+```
 
 1. Confirm the source, LLVM pin, import path, and CPU target:
 
@@ -115,6 +150,8 @@ the installed Python package.
      2c35990a30e96665f8f9b5e158562288b4011048
    test "$(cat "$WORK_DIR/flagtree-cpu/cmake/llvm-hash.txt")" = \
      87717bf9f81f7b29466c5d9a30a3453bdfc93941
+   test "$(git -C "$WORK_DIR/flagtree-cpu/third_party/sleef" rev-parse HEAD)" = \
+     93f04d869471ce4d007abaebb8c6a7bc62749f61
    TRITON_CPU_BACKEND=1 python - <<'PY'
    import platform
    from pathlib import Path
@@ -134,6 +171,8 @@ the installed Python package.
 
    ```bash
    cat > "$WORK_DIR/vector_add.py" <<'PY'
+   import time
+
    import torch
    import triton
    import triton.language as tl
@@ -145,23 +184,68 @@ the installed Python package.
 
    x = torch.arange(128, dtype=torch.float32)
    y = torch.empty_like(x)
+   started = time.perf_counter()
    add_one[(1,)](x, y, BLOCK=128)
+   cold_s = time.perf_counter() - started
    torch.testing.assert_close(y, x + 1)
-   print("CPU vector add PASS", triton.runtime.driver.active.get_current_target())
+   started = time.perf_counter()
+   add_one[(1,)](x, y, BLOCK=128)
+   warm_s = time.perf_counter() - started
+   torch.testing.assert_close(y, x + 1)
+   print("CPU vector add PASS", triton.runtime.driver.active.get_current_target(),
+         "cold_JIT_plus_run_s", round(cold_s, 3), "cached_run_s", round(warm_s, 3))
    PY
+   export TRITON_CACHE_DIR
+   TRITON_CACHE_DIR=$(mktemp -d "$WORK_DIR/triton-jit-XXXXXX")
    TRITON_CPU_BACKEND=1 python "$WORK_DIR/vector_add.py"
    ```
 
-3. Install the exact FlagGems #5904 head
-   `1fda4b11ae528c02ae5187cda551af4a61a514c5` in this environment with
-   `FLAGGEMS_VENDOR=arm`, then run its `tests/test_arm_w4a8_g128.py` suite as shown in
-   [FEP-0083](https://github.com/flagos-ai/community/pull/82). Require **7 passed, 0 skipped**.
-   It executes the Triton W4A8 kernel and compares
-   with a PyTorch reference. A model returning HTTP 200 does not replace this compiler check.
+3. Install the exact FlagGems #5904 head in **this** `$WORK_DIR/.venv`, then run its
+   numerical W4A8-G128 suite. Do not switch to FEP-0083's separate test environment.
+
+   ```bash
+   git init -q "$WORK_DIR/FlagGems"
+   if ! git -C "$WORK_DIR/FlagGems" remote get-url origin >/dev/null 2>&1; then
+     git -C "$WORK_DIR/FlagGems" remote add origin \
+       https://github.com/flagos-ai/FlagGems.git
+   fi
+   test "$(git -C "$WORK_DIR/FlagGems" remote get-url origin)" = \
+     https://github.com/flagos-ai/FlagGems.git
+   git -C "$WORK_DIR/FlagGems" fetch --depth 1 origin \
+     1fda4b11ae528c02ae5187cda551af4a61a514c5
+   git -C "$WORK_DIR/FlagGems" checkout --detach \
+     1fda4b11ae528c02ae5187cda551af4a61a514c5
+   test "$(git -C "$WORK_DIR/FlagGems" rev-parse HEAD)" = \
+     1fda4b11ae528c02ae5187cda551af4a61a514c5
+   FLAGGEMS_VENDOR=arm uv pip install --no-build-isolation \
+     --editable "$WORK_DIR/FlagGems"
+   cd "$WORK_DIR/FlagGems"
+   export TRITON_CACHE_DIR
+   TRITON_CACHE_DIR=$(mktemp -d "$WORK_DIR/flaggems-jit-XXXXXX")
+   FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 \
+     python -m pytest -ra tests/test_arm_w4a8_g128.py
+   ```
+
+   Require **7 passed, 0 skipped**. The suite executes the Triton W4A8 kernel
+   and compares it with a PyTorch reference. A model returning HTTP 200 does not
+   replace this compiler check.
+
+   On the reference CPU, FlagGems can warn that device properties and capability
+   are unavailable and that its replay benchmarker falls back to event timing.
+   These warnings do not waive the seven numerical comparisons.
 
 Capture source SHA, LLVM pin, host/ISA, compiler version, test output, and cold-JIT time.
 Investigate a material slowdown against the older CPU line on the same host before changing
 the FEP status to `Implemented`.
+
+### Fresh CIX P1 test record (2026-09-16)
+
+| Check | Observed result |
+|---|---|
+| Source and toolchain | Fresh checkout `2c35990a...`, LLVM `87717bf...`, SLEEF `93f04d...`; Python 3.11.13, PyTorch `2.11.0+cpu`, NumPy 2.3.5 |
+| Native build and target | Editable source build succeeded; repository `make` reported no work; Triton 3.7.2 selected `cpu/aarch64` |
+| Empty-cache vector add | Output matched PyTorch; cold JIT plus execution 1.627 s, cached execution below displayed 0.001 s |
+| FlagGems #5904 | Exact `1fda4b11...` installed in this virtual environment; a second run with a newly empty Triton cache gave W4A8-G128 **7 passed, 0 skipped** in 4.01 s, with three CPU fallback warnings |
 
 The 128-element vector-add and FlagGems W4A8 checks above establish the pinned compiler
 and operator path. They do not exercise all vLLM 0.24 CPU launch sizes. On the same CIX P1,
@@ -173,19 +257,23 @@ and register-allocation work. This is a downstream vLLM launch-parameter problem
 the FlagTree CPU package and FlagGems operator tests in this FEP passed.
 
 For a **model-level** cold-cache test, follow
-[FEP-0083 Steps 1–10](https://github.com/flagos-ai/community/pull/82) and apply its
-[CPU-only vLLM 0.24.0 patch](https://github.com/kevinzs2048/community/blob/vllm-arm64/fep/sig-edge/patches/vllm-0.24.0-arm-cold-jit-128.patch)
-before the editable vLLM installation. On CIX P1 with that patch and genuinely empty
-Triton caches, W4A8 and W8A8 deterministic first requests completed in 11.452/9.552 s
-after 22.140/12.773 s model initialization. W4A8 warm HTTP decoding was about
-7.6 token/s; this remains a separate performance-acceptance concern. Do not treat the
-small vector-add JIT time alone as the end-to-end cold-start latency.
+[FEP-0083 Steps 1–11](https://github.com/flagos-ai/community/pull/82) and apply its
+[CPU-only vLLM 0.24.0 patch](https://github.com/kevinzs2048/community/blob/363fc1fae1dcbf834c4173765fead67bfd0643ff/fep/sig-edge/patches/vllm-0.24.0-arm-cold-jit-128.patch)
+before the editable vLLM installation. In a fresh CIX P1 environment with that patch and
+genuinely empty separate Triton caches, W4A8 and W8A8 deterministic first requests
+completed in **11.610/9.614 s** after **21.867/12.826 s** model initialization.
+Five single-user 64-token streaming HTTP requests per model measured warm short-input
+decoding at **7.73 token/s W4A8** and **4.69 token/s W8A8**; long-input medians were
+7.62 and 4.63 token/s. W8A8 selected vLLM's native CPU INT8 kernel, so these are
+functional and performance baselines rather than a FlagGems-accelerated W8A8 result.
+Throughput requires separate acceptance. Do not treat the small vector-add JIT time
+alone as the end-to-end cold-start latency.
 
 ## Related PRs
 
 - [ ] [`flagtree-cpu/triton_v3.7.x`](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x) at `2c35990a...` — CPU line under acceptance test.
 - [x] [FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904) — downstream ARM W4A8 operator, merged 2026-09-04.
-- [ ] [vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — downstream vLLM 0.24 ARM CPU integration.
+- [x] [vllm-plugin-FL #433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — downstream vLLM 0.24 ARM CPU integration, merged 2026-09-09.
 
 ## Implementation History
 
@@ -197,3 +285,7 @@ small vector-add JIT time alone as the end-to-end cold-start latency.
 - 2026-09-16: Documented the downstream vLLM CPU launch-size cold-JIT issue and the
   reproducible CPU-only patch and two-model cold-cache test in FEP-0083. Compiler and
   operator acceptance remains independent of model throughput acceptance.
+- 2026-09-16: Made the FlagGems checkout, editable install, and 7/7 numerical test
+  executable inside FEP-0082's own virtual environment. Fetch the exact FlagTree CPU
+  commit rather than depending on the branch tip remaining unchanged. The vector-add
+  step now uses a new cache and reports cold JIT plus execution and cached execution.
