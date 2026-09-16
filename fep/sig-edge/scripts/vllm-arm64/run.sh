@@ -44,6 +44,7 @@ case "$ACTION" in
   prewarm)
     model_kind "${2:-}"
     "$PYTHON" "$SCRIPT_DIR/verify_model.py"
+    echo "Prewarming $MODEL_KIND; retain $TRITON_CACHE_DIR. First-use compilation can take over 15 minutes."
     for pass in prepare restart; do
       LOG_NAME="prewarm-$MODEL_KIND-$pass"
       logged env VLLM_ENABLE_V1_MULTIPROCESSING=0 taskset -c "$A720_CORES" \

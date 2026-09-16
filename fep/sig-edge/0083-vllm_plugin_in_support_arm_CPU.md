@@ -80,10 +80,15 @@ fetches exact sources and builds native packages with four jobs. It pins the dec
 LLVM/SLEEF, ACL `v52.6.0` and oneDNN sources; package versions are in
 [requirements.lock](scripts/vllm-arm64/requirements.lock).
 
-Allow approximately 8 GiB for the LLVM download plus build trees and model files.
+**The scripted setup requires Debian 13; Debian 12 is not covered by this procedure.**
+Have Git available before checkout. Setup uses sudo for a regular login or apt directly for root.
+Setup installs `free`/`lscpu`/`taskset` before host diagnostics, including on minimal systems.
+Budget at least 30 GiB free for this environment and models, or 60 GiB for both PRs;
+the LLVM download alone needs approximately 8 GiB.
 The earlier reference builds took about 38 minutes for FlagTree and 11.5 minutes for
-vLLM. Network access to GitHub, ModelScope, PyTorch's wheel index,
+vLLM. Network access to GitHub, ModelScope, PyPI (or a configured mirror), PyTorch's wheel index,
 `oaitriton.blob.core.windows.net` and `developer.download.nvidia.com` is required.
+Use the test host's working proxy/package-index configuration for the setup account.
 Rerun with the same work directory to reuse verified downloads and compatible build caches.
 
 ### Run the W4A8 toolchain test
@@ -112,6 +117,9 @@ CIX P1 big cores `0,1,6,7,8,9,10,11`. On another Arm64 host, identify its big co
 with `lscpu` and export `A720_CORES`, `OMP_NUM_THREADS` and `MKL_NUM_THREADS` first.
 Export `WORK_DIR`/`MODEL_ROOT` once to change paths. `SKIP_SYSTEM_PACKAGES=1` skips
 apt installation when prerequisites already exist. Sources must have no tracked edits.
+Each PR needs its own `WORK_DIR`; when switching PRs, update a custom value as well.
+Run model tests sequentially on the P1. Ports default to W4 `18043` / W8 `18042`;
+export `PORT` to select a free port if either is occupied.
 
 ### Optional W8A8 compatibility and performance tests
 
@@ -145,9 +153,15 @@ The commands stop on failures and enforce the following checks:
 | W8A8 selection | `CPUInt8ScaledMMLinearKernel` in the service log |
 
 [FEP-0082](https://github.com/flagos-ai/community/pull/83) supplies an independent compiler test.
+Only the seven FlagGems numerical cases overlap: PR #83 additionally checks the CPU
+target and an empty-cache vector kernel; this PR checks vLLM/plugin/model integration.
+Run the shared cases in each environment. `test w4` is functional acceptance; run
+`bench w4` separately to collect warm TTFT/TPS, and `test w8` for native INT8 compatibility.
 The script entries were rerun on 2026-09-16: native setup, numerical/operator suites,
 verified-model reuse, W4/W8 audited prewarming and HTTP math checks passed. HTTP
 servers stopped after testing and retained caches. These two-token checks are not TPS.
+Minimal Debian 13 system-package/uv/Python bootstrap also passed. This round's
+native/model reruns reused existing builds and caches.
 
 ### Known limitations
 

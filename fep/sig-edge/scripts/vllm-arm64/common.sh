@@ -27,8 +27,8 @@ host_check() {
   uname -a
   free -h
   df -h "$HOME"
-  lscpu -e=CPU,CORE,ONLINE,MAXMHZ
-  lscpu | grep -E 'Architecture|Flags'
+  LC_ALL=C lscpu -e=CPU,CORE,ONLINE,MAXMHZ
+  LC_ALL=C lscpu | grep -E 'Architecture|Flags'
 }
 clean_source() {
   test "$(git -C "$1" rev-parse HEAD)" = "$2" || fail "wrong revision: $1"

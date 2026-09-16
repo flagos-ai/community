@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
-host_check
+test "$(uname -s)" = Linux && test "$(uname -m)" = aarch64 || fail 'Linux aarch64 is required'
 source /etc/os-release
 test "$ID" = debian && test "$VERSION_ID" = 13 || fail 'setup targets Debian 13; install dependencies manually on other distributions'
 if [ "${SKIP_SYSTEM_PACKAGES:-0}" != 1 ]; then
-  sudo apt-get update
-  sudo apt-get install -y git curl build-essential ccache ninja-build cmake \
-    gcc-12 g++-12 libnuma-dev libtcmalloc-minimal4t64 pipx
+  APT=(apt-get)
+  if [ "$EUID" -ne 0 ]; then
+    command -v sudo >/dev/null || fail 'sudo is required for system packages; ask the administrator to install prerequisites'
+    APT=(sudo apt-get)
+  fi
+  "${APT[@]}" update
+  "${APT[@]}" install -y git curl ca-certificates procps util-linux build-essential \
+    ccache ninja-build cmake gcc-12 g++-12 zlib1g-dev libxml2-dev \
+    libnuma-dev libtcmalloc-minimal4t64 pipx
 fi
+host_check
 export PATH="$HOME/.local/bin:$PATH"
 uv() {
   if [ -x "$HOME/.local/bin/uv" ] && [ "$("$HOME/.local/bin/uv" --version)" = 'uv 0.8.24' ]; then
