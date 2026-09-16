@@ -154,10 +154,23 @@ jobs:
           deferred_id=$(gh project field-list "$PROJECT_NUMBER" \
             --owner "$PROJECT_OWNER" --format json \
             --jq '.fields[] | select(.name == "Status") | .options[] | select(.name == "Deferred") | .id')
+          priority_field_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Priority") | .id')
+          priority_p0_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Priority") | .options[] | select(.name == "P0") | .id')
+          priority_p1_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Priority") | .options[] | select(.name == "P1") | .id')
+          priority_p2_id=$(gh project field-list "$PROJECT_NUMBER" \
+            --owner "$PROJECT_OWNER" --format json \
+            --jq '.fields[] | select(.name == "Priority") | .options[] | select(.name == "P2") | .id')
 
-          query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor){nodes{id content{__typename ... on Issue{number state stateReason assignees(first:20){nodes{login}} closedByPullRequestsReferences(first:50,includeClosedPrs:true){nodes{state mergedAt baseRefName}}}} fieldValues(first:50){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}} ... on ProjectV2ItemFieldPullRequestValue{pullRequests(first:50){nodes{state mergedAt baseRefName}} field{... on ProjectV2Field{name}}}}}} pageInfo{hasNextPage endCursor}}}}}'
+          query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor){nodes{id content{__typename ... on Issue{number state stateReason labels(first:50){nodes{name}} assignees(first:20){nodes{login}} closedByPullRequestsReferences(first:50,includeClosedPrs:true){nodes{state mergedAt baseRefName}}}} fieldValues(first:50){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}} ... on ProjectV2ItemFieldPullRequestValue{pullRequests(first:50){nodes{state mergedAt baseRefName}} field{... on ProjectV2Field{name}}}}}} pageInfo{hasNextPage endCursor}}}}}'
           project_items="$RUNNER_TEMP/flagos-2.2-project-items.json"
           transitions="$RUNNER_TEMP/flagos-2.2-status-transitions.tsv"
+          priority_transitions="$RUNNER_TEMP/flagos-2.2-priority-transitions.tsv"
           gh api graphql --paginate --slurp -f query="$query" \
             -F owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER" > "$project_items"
 
@@ -166,6 +179,7 @@ jobs:
             | select(.content.__typename == "Issue")
             | {id, number: .content.number, state: .content.state,
                reason: .content.stateReason,
+               labels: [.content.labels.nodes[].name],
                assignees: [.content.assignees.nodes[].login],
                pull_requests: ([.content.closedByPullRequestsReferences.nodes[]]
                  + [.fieldValues.nodes[]
@@ -199,6 +213,23 @@ jobs:
             | [.id, .number, .status, .desired] | @tsv' \
             "$project_items" > "$transitions"
 
+          jq -r \
+            '.[] | .data.organization.projectV2.items.nodes[]
+            | select(.content.__typename == "Issue")
+            | {id, number: .content.number,
+               labels: [.content.labels.nodes[].name],
+               priority: ([.fieldValues.nodes[]
+                            | select(.field.name == "Priority") | .name][0] // "UNSET")}
+            | (.desired_priority = (
+                if (.labels | index("P0")) != null then "P0"
+                elif (.labels | index("P1")) != null then "P1"
+                elif (.labels | index("P2")) != null then "P2"
+                else "UNSET"
+                end))
+            | select(.desired_priority != .priority)
+            | [.id, .number, .priority, .desired_priority] | @tsv' \
+            "$project_items" > "$priority_transitions"
+
           updated=0
           while IFS=$'\t' read -r item_id issue_number old_status desired; do
             [ -n "$item_id" ] || continue
@@ -220,3 +251,31 @@ jobs:
           done < "$transitions"
 
           echo "Deterministic status updates: $updated"
+
+          priority_updated=0
+          while IFS=$'\t' read -r item_id issue_number old_priority desired_priority; do
+            [ -n "$item_id" ] || continue
+            case "$desired_priority" in
+              P0) option_id="$priority_p0_id" ;;
+              P1) option_id="$priority_p1_id" ;;
+              P2) option_id="$priority_p2_id" ;;
+              UNSET)
+                gh project item-edit \
+                  --id "$item_id" \
+                  --project-id "$project_id" \
+                  --field-id "$priority_field_id" \
+                  --clear > /dev/null
+                priority_updated=$((priority_updated + 1))
+                continue
+                ;;
+              *) continue ;;
+            esac
+            gh project item-edit \
+              --id "$item_id" \
+              --project-id "$project_id" \
+              --field-id "$priority_field_id" \
+              --single-select-option-id "$option_id" > /dev/null
+            priority_updated=$((priority_updated + 1))
+          done < "$priority_transitions"
+
+          echo "Priority updates: $priority_updated"
