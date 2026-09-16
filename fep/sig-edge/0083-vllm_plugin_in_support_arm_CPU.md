@@ -35,11 +35,13 @@ On CIX P1, a **losslessly repacked copy** of the public
 checkpoint completed offline and HTTP inference through the plugin and FlagGems W4A8 CPU
 path. The as-published checkpoint declares `int-quantized`; the packed adapter in PR #433
 does not select FlagGems for that format without the storage conversion in Step 8 below.
-With the Step 2 CPU JIT patch and an empty Triton cache, the same deterministic W4A8
-request finished in 11.452 seconds after model initialization; W8A8 finished in 9.552
-seconds. These first-request times replace the previously observed 915.78/931.6-second
-unpatched cold-cache behavior for the tested configuration. They do not establish a
-production throughput target: warm W4A8 decoding measured about 7.6 token/s on one CIX P1.
+In the latest fresh CIX P1 environment, the Step 2 CPU JIT patch reduced separate
+empty-cache deterministic first requests to **11.610 s W4A8** and **9.614 s W8A8**
+after model initialization, versus the previously observed 915.78/931.6-second
+unpatched behavior. Five single-user 64-token HTTP requests per model measured warm
+short-input decoding at **7.73 token/s W4A8** and **4.69 token/s W8A8**. Both routes
+function, but these rates require a separate performance acceptance decision; W8A8
+still selects vLLM's native CPU INT8 kernel rather than FlagGems acceleration.
 
 ## Motivation
 
@@ -119,8 +121,31 @@ runtime and are not part of this four-source test environment.
 **(Required)** Reproduce on Linux `aarch64` with Python 3.11, PyTorch `2.11.0+cpu`, and
 vLLM `0.24.0+cpu`. The example host is CIX P1 with 32 GiB RAM. On Debian 13, install
 `git`, `curl`, `build-essential`, `ccache`, `ninja-build`, `cmake`, `gcc-12`, `g++-12`,
-`libnuma-dev`, `libtcmalloc-minimal4`, and `pipx` first. Do not put a clone called `vllm`
+`libnuma-dev`, `libtcmalloc-minimal4t64`, and `pipx` first. Do not put a clone called `vllm`
 in Python's current import directory during package verification.
+
+### Step 0: Check the Debian 13 ARM host
+
+Run this once on a test host with package-install privileges. The Debian 13 t64 package
+name is `libtcmalloc-minimal4t64`; `libtcmalloc-minimal4` is not available from the
+reference Debian 13 repository. Keep enough free disk for the approximately 8 GiB LLVM
+cache, native build trees, and two approximately 3 GiB public model weights.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git curl build-essential ccache ninja-build cmake \
+  gcc-12 g++-12 libnuma-dev libtcmalloc-minimal4t64 pipx
+uname -m
+free -h
+df -h "$HOME"
+lscpu -e=CPU,CORE,ONLINE,MAXMHZ
+lscpu | grep -E 'Architecture|Flags'
+```
+
+The reference CIX P1 reports `aarch64`, `asimddp`, `i8mm`, and `bf16` CPU features,
+32 GiB RAM, and eight A720 cores `0,1,6,7,8,9,10,11`. Adjust later affinity values
+only after identifying the test host's big cores; record host, features, RAM, and free
+disk in the test report.
 
 ### Step 1: Create a clean Python environment and pin the four sources
 
@@ -138,8 +163,13 @@ fetch_commit() {
   repo_url=$1
   repo_dir=$2
   source_sha=$3
-  git init -q "$WORK_DIR/$repo_dir"
-  git -C "$WORK_DIR/$repo_dir" remote add origin "$repo_url"
+  if [ ! -d "$WORK_DIR/$repo_dir/.git" ]; then
+    git init -q "$WORK_DIR/$repo_dir"
+  fi
+  if ! git -C "$WORK_DIR/$repo_dir" remote get-url origin >/dev/null 2>&1; then
+    git -C "$WORK_DIR/$repo_dir" remote add origin "$repo_url"
+  fi
+  test "$(git -C "$WORK_DIR/$repo_dir" remote get-url origin)" = "$repo_url"
   git -C "$WORK_DIR/$repo_dir" fetch --depth 1 origin "$source_sha"
   git -C "$WORK_DIR/$repo_dir" checkout --detach "$source_sha"
   test "$(git -C "$WORK_DIR/$repo_dir" rev-parse HEAD)" = "$source_sha"
@@ -167,12 +197,12 @@ export PATH="$HOME/.local/bin:$PATH"
 export WORK_DIR="$HOME/arm64-vllm024-test"
 source "$WORK_DIR/.venv/bin/activate"
 curl --fail --location --retry 3 --output "$WORK_DIR/vllm-arm-cold-jit.patch" \
-  'https://raw.githubusercontent.com/kevinzs2048/community/vllm-arm64/fep/sig-edge/patches/vllm-0.24.0-arm-cold-jit-128.patch'
+  'https://raw.githubusercontent.com/kevinzs2048/community/363fc1fae1dcbf834c4173765fead67bfd0643ff/fep/sig-edge/patches/vllm-0.24.0-arm-cold-jit-128.patch'
 printf '%s  %s\n' \
   'a2f53cae6a5759590c4637378f673b7c4edb23986f8f51ffe811a14058027959' \
   "$WORK_DIR/vllm-arm-cold-jit.patch" | sha256sum -c -
 if git -C "$WORK_DIR/vllm" apply --reverse --check \
-  "$WORK_DIR/vllm-arm-cold-jit.patch"; then
+  "$WORK_DIR/vllm-arm-cold-jit.patch" >/dev/null 2>&1; then
   echo 'vLLM CPU cold-JIT patch already applied'
 else
   git -C "$WORK_DIR/vllm" apply --check "$WORK_DIR/vllm-arm-cold-jit.patch"
@@ -200,10 +230,43 @@ uv pip install 'cmake==4.4.2' 'ninja==1.13.0' 'pybind11==3.0.3' \
   'setuptools-rust==1.13.0' 'scikit-build-core==0.12.2' \
   pytest --constraint "$WORK_DIR/constraints.txt"
 
+fetch_cpu_build_dependency() {
+  repo_dir=$1
+  repo_url=$2
+  fetch_ref=$3
+  source_sha=$4
+  if [ ! -d "$WORK_DIR/$repo_dir/.git" ]; then
+    git init -q "$WORK_DIR/$repo_dir"
+  fi
+  if ! git -C "$WORK_DIR/$repo_dir" remote get-url origin >/dev/null 2>&1; then
+    git -C "$WORK_DIR/$repo_dir" remote add origin "$repo_url"
+  fi
+  test "$(git -C "$WORK_DIR/$repo_dir" remote get-url origin)" = "$repo_url"
+  git -C "$WORK_DIR/$repo_dir" fetch --depth 1 origin "$fetch_ref"
+  git -C "$WORK_DIR/$repo_dir" checkout --detach "$source_sha"
+  test "$(git -C "$WORK_DIR/$repo_dir" rev-parse HEAD)" = "$source_sha"
+}
+fetch_cpu_build_dependency acl-v52.6.0 \
+  https://github.com/ARM-software/ComputeLibrary.git refs/tags/v52.6.0 \
+  007264fa740de5723ebddef16b7bb3657692c088
+fetch_cpu_build_dependency onednn-9c5be1 \
+  https://github.com/oneapi-src/oneDNN.git \
+  9c5be1cc59e368aebf0909e6cf20f981ea61462a \
+  9c5be1cc59e368aebf0909e6cf20f981ea61462a
+
 export BUILD_JOBS=4
 TRITON_HOME="$WORK_DIR/.triton-build" TRITON_BUILD_PROTON=OFF MAX_JOBS="$BUILD_JOBS" \
   uv pip install --no-build-isolation --constraint "$WORK_DIR/constraints.txt" \
   --editable "$WORK_DIR/flagtree-cpu"
+cmake -G Ninja -S "$WORK_DIR/acl-v52.6.0" -B "$WORK_DIR/acl-v52.6.0/build" \
+  -DARM_COMPUTE_BUILD_SHARED_LIB=OFF -DCMAKE_BUILD_TYPE=Release \
+  -DARM_COMPUTE_ARCH=armv8.2-a -DARM_COMPUTE_ENABLE_ASSERTS=OFF \
+  -DARM_COMPUTE_ENABLE_CPPTHREADS=OFF -DARM_COMPUTE_ENABLE_OPENMP=ON \
+  -DARM_COMPUTE_ENABLE_WERROR=OFF -DARM_COMPUTE_BUILD_EXAMPLES=OFF \
+  -DARM_COMPUTE_BUILD_TESTING=OFF
+cmake --build "$WORK_DIR/acl-v52.6.0/build" --parallel "$BUILD_JOBS"
+CMAKE_ARGS="-DFETCHCONTENT_SOURCE_DIR_ONEDNN=$WORK_DIR/onednn-9c5be1" \
+ACL_ROOT_DIR="$WORK_DIR/acl-v52.6.0" \
 VLLM_TARGET_DEVICE=cpu VLLM_VERSION_OVERRIDE=0.24.0+cpu MAX_JOBS="$BUILD_JOBS" \
   uv pip install --no-build-isolation --constraint "$WORK_DIR/constraints.txt" \
   --editable "$WORK_DIR/vllm"
@@ -220,11 +283,17 @@ public Triton wheel. On the reference CIX P1, `MAX_JOBS=4` keeps native compilat
 the CPU backend; permit access to `oaitriton.blob.core.windows.net` and
 `developer.download.nvidia.com`, and rerun Step 2 if a transfer is interrupted. A compatible
 `TRITON_HOME` cache can be reused across attempts. These are source/editable test packages;
-release wheel and image publication are separate work. The vLLM CPU build also fetches
-Arm ComputeLibrary tag `v52.6.0` and oneDNN commit
-`9c5be1cc59e368aebf0909e6cf20f981ea61462a` unless compatible local source caches
-are supplied through the `ACL_ROOT_DIR` environment variable and CMake's
-`FETCHCONTENT_SOURCE_DIR_ONEDNN` variable (via `CMAKE_ARGS`).
+release wheel and image publication are separate work. The vLLM CPU build needs Arm
+Compute Library tag `v52.6.0` and oneDNN commit
+`9c5be1cc59e368aebf0909e6cf20f981ea61462a`. The commands above fetch those
+exact sources with shallow Git history, verify their commits, and pass them to CMake;
+without the local sources, vLLM's CPU build fetches them itself. Record these two
+build-dependency SHAs with the four main source SHAs.
+The explicit ACL prebuild uses four jobs and the same CMake settings as vLLM's internal
+ACL invocation. vLLM 0.24's internal ACL build otherwise uses the detected processor
+count (12 on CIX P1), independent of `MAX_JOBS`; in the fresh reference build, its later
+invocation was incremental. Keep the ACL build output in its source checkout
+for a Step 2 rerun.
 The patch changes Python launch parameters in the editable vLLM source; it does not remove
 the initial package/native-extension build. On a Step 2 rerun, the reverse-apply check above
 detects an existing patch so the source edit is not duplicated.
@@ -241,6 +310,8 @@ MiniCPM5 W8A8 model test.
 export WORK_DIR="$HOME/arm64-vllm024-test"
 cd "$WORK_DIR/vllm-plugin-FL"
 source "$WORK_DIR/.venv/bin/activate"
+PATH="$WORK_DIR/.venv/bin:$PATH" \
+  make -C "$WORK_DIR/flagtree-cpu" PYTHON="$WORK_DIR/.venv/bin/python"
 export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
 python - <<'PY'
 from pathlib import Path
@@ -290,24 +361,42 @@ source "$WORK_DIR/.venv/bin/activate"
 export MODEL_DIR="$HOME/Models/MiniCPM5-2B-W8A8-arm-FlagOS"
 mkdir -p "$MODEL_DIR"
 git init -q "$MODEL_DIR"
-git -C "$MODEL_DIR" remote add origin \
+if ! git -C "$MODEL_DIR" remote get-url origin >/dev/null 2>&1; then
+  git -C "$MODEL_DIR" remote add origin \
+    https://www.modelscope.cn/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS.git
+fi
+test "$(git -C "$MODEL_DIR" remote get-url origin)" = \
   https://www.modelscope.cn/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS.git
 GIT_LFS_SKIP_SMUDGE=1 git -C "$MODEL_DIR" fetch --depth 1 origin \
   e53463a1587ac1a3446efc761c50652a1306ef5e
 GIT_LFS_SKIP_SMUDGE=1 git -C "$MODEL_DIR" checkout --detach \
   e53463a1587ac1a3446efc761c50652a1306ef5e
-truncate -s 0 "$MODEL_DIR/model-00000-of-00001.safetensors" "$MODEL_DIR/tokenizer.json"
-curl --fail --location --retry 3 --continue-at - --output \
-  "$MODEL_DIR/model-00000-of-00001.safetensors" \
+download_verified_lfs() {
+  expected_sha=$1
+  file_name=$2
+  file_url=$3
+  if (cd "$MODEL_DIR" && printf '%s  %s\n' "$expected_sha" "$file_name" |
+      sha256sum -c - >/dev/null 2>&1); then
+    echo "$file_name already verified"
+    return
+  fi
+  if head -c 64 "$MODEL_DIR/$file_name" |
+      grep -q '^version https://git-lfs.github.com/spec/v1'; then
+    truncate -s 0 "$MODEL_DIR/$file_name"
+  fi
+  curl --fail --location --retry 3 --continue-at - \
+    --output "$MODEL_DIR/$file_name" "$file_url"
+  (cd "$MODEL_DIR" && printf '%s  %s\n' "$expected_sha" "$file_name" |
+    sha256sum -c -)
+}
+download_verified_lfs \
+  ce27c62b10b4e7bbecbf84b7c820d3b293f9f7ff93a5963aecd785009abda905 \
+  model-00000-of-00001.safetensors \
   'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/e53463a1587ac1a3446efc761c50652a1306ef5e/model-00000-of-00001.safetensors'
-curl --fail --location --retry 3 --continue-at - --output "$MODEL_DIR/tokenizer.json" \
+download_verified_lfs \
+  3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81 \
+  tokenizer.json \
   'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W8A8-arm-FlagOS/resolve/e53463a1587ac1a3446efc761c50652a1306ef5e/tokenizer.json'
-(cd "$MODEL_DIR" && printf '%s  %s\n' \
-  'ce27c62b10b4e7bbecbf84b7c820d3b293f9f7ff93a5963aecd785009abda905' \
-  'model-00000-of-00001.safetensors' | sha256sum -c -)
-(cd "$MODEL_DIR" && printf '%s  %s\n' \
-  '3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81' \
-  'tokenizer.json' | sha256sum -c -)
 test "$(git -C "$MODEL_DIR" rev-parse HEAD)" = \
   e53463a1587ac1a3446efc761c50652a1306ef5e
 python - <<'PY'
@@ -333,6 +422,13 @@ PY
 The weight is 3,054,963,160 bytes. Keep `config.json`, tokenizer files, and weights from the
 same repository. If the release weight checksum changes, stop and request a new pinned model
 revision rather than treating another file as the validated checkpoint.
+The `download_verified_lfs` function skips already verified files and resumes partial
+downloads. It zeros only unresolved Git LFS pointers. If a completed file fails SHA256,
+investigate the source revision and download before running inference.
+On the reference host, a 1 MiB partial `tokenizer.json` resumed from the pinned
+ModelScope URL and reached the expected full-file SHA256.
+After replacing Git LFS pointers with their real blobs, `git status` may show the two
+files as modified; the pinned SHA256 checks above establish their byte identity.
 
 ### Step 5: Start the model service (terminal A)
 
@@ -383,7 +479,8 @@ curl --noproxy '*' --fail-with-body --max-time 10 \
   http://127.0.0.1:18042/health
 curl --noproxy '*' --fail-with-body --max-time 10 \
   http://127.0.0.1:18042/v1/models
-curl --noproxy '*' --fail-with-body --max-time 1800 \
+curl --noproxy '*' --fail-with-body --max-time 180 \
+  --write-out 'W8A8 first chat HTTP %{http_code}, %{time_total}s\n' \
   --output "$WORK_DIR/chat-response.json" \
   http://127.0.0.1:18042/v1/chat/completions \
   -H 'Content-Type: application/json' \
@@ -407,7 +504,9 @@ PY
 Keep the complete service log, HTTP response, model checksums, and test-suite output. Stop
 terminal A with Ctrl-C after the request. This check is batch-one functional smoke; it does
 not establish quality, long-context behavior, W8A8 FlagGems acceleration, or a CIX throughput
-number. To accept a future accelerated W8A8 route, require a selected-kernel log/trace,
+number. The 180-second client timeout is a regression guard for this reference test,
+not a cross-machine performance target; record the printed first-chat duration.
+To accept a future accelerated W8A8 route, require a selected-kernel log/trace,
 numerical comparison against dequantized BF16, prefill and decode coverage, and no silent
 fallback. Steps 7-9 below supply end-to-end W4A8 generation coverage with a distinct,
 public checkpoint; the W8A8 model in Steps 4-6 cannot verify the W4A8 route.
@@ -423,24 +522,42 @@ blobs; do not leave their pointer files in the model directory.
 export W4_SOURCE="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS"
 mkdir -p "$W4_SOURCE"
 git init -q "$W4_SOURCE"
-git -C "$W4_SOURCE" remote add origin \
+if ! git -C "$W4_SOURCE" remote get-url origin >/dev/null 2>&1; then
+  git -C "$W4_SOURCE" remote add origin \
+    https://www.modelscope.cn/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS.git
+fi
+test "$(git -C "$W4_SOURCE" remote get-url origin)" = \
   https://www.modelscope.cn/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS.git
 GIT_LFS_SKIP_SMUDGE=1 git -C "$W4_SOURCE" fetch --depth 1 origin \
   f125bb2aa4c62cfbac922474176ccf705ef94518
 GIT_LFS_SKIP_SMUDGE=1 git -C "$W4_SOURCE" checkout --detach \
   f125bb2aa4c62cfbac922474176ccf705ef94518
-truncate -s 0 "$W4_SOURCE/model-00000-of-00001.safetensors" "$W4_SOURCE/tokenizer.json"
-curl --fail --location --retry 3 --continue-at - --output \
-  "$W4_SOURCE/model-00000-of-00001.safetensors" \
+download_verified_lfs() {
+  expected_sha=$1
+  file_name=$2
+  file_url=$3
+  if (cd "$W4_SOURCE" && printf '%s  %s\n' "$expected_sha" "$file_name" |
+      sha256sum -c - >/dev/null 2>&1); then
+    echo "$file_name already verified"
+    return
+  fi
+  if head -c 64 "$W4_SOURCE/$file_name" |
+      grep -q '^version https://git-lfs.github.com/spec/v1'; then
+    truncate -s 0 "$W4_SOURCE/$file_name"
+  fi
+  curl --fail --location --retry 3 --continue-at - \
+    --output "$W4_SOURCE/$file_name" "$file_url"
+  (cd "$W4_SOURCE" && printf '%s  %s\n' "$expected_sha" "$file_name" |
+    sha256sum -c -)
+}
+download_verified_lfs \
+  e6f8bf8cf7d9498f8dc8895f515c52531cdf90f79c0aad274c9e541b6ece79df \
+  model-00000-of-00001.safetensors \
   'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS/resolve/f125bb2aa4c62cfbac922474176ccf705ef94518/model-00000-of-00001.safetensors'
-curl --fail --location --retry 3 --continue-at - --output "$W4_SOURCE/tokenizer.json" \
+download_verified_lfs \
+  3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81 \
+  tokenizer.json \
   'https://www.modelscope.cn/models/FlagRelease/MiniCPM5-2B-W4A8-arm-FlagOS/resolve/f125bb2aa4c62cfbac922474176ccf705ef94518/tokenizer.json'
-(cd "$W4_SOURCE" && printf '%s  %s\n' \
-  'e6f8bf8cf7d9498f8dc8895f515c52531cdf90f79c0aad274c9e541b6ece79df' \
-  'model-00000-of-00001.safetensors' | sha256sum -c -)
-(cd "$W4_SOURCE" && printf '%s  %s\n' \
-  '3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81' \
-  'tokenizer.json' | sha256sum -c -)
 test "$(git -C "$W4_SOURCE" rev-parse HEAD)" = \
   f125bb2aa4c62cfbac922474176ccf705ef94518
 ```
@@ -449,6 +566,10 @@ The public configuration declares `compressed-tensors` `int-quantized`, symmetri
 body weights, dynamic symmetric per-token INT8 activations, and BF16 embeddings and
 `lm_head`. It is the same MiniCPM5 model family, but a different checkpoint from the W8A8
 release in Step 4. Keep the files from one revision together.
+The download helper is safe to rerun: verified files are skipped, incomplete files are
+resumed, and unresolved pointer files are replaced with the pinned LFS blob.
+The resolved blobs can appear modified relative to Git's LFS pointer files; this is
+expected when the explicit SHA256 checks pass.
 
 ### Step 8: Convert only the W4 storage layout to the plugin's packed format
 
@@ -463,6 +584,7 @@ export W4_SOURCE="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS"
 export W4_PACKED="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS-packed"
 python - <<'PY'
 import json
+import hashlib
 import os
 import shutil
 from pathlib import Path
@@ -474,7 +596,30 @@ from safetensors.torch import save_file
 
 source = Path(os.environ["W4_SOURCE"])
 packed_dir = Path(os.environ["W4_PACKED"])
-assert not packed_dir.exists() or not any(packed_dir.iterdir()), packed_dir
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(4 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+if packed_dir.exists() and any(packed_dir.iterdir()):
+    weight_file = packed_dir / "model.safetensors"
+    config_file = packed_dir / "config.json"
+    tokenizer_file = packed_dir / "tokenizer.json"
+    if weight_file.exists() and config_file.exists() and tokenizer_file.exists():
+        packed_config = json.loads(config_file.read_text())
+        packed_quant = packed_config["quantization_config"]
+        packed_group = next(iter(packed_quant["config_groups"].values()))
+        if (sha256(weight_file) ==
+                "0bc220b3da79f4af1b77dc9231bf7dec417d0a0a8e344e41da6f3f502b76ac7e"
+                and sha256(tokenizer_file) ==
+                "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81"
+                and packed_quant["format"] == packed_group["format"] == "pack-quantized"):
+            print("existing lossless W4A8 test copy already verified", packed_dir)
+            raise SystemExit(0)
+    raise RuntimeError(f"incomplete W4A8 test copy: {packed_dir}; use an empty output directory")
 for file in source.iterdir():
     if file.is_file():
         with file.open("rb") as handle:
@@ -527,10 +672,16 @@ PY
 (cd "$W4_PACKED" && printf '%s  %s\n' \
   '0bc220b3da79f4af1b77dc9231bf7dec417d0a0a8e344e41da6f3f502b76ac7e' \
   'model.safetensors' | sha256sum -c -)
+(cd "$W4_PACKED" && printf '%s  %s\n' \
+  '3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81' \
+  'tokenizer.json' | sha256sum -c -)
 ```
 
 If an LFS pointer is detected or the derived checksum differs, stop before starting vLLM.
 The converted artifact is a **test copy**, not a new published FlagRelease revision.
+Step 8 is safe to rerun against a completed, checksum-verified test copy. If conversion
+was interrupted, use a new empty `$W4_PACKED` output directory before rerunning; the
+source model remains untouched.
 
 ### Step 9: Prove FlagGems W4A8 is used, then test the HTTP service
 
@@ -625,7 +776,8 @@ curl --noproxy '*' --fail-with-body --max-time 10 \
   http://127.0.0.1:18043/health
 curl --noproxy '*' --fail-with-body --max-time 10 \
   http://127.0.0.1:18043/v1/models
-curl --noproxy '*' --fail-with-body --max-time 1800 \
+curl --noproxy '*' --fail-with-body --max-time 180 \
+  --write-out 'W4A8 first chat HTTP %{http_code}, %{time_total}s\n' \
   --output "$WORK_DIR/w4a8-chat-response.json" \
   http://127.0.0.1:18043/v1/chat/completions \
   -H 'Content-Type: application/json' \
@@ -644,8 +796,9 @@ PY
 
 On the reference CIX P1, the offline request produced 24 prompt and 2 completion tokens,
 with 336 FlagGems W4A8 linear calls after warmup. The warm HTTP request returned 200 in
-0.411 seconds. Save the source and derived checksums, offline audit output, response, and
-service log. This verifies batch-one functional inference through FlagGems; numerical
+0.418 seconds in the latest fresh run. Save the source and derived checksums, offline
+audit output, response, and service log. This verifies batch-one functional inference
+through FlagGems; numerical
 agreement with a BF16 reference, model-quality evaluation, long context, and a fully cold
 source-dependency download remain separate acceptance checks. The release config declares
 symmetric dynamic token activations, while FlagGems #5904's ARM kernels perform asymmetric
@@ -753,6 +906,216 @@ Running the exact Step 10 shell block extracted from this FEP again gave W8A8
 12.692 s init / **9.772 s** first request and W4A8 22.237 s init /
 **11.629 s** first request, with the same answers, W8A8 selected-kernel log, and
 W4A8 FlagGems counts.
+The 2026-09-16 fresh source and virtual-environment reproduction below repeated the
+exact Step 10 script with separate empty caches: W8A8 initialized in 12.826 s and
+answered `2` in 9.614 s; W4A8 initialized in 21.867 s and answered `2` in 11.610 s,
+with 168 pack calls and 336 request linear calls.
+
+### Step 11: Measure warm 64-token generation speed
+
+Run this after the functional tests, with one model server at a time. Use the same
+CIX P1 A720 affinity and a populated Triton cache. The 43-token and 357-token prompt
+cases below force 64 output tokens with `ignore_eos=true`; this measures sustained
+generation separately from the two-token smoke test. These are single-user measurements,
+not a concurrency or model-quality check.
+
+In terminal A, launch the W4A8 server.
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+cd "$WORK_DIR/vllm-plugin-FL"
+export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
+export VLLM_CPU_KVCACHE_SPACE=1 VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
+export A720_CORES=0,1,6,7,8,9,10,11
+export VLLM_CPU_OMP_THREADS_BIND="$A720_CORES"
+export TRITON_CACHE_DIR="$WORK_DIR/.cache/triton-2c35990"
+mkdir -p "$TRITON_CACHE_DIR"
+export PERF_MODEL_PATH="$HOME/Models/MiniCPM5-2B-W4A8-arm-FlagOS-packed"
+export PERF_MODEL_NAME=minicpm5-w4a8-perf PERF_PORT=18048
+set -o pipefail
+taskset -c "$A720_CORES" vllm serve "$PERF_MODEL_PATH" \
+  --host 127.0.0.1 --port "$PERF_PORT" \
+  --served-model-name "$PERF_MODEL_NAME" \
+  --dtype bfloat16 --enforce-eager --max-model-len 1024 \
+  --max-num-batched-tokens 1024 --max-num-seqs 1 \
+  --no-enable-prefix-caching --generation-config vllm \
+  --distributed-executor-backend uni --disable-log-stats \
+  --language-model-only 2>&1 | tee "$WORK_DIR/$PERF_MODEL_NAME-server.log"
+```
+
+After the W4A8 client finishes, stop terminal A with Ctrl-C. Then start the W8A8
+server in terminal A with these exact values:
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+cd "$WORK_DIR/vllm-plugin-FL"
+export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1 VLLM_PLUGINS=fl
+export VLLM_CPU_KVCACHE_SPACE=1 VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
+export A720_CORES=0,1,6,7,8,9,10,11
+export VLLM_CPU_OMP_THREADS_BIND="$A720_CORES"
+export TRITON_CACHE_DIR="$WORK_DIR/.cache/triton-2c35990"
+export PERF_MODEL_PATH="$HOME/Models/MiniCPM5-2B-W8A8-arm-FlagOS"
+export PERF_MODEL_NAME=minicpm5-w8a8-perf PERF_PORT=18049
+set -o pipefail
+taskset -c "$A720_CORES" vllm serve "$PERF_MODEL_PATH" \
+  --host 127.0.0.1 --port "$PERF_PORT" \
+  --served-model-name "$PERF_MODEL_NAME" \
+  --dtype bfloat16 --enforce-eager --max-model-len 1024 \
+  --max-num-batched-tokens 1024 --max-num-seqs 1 \
+  --no-enable-prefix-caching --generation-config vllm \
+  --distributed-executor-backend uni --disable-log-stats \
+  --language-model-only 2>&1 | tee "$WORK_DIR/$PERF_MODEL_NAME-server.log"
+```
+
+In terminal B, create the client once and run it against each ready server. Use
+`/health` first; the script emits five raw JSONL records plus warm medians. The first
+short run is excluded from the warm median because it can still compile a new request
+shape. The decode rate uses the 63 inter-token intervals between 64 output tokens.
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+mkdir -p "$WORK_DIR/.test-scripts"
+cat > "$WORK_DIR/.test-scripts/arm-perf-client.py" <<'PY'
+import argparse
+import json
+import statistics
+import time
+import urllib.request
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--port", type=int, required=True)
+parser.add_argument("--model", required=True)
+parser.add_argument("--output", type=Path, required=True)
+args = parser.parse_args()
+
+opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+short_base = "请用中文详述在 ARM CPU 上运行量化语言模型的三个主要性能瓶颈，并逐项给出工程处理方法。"
+context = "在 ARM CPU 上部署量化语言模型，需要评估加载时间、首 token 延迟、持续生成速度、内存占用和并发能力。"
+long_base = context * 12 + "请根据上述背景综合说明如何评估一个量化模型服务的可用性。"
+cases = [("short", short_base, 1), ("short", short_base, 2),
+         ("short", short_base, 3), ("long", long_base, 1),
+         ("long", long_base, 2)]
+records = []
+for kind, base, run in cases:
+    prompt = f"样本编号 {kind}-{run}。" + base
+    payload = {
+        "model": args.model,
+        "messages": [{"role": "user", "content": prompt}],
+        "chat_template_kwargs": {"enable_thinking": False},
+        "max_tokens": 64,
+        "ignore_eos": True,
+        "temperature": 0,
+        "stream": True,
+        "stream_options": {"include_usage": True},
+    }
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{args.port}/v1/chat/completions",
+        data=json.dumps(payload, ensure_ascii=False).encode(),
+        headers={"Content-Type": "application/json"}, method="POST",
+    )
+    started = time.perf_counter()
+    first_content = last_content = usage = None
+    chunks = 0
+    with opener.open(request, timeout=180) as response:
+        assert response.status == 200, response.status
+        for raw in response:
+            line = raw.decode("utf-8").strip()
+            if not line.startswith("data:"):
+                continue
+            data = line[5:].strip()
+            if data == "[DONE]":
+                break
+            item = json.loads(data)
+            if item.get("usage"):
+                usage = item["usage"]
+            for choice in item.get("choices", []):
+                content = choice.get("delta", {}).get("content")
+                if content:
+                    now = time.perf_counter()
+                    if first_content is None:
+                        first_content = now
+                    last_content = now
+                    chunks += 1
+    ended = time.perf_counter()
+    assert usage is not None and usage["completion_tokens"] == 64, usage
+    assert first_content is not None and last_content is not None
+    assert chunks == 64, f"expected one content chunk per output token, got {chunks}"
+    elapsed_decode = last_content - first_content
+    record = {
+        "model": args.model, "case": kind, "run": run,
+        "prompt_tokens": usage["prompt_tokens"],
+        "completion_tokens": usage["completion_tokens"],
+        "ttft_s": round(first_content - started, 3),
+        "total_s": round(ended - started, 3),
+        "decode_tok_per_s": round(63 / elapsed_decode, 2)
+        if elapsed_decode > 0 else None,
+        "content_chunks": chunks,
+    }
+    records.append(record)
+    print(json.dumps(record, ensure_ascii=False), flush=True)
+args.output.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in records) + "\n")
+for kind in ("short", "long"):
+    warm = [r for r in records if r["case"] == kind
+            and not (kind == "short" and r["run"] == 1)]
+    print(kind, "warm median TTFT",
+          round(statistics.median(r["ttft_s"] for r in warm), 3),
+          "s, total", round(statistics.median(r["total_s"] for r in warm), 3),
+          "s, decode",
+          round(statistics.median(r["decode_tok_per_s"] for r in warm), 2),
+          "tok/s", flush=True)
+PY
+
+curl --noproxy '*' --fail-with-body --max-time 10 \
+  http://127.0.0.1:18048/health
+python "$WORK_DIR/.test-scripts/arm-perf-client.py" \
+  --port 18048 --model minicpm5-w4a8-perf \
+  --output "$WORK_DIR/w4a8-perf.jsonl"
+```
+
+After the W8A8 server reports ready, run this separate block in terminal B:
+
+```bash
+export WORK_DIR="$HOME/arm64-vllm024-test"
+source "$WORK_DIR/.venv/bin/activate"
+curl --noproxy '*' --fail-with-body --max-time 10 \
+  http://127.0.0.1:18049/health
+python "$WORK_DIR/.test-scripts/arm-perf-client.py" \
+  --port 18049 --model minicpm5-w8a8-perf \
+  --output "$WORK_DIR/w8a8-perf.jsonl"
+```
+
+In the latest fresh CIX P1 environment, all five requests for each model returned
+64 output tokens in 64 streamed content chunks. Warm median decoding for
+43-input/64-output and 357-input/64-output requests was **7.73/7.62 token/s W4A8**
+and **4.69/4.63 token/s W8A8**. The W8A8 service selected
+`CPUInt8ScaledMMLinearKernel`; this is a native CPU INT8 baseline, not an accelerated
+FlagGems W8A8 result. Do not use the two-token math smoke timings as throughput.
+
+### Fresh CIX P1 full reproduction (2026-09-16, Python 3.11.13)
+
+| Check | Observed result |
+|---|---|
+| Test environment and build | All four exact source commits, pinned LLVM/SLEEF, ACL `v52.6.0` and oneDNN `9c5be1...` verified. Fresh FlagTree and vLLM CPU native builds passed; ACL was prebuilt with four jobs and reused incrementally. `vllm._C` imported; `CpuPlatform`, Triton `3.7.2`, and vLLM `0.24.0+cpu` verified. |
+| Independent operators | FlagGems #5904 W4A8-G128 **7 passed, 0 skipped**; plugin #433 ARM CPU/GDN/W4A8 **16 passed, 0 skipped**. |
+| Public models and W4A8 conversion | Both ModelScope release weight/tokenizer SHA256 checks passed after full downloads; 294 public W4A8 INT4 tensors were packed and exactly recovered; the derived weight SHA256 matched. Repeat downloads and conversion verified the existing outputs. |
+| W8A8 HTTP, `max-model-len=512` | Native `CPUInt8ScaledMMLinearKernel` selected; `/health`, `/v1/models`, and math chat HTTP 200; answer `2`, 24 prompt/2 completion tokens. First chat after server readiness took **8.533 s**. |
+| W4A8 audited offline and HTTP | 168 FlagGems pack calls at load and 336 `w4a8_g128_linear` calls during the math request; answer `2`. Shared-cache HTTP chat returned 200 and `2` in **0.418 s**. |
+| Separate genuinely empty Triton caches, exact Step 10 | W8A8 model init **12.826 s**, first request **9.614 s**; W4A8 init **21.867 s**, first request **11.610 s**. Both answered `2`; the W4A8 FlagGems call counts and W8A8 native-kernel log matched. |
+| W4A8 warm HTTP, 43/357 input and 64 output tokens | Median TTFT **0.508/2.362 s**; total **8.660/10.631 s**; decode **7.73/7.62 token/s**. |
+| W8A8 warm HTTP, 43/357 input and 64 output tokens | Median TTFT **0.369/1.540 s**; total **13.808/15.136 s**; decode **4.69/4.63 token/s**. |
+
+The four source commits and local patch can be rebuilt into a functional test environment
+using Steps 0–11. The approximately 38-minute FlagTree build and 11.5-minute vLLM build
+are installation costs, distinct from the model initialization and first-request figures.
+On this host, the W8A8 baseline is slower than W4A8 for single-user decoding, and neither
+throughput result establishes production performance. The two-token math check does not
+validate general model quality or numerical agreement with a BF16 reference.
 
 ### CIX P1 source-environment test record (2026-09-15)
 
