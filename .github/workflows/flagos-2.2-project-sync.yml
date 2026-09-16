@@ -37,20 +37,17 @@ jobs:
             exit 1
           fi
 
-      - name: Add missing RC issues to the project
+      - name: Add or restore RC issues in the project
         shell: bash
         run: |
           set -euo pipefail
 
           all_issues="$RUNNER_TEMP/flagos-2.2-issues.txt"
           project_items="$RUNNER_TEMP/flagos-2.2-project-items.json"
-          active_project_issues="$RUNNER_TEMP/flagos-2.2-active-project-issues.txt"
+          known_project_issues="$RUNNER_TEMP/flagos-2.2-known-project-issues.txt"
           archived_project_issues="$RUNNER_TEMP/flagos-2.2-archived-project-issues.tsv"
           missing_issues="$RUNNER_TEMP/missing-issues.txt"
-          stale_issues="$RUNNER_TEMP/stale-issues.tsv"
-          stale_deleted_items="$RUNNER_TEMP/stale-deleted-items.txt"
           : > "$all_issues"
-          : > "$stale_deleted_items"
 
           for label in flagos2.2-rc0 flagos2.2-rc1 flagos2.2-rc2; do
             for state in open closed; do
@@ -66,65 +63,55 @@ jobs:
 
           sort -u -o "$all_issues" "$all_issues"
 
-          project_query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor,archivedStates:[ARCHIVED,NOT_ARCHIVED]){nodes{id isArchived content{__typename ... on Issue{url}}} pageInfo{hasNextPage endCursor}}}}}'
+          project_query='query($owner:String!,$number:Int!,$endCursor:String){organization(login:$owner){projectV2(number:$number){items(first:100,after:$endCursor,archivedStates:[ARCHIVED,NOT_ARCHIVED]){nodes{id isArchived content{__typename ... on Issue{url labels(first:50){nodes{name}}}}} pageInfo{hasNextPage endCursor}}}}}'
           gh api graphql --paginate --slurp -f query="$project_query" \
             -F owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER" > "$project_items"
 
+          # During the active 2.2 release cycle, Project membership is
+          # append-only. Keep every existing item visible and restore any
+          # archived issue that still carries an RC0/RC1/RC2 label. In
+          # particular, never treat one incomplete GitHub Search response as
+          # evidence that an existing item should be archived.
           jq -r '
             .[] | .data.organization.projectV2.items.nodes[]
-            | select(.content.__typename == "Issue" and .isArchived == false)
-            | .content.url' "$project_items" | sort -u > "$active_project_issues"
+            | select(.content.__typename == "Issue")
+            | select(
+                .isArchived == false
+                or ([.content.labels.nodes[].name]
+                    | any(. == "flagos2.2-rc0"
+                          or . == "flagos2.2-rc1"
+                          or . == "flagos2.2-rc2")))
+            | .content.url' "$project_items" | sort -u > "$known_project_issues"
           jq -r '
             .[] | .data.organization.projectV2.items.nodes[]
             | select(.content.__typename == "Issue" and .isArchived == true)
+            | select([.content.labels.nodes[].name]
+                     | any(. == "flagos2.2-rc0"
+                           or . == "flagos2.2-rc1"
+                           or . == "flagos2.2-rc2"))
             | [.content.url, .id] | @tsv' "$project_items" \
             | sort -u > "$archived_project_issues"
-          allowed_urls=$(jq -R -s 'split("\n") | map(select(length > 0))' "$all_issues")
-          jq -r --argjson allowed "$allowed_urls" '
-            .[] | .data.organization.projectV2.items.nodes[]
-            | select(.isArchived == false and (.content == null or .content.__typename == "Issue"))
-            | . as $item
-            | select($item.content == null or (($allowed | index($item.content.url)) == null))
-            | [.id, (.content.url // "")] | @tsv' "$project_items" \
-            > "$stale_issues"
 
-          comm -23 "$all_issues" "$active_project_issues" > "$missing_issues"
-
-          added=0
           reactivated=0
-          while IFS= read -r issue_url; do
-            [ -n "$issue_url" ] || continue
-            archived_id=$(awk -F '\t' -v url="$issue_url" '$1 == url {print $2; exit}' "$archived_project_issues")
-            if [ -n "$archived_id" ]; then
-              gh project item-archive "$PROJECT_NUMBER" \
-                --owner "$PROJECT_OWNER" --id "$archived_id" --undo > /dev/null
-              reactivated=$((reactivated + 1))
-            else
-              gh project item-add "$PROJECT_NUMBER" \
-                --owner "$PROJECT_OWNER" \
-                --url "$issue_url" > /dev/null
-              added=$((added + 1))
-            fi
-          done < "$missing_issues"
-
-          archived=0
-          while IFS=$'\t' read -r item_id issue_url; do
-            if [ -z "$issue_url" ]; then
-              echo "$item_id" >> "$stale_deleted_items"
-            elif ! grep -Fxq "$issue_url" "$all_issues"; then
-              gh project item-archive "$PROJECT_NUMBER" \
-                --owner "$PROJECT_OWNER" --id "$item_id" > /dev/null
-              archived=$((archived + 1))
-            fi
-          done < "$stale_issues"
-          while IFS= read -r item_id; do
+          while IFS=$'\t' read -r issue_url item_id; do
             [ -n "$item_id" ] || continue
             gh project item-archive "$PROJECT_NUMBER" \
-              --owner "$PROJECT_OWNER" --id "$item_id" > /dev/null
-            archived=$((archived + 1))
-          done < "$stale_deleted_items"
+              --owner "$PROJECT_OWNER" --id "$item_id" --undo > /dev/null
+            reactivated=$((reactivated + 1))
+          done < "$archived_project_issues"
 
-          echo "Matched $(wc -l < "$all_issues" | tr -d ' ') issues; added $added; reactivated $reactivated; archived $archived."
+          comm -23 "$all_issues" "$known_project_issues" > "$missing_issues"
+
+          added=0
+          while IFS= read -r issue_url; do
+            [ -n "$issue_url" ] || continue
+            gh project item-add "$PROJECT_NUMBER" \
+              --owner "$PROJECT_OWNER" \
+              --url "$issue_url" > /dev/null
+            added=$((added + 1))
+          done < "$missing_issues"
+
+          echo "Matched $(wc -l < "$all_issues" | tr -d ' ') issues; added $added; reactivated $reactivated; automatic archiving disabled during the 2.2 release cycle."
 
       - name: Reconcile deterministic project status
         shell: bash
