@@ -25,6 +25,24 @@ attention, KV cache and HTTP API. Reproduce the environment and tests through
 | [FlagGems #5904](https://github.com/flagos-ai/FlagGems/pull/5904) | `1fda4b11ae528c02ae5187cda551af4a61a514c5` |
 | [FlagTree CPU 3.7 branch](https://github.com/flagos-ai/flagtree-cpu/tree/triton_v3.7.x) | `2c35990a30e96665f8f9b5e158562288b4011048` |
 
+## Release Boundary and Eligibility
+
+- **FlagOS 2.2 development window:** 2026-06-01 through 2026-08-31, followed
+  by release stabilization.
+- **Implementation timing:** vllm-plugin-FL#433 and FlagGems#5904 were both
+  opened on 2026-09-02, after feature freeze. The pinned FlagTree CPU commit
+  is dated 2026-09-04. The full reproducibility rerun documented here was
+  completed on 2026-09-17.
+- **Release evidence:** these dependencies are not part of the normal
+  pre-freeze FlagOS 2.2 feature set. Their technical implementation and tests
+  can be `Implementable` while their inclusion in the FlagOS 2.2 release still
+  requires an explicit release-manager exception and a manifest/tag decision.
+
+This FEP therefore does not claim that the Arm64 path is already contained in
+the published 2.2 RC artifact. If no exception is approved, the same pinned
+implementation and evidence should be retained for a later release rather
+than backdated into the 2.2 scope.
+
 ## Motivation
 
 Test colleagues need a repeatable source environment, verified model files and evidence
@@ -215,3 +233,6 @@ coverage and acceptable warm throughput remain separate acceptance items.
   source unmodified and shortened the document to the ordered test entry points.
 - 2026-09-17: Rebuilt/retested in minimal Debian 13 under another account; verified
   portable script delivery, fixed relative-path overrides and corrected the disk budget.
+- 2026-09-17: Added the FlagOS 2.2 release-boundary note: all three pinned
+  implementation dependencies landed after the 2026-08-31 feature freeze, so
+  2.2 inclusion remains subject to a release-manager exception.
