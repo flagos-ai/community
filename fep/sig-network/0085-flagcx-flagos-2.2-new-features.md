@@ -31,6 +31,25 @@ release cycle, on top of v0.13.0:
 
 Repository: https://github.com/flagos-ai/FlagCX
 
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** FlagCX `v0.13.0`. Features already present in that
+  tag, including the P2P Engine foundation, are background rather than 2.2
+  deliverables.
+- **FlagOS 2.2 release candidate reviewed:** `v0.14.0-rc2.post1`, as pinned by
+  the FlagOS 2.2 RC2 manifest.
+- **Development window:** 2026-06-01 through 2026-08-31. Work submitted during
+  that window and stabilized on the 2.2 RC branches is listed separately from
+  work first introduced after feature freeze.
+- **Evidence rule:** implementation claims require a release-candidate path or
+  a merged implementation PR. Performance and multi-vendor acceptance claims
+  remain pending unless their environment and result are available.
+
+The reviewed RC2 evidence confirms the T-Head backend, Unified IR groundwork
+and Device API compatibility changes. It does not establish the planned second
+native Device API vendor, the MetaX PD-disaggregation run, or parity with
+Triton-distributed for all four operator forms.
+
 ## Motivation
 
 FlagOS 2.2 extends FlagCX along the two axes established in previous cycles:
@@ -49,29 +68,32 @@ matrix grows to include T-Head and more Device API-capable backends.
 - **G2 (Device API adaptor expansion):** Extend the Device API vendor traits
   interface (`flagcx/adaptor/include/device_api/*_comm_traits.h` /
   `*_platform_traits.h`, currently implemented for NVIDIA, Hygon DU and
-  Sunrise) to 2 additional domestic chips. First target is Kunlunxin, whose
-  PR is expected around 2026-09-10 with runs on their production line; the
-  second vendor is being lined up with the goal of landing within the 2.2
-  window and carries schedule risk.
+  Sunrise) to 2 additional domestic chips. Kunlunxin support landed in
+  flagos-ai/FlagCX#555 and is included in the RC2 snapshot. PRs #576 and #582
+  make MUSA and the remaining platforms use the default Device API path, but
+  are compatibility fallbacks rather than evidence of a second vendor-native
+  traits implementation. The second native vendor remains unaccepted.
   <!-- TODO: name the second vendor once committed, and the Device API
        primitive subset that must pass tests to count as supported. -->
 - **G3 (PD disaggregation):** GLM5.2 prefill-decode disaggregation runs
   end-to-end on T-Head and MetaX using the FlagCX P2P Engine as the KV
   transfer substrate, with ≥3% end-to-end gain over Mooncake TransferEngine
-  (its default configuration) on the same setup. It currently runs on
-  T-Head at parity with the baseline, and the optimization work for the
-  gain is prioritized there. MetaX is gated on the platform's base
-  optimization — GLM does not yet run normally on MetaX, so its acceptance
-  lands later in the cycle.
+  (its default configuration) on the same setup. The development report
+  records a successful T-Head GLM5.2 1P1D run on 8+8 cards, with optimization
+  still pending. MetaX had not reached the base model-running prerequisite.
+  The functional T-Head run is therefore evidence, while the ≥3% gain and
+  MetaX acceptance are not claimed as completed in this FEP.
   <!-- TODO: metric definition for the ≥3% (throughput/TTFT/goodput) and
        workload profile. -->
 - **G4 (Distributed operators):** AllGather and ReduceScatter, plus the
   fused AllGather+GEMM and GEMM+ReduceScatter operators, with intra-node
   and inter-node performance on par with Triton-distributed. The operators
   build on the FlagCX Device API + IR bindings and NVSHMEM; vendor scope
-  this cycle is NVIDIA (sm90+). Adaptation on NVIDIA is complete, and most
-  scenarios outperform torch-native; the gap to Triton-distributed is
-  being optimized. The fused implementations live in FlagTree under
+  this cycle is NVIDIA (sm90+). Development-side results show that the
+  implemented paths outperform torch-native in most measured scenarios;
+  comparison with Triton-distributed and coverage of all four named operator
+  forms still need release-acceptance evidence. The fused implementations
+  live in FlagTree under
   `python/tutorials/tle/raw/nvshmem/`: `02-allgather-gemm` (with a
   benchmark harness against torch-native) and `03-gemm-allreduce`.
   <!-- TODO: code locations for standalone AllGather / ReduceScatter and
@@ -105,12 +127,12 @@ T-Head (ppu_nccl).
 
 **1b. Device API adaptor interface for 2 more domestic chips.** The Device API
 (v0.11–v0.13) dispatches device-side communication primitives through
-per-vendor traits (`comm_traits.h` / `platform_traits.h`); today only NVIDIA,
-Hygon DU and Sunrise have vendor traits, with a default fallback. This work
-adds traits implementations (and, where needed, kernel compilation pipeline
-support) for Kunlunxin and a second vendor so they can use Device API-based
-features such as CustomAllReduce. Vendor-side adaptation is in progress;
-Kunlunxin's PR is expected around 2026-09-10.
+per-vendor traits (`comm_traits.h` / `platform_traits.h`); in the 2.1 baseline
+only NVIDIA, Hygon DU and Sunrise had vendor traits, with a default fallback.
+In 2.2, flagos-ai/FlagCX#555 adds Kunlunxin Device API support. PRs #576 and
+#582 extend the default path to MUSA and the remaining platforms. A second
+vendor-native traits implementation was not identified in the reviewed RC2
+evidence and is not counted as delivered.
 
 <!-- TODO (design): per target vendor — native primitives vs. default
      fallback; LLVM bitcode path availability; symmetric-window vs. IPC-only
@@ -125,11 +147,10 @@ substrate to a production inference scenario: GLM5.2 PD disaggregation on
 T-Head and MetaX, with 1 prefill + 1 decode instance (8+8 cards) and
 inter-instance KV transfers over the network; the setup runs in containers.
 Baseline for the ≥3% gain is Mooncake TransferEngine in its default
-configuration on the same topology. It currently runs end-to-end on T-Head
-at roughly baseline performance, and the optimization work targeting the
-gain is prioritized there; on MetaX the platform's base optimization is not
-done and GLM does not yet run normally, so MetaX follows later in the
-cycle.
+configuration on the same topology. The development report records a
+functional T-Head run, but not the target gain. On MetaX the platform's base
+optimization was not complete and GLM did not yet run normally. These remain
+acceptance gaps rather than completed 2.2 claims.
 
 <!-- TODO (design): source of the optimization — transfer overlap, NIC
      selection, noncontiguous KV layout handling, or other. -->
@@ -140,9 +161,10 @@ Standalone AllGather / ReduceScatter and fused AllGather+GEMM /
 GEMM+ReduceScatter operators, targeting intra-node and inter-node
 performance on par with Triton-distributed. The operators use the FlagCX
 Device API + IR bindings and NVSHMEM for intra-node and inter-node
-transfers; vendor scope this cycle is NVIDIA (sm90+). Adaptation on NVIDIA
-is complete; most scenarios outperform torch-native, and the gap to
-Triton-distributed is being optimized.
+transfers; vendor scope this cycle is NVIDIA (sm90+). Development-side runs
+report that most implemented scenarios outperform torch-native. The exact
+Triton-distributed baseline and complete operator coverage remain to be
+recorded before the parity target can be accepted.
 
 The fused implementations live in FlagTree
 (https://github.com/flagos-ai/FlagTree) under
@@ -250,8 +272,8 @@ the support scope stated in this FEP.
 
 ### G2: Device API adaptor expansion
 
-Kunlunxin first (PR expected ~2026-09-10), second vendor when its adaptation
-lands.
+Kunlunxin is represented by flagos-ai/FlagCX#555 in RC2. A second native
+vendor implementation was not found in the reviewed release evidence.
 
 <!-- TODO: per new vendor — build flag, required Device API test binaries
      (test/device_api unit tests, test_allreduce_intranode, ...), hardware. -->
@@ -299,8 +321,13 @@ and torch sides.
 - [x] flagos-ai/FlagCX#539 — [UIL] Add Unified IR support (Device API / IR
   groundwork Features 1b and 3 build on)
 - [x] flagos-ai/FlagCX#545 — [UIL] Fix multi-backend issues for Unified IR
-- [ ] Kunlunxin Device API traits PR (expected ~2026-09-10)
-- [ ] Second Device API vendor PR [TODO]
+- [x] flagos-ai/FlagCX#555 — Kunlunxin Device API support (merged into the
+  RC2 line after feature freeze)
+- [x] flagos-ai/FlagCX#576 — make MUSA use the default Device API
+- [x] flagos-ai/FlagCX#582 — enable the default Device API for the remaining
+  platforms
+- [ ] Second vendor-native Device API traits implementation (no merged 2.2
+  implementation PR identified)
 
 ## Implementation History
 
@@ -313,3 +340,7 @@ and torch sides.
   platform optimization; Ascend deferred behind the sglang-plugin Huawei
   P0.
 - 2026-08-25: Owner set; scope and Test Plan updated after the sync.
+- 2026-09-17: Reconciled the FEP against the `v0.13.0` baseline and
+  `v0.14.0-rc2.post1`. Recorded the Kunlunxin and default Device API changes;
+  retained the second native vendor, MetaX PD run, ≥3% PD gain and full
+  Triton-distributed comparison as pending acceptance items.
