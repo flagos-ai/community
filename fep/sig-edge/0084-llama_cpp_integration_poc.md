@@ -1,6 +1,6 @@
 # FEP-0084: llama.cpp Integration PoC for FlagOS on Qualcomm Hexagon
 
-**Status:** `Implementable`
+**Status:** `Deferred`
 
 **Created:** 2026-07-29
 
@@ -8,13 +8,13 @@
 
 **SIG:** sig-edge
 
-**Target Version:** FlagOS 2.2
+**Target Version:** Deferred from FlagOS 2.2; candidate for FlagOS 2.3
 
 ---
 
 ## Summary
 
-**(Required)** This FEP proposes a proof of concept for integrating the FlagOS compiler and
+**(Required)** This FEP records a deferred proof of concept for integrating the FlagOS compiler and
 operator stack with [`llama.cpp`](https://github.com/ggml-org/llama.cpp). The initial target
 platform is **Qualcomm Hexagon**.
 
@@ -27,6 +27,20 @@ llama.cpp CPU backend.
 This is a feasibility exploration, not a product-support commitment. Its output is a working
 prototype, measured results, and a recommendation on whether to proceed with a production
 integration.
+
+## Release Decision and Evidence
+
+- **FlagOS 2.2 development window:** 2026-06-01 through 2026-08-31.
+- **Implementation evidence:** no implementation PR or release artifact is
+  linked to this FEP.
+- **Owner decision:** on 2026-08-24, the FEP owner recommended postponing the
+  feature to FlagOS 2.3 because the framework and code were not functionally
+  ready for an official release. The owner offered to share the PoC separately.
+
+The design below is retained as useful PoC scope, but none of it is counted as
+a FlagOS 2.2 deliverable. Re-activation for 2.3 requires implementation PRs,
+the pinned hardware/SDK/model information requested by the Test Plan, and a
+fresh release decision.
 
 ## Motivation
 
@@ -172,3 +186,8 @@ No implementation PRs exist at the time of this draft.
 ## Implementation History
 
 - 2026-07-29: Initial exploratory draft. Target platform set to Qualcomm Hexagon.
+- 2026-08-24: Owner recommended postponing the feature to FlagOS 2.3; PoC may
+  be shared, but the framework/code maturity was not ready for official release.
+- 2026-09-17: Status changed from `Implementable` to `Deferred`; retained the
+  proposal for future work and explicitly removed it from the FlagOS 2.2
+  delivery scope.
