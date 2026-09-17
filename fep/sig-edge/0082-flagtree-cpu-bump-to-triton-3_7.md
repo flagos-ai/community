@@ -20,6 +20,24 @@ commit `2c35990a30e96665f8f9b5e158562288b4011048`. The package imports as `trito
 `TRITON_CPU_BACKEND=1` selects its CPU backend. Enable and validate it through
 [one script entry](scripts/flagtree-cpu37/run.sh) in its own virtual environment.
 
+## Release Boundary and Eligibility
+
+- **FlagOS 2.2 development window:** 2026-06-01 through 2026-08-31, followed
+  by release stabilization.
+- **Implementation timing:** the pinned FlagTree CPU commit is dated
+  2026-09-04. Its downstream FlagGems#5904 dependency was opened on
+  2026-09-02 and merged on 2026-09-04. The final reproducibility rerun in this
+  FEP was completed on 2026-09-17.
+- **Release evidence:** the Arm64 Triton 3.7 implementation is therefore after
+  feature freeze and is not part of the normal pre-freeze FlagOS 2.2 feature
+  set. Its technical design can be `Implementable`, while inclusion in the
+  FlagOS 2.2 release still requires an explicit release-manager exception and
+  a manifest/tag decision.
+
+This FEP does not backdate the 3.7 CPU work into the 2.2 RC artifact. If no
+exception is approved, the pinned source and reproducibility evidence remain
+valid for a later release.
+
 ## Motivation
 
 Triton frontend, MLIR/LLVM, launcher and cache interfaces changed from the earlier
@@ -145,3 +163,6 @@ Installation, model loading, cold JIT, warm throughput and quality need separate
   reduced the document to two ordered execution commands and acceptance results.
 - 2026-09-17: Reran setup/compiler/numerical checks and standalone delivery; fixed
   relative-path overrides.
+- 2026-09-17: Added the FlagOS 2.2 release-boundary note: the pinned CPU 3.7
+  implementation and FlagGems dependency landed after the 2026-08-31 feature
+  freeze, so 2.2 inclusion remains subject to a release-manager exception.
