@@ -28,11 +28,32 @@ It has two directions:
 
 Repository: https://github.com/flagos-ai/kernelgen
 
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** KernelGen `v2.1.0`.
+- **FlagOS 2.2 release candidate reviewed:** `v2.2.0-rc2.post1`, as pinned by
+  the FlagOS 2.2 RC2 manifest. RC0, RC1 and RC2 resolve to the same KernelGen
+  source snapshot.
+- **Development window:** 2026-06-01 through 2026-08-31.
+
+The reviewed `v2.1.0..v2.2.0-rc2.post1` public release delta contains skills
+and TLE documentation, a Chinese-search fix, and license-header maintenance.
+No public release-tag implementation or linked implementation PR was found for
+the proposed 2.2 refactor, Knowledge Hub, FlagOS-Coder v1, coverage map,
+leaderboard, Workbuddy expert, vLLM end-to-end prototype, or compiler
+optimization agent.
+
+These items remain development-roadmap goals. This FEP intentionally keeps
+`Provisional` and does not treat the roadmap or the 301-operator planning count
+as repository-verified delivery evidence.
+
 ## Motivation
 
-The 301 generated operators in the FlagOS 2.2 operator library
-([FEP-0099](../sig-operator/0099-operator-library-flagos-2.2.md)) are produced
-by KernelGen. Sustaining and scaling that output across 5+ domestic chips needs
+The FlagOS 2.2 development plan attributes 301 generated operators in the
+operator-library target
+([FEP-0099](../sig-operator/0099-operator-library-flagos-2.2.md)) to KernelGen.
+That count still requires a public inventory and release-level evidence.
+Sustaining and scaling the planned output across 5+ domestic chips needs
 more than a one-off generation pass: it needs a refactored generation core,
 tooling that makes coverage and quality visible, and agents that turn the
 indexed knowledge into working kernels. FEP-0093 provides the knowledge/tool
@@ -121,9 +142,10 @@ Five capabilities on top of the FEP-0093 knowledge/tool substrate:
 
 ## Packaging
 
-N/A for now. KernelGen is not a pip-installable package — it is delivered as
+N/A for now. The intended KernelGen delivery model is
 the web platform (https://kernelgen.flagos.io), the MCP service, and IDE
-skills in the flagos-ai/kernelgen repo.
+skills in the flagos-ai/kernelgen repo. The reviewed RC2 tag does not provide
+release artifacts for the new capabilities listed in this FEP.
 
 <!-- TODO: per-deliverable delivery form — how FlagOS-Coder (model weights),
      the coverage map, the agents and Workbuddy ship; platform and toolkit
@@ -134,6 +156,9 @@ skills in the flagos-ai/kernelgen repo.
 **(Required)** Each goal is verified independently. Acceptance runs on vendor
 hardware where a target chip is involved; results (environment, logs, metrics)
 are attached to the tracking issue by the testing party.
+
+The following sections are acceptance requirements, not tests shown to have
+run on the public FlagOS 2.2 release candidate.
 
 ### G1: KernelGen 2.2 refactor
 
@@ -167,11 +192,14 @@ are attached to the tracking issue by the testing party.
 
 ## Related PRs
 
-<!-- TODO: link the implementation PRs in flagos-ai/kernelgen. -->
-
-- [ ] flagos-ai/community#93 — KernelGen Knowledge and Tool Hub (the knowledge/
-  tool substrate this FEP builds on; cross-reference, not owned here)
+- [ ] No public implementation PR identified for G1–G7 in the reviewed 2.2
+  release evidence.
+- [ ] flagos-ai/community#93 — KernelGen Knowledge and Tool Hub (a provisional
+  dependency; no public 2.2 implementation identified)
 
 ## Implementation History
 
 - 2026-08-01: FEP created as `Provisional` for the FlagOS 2.2 cycle.
+- 2026-09-17: Reconciled the proposal with the KernelGen 2.1 baseline and
+  `v2.2.0-rc2.post1`; retained all capabilities as planned because the public
+  release evidence contains no corresponding implementation PR or artifact.
