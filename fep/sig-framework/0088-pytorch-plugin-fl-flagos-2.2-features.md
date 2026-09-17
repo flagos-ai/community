@@ -1,4 +1,4 @@
-# FEP-0088: PyTorch-Plugin-FL Features for FlagOS 2.2
+# FEP-0088: Torch-FL Features for FlagOS 2.2
 
 **Status:** `Provisional`
 
@@ -14,56 +14,76 @@
 
 ## Summary
 
-**(Required)** This FEP covers the PyTorch-Plugin-FL (`torch_fl`) work planned
+**(Required)** This FEP covers the Torch-FL (`torch_fl`) work planned
 for the FlagOS 2.2 release cycle, on top of the v0.1.0 CUDA/Ascend dispatch
 foundation delivered in FlagOS 2.1
 ([FEP-0025](0025-pytorch-plugin-fl-v0.1.0-cuda-dispatch.md)):
 
-1. **Vendor adaptation for 5 chips** — Hygon, MetaX, Huawei Ascend, T-Head,
-   Moore Threads — validated on 3 model classes: LLM + VLM + Omni
-   (tentatively the Qwen series, possibly extended to MiniCPM).
-2. **FlagGems operator coverage 90%+** — an estimated **380+** FlagGems
+1. **Vendor adaptation for 7 chips** — the PyTorch 2.10 line covers Hygon,
+   MetaX, Huawei Ascend, T-Head, Moore Threads and Enflame; the PyTorch 2.9
+   line covers Kunlunxin. Validation focuses on `transformers` and `diffusers`
+   inference and simple fine-tuning workloads.
+2. **FlagGems operator-coverage target** — a planned **90%+ / 380+** FlagGems
    operators dispatched through the `flagos` device, with vendor operator
    libraries as the fallback path: CUDA-compatible vendors reuse PyTorch's
    libtorch kernels (100% operator coverage via the boxing approach);
    non-CUDA-compatible vendors integrate the vendor C++ operator library
    covering the operator range used by `transformers` and `diffusers`.
-3. **torch-fl package release** — publish installable `torch_fl` wheels
-   against PyTorch **2.8–2.10** (2.11 excluded: no vendor has shipped
-   official support for it), split per vendor (e.g. `torch-fl-ascend`, `torch-fl-mx`)
-   because the bundled libtorch makes a single wheel impractically large.
+3. **torch-fl package release** — publish installable, per-vendor `torch_fl`
+   wheels for the validated PyTorch line. The RC evidence uses PyTorch 2.10
+   for six vendors and PyTorch 2.9 for Kunlunxin; it does not establish one
+   common 2.8–2.10 matrix for every vendor.
 4. **FlagCX integration** — `torch.distributed` on the `flagos` device:
    standard collectives and DDP support, with an FSDP spike (not committed
    for this release).
 
-Repository: https://github.com/flagos-ai/PyTorch-Plugin-FL
+Repository: https://github.com/flagos-ai/Torch-FL
+
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** Torch-FL `v0.1.0`.
+- **FlagOS 2.2 release candidate reviewed:** `v0.2.0-rc2.post1`, as pinned by
+  the FlagOS 2.2 RC2 manifest.
+- **Development window:** 2026-06-01 through 2026-08-31.
+
+The release delta contains vendor backends for Ascend, MetaX, Hygon,
+Tsingmicro, Enflame, MUSA and BPU, FlagGems routing/dispatch work, wheel
+packaging, FlagCX distributed integration, profiler/AMP work and initial
+`torch.compile`/TileOPs support. The development acceptance scope was narrower:
+six PyTorch 2.10 vendors plus Kunlunxin on PyTorch 2.9. The internal KT count
+is intentionally not used as a public compatibility claim; model support is
+described by workload and model architecture instead.
 
 ## Motivation
 
 v0.1.0 validated the PrivateUse1 `flagos` device with per-operator backend
-routing on CUDA and Ascend. The 2.2 cycle adds Hygon, MetaX, T-Head, and Moore
-Threads alongside Ascend for a five-chip acceptance set validated on LLM/VLM/Omni
-models, a 90%+ FlagGems coverage target with per-vendor-class fallback,
-installable wheels on PyTorch 2.8–2.10, and `torch.distributed` via FlagCX.
+routing on CUDA and Ascend. The 2.2 cycle expands the validated scope to seven
+chips across the PyTorch 2.10 and 2.9 lines, adds a FlagGems coverage target
+with per-vendor-class fallback, per-vendor wheels, and `torch.distributed` via
+FlagCX.
 
 ### Goals
 
 **(Required)**
 
-- **G1 (5-chip adaptation):** Hygon, MetaX, Huawei Ascend, T-Head, and
-  Moore Threads platforms run the 3 target model classes (LLM + VLM + Omni,
-  tentatively Qwen series) through the `flagos` device.
+- **G1 (7-chip adaptation):** Hygon, MetaX, Huawei Ascend, T-Head, Moore
+  Threads and Enflame on PyTorch 2.10, plus Kunlunxin on PyTorch 2.9, run the
+  agreed `transformers` / `diffusers` inference and simple fine-tuning set
+  through the `flagos` device.
   <!-- TODO: name the exact model list and per-model acceptance (inference
        only, or training too — v0.1.0 validated Qwen3-0.6B both ways). -->
-- **G2 (FlagGems 90%+ coverage):** 90%+ of dispatched operators route to
-  FlagGems (≈380+ operators), with fallback to vendor operator libraries:
+- **G2 (FlagGems coverage target):** The development plan targets 90%+ of
+  dispatched operators / approximately 380+ operators routed to FlagGems,
+  with fallback to vendor operator libraries. The repository contains routing
+  tables and consistency tests, but this FEP does not claim an independently
+  reproduced 90% / 380+ release count:
   - CUDA-compatible vendors: libtorch kernel-reuse ("boxing") path, 100%
     operator coverage.
   - Non-CUDA-compatible vendors: vendor C++ operator library integration
     covering the `transformers` / `diffusers` usage range.
-- **G3 (torch-fl release):** Publish `torch_fl` wheels for PyTorch 2.8–2.10,
-  packaged per vendor (`torch-fl-ascend`, `torch-fl-mx`, ...) to keep the
-  bundled libtorch size manageable.
+- **G3 (torch-fl release):** Publish `torch_fl` wheels for the validated
+  PyTorch/vendor pairs, packaged per vendor (`torch-fl-ascend`,
+  `torch-fl-mx`, ...) to keep the bundled libtorch size manageable.
   <!-- TODO: confirm the per-vendor torch-version matrix once vendor official
        support statements are collected. -->
 - **G4 (FlagCX / distributed):** `torch.distributed` on the `flagos` device
@@ -72,38 +92,37 @@ installable wheels on PyTorch 2.8–2.10, and `torch.distributed` via FlagCX.
 
 ### Non-Goals
 
-- Vendor platforms beyond the 5 named in G1 for this cycle (backends for
-  Enflame GCU and Tsingmicro exist in-tree but are not part of the 2.2
-  acceptance).
+- Vendor platforms beyond the seven named in G1 for this cycle. Other in-tree
+  backends do not automatically become release-accepted platforms.
 - FSDP support as a deliverable (spike only, per G4).
-- Graph-level compilation (`torch.compile`) integration (unchanged from
-  v0.1.0 non-goals).
+- Broad `torch.compile` compatibility as a release gate. Initial support is
+  present in the RC delta, but a cross-vendor model matrix is not established.
 - Operator performance benchmarking as an acceptance gate (correctness-first,
   unchanged from v0.1.0; benchmarks exist in-tree for engineering use).
 
 ## Proposal
 
-### Feature 1: 5-Chip Adaptation with Model Validation
+### Feature 1: 7-Chip Adaptation with Model Validation
 
 Per-vendor accelerator integrations use the v0.1.0 architecture (PrivateUse1
 dispatch + per-operator backend routing via
-`torch_fl/configs/backends_*.conf`). State on main for the five target chips:
+`torch_fl/configs/backends_*.conf`). The 2.2 acceptance set is:
 
 - **Hygon (DCU):** supported via the DTK CUDA-compatibility layer
-  (flagos-ai/PyTorch-Plugin-FL#22), FlagGems enabled on DCU (#29).
+(flagos-ai/Torch-FL#22), FlagGems enabled on DCU (#29).
 - **MetaX:** hybrid backend config and platform-aware ops (#13), boxing-mode
   wheel bundling the forked libtorch (README-documented flow), FlagCX
   distributed path fix (#34).
 - **Ascend:** native ACL NN dispatch from v0.1.0; triton-ascend patch flow
   for FlagGems (#12).
 - **T-Head (PPU):** FlagGems enablement (#28).
-- **Moore Threads:** dispatcher enum slot exists (`Backend::kMusa`);
-  <!-- TODO: no MUSA backend/config is on main yet — this is net-new work
-       this cycle; describe the planned integration path (CUDA-compatible
-       boxing vs native). -->
+- **Moore Threads:** PyTorch 2.10 line; the RC delta contains the MUSA backend.
+- **Enflame:** PyTorch 2.10 line.
+- **Kunlunxin:** PyTorch 2.9 line.
 
-Model validation covers three model classes — LLM, VLM, Omni — tentatively
-from the Qwen series, possibly extended to MiniCPM.
+Model validation is reported in terms of Hugging Face model architectures and
+the supported workload: `transformers` and `diffusers` inference plus simple
+fine-tuning. The development-side KT count is not a public acceptance metric.
 
 ### Feature 2: FlagGems Coverage and Vendor Fallback
 
@@ -128,9 +147,9 @@ Two-tier dispatch policy per vendor class:
 
 Publish `torch_fl` as installable wheels:
 
-- **PyTorch version range 2.8–2.10.** PyTorch 2.11 is excluded because no
-  vendor has shipped an official release supporting it; the final per-vendor
-  pin follows vendor support statements.
+- **Validated version lines.** PyTorch 2.10 for Hygon, MetaX, Ascend, T-Head,
+  Moore Threads and Enflame; PyTorch 2.9 for Kunlunxin. Additional version
+  pairs require their own build and acceptance evidence.
 - **Per-vendor wheels** (`torch-fl-ascend`, `torch-fl-mx`, ...): the bundled
   forked libtorch is large (the MetaX boxing wheel is ~1.1 GB, above the
   PyPI 100 MB limit), so wheels are split by vendor and distributed via
@@ -168,7 +187,7 @@ distributed layer (Feature 4).
 ## Packaging
 
 Feature 3 **is** the packaging deliverable for this cycle: per-vendor wheels
-against PyTorch 2.8–2.10 built from the existing `setup.py` flow
+for the validated PyTorch/vendor pairs built from the existing `setup.py` flow
 (`ACCELERATOR=<vendor>` + per-vendor env flags, `FLAGOS_WHEEL_LOCAL` version
 tagging, libtorch bundling via `scripts/bundle_maca_libtorch.sh`-style
 scripts where applicable).
@@ -184,23 +203,28 @@ workflow #32).
 
 | Goal | Verification | Status |
 |---|---|---|
-| G1: 5-chip × 3-model | Run the target model list on each of the 5 platforms through the `flagos` device <!-- TODO: model list, inference/training scope, per-platform hardware --> | Pending |
+| G1: 7-chip workload matrix | Run the target `transformers` / `diffusers` inference and simple fine-tuning list on each named PyTorch/vendor pair <!-- TODO: publish exact architecture list and hardware --> | Development validation reported; release matrix pending |
 | G2: FlagGems 90%+ | FlagGems routing consistency tests + per-op routing table audit showing ≥90% FlagGems, fallback conf per vendor class | Pending |
-| G3: wheels | Install each per-vendor wheel on a clean target machine against torch 2.8/2.9/2.10 and run the smoke path <!-- TODO: exact smoke test --> | Pending |
+| G3: wheels | Install each per-vendor wheel on a clean target machine against its declared PyTorch line and run the smoke path <!-- TODO: exact smoke test --> | Pending |
 | G4: FlagCX distributed | Collectives unit tests + DDP training run on FlagCX-backed process group <!-- TODO: platforms, model, node count --> | Pending |
 
 ## Related PRs
 
-- [x] flagos-ai/PyTorch-Plugin-FL#22 — Hygon DCU support via DTK CUDA compatibility layer
-- [x] flagos-ai/PyTorch-Plugin-FL#29 — Enable FlagGems on Hygon DCU
-- [x] flagos-ai/PyTorch-Plugin-FL#28 — PPU FlagGems enablement (+ mul.Tensor recursion fix)
-- [x] flagos-ai/PyTorch-Plugin-FL#31 — FlagGems C++ dispatch (kFlagOs) Stage A + 3-way dispatch benchmark
-- [x] flagos-ai/PyTorch-Plugin-FL#30 — Missing base collectives + FlagCX plain-signature fallback
-- [x] flagos-ai/PyTorch-Plugin-FL#34 — FlagCX distributed path on MetaX
-- [x] flagos-ai/PyTorch-Plugin-FL#24 — Full FlagGems routing consistency tests + main_ops CI subset
-- [x] flagos-ai/PyTorch-Plugin-FL#36 — FlagGems factory device index (all backends) + DCU comm vendor routing
-- [x] flagos-ai/PyTorch-Plugin-FL#37 — feat(metax): real device Event + pin_memory in `_to_copy`
+- [x] flagos-ai/Torch-FL#22 — Hygon DCU support via DTK CUDA compatibility layer
+- [x] flagos-ai/Torch-FL#29 — Enable FlagGems on Hygon DCU
+- [x] flagos-ai/Torch-FL#28 — PPU FlagGems enablement (+ mul.Tensor recursion fix)
+- [x] flagos-ai/Torch-FL#31 — FlagGems C++ dispatch (kFlagOs) Stage A + 3-way dispatch benchmark
+- [x] flagos-ai/Torch-FL#30 — Missing base collectives + FlagCX plain-signature fallback
+- [x] flagos-ai/Torch-FL#34 — FlagCX distributed path on MetaX
+- [x] flagos-ai/Torch-FL#24 — Full FlagGems routing consistency tests + main_ops CI subset
+- [x] flagos-ai/Torch-FL#36 — FlagGems factory device index (all backends) + DCU comm vendor routing
+- [x] flagos-ai/Torch-FL#37 — feat(metax): real device Event + pin_memory in `_to_copy`
 
 ## Implementation History
 
 - 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle.
+- 2026-09-17: Reconciled the FEP with `v0.1.0` and
+  `v0.2.0-rc2.post1`. Updated the repository name and seven-chip/version
+  scope, replaced the internal KT count with a workload/architecture scope,
+  and retained the 90% / 380+ figures as development targets pending a
+  reproducible public inventory.
