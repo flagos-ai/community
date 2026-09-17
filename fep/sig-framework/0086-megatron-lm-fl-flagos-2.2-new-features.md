@@ -20,13 +20,29 @@ FlagOS 2.2 release cycle, on top of v0.2.0:
 1. **Vendor adaptation** — complete platform adaptation for 10 chip vendors
    with a published adaptation matrix; propose the platform abstraction layer
    upstream to Megatron-LM.
-2. **[Stretch] Upstream upgrade** — synchronize with Megatron-LM core v0.18.2
-   (current: 0.17.1).
-3. **New model support** — Qwen3.5/3.6 and DeepSeek-V4 training, including
-   colocated training and CSA/HCA/DSA attention modules with optimization
-   strategies.
+2. **Upstream upgrade** — synchronize with Megatron-LM core v0.18.2 while
+   preserving the FL patch set.
+3. **New model and attention work** — Qwen3.5/3.6 validation and
+   GLM5/5.1/5.2 DSA support. DeepSeek-V4 base support already existed in the
+   2.1 baseline; unfinished context-parallel and FlashSparseAttention work is
+   tracked separately rather than counted as delivered.
 
 Repository: https://github.com/flagos-ai/Megatron-LM-FL
+
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** Megatron-LM-FL `v0.2.0`.
+- **FlagOS 2.2 release candidate reviewed:** `v0.3.0-rc2.post1`, as pinned by
+  the FlagOS 2.2 RC2 manifest.
+- **Development window:** 2026-06-01 through 2026-08-31. PRs opened in that
+  window and stabilized on an RC branch are distinguished from work first
+  introduced after feature freeze.
+
+The release delta contains vendor-platform and CI work, the v0.18.2 upgrade,
+GLM5-family DSA support, a fused DSA kernel and chunked cross entropy. It does
+not provide evidence that all ten vendors passed one common acceptance matrix,
+that the platform abstraction was proposed upstream, or that the open context
+parallel / FlashSparseAttention PRs were delivered.
 
 ## Motivation
 
@@ -53,12 +69,15 @@ Qwen3.5/3.6 and DeepSeek-V4-family MoE/sparse-attention architectures.
   goal is the proposal, not a guaranteed merge.
   <!-- TODO: define the acceptance form — upstream PR(s) opened? merged?
        RFC accepted? -->
-- **G3 (Stretch — core upgrade):** Upgrade the Megatron-LM core base from
-  0.17.1 to v0.18.2, preserving all FL patches (platform plugin, overrides,
-  dualpipev, hetero, engram).
-- **G4 (New models):** Support Qwen3.5/3.6 and DeepSeek-V4 model training,
-  including colocated training and CSA/HCA/DSA attention modules with
-  optimization strategies.
+- **G3 (Core upgrade):** Upgrade the Megatron-LM core base from 0.17.1 to
+  v0.18.2, preserving the FL patches (platform plugin, overrides, dualpipev,
+  hetero, engram). The upgrade is present in RC2 through #109; release
+  acceptance still depends on the regression suite.
+- **G4 (New models):** Validate Qwen3.5 and advance Qwen3.6 support; add
+  GLM5/5.1/5.2 DSA-structure support and related DSA kernels. DeepSeek-V4 base
+  support is 2.1 background. Context parallelism (#57), FlashSparseAttention
+  (#88) and colocated-training details remain incomplete and are not claimed
+  as accepted 2.2 features.
   <!-- TODO: DeepSeek-V4 base support (CSA/HCA, Hash Router, mHC, Engram,
        MTP) shipped in v0.2.0 (FEP-0026) — specify the 2.2 increment: DSA
        attention variant and fused kernels? context parallelism for sparse
@@ -71,6 +90,8 @@ Qwen3.5/3.6 and DeepSeek-V4-family MoE/sparse-attention architectures.
 - Low-precision (FP8/INT8) training for the new model families.
 - Inference optimization for the new models (FlagScale / inference-plugin
   scope).
+- DeepSeek-V4 base architecture support already shipped in Megatron-LM-FL
+  `v0.2.0`; 2.2 only counts separately evidenced increments.
 
 ## Proposal
 
@@ -99,22 +120,22 @@ to upstream releases without carrying a fork-wide patch set.
 <!-- TODO (design): which abstraction interfaces are proposed upstream; link
      to the upstream RFC/PR once opened. -->
 
-### Feature 3: Megatron-LM Core v0.18.2 Upgrade [Stretch]
+### Feature 3: Megatron-LM Core v0.18.2 Upgrade
 
-Synchronize the core with upstream v0.18.2 following the established sync
-process (cf. #34 for the 0.17.0 sync, #42 upgrade skills), preserving FL
-patches: platform plugin, override registry, dualpipev, hetero pipeline,
-engram, and the experimental attention variants.
+The v0.18.2 synchronization was merged in #109 and is included in the RC2
+snapshot. It follows the established sync process (cf. #34 for the 0.17.0
+sync, #42 upgrade skills) while preserving FL patches: platform plugin,
+override registry, dualpipev, hetero pipeline, engram, and the experimental
+attention variants. The development report still called for full unit and
+end-to-end regression after the upgrade.
 
-### Feature 4: New Model Support (Qwen3.5/3.6, DeepSeek-V4 family)
+### Feature 4: New Model Support (Qwen3.5/3.6 and GLM5 DSA)
 
-Add training support for Qwen3.5/3.6 and the DeepSeek-V4 model family,
-including colocated training and CSA/HCA/DSA attention modules with
-optimization strategies. In-flight work: DSA attention variant and fused
-kernels (`experimental_attention_variant/dsa.py`, #86 fused DSA kernel for
-sm90, #88 FlashSparseAttention, #81 flash sparse attn patch), context
-parallel support for DSV4 sparse attention (#57), GLM5/5.1/5.2 DSA-structure
-models (#69).
+The RC line includes GLM5/5.1/5.2 DSA-structure models (#69) and the fused DSA
+kernel for sm90 (#86). Qwen3.5 was under post-upgrade validation and Qwen3.6
+was active adaptation work in the development report. FlashSparseAttention
+(#88) and context-parallel support for DSV4 sparse attention (#57) remain
+open, so they are retained as planned work rather than release claims.
 
 <!-- TODO (design):
      1. Qwen3.5/3.6 — architecture deltas vs. Qwen3 (MoE config, attention),
@@ -163,7 +184,7 @@ golden values), and the multi-platform CI workflows.
 |---|---|---|
 | Upstream milestone | — | [TODO: upstream PR link and its acceptance state] |
 
-### G3: Core v0.18.2 upgrade [stretch]
+### G3: Core v0.18.2 upgrade
 
 | Test | Command | Expected result |
 |---|---|---|
@@ -186,10 +207,20 @@ golden values), and the multi-platform CI workflows.
 - [x] flagos-ai/Megatron-LM-FL#87 — Upgrade TXDA Platform to v0.17.0
 - [x] flagos-ai/Megatron-LM-FL#68 — Native Integration of MegatronAdaptor (Ascend)
 - [ ] flagos-ai/Megatron-LM-FL#57 — Add context parallel support for dsv4 sparse attention
-- [ ] flagos-ai/Megatron-LM-FL#69 — Support models with DSA structure (GLM5/5.1/5.2)
+- [x] flagos-ai/Megatron-LM-FL#69 — Support models with DSA structure (GLM5/5.1/5.2)
 - [x] flagos-ai/Megatron-LM-FL#86 — Add fused DSA kernel for sm90
 - [ ] flagos-ai/Megatron-LM-FL#88 — Add support for FlashSparseAttention
+- [x] flagos-ai/Megatron-LM-FL#92 — Add MUSA CI
+- [x] flagos-ai/Megatron-LM-FL#93 — Add Hygon CI
+- [x] flagos-ai/Megatron-LM-FL#100 — Add P800 CI
+- [x] flagos-ai/Megatron-LM-FL#109 — Upgrade Megatron-LM core to v0.18.2
+- [x] flagos-ai/Megatron-LM-FL#113 — Add Enflame CI
+- [x] flagos-ai/Megatron-LM-FL#126 — Add chunked cross entropy
 
 ## Implementation History
 
 - 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle.
+- 2026-09-17: Reconciled the FEP against `v0.2.0` and
+  `v0.3.0-rc2.post1`. Moved DeepSeek-V4 base support out of the 2.2 increment,
+  recorded the v0.18.2 and GLM5 DSA merges, and kept the ten-vendor matrix,
+  upstream proposal, Qwen3.6 acceptance, context parallelism and FSA as open.
