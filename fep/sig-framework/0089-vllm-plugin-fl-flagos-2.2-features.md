@@ -30,6 +30,25 @@
 
 Repository: https://github.com/flagos-ai/vllm-plugin-FL
 
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** vllm-plugin-FL `v0.2.0`.
+- **FlagOS 2.2 release candidates reviewed:** `v0.2.2-rc2.post1` on the
+  vLLM 0.20.2 line and `v0.3.0-rc2.post1` on the vLLM 0.24.0 line, both
+  pinned by the FlagOS 2.2 RC2 manifest.
+- **Development window:** 2026-06-01 through 2026-08-31. The Arm64 work in
+  #433 was opened after feature freeze and is tracked by FEP-0083 rather than
+  counted in this FEP's original 2.2 scope.
+
+The 0.20.2 release tree contains eleven vendor/backend directories (including
+the CUDA path) and seven checked-in platform test configurations. The 0.24.0
+release tree contains eight vendor/backend directories and the same seven
+platform configurations. The development report records ten completed vendor
+adaptations on the 0.20.2 line and five on the 0.24.0 main line, but this FEP
+does not infer a uniform test pass for every directory. No merged release-delta
+implementation was identified for the proposed runtime operator auto-tuning
+policy, so that goal remains provisional.
+
 ## Motivation
 
 vllm-plugin-FL 0.2.0 established the plugin as a multi-chip vLLM backend on a
@@ -57,14 +76,16 @@ this cycle adds operator-granularity auto-tuning.
   <!-- TODO: define the per-vendor acceptance bar (which models × which test
        suites must pass on 0.20.2) that "adapted" means for the matrix. -->
 - **G2 (5 vendors upgraded to vLLM 0.24.0, Empty mode):** Upgrade 5 vendor
-  platforms to vLLM v0.24.0 using the Empty build. In-flight adaptations on
-  this track include Moore Threads MTT S5000 (#308) and Iluvatar BI-V150
-  (#310).
+  platforms to vLLM v0.24.0 using the Empty build. Moore Threads MTT S5000
+  (#308) and Iluvatar BI-V150 (#310) are merged on this track. The development
+  report gives the total as five; the final public matrix still needs to name
+  and evidence all five consistently.
   <!-- TODO: name the 5 committed vendors. -->
 - **G3 (Empty mode support):** The plugin runs against a device-less vLLM
   build ("empty" platform), providing the missing device pieces itself —
   e.g. routing cache ops through the flag_gems dispatch layer instead of
-  vLLM's compiled C extensions (#333, open).
+  vLLM's compiled C extensions (#333, merged after feature freeze from work
+  opened during the development cycle).
 - **G4 (Operator auto-tuning):** Operator-granularity automatic selection of
   the best implementation per hardware platform through the dispatch layer's
   policy mechanism.
@@ -97,10 +118,10 @@ Representative work already on main or in flight this cycle:
   (#301, open).
 - MetaX: CI workflow (#304); MoE optimizations and contiguous prefill (#320,
   open); flag_gems-dispatch cache-op routing for builds without vLLM C
-  extensions (#333, open).
-- Moore Threads: MTT S5000 adaptation for vLLM 0.24.0 (#308, open) + S5000 CI
-  (#314, open).
-- Iluvatar: BI-V150 adaptation for vLLM 0.24.0 (#310, open).
+  extensions (#333, merged).
+- Moore Threads: MTT S5000 adaptation for vLLM 0.24.0 (#308, merged) + S5000
+  CI (#314).
+- Iluvatar: BI-V150 adaptation for vLLM 0.24.0 (#310, merged).
 - T-Head: PPU-native DeepGEMM BF16 unquantized MoE (#322, open).
 - Hygon: CI image workflow (#311).
 
@@ -156,9 +177,9 @@ per-vendor CI workflows).
 
 | Goal | Verification | Status |
 |---|---|---|
-| G1: 10 vendors on 0.20.2 | Per-vendor CI green on the agreed model × test matrix <!-- TODO: matrix definition --> | Pending |
-| G2: 5 vendors on 0.24.0 | Same matrix re-run against vLLM 0.24.0 Empty build on the 5 vendors | Pending |
-| G3: Empty mode | Plugin installs and serves on a vLLM Empty build with no vllm._C present; smoke inference passes <!-- TODO: reference platform for the empty smoke test --> | Pending |
+| G1: 10 vendors on 0.20.2 | Per-vendor CI green on the agreed model × test matrix <!-- TODO: matrix definition --> | Development adaptation reported complete; uniform matrix pending |
+| G2: 5 vendors on 0.24.0 | Same matrix re-run against vLLM 0.24.0 Empty build on the 5 vendors | Five adaptations reported; named public matrix pending |
+| G3: Empty mode | Plugin installs and serves on a vLLM Empty build with no vllm._C present; smoke inference passes <!-- TODO: reference platform for the empty smoke test --> | Partial release evidence; per-vendor acceptance pending |
 | G4: Auto-tuning | Tuned config outperforms or matches the default dispatch config on target platforms <!-- TODO: benchmark set, platforms, improvement threshold --> | Pending |
 
 ## Related PRs
@@ -166,11 +187,15 @@ per-vendor CI workflows).
 - [x] flagos-ai/vllm-plugin-FL#307 — upgrade vllm to 0.20.2 on ascend platform
 - [x] flagos-ai/vllm-plugin-FL#304 — [CICD] Add MetaX CI workflow
 - [x] flagos-ai/vllm-plugin-FL#311 — [CICD] Add Hygon CI image workflow
-- [ ] flagos-ai/vllm-plugin-FL#308 — adapt(musa): MTT S5000 backend adaptation for vLLM 0.24.0
-- [ ] flagos-ai/vllm-plugin-FL#310 — adapt(iluvatar): BI-V150 backend adaptation for vLLM 0.24.0
-- [ ] flagos-ai/vllm-plugin-FL#333 — feat(metax): route reshape_and_cache_flash through flag_gems dispatch
+- [x] flagos-ai/vllm-plugin-FL#308 — adapt(musa): MTT S5000 backend adaptation for vLLM 0.24.0
+- [x] flagos-ai/vllm-plugin-FL#310 — adapt(iluvatar): BI-V150 backend adaptation for vLLM 0.24.0
+- [x] flagos-ai/vllm-plugin-FL#333 — feat(metax): route reshape_and_cache_flash through flag_gems dispatch
 - [ ] flagos-ai/vllm-plugin-FL#322 — WIP: Add PPU-native DeepGEMM BF16 unquantized MoE
 
 ## Implementation History
 
 - 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle.
+- 2026-09-17: Reconciled the FEP with the two RC2 release lines, updated
+  #308/#310/#333 to merged, separated the post-freeze Arm64 work, and kept
+  the uniform vendor matrix and runtime operator auto-tuning as unaccepted
+  goals.
