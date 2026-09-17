@@ -1,0 +1,11 @@
+torch==2.11.0
+torchaudio==2.11.0
+torchvision==0.26.0
+transformers==5.15.1
+tokenizers==0.22.2
+compressed-tensors==0.17.0
+numpy==2.3.5
+numba==0.65.0
+llvmlite==0.47.0
+safetensors==0.8.0
+sqlalchemy==2.0.48
