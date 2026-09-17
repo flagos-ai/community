@@ -89,6 +89,9 @@ The default `WORK_DIR` is `$HOME/flagtree-cpu-3.7-test`; export it once to chang
 location. `BUILD_JOBS` defaults to 4. `SKIP_SYSTEM_PACKAGES=1` skips apt installation
 when prerequisites are present. This environment is independent of FEP-0083 and
 does not require that PR's scripts or vLLM. Upstream sources must have no tracked edits.
+Paths are derived from the current account/script location; relative overrides are
+resolved before changing directory. Choose a `WORK_DIR` without whitespace or semicolons.
+Keep the full `scripts/flagtree-cpu37` directory when distributing the scripts.
 Each PR needs its own `WORK_DIR`; when switching PRs, update a custom value as well.
 
 ## Test Plan
@@ -108,10 +111,12 @@ The scripts stop on failure, wrong revisions or skipped numerical tests.
 Only the seven FlagGems numerical cases overlap with community PR #82. This PR's
 CPU-target and empty-cache vector checks are compiler acceptance; model inference
 and warm TTFT/TPS are tested through PR #82. Run shared cases in each environment.
-The script entries were rerun on 2026-09-16: setup passed; empty-cache vector add
-1.568 s, cached execution below displayed 0.001 s; FlagGems 7/7 in 3.31 s.
-Minimal Debian 13 system-package/uv/Python bootstrap also passed; the native
-compiler test reused the existing build and used a new kernel cache.
+The script entries were rerun on 2026-09-17: incremental setup passed; empty-cache
+vector add 1.621 s, cached execution below displayed 0.001 s; FlagGems 7/7 in 3.39 s.
+Relative-path overrides and delivery of the complete script folder without a Git
+checkout were also tested. Minimal Debian 13 system-package/uv/Python bootstrap
+passed in the earlier round; this compiler rerun reused its native build and used
+a new kernel cache.
 The 128-element vector-add example does not alter vLLM's BLOCK_SIZE.
 
 ### Model-level limitation
@@ -138,3 +143,5 @@ Installation, model loading, cold JIT, warm throughput and quality need separate
   JIT and FlagGems numerical tests, and documented model-level cold-JIT limitations.
 - 2026-09-16: Moved independent setup/compiler/operator checks into scripts and
   reduced the document to two ordered execution commands and acceptance results.
+- 2026-09-17: Reran setup/compiler/numerical checks and standalone delivery; fixed
+  relative-path overrides.

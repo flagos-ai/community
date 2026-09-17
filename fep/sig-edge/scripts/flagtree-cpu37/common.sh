@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 source "$SCRIPT_DIR/fetch.sh"
-export WORK_DIR="${WORK_DIR:-$HOME/flagtree-cpu-3.7-test}"
+export WORK_DIR="$(realpath -m -- "${WORK_DIR:-$HOME/flagtree-cpu-3.7-test}")"
 export BUILD_JOBS="${BUILD_JOBS:-4}"
 export FLAGGEMS_VENDOR=arm TRITON_CPU_BACKEND=1
 PYTHON="$WORK_DIR/.venv/bin/python"
@@ -10,6 +10,9 @@ GEMS_SHA=1fda4b11ae528c02ae5187cda551af4a61a514c5
 LLVM_SHA=87717bf9f81f7b29466c5d9a30a3453bdfc93941
 SLEEF_SHA=93f04d869471ce4d007abaebb8c6a7bc62749f61
 fail() { echo "ERROR: $*" >&2; exit 1; }
+case "$WORK_DIR" in
+  *[[:space:]]*|*';'*) fail 'choose a WORK_DIR without whitespace or semicolons; native build tools require it' ;;
+esac
 pins_check() {
   test "$(git -C "$WORK_DIR/flagtree-cpu" rev-parse HEAD)" = "$TREE_SHA"
   test "$(cat "$WORK_DIR/flagtree-cpu/cmake/llvm-hash.txt")" = "$LLVM_SHA"
