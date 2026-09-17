@@ -41,6 +41,21 @@ https://github.com/flagos-ai/FlagOS-Compressor/tree/release/v0.1.0
 `main` has since taken calibrated quantization work (PR #6) that is outside
 this release; see Non-Goals.
 
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** no FlagOS-Compressor module was present in the 2.1
+  release manifest; this is a new 2.2 module.
+- **FlagOS 2.2 release candidate reviewed:** `v0.1.0-rc2.post1`, as pinned by
+  the FlagOS 2.2 RC2 manifest. It still resolves to the `release/v0.1.0`
+  snapshot at commit `eecf2fa`.
+- **Included implementation:** PRs #1–#5 only. PR #6 and later calibrated
+  methods are on `main` after the release branch cut and remain excluded.
+
+This boundary is why the FEP stays `Implementable`: the design and scoped
+implementation are present, while the hardware/model acceptance matrix in the
+Test Plan is still pending. The status does not imply that GPTQ, AWQ,
+AutoRound or serving kernels are included in FlagOS 2.2.
+
 ## Motivation
 
 Open checkpoints increasingly ship in low-precision storage formats such as
@@ -518,3 +533,6 @@ included), merged 2026-07-29.
   commands and expected results.
 - 2026-08-25: Status raised to `Implementable` — implementation complete on
   `release/v0.1.0`, acceptance testing ahead.
+- 2026-09-17: Confirmed that the FlagOS 2.2 RC2 manifest still pins
+  `v0.1.0-rc2.post1` to the same `eecf2fa` release snapshot; retained PR #6
+  and calibrated methods outside the 2.2 boundary.
