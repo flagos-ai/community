@@ -31,6 +31,25 @@ FlagTree in the FlagOS 2.2 cycle, along three tracks:
 
 Repository: https://github.com/flagos-ai/FlagTree
 
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** FlagTree `0.6.0` on the corresponding Triton
+  release lines.
+- **FlagOS 2.2 release candidates reviewed:** FlagTree `0.7.0rc2.post1` on
+  Triton 3.6, 3.5 and 3.3. Triton 3.7 is not a pinned FlagOS 2.2 release
+  artifact, even though its initialization landed during the cycle.
+- **Development window:** 2026-06-01 through 2026-08-31. Tsingmicro #1071 was
+  opened on 2026-08-31 and merged during stabilization.
+
+The evidence supports several concrete increments: TileIR/device-barrier
+integration (#739), a PPU backend (#843), SpacemiT (#933), Triton 3.7 branch
+initialization (#1006), Tsingmicro on Triton 3.6 (#1071), unified Python
+specialization for Iluvatar (#862) and MetaX (#962), and a FlagGems GitHub
+Actions gate (#1070). It does not support the blanket claim that every backend
+on `main` and 3.7 completed migration: the Moore Threads C++ migration (#985)
+and MetaX C++ migration (#1038) remain open. The FEP therefore stays
+`Provisional`.
+
 ## Motivation
 
 FlagTree integrates many AI-chip backends into one repository (FEP-0013).
@@ -98,13 +117,12 @@ before the backend code lands. On the CI branch
 branch currently holds `amd, enflame, f2reduce, hcu, mthreads, nvidia, proton,
 rpu, thrive, tle`.
 
-Of the new backend code for 2.2, the TileIR backend skeleton is already on
-`main` under `third_party/tileir/` (landed with flagos-ai/FlagTree#739,
-alongside the `tileir3.6-*` CI workflows); the 2.2 work there is completing
-the TileIR lowering and the Moore Threads path on top of it. The T-Head 3.6
-backend and the Enflame 3.7 backend are not yet in tree. Each new backend is
-added under `third_party/<backend>/` following the unified specialization
-conventions in Track 2.
+Of the new backend code for 2.2, #739 adds the TileIR integration point and
+device intra-node barrier handling; #843 adds the PPU backend on `main`.
+Additional backend integrations landed for SpacemiT (#933) and Tsingmicro
+(#1071). The Triton 3.7 branch was initialized in #1006, but no 3.7 artifact is
+pinned in the FlagOS 2.2 manifest, so Enflame 3.7 is not counted as a verified
+2.2 release deliverable here.
 
 <!-- TODO (design): per backend — target Triton branch, dependency on TileIR
      lowering, and whether it reuses an existing backend's codegen. -->
@@ -136,9 +154,9 @@ The governing rule: trunk code must neither contain a specific backend's
 specialization nor branch on the backend and then specialize — unless the trunk
 file already had backend-selection logic. This FEP standardizes the mechanism
 and the rule; the 2.2 work is to complete it and migrate every backend to it.
-Ongoing per-backend migrations are visible on
-`refactor/iluvatar-python-specialization` and the `feat/mthreads-spec-path-*`
-branches.
+Iluvatar Python specialization merged in #862 and MetaX Python specialization
+merged in #962. Moore Threads C++ specialization (#985) and MetaX C++
+specialization (#1038) remain open, so rollout to all backends is incomplete.
 
 <!-- TODO (design): the exclude/protect-subpackages semantics, how function-
      definition specialization (not just module replacement) is expressed, and
@@ -147,7 +165,8 @@ branches.
 ### Track 3: CI/CD Integration Validation
 
 The goal is to bring the FlagOS-model-release gate forward to the dev CI merge
-stage, in one or both of two ways:
+stage. FlagTree#1070 implements a GitHub Actions path for FlagGems testing;
+the broader model-release inference-image gate remains a proposal:
 
 - **Option A — FlagGems op-list gate.** CI validates the FlagGems operator
   library against a fixed op list (the historically-passing ops), with the op
@@ -225,12 +244,16 @@ MAX_JOBS=32 python3 -m pip install . --no-build-isolation
 
 ## Related PRs
 
-<!-- TODO: fill with the actual FlagTree PR numbers by the FEP Owner. -->
-- [ ] FlagTree — dynamic backend spec-path lookup (branch `feat/spec-path-dynamic-backend-lookup`)
-- [ ] FlagTree — Moore Threads spec-path migration (`feat/mthreads-spec-path-third-party.*`)
-- [ ] FlagTree — Iluvatar python specialization (`refactor/iluvatar-python-specialization`)
-- [ ] FlagTree — FlagGems CI gate (`triton_v3.6_test_flagGems`, `addflaggemstest`)
-- [ ] FlagTree — TileIR backend completion (`third_party/tileir`, landed via flagos-ai/FlagTree#739); T-Head 3.6 / Enflame 3.7 backends (not yet in tree)
+- [x] flagos-ai/FlagTree#739 — TileIR integration and device intra-node barrier
+- [x] flagos-ai/FlagTree#843 — PPU backend
+- [x] flagos-ai/FlagTree#862 — Iluvatar unified Python specialization
+- [x] flagos-ai/FlagTree#933 — SpacemiT backend integration
+- [x] flagos-ai/FlagTree#962 — MetaX unified Python specialization
+- [ ] flagos-ai/FlagTree#985 — Moore Threads unified C++ specialization
+- [x] flagos-ai/FlagTree#1006 — initialize the Triton 3.7 FlagTree branch
+- [ ] flagos-ai/FlagTree#1038 — MetaX unified C++ specialization
+- [x] flagos-ai/FlagTree#1070 — GitHub Actions for FlagGems testing
+- [x] flagos-ai/FlagTree#1071 — Tsingmicro backend integration on Triton 3.6
 
 ## Implementation History
 
@@ -242,3 +265,6 @@ MAX_JOBS=32 python3 -m pip install . --no-build-isolation
   completing the four new backends, the full backend migration on `main`/3.7,
   and the CI gates are the remaining 2.2 work. Owner and per-track
   acceptance scope pending fill-in before FEP Freeze.
+- 2026-09-17: Reconciled the FEP with the FlagOS 2.2 RC2 manifest and backend,
+  specialization and CI PRs. Updated the stale backend status and retained the
+  all-backend migration and unpinned Triton 3.7 work as unaccepted.
