@@ -1,4 +1,4 @@
-# FEP: KernelGen Knowledge and Tool Hub
+# FEP-0093: KernelGen Knowledge and Tool Hub
 
 **Status:** `Provisional`
 
@@ -15,6 +15,24 @@
 ## Summary
 
 This FEP proposes the creation of a **Knowledge and Tool Hub** inside the [KernelGen](https://github.com/flagos-ai/kernelgen) repository under a new `knowledge/` directory. The hub collects and indexes multi-chip operator knowledge (blogs, websites, open-source code, documentation, books) and profiling/optimization tooling (vendor and open-source profilers, existing optimization skills and agents) into a single, navigable, machine-readable registry. The hub serves as the data substrate for downstream KernelGen capabilities — including the Optimization Skill/Agent Framework (FEP: kernelgen-optimization-skill-agent-framework) and the Operator Coverage Map (FEP: kernelgen-operator-coverage-map).
+
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** KernelGen `v2.1.0`.
+- **FlagOS 2.2 release candidate reviewed:** `v2.2.0-rc2.post1`, as pinned by
+  the FlagOS 2.2 RC2 manifest.
+- **Development window:** 2026-06-01 through 2026-08-31.
+
+The reviewed `v2.1.0..v2.2.0-rc2.post1` public release delta contains skills
+and TLE documentation, a Chinese-search fix, and license-header maintenance.
+RC0, RC1 and RC2 resolve to the same KernelGen source snapshot. No
+`knowledge/` implementation, manifest schema, query API, index generator, or
+linked implementation PR was found in that release evidence.
+
+Accordingly, this document is a **planned design**, based on the development
+roadmap, not a claim that the Knowledge and Tool Hub shipped in FlagOS 2.2.
+All paths, commands and schemas below remain proposals until an implementation
+PR lands and the tests are runnable from a release branch.
 
 ## Motivation
 
@@ -194,6 +212,9 @@ This API is consumed by the Optimization Skill/Agent Framework (FEP: kernelgen-o
 
 ## Packaging
 
+The following is the intended packaging design; it is not present in the
+reviewed FlagOS 2.2 release candidate.
+
 **Supported vendors:** NVIDIA, Ascend, MUSA, Hygon, Iluvatar, MetaX, Sunrise, KunlunXin, ENFLAME, Cambricon (coverage varies per entry).
 
 **Can this feature be packaged as a wheel (`.whl`)?** Yes.
@@ -212,6 +233,10 @@ This API is consumed by the Optimization Skill/Agent Framework (FEP: kernelgen-o
 - Platform requirements: Python >= 3.10; no GPU/toolkit required to *browse or query* the hub (tool invocation requires the corresponding vendor toolkit, documented per entry).
 
 ## Test Plan
+
+The commands in this section are proposed acceptance commands. They cannot be
+treated as executed 2.2 evidence until the corresponding files and
+implementation PR exist.
 
 ### Manifest Validation
 
@@ -257,10 +282,12 @@ This API is consumed by the Optimization Skill/Agent Framework (FEP: kernelgen-o
 
 ## Related PRs
 
-- [ ] flagos-ai/kernelgen#xxx — Add `knowledge/` directory, manifest schema, and initial entry set
-- [ ] flagos-ai/kernelgen#xxx — Add query API and index generator
-- [ ] flagos-ai/kernelgen#xxx — Seed entries for 7+ chips (profiling tools, docs, skills)
+- [ ] No public implementation PR identified for the `knowledge/` directory,
+  manifest schema, query API, index generator, or initial entry set.
 
 ## Implementation History
 
 - 2026-07-30: FEP created
+- 2026-09-17: Reconciled the proposal with the KernelGen 2.1 baseline and
+  `v2.2.0-rc2.post1`; retained `Provisional` because the proposed directory
+  and implementation PRs are absent from the public release evidence.
