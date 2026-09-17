@@ -18,8 +18,9 @@
 FlagOS 2.2 release cycle, across four directions:
 
 1. **Operator scale** — grow the total operator set to 635, combining manually
-   implemented operators with operators produced by KernelGen
-   (flagos-ai/community#93).
+   implemented operators with operators planned through the KernelGen
+   workflow. FEP-0093 is a Knowledge Hub proposal and is not the source or
+   implementation of those 301 generated operators.
 2. **Attention operators** — high-performance Attention-class operators
    matching NVIDIA state-of-the-art, running on 5+ domestic chips.
 3. **TLE key operators** — key operators built on the Triton Language Extension
@@ -32,6 +33,26 @@ Repositories: https://github.com/flagos-ai/FlagGems,
 https://github.com/flagos-ai/FlagBLAS, https://github.com/flagos-ai/FlagDNN,
 https://github.com/flagos-ai/FlagSparse, https://github.com/flagos-ai/FlagFFT,
 https://github.com/flagos-ai/FlagAttention
+
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baselines:** FlagGems `v5.3.0`, FlagBLAS `v0.2.0`, FlagDNN
+  `v0.2.0`, FlagSparse `v0.2.0`, FlagFFT `v0.1.0`, FlagAttention `v0.3.0`,
+  and FlagGems-vLLM `v0.1.0`.
+- **FlagOS 2.2 release candidates reviewed:** FlagGems `v5.4.0-rc2.post1`,
+  FlagBLAS/FlagDNN/FlagSparse `v0.3.0-rc2.post1`, FlagFFT
+  `v0.2.0-rc2.post1`, FlagAttention `v0.4.0-rc2.post1`, FlagGems-vLLM
+  `v0.2.0-rc2.post1`, and FlagGems-SGLang `v0.1.0-rc2.post1`.
+- **Development window:** 2026-06-01 through 2026-08-31. Several
+  FlagAttention PRs were submitted before feature freeze and merged during
+  release stabilization; they are identified as such below.
+
+The 334 / 301 / 635 counts and the performance ratios in this FEP come from
+the 2.2 development plan and acceptance report. They have not been
+independently regenerated from one public inventory command. Repository PRs
+provide concrete evidence for many named operators, but not for the full count
+or a uniform five-domestic-chip performance matrix. Those broader claims remain
+provisional until an inventory and release-hardware rerun are published.
 
 ## Motivation
 
@@ -47,7 +68,7 @@ tracked against a single target rather than split across two workflows.
 **(Required)**
 
 - **G1 (Operator scale):** Reach 635 total operators, composed of 334 manually
-  implemented and 301 KernelGen-generated (flagos-ai/community#93). Includes
+  implemented and 301 KernelGen-generated. Includes
   the sub-targets in the [Operator Count](#operator-count) table.
 - **G2 (Attention operators):** Deliver 6 high-performance Attention-class
   operators — Flash MLA, Flash KDA, GDN2, GLA, NSA and SageAttention — at
@@ -67,8 +88,9 @@ tracked against a single target rather than split across two workflows.
 ### Non-Goals
 
 - The KernelGen tooling, knowledge base, and multi-chip generation mechanism
-  itself, tracked in flagos-ai/community#93. This FEP counts the operators
-  KernelGen produces but does not cover how KernelGen works.
+  itself. FEP-0093 covers a proposed knowledge registry; it does not generate
+  the operators counted here. This FEP records the development-side output
+  count but does not define how KernelGen works.
 - The compiler-side TLE capability (MegaKernel, distributed primitives,
   buffer aliasing), tracked in flagos-ai/community#96. This FEP consumes TLE
   but does not define it.
@@ -79,8 +101,8 @@ tracked against a single target rather than split across two workflows.
 
 Grow the operator set to 635 total operators. Manually implemented operators
 span FlagBLAS, FlagDNN, FlagSparse, FlagFFT and FlagGems; generated operators
-are produced by KernelGen (flagos-ai/community#93) and counted in the same
-total. The per-library and per-target breakdown is in the
+are attributed by the development plan to the KernelGen workflow and counted
+in the same total. The per-library and per-target breakdown is in the
 [Operator Count](#operator-count) table.
 
 ### Feature 2: Attention Operators
@@ -132,7 +154,7 @@ Apply reusable optimization techniques across operators:
 ## Operator Count
 
 Total: **635** = **334** manually implemented + **301** KernelGen-generated
-(flagos-ai/community#93).
+(development-plan count; public inventory command pending).
 
 ### Manually implemented (334)
 
@@ -147,7 +169,7 @@ Total: **635** = **334** manually implemented + **301** KernelGen-generated
 
 ### KernelGen-generated (301)
 
-Generated via KernelGen (flagos-ai/community#93), running on 5+ domestic chips.
+Generated via the KernelGen workflow, targeting 5+ domestic chips.
 Named sub-targets:
 
 | Sub-target | Count |
@@ -166,7 +188,8 @@ Named sub-targets:
 ## Performance Targets
 
 Each speedup is against the baseline named in its row. Status is Pending until
-re-measured on the release hardware.
+re-measured on the release hardware. The values are development-provided
+results, not an independently reproduced RC2 benchmark report.
 
 ### G2: Attention operators (NVIDIA GPU)
 
@@ -236,14 +259,36 @@ issue by the testing party.
 
 ## Related PRs
 
-<!-- TODO: link the implementation PRs across FlagGems, FlagBLAS, FlagDNN,
-     FlagSparse, FlagFFT and FlagAttention. -->
-
-- [ ] flagos-ai/community#93 — KernelGen Knowledge and Tool Hub (source of the
-  301 generated operators; cross-reference, not owned by this FEP)
+- [x] flagos-ai/FlagGems-vLLM#12 — FlashMLA-style TLE split-KV path
+- [x] flagos-ai/FlagGems-vLLM#20/#29 — NSA compression and parallel NSA
+- [x] flagos-ai/FlagGems-vLLM#21/#23/#55 — KDA operators and fast path
+- [x] flagos-ai/FlagGems-vLLM#22 — GLA operator
+- [x] flagos-ai/FlagGems-vLLM#26 — `fused_indexer_q_rope_quant`
+- [x] flagos-ai/FlagGems-vLLM#37/#38 — GDN/GDN2 operators
+- [x] flagos-ai/FlagGems-vLLM#56 — persistent TopK
+- [x] flagos-ai/FlagAttention#34/#40 — optimized GDN paths
+- [x] flagos-ai/FlagAttention#41 — TLE chunk KDA (submitted before freeze,
+  merged during stabilization)
+- [x] flagos-ai/FlagAttention#42 — MSA and GLA operators
+- [x] flagos-ai/FlagAttention#43 — SageAttention Triton kernel (submitted
+  before freeze, merged during stabilization)
+- [x] flagos-ai/FlagAttention#44 — optimized GDN2 TLE operator (submitted
+  before freeze, merged during stabilization)
+- [x] flagos-ai/FlagGems#4081 — `fused_indexer_q_rope_quant`
+- [x] flagos-ai/FlagGems#4572 — Triton/TLE TopK paths
+- [x] flagos-ai/FlagGems#4322 — `fp8_fp4_mega_moe`
+- [x] flagos-ai/FlagGems#3778/#4117/#4350/#5437 — `fused_marlin_moe`
+  optimization and benchmark organization
+- [x] flagos-ai/FlagGems#4794 — `w8a8_block_fp8_bmm`
+- [ ] flagos-ai/community#93 — KernelGen Knowledge and Tool Hub; related
+  metadata proposal, not the source of the 301 generated operators
 - [ ] flagos-ai/community#96 — FlagTree TLE MegaKernel + distributed primitives
   (TLE capability consumed by G3/G4; cross-reference, not owned by this FEP)
 
 ## Implementation History
 
 - 2026-08-01: FEP created as `Provisional` for the FlagOS 2.2 cycle.
+- 2026-09-17: Reconciled the FEP with the 2.1 and 2.2 RC manifests and named
+  implementation PRs. Corrected the FEP-0093 cross-reference, recorded the
+  count/performance figures as development-provided, and kept the full
+  inventory and five-chip acceptance matrix provisional.
