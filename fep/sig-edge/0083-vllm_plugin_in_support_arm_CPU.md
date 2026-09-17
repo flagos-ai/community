@@ -83,7 +83,7 @@ LLVM/SLEEF, ACL `v52.6.0` and oneDNN sources; package versions are in
 **The scripted setup requires Debian 13; Debian 12 is not covered by this procedure.**
 Have Git available before checkout. Setup uses sudo for a regular login or apt directly for root.
 Setup installs `free`/`lscpu`/`taskset` before host diagnostics, including on minimal systems.
-Budget at least 30 GiB free for this environment and models, or 60 GiB for both PRs;
+Budget at least 35 GiB free for this environment and models, or 60 GiB for both PRs;
 the LLVM download alone needs approximately 8 GiB.
 The earlier reference builds took about 38 minutes for FlagTree and 11.5 minutes for
 vLLM. Network access to GitHub, ModelScope, PyPI (or a configured mirror), PyTorch's wheel index,
@@ -117,6 +117,9 @@ CIX P1 big cores `0,1,6,7,8,9,10,11`. On another Arm64 host, identify its big co
 with `lscpu` and export `A720_CORES`, `OMP_NUM_THREADS` and `MKL_NUM_THREADS` first.
 Export `WORK_DIR`/`MODEL_ROOT` once to change paths. `SKIP_SYSTEM_PACKAGES=1` skips
 apt installation when prerequisites already exist. Sources must have no tracked edits.
+Paths are derived from the current account/script location; relative overrides are
+resolved before changing directory. Choose a `WORK_DIR` without whitespace or semicolons.
+Keep the full `scripts/vllm-arm64` directory when distributing the scripts.
 Each PR needs its own `WORK_DIR`; when switching PRs, update a custom value as well.
 Run model tests sequentially on the P1. Ports default to W4 `18043` / W8 `18042`;
 export `PORT` to select a free port if either is occupied.
@@ -157,11 +160,21 @@ Only the seven FlagGems numerical cases overlap: PR #83 additionally checks the 
 target and an empty-cache vector kernel; this PR checks vLLM/plugin/model integration.
 Run the shared cases in each environment. `test w4` is functional acceptance; run
 `bench w4` separately to collect warm TTFT/TPS, and `test w8` for native INT8 compatibility.
-The script entries were rerun on 2026-09-16: native setup, numerical/operator suites,
-verified-model reuse, W4/W8 audited prewarming and HTTP math checks passed. HTTP
-servers stopped after testing and retained caches. These two-token checks are not TPS.
-Minimal Debian 13 system-package/uv/Python bootstrap also passed. This round's
-native/model reruns reused existing builds and caches.
+The script entries were rerun on 2026-09-17. A minimal Debian 13 container on CIX P1
+rebuilt native packages under another account and downloaded/verified the model files;
+only downloaded LLVM/JSON/NVIDIA dependency artifacts were reused. Both operator suites,
+W4/W8 offline inference and HTTP math passed; managed servers stopped. W4 initialization
+was 174.915 s and the first request 906.679 s; retained-cache restart initialization was
+17.940 s. Relative-path overrides and standalone script delivery were also tested.
+These two-token correctness checks are not TPS. Warm single-user 64-token measurements
+on that host (eight big cores, prefix caching disabled) were:
+
+| Model | 43-token prompt: TTFT / decode | 357-token prompt: TTFT / decode |
+|---|---|---|
+| W4A8 | 0.516 s / 7.58 tok/s | 2.348 s / 7.56 tok/s |
+| W8A8 native CPU INT8 | 0.379 s / 4.64 tok/s | 1.526 s / 4.59 tok/s |
+
+These are reproducibility references, not throughput acceptance thresholds.
 
 ### Known limitations
 
@@ -169,6 +182,7 @@ native/model reruns reused existing builds and caches.
 for W4A8 and 931.6 s for W8A8. No BLOCK_SIZE patch is required by this procedure.**
 vLLM's 1024/8192-element Triton bookkeeping/sampling launches can generate wide LLVM
 vectors and spend minutes in CPU code generation. `--enforce-eager` does not bypass JIT.
+The console may remain at `Warming up model...` or `Processed prompts: 0%` while compiling.
 The default 1800-second startup/request wait budgets permit that cost; they are not
 performance targets or guaranteed upper bounds. Readiness does not imply every chat
 kernel is compiled. Retain logs and compilation progress if a wait expires.
@@ -199,3 +213,5 @@ coverage and acceptable warm throughput remain separate acceptance items.
   inference and native W8A8 compatibility. Diagnosed cold JIT and documented cache limits.
 - 2026-09-16: Moved enable/preparation/test commands into scripts, kept upstream
   source unmodified and shortened the document to the ordered test entry points.
+- 2026-09-17: Rebuilt/retested in minimal Debian 13 under another account; verified
+  portable script delivery, fixed relative-path overrides and corrected the disk budget.
