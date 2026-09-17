@@ -31,6 +31,31 @@ and the `third_party/tle` MLIR dialect).
 
 Repository: https://github.com/flagos-ai/FlagTree
 
+## Release Boundary and Evidence
+
+- **FlagOS 2.1 baseline:** FlagTree `0.6.0+triton3.6`,
+  `0.6.0+triton3.5`, and `0.6.0+triton3.3` for the relevant release lines.
+- **FlagOS 2.2 release candidates reviewed:**
+  `0.7.0rc2.post1+triton3.6`, `0.7.0rc2.post1+triton3.5`, and
+  `0.7.0rc2.post1+triton3.3`.
+- **Development window:** 2026-06-01 through 2026-08-31. PRs #899 and #1048
+  were opened before feature freeze and merged during stabilization; that
+  timing is recorded rather than silently treating their merge date as a new
+  feature commitment.
+
+Public evidence is strong for individual distributed primitives and examples:
+rank primitives (#701), remote offsets (#732), NVSHMEM (#787),
+GEMM+AllReduce (#861), signal/signal_wait (#863), remote-node support (#899),
+multi-node AG+GEMM (#918), a DSA distributed op (#961), node-axis `shard_id`
+(#969), and multi-GPU distributed barriers (#1048). It is not sufficient to
+claim the full goal of two domestic chips, two accepted fused operators, or
+parity with Triton-distributed across a fixed matrix.
+
+No merged implementation PR or release-candidate path was identified for the
+model-level MegaKernel compiler and its Qwen3-32B performance target. The
+feature-branch prototype remains useful design evidence, but MegaKernel is not
+claimed as a completed FlagOS 2.2 feature.
+
 ## Motivation
 
 TLE expresses performance-oriented kernel structure that block-level Triton
@@ -83,14 +108,14 @@ directions for LLM serving:
   G2; performance remains workload- and hardware-dependent.
 - Full model coverage for the MegaKernel path — the deliverable is the compiler
   paradigm plus demonstration operators, not a complete model zoo.
-- Inter-node (multi-host) distributed operators beyond the validated intra-node
-  scope in this cycle. <!-- TODO: confirm whether inter-node is in or out. -->
+- General inter-node coverage. PR #918 provides a multi-node AG+GEMM example,
+  but this FEP does not extrapolate it to a complete multi-host operator set.
 
 ## Proposal
 
 ### Feature 1: MegaKernel Compiler
 
-A pull-based cooperative scheduler is prototyped on the `feature/tle_mega`
+A pull-based cooperative scheduler was prototyped on the `feature/tle_mega`
 branch: kernels live under `python/tutorials/tle/mega/` (e.g.
 `kernels/linear_fused_rmsnorm.py` providing
 `linear_fused_add_rms_norm_decode_mega`), driven by a mega scheduler and
@@ -101,9 +126,10 @@ branch carries the compiler-side changes the paradigm needs — extensions to
 (`lib/Analysis/Allocation.cpp`, `lib/Analysis/Membar.cpp`), and layout handling
 (`RemoveLayoutConversions.cpp`).
 
-The model-level entry point (HuggingFace definition → Triton mega-kernel) is
-the new work for 2.2: a front-end that composes the per-operation mega kernels
-into a full decode step and schedules them cooperatively on one launch.
+The model-level entry point (HuggingFace definition → Triton mega-kernel) was
+the planned 2.2 work: a front-end that composes the per-operation mega kernels
+into a full decode step and schedules them cooperatively on one launch. It was
+not found in the reviewed release evidence and remains a proposal.
 
 <!-- TODO (design):
      1. Front-end scope — which model families / layer types the compiler
@@ -143,9 +169,9 @@ Distributed-operator examples already exist on
 `test_tle_intra_node_reduce_scatter.py` and TMA / atomic-barrier variants —
 and NVSHMEM support is prototyped on a separate feature branch.
 
-The 2.2 deliverable is to land these primitives on the release branch, complete
-the FlagCX multi-chip lowering, and validate comm-compute fusion parity with
-Triton-distributed.
+The merged PRs listed in the release-evidence section land substantial parts
+of this API and several examples. FlagCX multi-chip coverage and the complete
+comm-compute fusion acceptance target remain open.
 
 <!-- TODO (design):
      1. Final public API surface and stability level (experimental namespace).
@@ -214,13 +240,19 @@ sizes.
 
 ## Related PRs
 
-<!-- TODO: fill with the actual FlagTree PR numbers by the FEP Owner. -->
-- [ ] FlagTree — MegaKernel compiler (branch `feature/tle_mega`)
-- [ ] FlagTree — TLE distributed primitives (branches
-  `add_signal_primitives_for_tle_dist`, `add_put_value_primitives`,
-  `feature/tle_remote_node`)
-- [ ] FlagTree — intra-node distributed operator demos (branch
-  `triton_v3.6.x_add_intra_node_test_demo`)
+- [ ] FlagTree — MegaKernel compiler prototype on `feature/tle_mega`; no
+  merged implementation PR identified
+- [x] flagos-ai/FlagTree#701 — Add rank count primitives
+- [x] flagos-ai/FlagTree#732 — Add optional offset to `tle.remote`
+- [x] flagos-ai/FlagTree#787 — TLERaw NVSHMEM support
+- [x] flagos-ai/FlagTree#861 — GEMM+AllReduce with multimem support
+- [x] flagos-ai/FlagTree#863 — Add signal and signal_wait operators
+- [x] flagos-ai/FlagTree#899 — Remote-node support (merged during stabilization)
+- [x] flagos-ai/FlagTree#918 — Multi-node AG+GEMM support
+- [x] flagos-ai/FlagTree#961 — TLE DSA distributed op on Triton 3.5
+- [x] flagos-ai/FlagTree#969 — Node axis in `shard_id`
+- [x] flagos-ai/FlagTree#1048 — Multi-GPU `distributed_barrier` support
+  (opened before freeze, merged during stabilization)
 
 ## Implementation History
 
@@ -229,3 +261,7 @@ sizes.
   model-level MegaKernel front-end, FlagCX multi-chip lowering, and
   comm-compute fusion parity are the remaining 2.2 work. Owner and quantified
   acceptance targets (G2, G4, G5) pending fill-in before FEP Freeze.
+- 2026-09-17: Reconciled the FEP with the 2.2 RC2 lines and implementation
+  PRs. Kept MegaKernel, two-domestic-chip coverage, and the full parity target
+  provisional; recorded the distributed primitives and examples that actually
+  merged.
