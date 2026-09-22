@@ -1,0 +1,33 @@
+# =============================================================================
+# FlagOS 2.2 — Official release source repository manifest (vcstool format)
+# =============================================================================
+# Purpose: fetch the source of all modules at the FlagOS 2.2 official release
+# Usage:
+#   pip install vcstool
+#   mkdir flagos-2.2 && cd flagos-2.2
+#   vcs import src < release-2.2.yaml
+#
+# Versioning:
+#   - The version field points to the official release tag (bare version,
+#     no rc/post suffix)
+#   - Each official tag is placed on the commit that passed the module's
+#     final rc2 verification
+#
+# Naming:
+#   - Official tag: v{X}.{Y}.{Z} (e.g. v0.2.0). FlagTree is the exception:
+#     it keeps the upstream local-version format (e.g. 0.7.0+triton3.6,
+#     no v prefix)
+# =============================================================================
+
+repositories:
+
+  # ===========================================================================
+  # L2 — Framework adaptation layer (PyTorch plugins + training/inference
+  #      frameworks + quantization)
+  # ===========================================================================
+
+  sglang-plugin-fl:
+    type: git
+    url: https://github.com/flagos-ai/sglang-plugin-FL.git
+    version: v0.2.0
+    # rc2: v0.2.0-rc2.post1
