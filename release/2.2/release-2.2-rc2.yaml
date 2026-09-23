@@ -54,7 +54,7 @@ repositories:
   flagtree-triton3.6:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.7.0rc2.post1+triton3.6
+    version: 0.7.0rc2.post2+triton3.6
     # 分支: 0.7.0-rc2-triton3.6
     # 基线分支: main
     # rc1: 0.7.0rc1.post1+triton3.6 / 默认分支: main
@@ -62,7 +62,7 @@ repositories:
   flagtree-triton3.5:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.7.0rc2.post1+triton3.5
+    version: 0.7.0rc2.post2+triton3.5
     # 分支: 0.7.0-rc2-triton3.5
     # 基线分支: triton_v3.5.x
     # rc1: 0.7.0rc1.post1+triton3.5 / 默认分支: main
@@ -70,7 +70,7 @@ repositories:
   flagtree-triton3.3:
     type: git
     url: https://github.com/flagos-ai/FlagTree.git
-    version: 0.7.0rc2.post1+triton3.3
+    version: 0.7.0rc2.post2+triton3.3
     # 分支: 0.7.0-rc2-triton3.3
     # 基线分支: triton_v3.3.x
     # rc1: 0.7.0rc1.post1+triton3.3 / 默认分支: main
@@ -89,14 +89,14 @@ repositories:
   flaggems:
     type: git
     url: https://github.com/flagos-ai/FlagGems.git
-    version: v5.4.0-rc2.post2
+    version: v5.4.0-rc2.post4
     # 分支: 5.4.0-rc2
     # rc1: v5.4.0-rc1.post2 / 默认分支: master ← 注意：不是 main
 
   flagfft:
     type: git
     url: https://github.com/flagos-ai/FlagFFT.git
-    version: v0.2.0-rc2.post1
+    version: v0.2.0-rc2.post2
     # 分支: 0.2.0-rc2
     # rc1: v0.2.0-rc1.post1 / 默认分支: main
 
@@ -110,28 +110,28 @@ repositories:
   flagdnn:
     type: git
     url: https://github.com/flagos-ai/FlagDNN.git
-    version: v0.3.0-rc2.post1
+    version: v0.3.0-rc2.post2
     # 分支: 0.3.0-rc2
     # rc1: v0.3.0-rc1.post1 / 默认分支: master ← 注意：不是 main
 
   flagblas:
     type: git
     url: https://github.com/flagos-ai/FlagBLAS.git
-    version: v0.3.0-rc2.post1
+    version: v0.3.0-rc2.post2
     # 分支: 0.3.0-rc2
     # rc1: v0.3.0-rc1.post1 / 默认分支: master ← 注意：不是 main
 
   flagtensor:
     type: git
     url: https://github.com/flagos-ai/FlagTensor.git
-    version: v0.3.0-rc2.post1
+    version: v0.3.0-rc2.post2
     # 分支: 0.3.0-rc2
     # rc1: v0.3.0-rc1.post1 / 默认分支: main
 
   flagaudio:
     type: git
     url: https://github.com/flagos-ai/FlagAudio.git
-    version: v0.3.0-rc2.post1
+    version: v0.3.0-rc2.post2
     # 分支: 0.3.0-rc2
     # rc1: v0.3.0-rc1.post1 / 默认分支: main
 
@@ -173,7 +173,7 @@ repositories:
   vllm-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/vllm-plugin-FL.git
-    version: v0.3.0-rc2.post1
+    version: v0.3.0-rc2.post3
     # 分支: 0.3.0-rc2
     # 基线分支: main
     # rc1: v0.3.0-rc1.post1 / 默认分支: main
@@ -181,7 +181,7 @@ repositories:
   vllm-plugin-fl-0.2:
     type: git
     url: https://github.com/flagos-ai/vllm-plugin-FL.git
-    version: v0.2.2-rc2.post1
+    version: v0.2.2-rc2.post3
     # 分支: 0.2.2-rc2
     # 基线分支: release/0.2
     # rc1: v0.2.2-rc1.post1 / 默认分支: main
@@ -197,7 +197,7 @@ repositories:
   transformerengine-fl:
     type: git
     url: https://github.com/flagos-ai/TransformerEngine-FL.git
-    version: v0.3.0-rc2.post1
+    version: v0.3.0-rc2.post2
     # 分支: 0.3.0-rc2
     # rc1: v0.3.0-rc1.post1 / 默认分支: main
 
@@ -224,7 +224,7 @@ repositories:
   flagscale:
     type: git
     url: https://github.com/flagos-ai/FlagScale.git
-    version: v2.1.0-rc2.post1
+    version: v2.1.0-rc2.post2
     # 分支: 2.1.0-rc2
     # rc1: v2.1.0-rc1.post1 / 默认分支: main
     # 注: rc1 分支/tag 于 2026-09-08 重建到 main（73d5f8e），rc2 从 main 最新拉出
