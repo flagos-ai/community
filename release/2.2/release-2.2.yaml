@@ -22,6 +22,70 @@
 repositories:
 
   # ===========================================================================
+  # L1 — Compute library layer (core operators + domain operators)
+  # ===========================================================================
+
+  flaggems:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems.git
+    version: v5.4.0
+    # rc2: v5.4.0-rc2.post4
+
+  flagfft:
+    type: git
+    url: https://github.com/flagos-ai/FlagFFT.git
+    version: v0.2.0
+    # rc2: v0.2.0-rc2.post2
+
+  flagsparse:
+    type: git
+    url: https://github.com/flagos-ai/FlagSparse.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post1
+
+  flagdnn:
+    type: git
+    url: https://github.com/flagos-ai/FlagDNN.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+
+  flagblas:
+    type: git
+    url: https://github.com/flagos-ai/FlagBLAS.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+
+  flagtensor:
+    type: git
+    url: https://github.com/flagos-ai/FlagTensor.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+
+  flagaudio:
+    type: git
+    url: https://github.com/flagos-ai/FlagAudio.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+
+  flagattention:
+    type: git
+    url: https://github.com/flagos-ai/FlagAttention.git
+    version: v0.4.0
+    # rc2: v0.4.0-rc2.post1
+
+  flaggems-vllm:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-vllm.git
+    version: v0.2.0
+    # rc2: v0.2.0-rc2.post1
+
+  flaggems-sglang:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-sglang.git
+    version: v0.1.0
+    # rc2: v0.1.0-rc2.post1
+
+  # ===========================================================================
   # L2 — Framework adaptation layer (PyTorch plugins + training/inference
   #      frameworks + quantization)
   # ===========================================================================
