@@ -23,17 +23,18 @@
 
 Extend KernelGen with multi-chip generation services, coverage reporting and
 optimization prototypes. The RC2 snapshot contains existing documentation,
-skills, search maintenance and license updates. It has no corresponding
-release implementation or linked implementation PR for the seven goals below.
+skills, search maintenance and license updates. The deployed generation service has completed multi-chip tests. Its
+implementation and model artifacts are not mapped to this public RC2
+snapshot, and the seven roadmap goals require separate delivery evidence.
 
 ## Goals and Completion
 
 | Goal | Required deliverable | RC2 status |
 |---|---|---|
-| G1: Core refactor | Generation-core changes and a chip/tool/knowledge onboarding contract | No matching implementation |
+| G1: Core refactor | Generation-core changes and a chip/tool/knowledge onboarding contract | Deployed generation workflow tested; refactor/source mapping unresolved |
 | G2: FlagOS-Coder v1 | A 32B model for operator generation and tuning on at least five chips | No versioned model artifact or per-chip results |
 | G3: Operator coverage map | Reproducible operator/chip/status data and published view | No map generator or dataset |
-| G4: Operator agent and leaderboard | Generation/optimization workflow and comparable multi-chip rankings | No implementation or ranking artifact |
+| G4: Operator agent and leaderboard | Generation/optimization workflow and comparable multi-chip rankings | Generation/optimization workflow tested; leaderboard artifact not identified |
 | G5: Workbuddy operator expert | Defined operator-expert integration and input/output contract | Scope and acceptance undefined |
 | G6: vLLM optimization prototype | KernelGen invocation in a measurable end-to-end inference workflow | No prototype or benchmark result |
 | G7: Compiler optimization agent | Defined compiler transformations integrated with kernel optimization | No prototype or transformation contract |
@@ -53,8 +54,8 @@ must identify which interfaces and transformations it uses from
 
 ## Delivery and Acceptance
 
-Existing KernelGen web, MCP and skill interfaces do not identify a release
-artifact for these new capabilities. Each goal needs its own versioned
+The service QA covers existing KernelGen MCP generation, autotuning and TLE
+interfaces; it does not identify versioned artifacts for every new capability. Each goal needs its own versioned
 delivery and executable acceptance:
 
 - G1: onboard a chip using the documented contract and reproduce generation
@@ -73,3 +74,17 @@ delivery and executable acceptance:
 
 Implementation scope, target-chip assignments, package/model distribution
 and quantitative acceptance thresholds remain open.
+
+## Recorded Validation
+
+[Service QA](https://jwolpxeehx.feishu.cn/docx/ZLthdWsWqoniLVxIScVcktEinVb)
+tested nine platforms and four operator families through generation,
+autotuning and TLE execution. NVIDIA, MetaX, Enflame, Iluvatar, Ascend and
+Hygon passed all three stages: 24 of 36 platform/operator combinations.
+MUSA autotuning failed; Kunlunxin and AMD had device/environment failures.
+Rows with zero performance tests establish workflow execution only.
+
+This is positive evidence of an implemented, tested service. It does not
+establish delivery of the 32B model, coverage map, leaderboard, Workbuddy
+integration or the two optimization prototypes. Their source/artifact and
+acceptance mapping remains unresolved.

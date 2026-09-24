@@ -36,6 +36,11 @@ and acceptance criteria. Technical design remains in the separately reviewed
 materials until cleared for disclosure. No new public 2.2 capability can be
 marked complete from the current scope.
 
+## Verification Boundary
+
+The missing public scope prevents a release-level completion decision. It
+does not establish that the separately reviewed implementation is unfinished.
+
 ## Related PRs
 
 - [x] [FlagQuantum#12](https://github.com/flagos-ai/FlagQuantum/pull/12) — Multi-chip backend documentation. Merged.

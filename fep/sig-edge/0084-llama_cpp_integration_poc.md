@@ -51,3 +51,9 @@ or compatibility guarantee is defined yet.
 
 A working operator and model path establish feasibility. Production scope
 and performance targets require a separate release decision.
+
+## Decision Reference
+
+The [owner's August 24 review](https://github.com/flagos-ai/community/pull/84)
+records the postponement. This item is excluded from the active FlagOS 2.2
+FEP count.

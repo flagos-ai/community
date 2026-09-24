@@ -1,6 +1,6 @@
 # FEP-0083: vllm-plugin-FL Support for Arm64 CPU Local Inference
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -39,8 +39,9 @@ branch heads:
 | [FlagTree CPU](https://github.com/flagos-ai/flagtree-cpu/tree/2c35990a30e96665f8f9b5e158562288b4011048) | `2c35990a30e96665f8f9b5e158562288b4011048` |
 
 The plugin change is in the vLLM 0.24.0 release line, not the 0.20.2 line.
-The recorded acceptance below applies to these fixed test revisions; RC2
-regression and compiler artifact assignment remain separate requirements.
+The recorded acceptance below applies to these fixed test revisions. The
+accepted plugin and operator changes are included in RC2; compiler artifact
+assignment remains a release packaging task.
 
 ## Design
 
@@ -122,7 +123,7 @@ These measurements are reproducibility references, not release thresholds.
 Independent compiler checks are in
 [FEP-0082](0082-flagtree-cpu-bump-to-triton-3_7.md).
 
-## Remaining Acceptance
+## Limits and Follow-up
 
 Empty-cache first use can spend roughly fifteen minutes compiling CPU
 kernels. Prewarming requires a persistent `TRITON_CACHE_DIR`, matching
@@ -130,10 +131,11 @@ hardware/compiler identity and stable absolute paths. Different request
 specializations can trigger compilation again; eager mode does not bypass JIT.
 
 The published activation metadata is symmetric while the FlagGems operator
-uses asymmetric dynamic activation quantization. Quality must be compared
-with BF16 on a defined evaluation set. Long context, concurrency and release
-throughput also require separate results. Completion requires the CPU
-release artifact and validation of the assembled RC2 dependency set.
+uses asymmetric dynamic activation quantization. Broader quality claims require a BF16
+comparison on a defined evaluation set. Long context, concurrency and
+production throughput are outside the completed functional PoC acceptance.
+The CPU release artifact and assembled dependency regression remain release
+packaging tasks.
 
 ## Related PRs
 

@@ -1,6 +1,6 @@
 # FEP-0097: FlagTree Compiler Optimization — FlagTune, Layout, Synchronization, and Instruction Scheduling
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Updated:** 2026-09-24
 
@@ -21,17 +21,18 @@
 ## Summary
 
 Add model-guided autotuning and improve layout conversion, synchronization
-and instruction scheduling. RC2 contains FlagTune and layout changes;
-quantified performance acceptance for all four tracks remains incomplete.
+and instruction scheduling. RC2 contains FlagTune, layout conversion
+optimization, explicit synchronization and load/dot reordering. Feature PRs record
+correctness and performance results. Later barrier optimization is still open.
 
 ## Goals and Completion
 
-| Goal | RC2 implementation | Remaining work |
+| Goal | RC2 implementation | Validation and remaining work |
 |---|---|---|
-| G1: Reduce autotuning cost with a performance predictor | `python/triton/flagtune/`, model loading, XGBoost ranking and optional genetic search | Fixed workloads, exhaustive-search comparison and accepted search-time/quality thresholds |
-| G2: Reduce layout conversion cost | Phased layout conversion removal, explicit layouts and tile anchors | Per-operator conversion counts and latency comparison |
-| G3: Improve synchronization | Signal/wait and distributed barrier primitives present | Isolated warp-specialized kernel performance results |
-| G4: Instruction reordering and fusion | Existing Triton scheduler infrastructure present | Identify the new 2.2 transformation and its acceptance benchmark |
+| G1: Reduce autotuning cost with a performance predictor | `python/triton/flagtune/`, model loading, XGBoost ranking and optional genetic search | Reported mul/mm tuning speedups; exact model/workload bundles need release attribution |
+| G2: Reduce layout conversion cost | Phased layout conversion removal, explicit layouts and tile anchors | PR #763 records conversion counts and per-operator timings |
+| G3: Improve synchronization | Signal/wait and distributed barrier primitives present | Existing warp-specialized operators have results; later barrier elimination in #1166 is open |
+| G4: Instruction reordering and fusion | Load clustering in LoopUnroll (#775) and dot-operand concatenation (#892) | Feature correctness and performance results recorded |
 
 ## Design
 
@@ -41,7 +42,8 @@ quantified performance acceptance for all four tracks remains incomplete.
 before importing the runtime. Model identity uses
 `(platform_key, op_id, variant, dtype_key)`. Model bundles carry the feature
 schema, legal parameter space, version and digests. XGBoost ranks candidates;
-optional genetic search refines them through measurement. Disabled or unnamed tuners use ordinary Triton pruning. When enabled with
+optional genetic search refines them through measurement. Disabled or unnamed
+tuners use ordinary Triton pruning. When enabled with
 a model identity, missing or incompatible model bundles raise an error.
 
 RC2 includes remote manifest defaults, runtime compatibility handling and
@@ -55,8 +57,11 @@ coalescing. Synchronization changes add explicit communication primitives.
 The same-warp shuffle conversion change from PR #1047 was reverted by #1139
 and is not an active RC2 optimization.
 
-A separate new instruction-fusion implementation is not identified in RC2;
-the existing pipeliner and reordering passes remain the starting point.
+`tle.range(..., loop_unroll_factor=..., reorder=True)` clusters loads during
+unrolling through `ReorderLoopLoads`. `ConcatDotOperand` folds ordered
+K-axis fragments into a single dot operand. Both implementations are present
+in RC2. The later barrier and TMA-store scheduling changes in PR #1166
+remain open and are not part of these merged transformations.
 
 ## Packaging
 
@@ -78,14 +83,27 @@ python -m pytest -q python/test/tle/integration
 Run the configured build's `check-triton-tle-lit-tests` target for compiler
 regressions. FlagTune tests must cover model identity, archive validation,
 disabled-mode fallback, model-contract errors, backend timing and stream
-ordering. Numerical tests
-must match reference outputs with tuning enabled and disabled.
+ordering. Numerical tests must match reference outputs with tuning enabled
+and disabled.
 
 For each optimization, record the operator, shape, dtype, hardware, compiler
 revision, baseline and measurement protocol. G1 additionally requires tuning
 wall time and the selected configuration's gap from exhaustive search. G2–G4
-require before/after latency and numerical results. Those acceptance reports
-and thresholds remain outstanding.
+require before/after latency and numerical results. Preserve the tested model
+assets, workloads and compiler revisions with each result.
+
+## Recorded Validation
+
+| Track | Recorded result |
+|---|---|
+| FlagTune | The [compiler delivery record](https://jwolpxeehx.feishu.cn/docx/HwHNdMsfCoAXoRxmeNzcNZZQnMe) reports 12× faster tuning for mul across NVIDIA, MetaX, Hygon, PPU and MUSA, and 298× for mm across NVIDIA, MetaX and PPU |
+| Layout | [PR #763](https://github.com/flagos-ai/FlagTree/pull/763) records roughly 68–79% aggregate conversion elimination and per-shape timings; its NVIDIA unit and FlagGems CI passed |
+| Synchronization | The delivery record lists validated warp-specialized mm, FP8 matmul and attention kernels; the additional barrier-elimination benchmark belongs to open PR #1166 |
+| Load reordering | [PR #775](https://github.com/flagos-ai/FlagTree/pull/775) records 12.49–18.02% improvements for the listed fused inverse-RoPE/FP8 quantization shapes |
+| Dot fusion | [PR #892](https://github.com/flagos-ai/FlagTree/pull/892) records 2,592 relevant core tests passed, bit-identical outputs on 53 MoE shapes and 4.74% lower call-weighted total latency on H20-3e |
+
+The remaining items are the model/workload revision mapping and the open
+barrier optimization, including its separate synchronization measurements.
 
 ## Related PRs
 
@@ -97,3 +115,6 @@ and thresholds remain outstanding.
 - [x] [FlagTree#908](https://github.com/flagos-ai/FlagTree/pull/908) — Explicit layout API. Merged.
 - [x] [FlagTree#946](https://github.com/flagos-ai/FlagTree/pull/946) — TLE tile layout anchors. Merged.
 - [x] [FlagTree#1139](https://github.com/flagos-ai/FlagTree/pull/1139) — Revert the same-warp shuffle conversion change. Merged.
+- [x] [FlagTree#775](https://github.com/flagos-ai/FlagTree/pull/775) — Load reordering during loop unrolling; included in RC2. Merged.
+- [x] [FlagTree#892](https://github.com/flagos-ai/FlagTree/pull/892) — Ordered K concatenation into one dot operand; included in RC2. Merged.
+- [ ] [FlagTree#1166](https://github.com/flagos-ai/FlagTree/pull/1166) — Additional barrier and TMA-store synchronization optimization. Open.

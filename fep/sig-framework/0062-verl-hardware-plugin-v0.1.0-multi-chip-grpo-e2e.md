@@ -88,6 +88,14 @@ tuning remain outside this acceptance scope.
 
 Completion requires a passing MLU rerun and a pinned release revision.
 
+## Recorded Validation
+
+[The FEP review](https://github.com/flagos-ai/community/pull/62) records
+passing MetaX and Iluvatar GRPO runs. The unresolved item is the MLU rerun in
+[community#73](https://github.com/flagos-ai/community/issues/73).
+No later passing MLU result was located in the reviewed release records;
+this does not invalidate the other two platforms' completed tests.
+
 ## Related PRs
 
 - [x] [verl-hardware-plugin#1](https://github.com/verl-project/verl-hardware-plugin/pull/1) — Cambricon MLU integration. Merged.

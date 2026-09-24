@@ -107,6 +107,15 @@ The current RC2 scripts do not execute this acceptance matrix. Merging the
 implementation and recording the gate tests and representative backend runs
 are required for completion.
 
+## Recorded Validation
+
+The [September 24 delivery report](https://jwolpxeehx.feishu.cn/docx/BOSRdLTIDoK64bxXLVIcviKXnV6)
+records production migration runs, including 39 tasks on the improved
+workflow across PPU and Iluvatar. The deployed workflow has been exercised.
+Its release-to-source mapping and the V1–V4 gate matrix are not established
+by those task totals. PR #20 remains open, and its new scripts are absent
+from the inspected RC2 tree.
+
 ## Related PRs
 
 - [x] [FlagRelease#14](https://github.com/flagos-ai/FlagRelease/pull/14) — Earlier migration framework in RC2. Merged.

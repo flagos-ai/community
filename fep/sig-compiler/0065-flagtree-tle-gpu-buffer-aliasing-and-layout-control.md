@@ -1,6 +1,6 @@
 # FEP-0065: FlagTree TLE GPU Buffer Aliasing and Layout Control
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -28,8 +28,8 @@ RC2 branch.
 
 | Goal | RC2 implementation | Acceptance |
 |---|---|---|
-| Typed shared-memory aliases | `gpu/core.py`, `gpu/semantic.py`, `tle.memdesc_alias` and allocation/LLVM lowering | Frontend, numerical and compiler regressions present; release test results pending |
-| Explicit distributed layouts | `tle.gpu.set_layout`, encoding propagation and memory coalescing rules | Python and MLIR regressions present; release test results pending |
+| Typed shared-memory aliases | `gpu/core.py`, `gpu/semantic.py`, `tle.memdesc_alias` and allocation/LLVM lowering | Implemented; NVIDIA feature CI passed |
+| Explicit distributed layouts | `tle.gpu.set_layout`, encoding propagation and memory coalescing rules | Implemented; NVIDIA and MUSA feature CI passed |
 | Preserve ordinary allocation and inferred layouts | Both APIs are opt-in | Covered by the existing TLE suite |
 
 Source: `python/triton/experimental/tle/language/gpu/` and `third_party/tle/`.
@@ -101,8 +101,15 @@ regressions under `third_party/tle/test/GPU/` include:
 Valid views must preserve reference results without extra shared-memory
 allocation. Invalid bounds, offsets, layouts and conflicting anchors must
 fail compilation. Required conversions must remain; redundant conversions
-must disappear. Attach the RC2 revision, hardware and test results to
-[community#79](https://github.com/flagos-ai/community/issues/79).
+must disappear. The feature CI results below cover the merged implementation included in RC2.
+
+## Recorded Validation
+
+NVIDIA build and test jobs passed for [alias allocation](https://github.com/flagos-ai/FlagTree/actions/runs/32091166625/job/95573500265)
+and [layout integration](https://github.com/flagos-ai/FlagTree/actions/runs/32687963733/job/97316379054).
+The logs include the alias unit cases, TLE frontend tests and numerical
+integration suite. PR #1037 also passed the MUSA unit and Qwen jobs.
+These are feature-revision results for code retained in RC2.
 
 ## Related PRs
 

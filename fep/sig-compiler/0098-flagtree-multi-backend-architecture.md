@@ -1,6 +1,6 @@
 # FEP-0098: FlagTree Multi-Backend Architecture — New Backends, Unified Specialization, and CI/CD Integration
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Updated:** 2026-09-24
 
@@ -33,7 +33,7 @@ Triton 3.6, 3.5 and 3.3. It contains no Triton 3.7 artifact.
 | G1: Backend additions | TileIR, PPU, SpacemiT and Tsingmicro paths on 3.6; vendor-specific paths on 3.5/3.3 | Enflame 3.7 is outside the RC2 manifest; per-backend acceptance remains separate |
 | G2: Unified specialization | Python specialization and backend-local compiler/build code present | Complete C++ specialization migration |
 | G3: Migrate all backends | Iluvatar and MetaX Python migrations and Enflame C++ specialization present | Moore Threads and MetaX C++ migration PRs remain open; no complete all-backend rollout |
-| G4: Earlier integration tests | FlagGems test actions and selected vLLM benchmark workflows present | Verify required-check configuration and passing results per platform |
+| G4: Earlier integration tests | FlagGems test actions and selected vLLM benchmark workflows present | Passing operator/model CI exists; required-check configuration remains separate |
 
 Moore Threads uses its own backend in this RC2 tree; a Moore Threads-through-
 TileIR delivery is not established by the source.
@@ -83,6 +83,19 @@ backend/device selection. Backend completion still requires the remaining
 compiler and numerical failures to be resolved, including
 [FlagTree#1248](https://github.com/flagos-ai/FlagTree/issues/1248) and
 [FlagTree#1249](https://github.com/flagos-ai/FlagTree/issues/1249).
+
+## Recorded Validation
+
+The Triton 3.3 RC2 head passed NVIDIA, Enflame, Tsingmicro and AIPU build/test
+lanes. The 3.5 head passed NVIDIA, Ascend 910B/910C unit and TLE tests,
+Ascend Qwen, and Enflame GCU300/GCU400 tests; a separate Ascend CANN 9.1.0
+lane failed.
+
+Triton 3.6 feature PRs, including [#1037](https://github.com/flagos-ai/FlagTree/pull/1037)
+and [#1103](https://github.com/flagos-ai/FlagTree/pull/1103), have passing
+multi-backend build/test jobs. The RC2 head's packaging checks are not the
+only test evidence for this line. The remaining C++ migration PRs and
+required-check setup prevent claiming the full all-backend rollout complete.
 
 ## Related PRs
 

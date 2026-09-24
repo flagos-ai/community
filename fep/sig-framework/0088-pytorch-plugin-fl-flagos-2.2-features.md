@@ -29,13 +29,13 @@ capabilities varying by platform.
 
 | Goal | RC2 implementation | Remaining work |
 |---|---|---|
-| G1: Seven-chip workload support | Routes for Hygon, MetaX, Ascend, PPU, MUSA and Enflame; additional BPU/Tsingmicro runtime code | Kunlunxin implementation and a validated seven-chip workload matrix |
+| G1: Seven-chip workload support | Routes for Hygon, MetaX, Ascend, PPU, MUSA and Enflame; additional BPU/Tsingmicro runtime code | Map the reported Kunlunxin validation to released source; complete workload coverage |
 | G2: At least 90% / about 380 FlagGems operators | Routing tables, C++ dispatch and consistency tests present | Reproducible operator inventory and model-route coverage |
 | G3: Per-vendor release packages | `setup.py` builds `torch_fl` with vendor-specific contents and local version suffixes | Package version alignment and published artifact matrix |
-| G4: FlagCX collectives and DDP | `torch_fl/comm/` and platform-specific live tests present | Per-vendor collective and DDP acceptance |
+| G4: FlagCX collectives and DDP | `torch_fl/comm/` and platform-specific live tests present | Collective/DDP validation recorded; retain per-platform limits and test revisions |
 
-The RC2 README pins PyTorch to `>=2.10,<2.11`. The former Kunlunxin/PyTorch
-2.9 claim is not supported by this RC2 tree. FSDP remains outside the
+The RC2 README pins PyTorch to `>=2.10,<2.11`. The QA inventory includes Kunlunxin/P800, but its tested source is not
+identified by a Kunlunxin backend in this RC2 tree. FSDP remains outside the
 committed scope.
 
 ## Design
@@ -84,6 +84,19 @@ workload; record unsupported operations and CPU/vendor fallback separately.
 The 90% target needs an explicit operator denominator and observed dispatch
 coverage. Wheel acceptance requires installation from the built artifact in a
 clean vendor environment with matching package and source versions.
+
+## Recorded Validation
+
+[RC2 workflow 34449750253](https://github.com/flagos-ai/Torch-FL/actions/runs/34449750253)
+passed all 16 checks at `400cf8652ae2`: build/test lanes for CUDA, MetaX,
+Ascend, MUSA, Hygon/DCU, PPU and Enflame/GCU, plus configuration checks.
+
+The [hardware adaptation inventory](https://jwolpxeehx.feishu.cn/wiki/EnckwVHbfixDcAkllaZcRlMgnMf)
+records runtime, FlagCX, basic distributed, DDP and FSDP2 support across
+seven domestic platforms. FSDP2 is additional validation, outside this FEP's
+original commitment. Kunlunxin lacks profiler, RNG and compile coverage in
+that inventory. The 90% routing target still needs its denominator; the
+inventory's operator counts alone do not prove that percentage.
 
 ## Related PRs
 

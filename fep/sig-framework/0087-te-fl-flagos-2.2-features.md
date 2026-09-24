@@ -30,7 +30,7 @@ support. Full ten-vendor acceptance remains pending. FSA is deferred from the
 | Goal | RC2 implementation | Remaining work |
 |---|---|---|
 | G1: Ten-vendor adaptation matrix | Nine vendor directories plus shared/reference paths; per-vendor test runners present | Name and verify all ten platforms in a capability matrix |
-| G2: Upstream TE 2.17 | `build_tools/VERSION.txt` is `2.17.0`; plugin synchronization and regression fixes present | Complete per-platform operator and Megatron integration acceptance |
+| G2: Upstream TE 2.17 | `build_tools/VERSION.txt` is `2.17.0`; plugin synchronization and regression fixes present | Four-platform Megatron integration passed; remaining vendor/operator combinations need results |
 | G3: FSA sparse attention | Deferred | No FSA release claim |
 
 Vendor directories are CUDA, Enflame, Hygon, Iluvatar, Kunlunxin, MetaX,
@@ -81,6 +81,21 @@ PyTorch, TE-FL and Megatron revisions with each result.
 
 The ten-vendor capability matrix and complete RC2 acceptance results remain
 outstanding.
+
+## Recorded Validation
+
+The [September 24 execution matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records Qwen3-0.6B training,
+checkpoint save/load and converted-weight continuation across PPU, Hygon,
+Ascend and MetaX. Qwen3.5-4B also passed the vendor and FlagOS TE routes
+with FlagCX disabled, including 2TP-to-4TP checkpoint conversion.
+
+The full-stack paths have narrower coverage: selected FlagGems operators
+are disabled on PPU/MetaX, and the matrix records failing Qwen3.5 cases on
+Hygon/Ascend with FlagGems enabled. FlagCX training is a separate unresolved
+path, tracked in [Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
+
+These results verify four concrete training environments. The original
+ten-vendor operator and overlap matrix still needs a complete result set.
 
 ## Related PRs
 

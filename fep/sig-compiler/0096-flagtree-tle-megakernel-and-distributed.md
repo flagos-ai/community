@@ -1,6 +1,6 @@
 # FEP-0096: FlagTree TLE New Features — MegaKernel Compiler and Distributed Primitives
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Updated:** 2026-09-24
 
@@ -23,17 +23,18 @@
 
 Extend TLE with model-level MegaKernel compilation and distributed
 communication primitives. RC2 contains distributed primitives, FlagCX
-integration and NVSHMEM fusion examples. The model-level MegaKernel compiler
-and the full fused-operator acceptance matrix are incomplete.
+integration and NVSHMEM fusion examples. MegaKernel model tests are recorded in the development delivery report,
+but their implementation artifact is not pinned by this RC2 manifest.
+Distributed primitive QA has passed; fused-operator coverage has a separate gap.
 
 ## Goals and Completion
 
 | Goal | RC2 implementation | Remaining work |
 |---|---|---|
-| G1: Model-level MegaKernel compiler and two demonstration operators | No model compiler or `python/tutorials/tle/mega` implementation in RC2 | Merge the compiler, scheduler and runnable model examples |
-| G2: Qwen3-32B, batch-1 decode on one H800, at least 20% over vLLM | No RC2 benchmark path | Pin model, precision, sequence lengths and baseline; publish results |
-| G3: Distributed primitives | Remote access, rank/shard queries, signal/wait and distributed barriers | Preserve QA results per backend and revision |
-| G4: FlagCX lowering on two domestic accelerators plus NVIDIA | FlagCX host/device integration is present; Ascend DSA distributed code is on 3.5 | Complete a named backend and primitive acceptance matrix |
+| G1: Model-level MegaKernel compiler and two demonstration operators | Independent MegaKernel workflow and model tests reported; no model compiler in the inspected FlagTree RC2 tree | Link and pin the tested model compiler artifact |
+| G2: Qwen3-32B, batch-1 decode on one H800, at least 20% over vLLM | H800 results reported for Qwen3-1.7B and Qwen3.5-32B-A3B | Reconcile the original dense Qwen3-32B target with the tested model set |
+| G3: Distributed primitives | Remote access, rank/shard queries, signal/wait and distributed barriers | Primitive QA completed; retain backend/revision attribution |
+| G4: FlagCX lowering on two domestic accelerators plus NVIDIA | FlagCX host/device integration is present; Ascend DSA distributed code is on 3.5 | Retain the reported backend results and their source mapping |
 | G5: At least two fused operators and Triton-distributed parity | AllGather+GEMM and GEMM+AllReduce examples present | GEMM+ReduceScatter implementation and fixed-baseline performance results |
 
 ## Design
@@ -50,8 +51,8 @@ through TLE Raw. Their presence does not establish FlagCX-backed execution
 of the same fused operators.
 
 The MegaKernel design uses a persistent cooperative scheduler for model
-execution. Its model conversion, demonstration operators and performance
-protocol still require a release implementation.
+execution. Development reports identify an independent model conversion and execution
+workflow. Its source and benchmark artifacts still need a release mapping.
 
 ## Packaging
 
@@ -102,6 +103,23 @@ latency, shape, dtype, topology and backend.
 GEMM+ReduceScatter is tracked in
 [FlagCX#620](https://github.com/flagos-ai/FlagCX/issues/620). Primitive QA and
 fused-operator acceptance are separate rows in the release matrix.
+
+## Recorded Validation
+
+The [compiler delivery record](https://jwolpxeehx.feishu.cn/docx/HwHNdMsfCoAXoRxmeNzcNZZQnMe) reports a working model-to-Triton
+MegaKernel workflow. On H800, batch-1 decode improved over the reported vLLM
+baseline by 56% for Qwen3-1.7B and 24.6% for Qwen3.5-32B-A3B. These are
+different models from the original dense Qwen3-32B target and are not
+benchmarks of the FlagTree RC2 wheel alone.
+
+The [September 24 development report](https://jwolpxeehx.feishu.cn/wiki/SJc8wh08si8x9vk9ECgcjXtPnJc) also records H800 multi-GPU
+and Iluvatar MegaKernel tests. The implementation is developed and tested;
+the missing item here is its versioned release-to-source mapping.
+
+Tree distributed primitives have passed QA. The [NVIDIA fusion report](https://jwolpxeehx.feishu.cn/docx/MuygdfqaNoaOLkxiHqycWkNxnBc)
+records passing AllGather, ReduceScatter and AllGather+GEMM. The missing
+GEMM+ReduceScatter example in FlagCX #620 is a separate, non-blocking
+release follow-up and does not invalidate primitive QA.
 
 ## Related PRs
 

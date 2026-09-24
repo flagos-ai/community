@@ -1,6 +1,6 @@
 # FEP-0089: vLLM-Plugin-FL Features for FlagOS 2.2
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Updated:** 2026-09-24
 
@@ -30,9 +30,9 @@ unimplemented in the release policy.
 
 | Goal | RC2 implementation | Remaining work |
 |---|---|---|
-| G1: Ten vendors on vLLM 0.20.2 | Vendor dispatch, compatibility patches and platform tests in `0.2.2-rc2` | Complete the model/precision/TP matrix on all ten vendors |
-| G2: Five vendors on vLLM 0.24.0 | `0.3.0-rc2` contains MUSA, Iluvatar, Ascend, Kunlunxin, MetaX, GCU, MLU, Sunrise, PPU and TXDA paths in addition to CUDA | Publish which vendor/model combinations passed release acceptance |
-| G3: Empty build | Device-less build instructions and plugin-owned device/operator integration present | Per-vendor runs without the framework's compiled CUDA extensions |
+| G1: Ten vendors on vLLM 0.20.2 | Vendor dispatch, compatibility patches and platform tests in `0.2.2-rc2` | Basic model tests passed on the listed vendor/version rows; retain stress-test exceptions |
+| G2: Five vendors on vLLM 0.24.0 | `0.3.0-rc2` contains MUSA, Iluvatar, Ascend, Kunlunxin, MetaX, GCU, MLU, Sunrise, PPU and TXDA paths in addition to CUDA | Basic model tests passed; results and limits recorded below |
+| G3: Empty build | Device-less build instructions and plugin-owned device/operator integration present | Empty-build runs recorded; retain each environment's operator exclusions |
 | G4: Operator auto-tuning | Configurable dispatch policy and throughput benchmark present | Measured implementation selection, result persistence and performance acceptance |
 
 ## Design
@@ -90,6 +90,18 @@ For G3, repeat inference on the Empty build and verify the plugin route is
 used. For G4, a future tuning implementation must reproduce its saved
 selection and match or exceed the default configuration on a fixed workload.
 G4 has no executable RC2 acceptance path yet.
+
+## Recorded Validation
+
+The [September 24 execution matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records passing basic inference
+for Qwen3.6-35B-A3B and Qwen3.6-27B across 17 vendor/version rows. Hygon,
+MetaX, Iluvatar, PPU, MUSA and Kunlunxin have completed functional,
+performance and stress tests in the reported configurations.
+
+The same record lists Ascend NaNs, Sunrise image-output errors and a
+Tsingmicro environment failure in stress testing; Enflame stress testing
+was still running. These limits coexist with the passing basic tests.
+Automatic measured operator selection remains a distinct undelivered goal.
 
 ## Related PRs
 

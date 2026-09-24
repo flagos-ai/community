@@ -144,6 +144,15 @@ TTFT, TPOT and throughput separately. The model-scale tolerances, evaluation
 set and complete serving matrix remain unresolved. A valid checkpoint alone
 does not establish runtime kernel support.
 
+## Recorded Validation
+
+The [September 24 development report](https://jwolpxeehx.feishu.cn/wiki/SJc8wh08si8x9vk9ECgcjXtPnJc) records conversion and
+inference experiments for MiMo and DeepSeek, including calibrated GPTQ.
+The calibrated implementation is PR #6 on main, outside the inspected RC2
+snapshot. Those experiments cannot validate every MSE conversion mode in
+RC2. The reviewed QA record does not identify a complete CPU/CUDA,
+dense/MoE and serving result matrix for PRs #1–#5.
+
 ## Related PRs
 
 - [x] [FlagOS-Compressor#1](https://github.com/flagos-ai/FlagOS-Compressor/pull/1) — BF16 conversion and policy-driven INT4 quantization. Merged.

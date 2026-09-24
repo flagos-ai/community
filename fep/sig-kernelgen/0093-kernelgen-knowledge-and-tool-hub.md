@@ -23,7 +23,8 @@
 Create a machine-readable registry of multi-chip operator references,
 profiling tools and optimization tools. RC2 contains documentation and
 existing skills, but no Knowledge Hub directory, schema, query API or index
-generator. No implementation PR is linked to this scope.
+generator in this public snapshot. The deployed generation service is tested
+separately; it does not identify the registry implementation or release revision.
 
 ## Goals and Completion
 
@@ -76,3 +77,11 @@ Completion requires an implementation PR and runnable tests that verify:
 
 The final API, package integration and executable acceptance commands remain
 undefined in RC2.
+
+## Recorded Validation
+
+[KernelGen service QA](https://jwolpxeehx.feishu.cn/docx/ZLthdWsWqoniLVxIScVcktEinVb)
+tested generation, autotuning and TLE execution. It does not exercise this
+FEP's registry schema, metadata queries or index generator. Service
+availability therefore establishes neither registry absence nor acceptance;
+the public API and implementation mapping remain unresolved.

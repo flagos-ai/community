@@ -1,6 +1,6 @@
 # FEP-0068: FlagTree DevTools — Optional Debugging and Profiling Components
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -31,9 +31,9 @@ runtime and build integration for Ascend on Triton 3.5 and Iluvatar on Triton
 
 | Goal | RC2 implementation | Remaining work |
 |---|---|---|
-| Debugger instrumentation and reports | Host callbacks, statement metadata, launch context and debugger registration | Backend acceptance results |
-| Profiler integration | Optional profiler registration and shared build integration | Backend metrics and trace acceptance results |
-| Source/IR/runtime correlation | Compiler and statement events in `python/flagtree/_flagprism.py` | End-to-end report checks |
+| Debugger instrumentation and reports | Host callbacks, statement metadata, launch context and debugger registration | Ascend hardware examples and Iluvatar delivery validation passed |
+| Profiler integration | Optional profiler registration and shared build integration | Ascend trace generation passed; Iluvatar delivery validation recorded |
+| Source/IR/runtime correlation | Compiler and statement events in `python/flagtree/_flagprism.py` | Ascend debugger reports and profiler timeline verified |
 | Optional components | `TRITON_BUILD_FLAGPRISM` build control and compatibility checks | Record the external FlagPrism revision used for each RC2 build |
 
 `python/setup_tools/setup_helper.py` enables FlagPrism for Ascend and
@@ -79,10 +79,26 @@ Host tests must verify namespace ownership, registration, version/capability
 rejection and enabled/disabled build behavior. On each supported accelerator,
 run the matching FlagPrism debugger and profiler tests, verify source/IR
 correlation and readable profiles, and compare kernel results with collection
-disabled. Full backend acceptance remains open in
-[community#76](https://github.com/flagos-ai/community/issues/76).
+disabled. The recorded validation below covers the two backends integrated in this RC2 build policy.
+
+## Recorded Validation
+
+[PR #916](https://github.com/flagos-ai/FlagTree/pull/916) records an Ascend
+wheel build/install, 47 Python tests passed with 2 skipped, 10 debugger lit
+tests and 45 C++ tests passed. Hardware `abs`, `softmax` and `tiny_mlp`
+examples passed; the profiler timeline contained 37,500 events.
+
+[Iluvatar build and unit CI](https://github.com/flagos-ai/FlagTree/actions/runs/33497559834/job/99823186237)
+passed. The [September 22 tool delivery report](https://jwolpxeehx.feishu.cn/wiki/Hctaw47I3ixMFTkSzm4cNqzRnnb)
+records debugger and profiler delivery on Ascend, Iluvatar and MUSA.
+MUSA integration PR #1106 is on main, outside this RC2 build policy;
+NVIDIA #1262 and Enflame #1239 remain open. These later backend additions
+are separate from the implemented Ascend/Iluvatar integration.
 
 ## Related PRs
 
 - [x] [FlagTree#916](https://github.com/flagos-ai/FlagTree/pull/916) — Ascend integration on the Triton 3.5 line. Merged.
 - [x] [FlagTree#1035](https://github.com/flagos-ai/FlagTree/pull/1035) — Iluvatar integration on the Triton 3.6 line. Merged.
+- [x] [FlagTree#1106](https://github.com/flagos-ai/FlagTree/pull/1106) — MUSA tools; merged on main, outside the inspected RC2 build policy.
+- [ ] [FlagTree#1262](https://github.com/flagos-ai/FlagTree/pull/1262) — NVIDIA tools. Open.
+- [ ] [FlagTree#1239](https://github.com/flagos-ai/FlagTree/pull/1239) — Enflame tools. Open.

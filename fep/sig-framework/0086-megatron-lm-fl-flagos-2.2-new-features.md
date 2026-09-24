@@ -1,6 +1,6 @@
 # FEP-0086: Megatron-LM-FL New Features for FlagOS 2.2
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Updated:** 2026-09-24
 
@@ -16,7 +16,7 @@
 
 | Module | Branch revision | Manifest tag |
 |---|---|---|
-| megatron-lm-fl | [`0.3.0-rc2` @ `f376a47d3d93`](https://github.com/flagos-ai/Megatron-LM-FL/tree/f376a47d3d93e59eb408fdcbd065bd2b6a11ba47) | [`v0.3.0-rc2.post1` @ `c8fa61f2e403`](https://github.com/flagos-ai/Megatron-LM-FL/tree/c8fa61f2e403f490baf4cf43fbad24a122f7225a) |
+| megatron-lm-fl | [`0.3.0-rc2` @ `066fd5edf541`](https://github.com/flagos-ai/Megatron-LM-FL/tree/066fd5edf5413839172c5a65785ea381f75febf1) | [`v0.3.0-rc2.post1` @ `c8fa61f2e403`](https://github.com/flagos-ai/Megatron-LM-FL/tree/c8fa61f2e403f490baf4cf43fbad24a122f7225a) |
 
 ## Summary
 
@@ -30,8 +30,8 @@ vendor integration, GLM5-family DSA attention and training fixes. The
 |---|---|---|
 | G1: Ten vendor platforms | CUDA, MUSA, NPU, TXDA, Kunlunxin and Enflame platform classes; CUDA-compatible vendors reuse shared paths | Publish the ten-vendor model/precision/parallelism matrix and results |
 | G2: Upstream platform abstraction | Local platform and override interfaces present | Link an upstream RFC or PR |
-| G3: Megatron Core 0.18.2 | Version and source synchronization present | Complete release regression on each declared platform |
-| G4: Qwen3.5/3.6 and GLM5-family model work | DSA module and SM90 kernel present; Qwen integrations also depend on FlagScale | Release model results; context-parallel and FlashSparseAttention work remains open |
+| G3: Megatron Core 0.18.2 | Version and source synchronization present | Four-platform Qwen3.5 validation recorded; full ten-vendor matrix remains open |
+| G4: Qwen3.5/3.6 and GLM5-family model work | DSA module and SM90 kernel present; Qwen integrations also depend on FlagScale | Qwen3.5 results recorded; remaining models, context parallelism and FlashSparseAttention need completion |
 
 DeepSeek-V4 base architecture support is part of the 2.1 baseline.
 
@@ -47,8 +47,9 @@ are under `megatron/core/transformer/experimental_attention_variant/` and
 `tests/unit_tests/transformer/experimental_attention_variant/`.
 
 RC2 stabilization includes native accelerator detection, non-CUDA runtime
-support, vendor compatibility fixes and a MetaX JIT-fuser change. The last
-two changes are ahead of the manifest tag shown above.
+support, vendor compatibility fixes and a MetaX JIT-fuser change. These fixes
+and PR #189 packaging restoration are ahead of the manifest tag shown above.
+PR #189 restores the full Megatron package scope in the wheel.
 
 ## Packaging
 
@@ -77,9 +78,21 @@ platform and parallelism mode. Require reference-compatible loss, successful
 checkpoint handling and no regression after the 0.18.2 upgrade. Report
 throughput separately from correctness.
 
-The cross-vendor matrix, Qwen3.5/3.6 release runs and upstream proposal remain
-outstanding. FlagCX-enabled training has an open report in
+Qwen3.5 validation is recorded below. The remaining model/vendor matrix
+and upstream proposal are outstanding. FlagCX-enabled training has an open report in
 [Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
+
+## Recorded Validation
+
+The [September 24 execution matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records Qwen3-0.6B training,
+checkpoint save/load and converted-weight continuation across PPU, Hygon,
+Ascend and MetaX. Qwen3.5-4B also passed the vendor and FlagOS TE routes
+with FlagCX disabled, including 2TP-to-4TP checkpoint conversion.
+
+The full-stack paths have narrower coverage: selected FlagGems operators
+are disabled on PPU/MetaX, and the matrix records failing Qwen3.5 cases on
+Hygon/Ascend with FlagGems enabled. FlagCX training is a separate unresolved
+path, tracked in [Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
 
 ## Related PRs
 
@@ -95,3 +108,4 @@ outstanding. FlagCX-enabled training has an open report in
 - [x] [Megatron-LM-FL#186](https://github.com/flagos-ai/Megatron-LM-FL/pull/186) — MetaX JIT-fuser fix in RC2. Merged.
 - [ ] [Megatron-LM-FL#57](https://github.com/flagos-ai/Megatron-LM-FL/pull/57) — DeepSeek-V4 sparse-attention context parallelism. Open.
 - [ ] [Megatron-LM-FL#88](https://github.com/flagos-ai/Megatron-LM-FL/pull/88) — FlashSparseAttention and recursive transformer. Open.
+- [x] [Megatron-LM-FL#189](https://github.com/flagos-ai/Megatron-LM-FL/pull/189) — Restore full-scope RC2 wheel packaging. Merged.

@@ -1,6 +1,6 @@
 # FEP-0099: Operator Library for FlagOS 2.2
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Updated:** 2026-09-24
 
@@ -29,17 +29,18 @@
 
 Expand FlagOS operator coverage, attention kernels, TLE-based operators and
 shared optimization techniques. RC2 contains many named implementations and
-tests. The 635-operator inventory, complete attention set and five-domestic-chip
-performance matrix remain incomplete.
+tests. Release QA records completed FlagGems testing, and development reports
+record operator counts and multi-chip performance. The complete attention
+set and the mapping of that inventory to RC2 still have gaps.
 
 ## Goals and Completion
 
 | Goal | RC2 status | Remaining work |
 |---|---|---|
-| G1: 635 operators | Multiple library and model-specific implementations present | Deduplicated inventory proving 334 manual and 301 generated entries |
+| G1: 635 operators | Multiple library and model-specific implementations present | Development counts reported; map deduplicated entries to RC2 revisions |
 | G2: Six attention families | MLA, KDA, GDN/GLA and sparse-attention code present | SageAttention in RC2, exact family mapping and five-chip acceptance |
 | G3: Five TLE operators | KV-cache, MHC, indexer fusion and TopK paths/tests present | Per-path TLE attribution and performance matrix |
-| G4: Shared optimizations | Low-bit MoE, fusion, reduction and shape dispatch changes present | Correctness and performance results for the named workloads |
+| G4: Shared optimizations | Low-bit MoE, fusion, reduction and shape dispatch changes present | Results reported; retain per-workload baselines and release revisions |
 
 FlagAttention PRs #43 (SageAttention) and #44 (GDN2 TLE) are merged on main
 but absent from the inspected RC2 source. FlagGems-vLLM has a separate GDN2
@@ -149,10 +150,24 @@ requires the following baselines and a fixed workload:
 
 Record warmup, timing method, toolkit, hardware, compiler, source revisions
 and per-shape results. The goal is competitive NVIDIA performance and
-improvement over each target chip's native implementation. Previously listed
-speedup figures lack a complete reproducible workload/baseline record and
-are not RC2 acceptance results. G1 inventory and G2/G3 chip assignments remain
-open design and acceptance work.
+improvement over each target chip's native implementation. Development performance results are recorded below. Their aggregate counts
+and speedups still need per-operator RC2 attribution for the complete
+release inventory.
+
+## Recorded Validation
+
+The [release QA record](https://jwolpxeehx.feishu.cn/wiki/MuxCwz4q3iV8BzkwmJtcfJZwnah) marks FlagGems testing complete and
+contains results for the domain and framework-specific libraries. The
+[operator delivery record](https://jwolpxeehx.feishu.cn/docx/HwHNdMsfCoAXoRxmeNzcNZZQnMe) reports 334 manually implemented
+operators, attention benchmarks and five TLE operator results. The
+[September 24 development report](https://jwolpxeehx.feishu.cn/wiki/SJc8wh08si8x9vk9ECgcjXtPnJc) records 440 generated operators
+meeting its five-chip performance threshold. These counts use different
+inventories and cannot be added without deduplication and source mapping.
+
+The QA detail retains platform skips, domain-library failures and incomplete
+attention coverage. FlagAttention #43/#44 remain outside the inspected RC2
+tree. Completed FlagGems QA and development performance results therefore
+coexist with the remaining full-FEP release gaps.
 
 ## Related PRs
 

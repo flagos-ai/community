@@ -135,6 +135,14 @@ python3 -c "import importlib.util, sys; sys.exit(importlib.util.find_spec('flag_
 Completion requires all eleven Wave 1 integrations and their artifact and
 installation results. Tracking: [community#59](https://github.com/flagos-ai/community/issues/59).
 
+## Recorded Validation
+
+The inspected RC2 CI runs successfully built Debian and RPM packages for
+FlagAudio and FlagGems; FlagFFT's Debian build also passed. Publication jobs
+and other package builds include failures. Successful package builds do not
+cover download and clean-install acceptance for all eleven repositories.
+FlagScale #1205 and FlagQuantum #4 remain open integrations.
+
 ## Related PRs
 
 - [x] [FlagCX#476](https://github.com/flagos-ai/FlagCX/pull/476) — Backend-specific Debian and RPM packages. Merged.

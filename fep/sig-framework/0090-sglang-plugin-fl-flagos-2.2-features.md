@@ -81,6 +81,22 @@ For Empty-mode acceptance, run the same workloads without `sgl_kernel` and
 `flashinfer`, verify the selected fallback route and report results separately
 for each vendor. Three-vendor acceptance and MetaX coverage remain pending.
 
+## Recorded Validation
+
+[RC2 workflow 34845525965](https://github.com/flagos-ai/sglang-plugin-FL/actions/runs/34845525965)
+at `1c84db70` passed CUDA, Ascend and MUSA unit, functional, inference,
+concurrency, serving and benchmark jobs. PPU passed unit, functional,
+inference and concurrency tests; its serving job failed and its benchmark
+was skipped.
+
+The [release execution record](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) contains additional passing hardware
+runs. Twelve-hour testing is an extra QA exercise beyond the developer test
+plan: several platforms completed it, while Ascend's vendor GroupedMatmul
+crashed. Kunlunxin used a 43-operation exclusion list; MUSA Empty and
+Iluvatar runs retain memory-growth observations. These runs must be read
+with their recorded configurations, rather than as unconditional platform
+acceptance. MetaX and the complete three-vendor Empty matrix remain open.
+
 ## Related PRs
 
 - [x] [sglang-plugin-FL#26](https://github.com/flagos-ai/sglang-plugin-FL/pull/26) — FlagCX communication replacement for pipeline parallelism. Merged.

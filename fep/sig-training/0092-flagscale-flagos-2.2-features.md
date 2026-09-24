@@ -23,7 +23,8 @@
 FlagScale 2.1 adds training observability, model/checkpoint updates,
 function-level overrides, native Ascend integration and a shared VLA serving
 entry point. The RC2 source contains these changes and the Megatron Core
-0.18.2 integration. Release model/platform acceptance remains incomplete.
+0.18.2 integration. Training and checkpoint validation is recorded below; other model and
+serving goals retain separate acceptance items.
 
 DeepSeek-V4 base support and initial Qwen3.5 support belong to the FlagOS 2.1
 baseline. The 2.2 changes extend their training and checkpoint paths.
@@ -103,6 +104,22 @@ Run all four VLA families through the shared serving entry and validate
 responses against the corresponding model reference. Record these runs
 separately from training CI. Preserve source/dependency revisions, model
 configuration, hardware, logs and measurements for the release matrix.
+
+## Recorded Validation
+
+The [September 24 execution matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records Qwen3-0.6B training,
+checkpoint save/load and converted-weight continuation across PPU, Hygon,
+Ascend and MetaX. Qwen3.5-4B also passed the vendor and FlagOS TE routes
+with FlagCX disabled, including 2TP-to-4TP checkpoint conversion.
+
+The full-stack paths have narrower coverage: selected FlagGems operators
+are disabled on PPU/MetaX, and the matrix records failing Qwen3.5 cases on
+Hygon/Ascend with FlagGems enabled. FlagCX training is a separate unresolved
+path, tracked in [Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
+
+These results cover real training and checkpoint paths. They do not cover
+all four VLA serving families, GR00T cross-node reload or the monitoring
+overhead targets in this FEP. Those remaining cases need their own results.
 
 ## Related PRs
 

@@ -1,6 +1,6 @@
 # FEP-0082: FlagTree CPU Backend Upgrade to Triton 3.7 (Arm64)
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -73,9 +73,10 @@ The rerun reused the native compiler build and used a fresh kernel cache.
 The script verifies source/toolchain pins and runs the required incremental
 build before testing.
 
-## Remaining Acceptance
+## Release Packaging and Limits
 
-Assign a CPU compiler artifact and release-manifest entry. Model startup,
+The compiler acceptance above has passed. CPU artifact assignment and the
+release-manifest entry remain packaging tasks. Model startup,
 quality and throughput are covered by FEP-0083. Its roughly fifteen-minute
 empty-cache model JIT is not represented by the small vector-add timing.
 GPU/NPU, x86_64, macOS and Windows are outside this Arm64 acceptance scope.
