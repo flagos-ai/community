@@ -2,6 +2,8 @@
 
 **Status:** `Implementable`
 
+**Updated:** 2026-09-24
+
 **Created:** 2026-07-23
 
 **Owner:** @heavyrain-lzy
@@ -10,140 +12,88 @@
 
 **Target Version:** FlagOS 2.2
 
----
-
 ## Summary
 
-**(Required)** This FEP covers `verl-hardware-plugin` v0.1.0, a pip-installable plugin package that extends [verl](https://github.com/verl-project/verl) with platform abstraction and training-engine implementations for non-NVIDIA accelerators. The plugin is discovered automatically through verl's `verl.plugins` entry-point group; no source modification of verl is required.
+Validate Qwen3-0.6B GRPO training on GSM8K through `verl-hardware-plugin`
+0.1.0 on MetaX, Iluvatar and Cambricon MLU. Platform and engine integrations
+are merged. The recorded MetaX and Iluvatar runs passed; the MLU acceptance
+issue remains open.
 
-This FEP scopes the v0.1.0 acceptance to three end-to-end GRPO training runs — one per chip — using the same Qwen3-0.6B / GSM8K baseline across:
+## Source and Acceptance Status
 
-1. **MetaX** (CUDA-compatible, MACA stack, `mx-smi` detection)
-2. **Iluvatar** (CUDA-compatible, Corex stack, `ixsmi` detection)
-3. **Cambricon MLU** (native `torch.mlu` + CNCL backend)
+The plugin is maintained in
+[verl-project/verl-hardware-plugin](https://github.com/verl-project/verl-hardware-plugin).
+The inspected `main` revision is
+[`d437ff13633e`](https://github.com/verl-project/verl-hardware-plugin/tree/d437ff13633e50f3e3eeb7e167758943c13754e9).
+There is no corresponding RC2 branch or entry in the FlagOS 2.2 RC2 manifest.
+Later main-branch changes require a release revision before inclusion.
 
-Repository: [verl-hardware-plugin](https://github.com/verl-project/verl-hardware-plugin)
+| Platform | Implementation | Recorded GRPO acceptance |
+|---|---|---|
+| MetaX | Platform and FSDP/Megatron engines, PR #7 | Passed on 2026-07-29 |
+| Iluvatar | Platform and FSDP/Megatron engines, PR #3 | Passed on 2026-07-29 |
+| Cambricon MLU | Platform and engines, PR #1; later runtime/checkpoint fixes | Failed; no passing rerun in community#73 |
 
-## Motivation
+[community#73](https://github.com/flagos-ai/community/issues/73) records the
+three-platform acceptance status. The current README's MLU support label
+does not resolve that specific GRPO failure.
 
-The upstream verl framework is tightly coupled to `torch.cuda`, which makes it hard to run RLHF/GRPO training on domestic accelerators. `verl-hardware-plugin` provides reference platform and engine implementations that vendors can adapt to their own hardware through a stable plugin interface, decoupling hardware support from the verl release cycle.
+## Design
 
-For v0.1.0 we need to prove that the plugin mechanism works end-to-end on real hardware. The chosen proof point is a full GRPO training run on GSM8K with Qwen3-0.6B, reproduced independently on MetaX, Iluvatar, and Cambricon MLU, each validated against the NVIDIA reference reward curve.
+The `verl.plugins` entry point loads `verl_hardware_plugin` and registers
+platforms and engines. Engine lookup first uses the exact device/vendor pair,
+then the supported device-level fallback. The acceptance recipe uses FSDP
+with vLLM rollout; the presence of Megatron engines does not extend this
+test scope.
 
-### Goals
+| Platform | Device | Runtime communication | Detection / Ray resource |
+|---|---|---|---|
+| MetaX | `cuda` | NCCL API / MCCL | `mx-smi` / `GPU` |
+| Iluvatar | `cuda` | NCCL API / IXCCL | `ixsmi` / `GPU` |
+| Cambricon | `mlu` | CNCL | `torch.mlu` / `MLU` |
 
-**(Required)**
-
-- Package platform + engine implementations as a standalone pip-installable plugin (`verl-hardware-plugin`) discovered via the `verl.plugins` entry point, with no changes to verl source.
-- Register three hardware platforms through `@PlatformRegistry.register(...)`:
-  - `metax` — `device="cuda"`, `vendor="metax"`, NCCL/MCCL communication, `mx-smi` hardware detection.
-  - `iluvatar` — `device="cuda"`, `vendor="iluvatar"`, NCCL/IXCCL communication, `ixsmi` hardware detection.
-  - `cambricon` — `device="mlu"`, `vendor="cambricon"`, CNCL communication, custom Ray `MLU` resource.
-- Register matching FSDP and Megatron engines for each platform via `@EngineRegistry.register(device=..., vendor=...)`.
-- An end-to-end GRPO training run (Qwen3-0.6B, GSM8K, FSDP, vLLM rollout) example on each of the three chips, with the reward curve tracking the NVIDIA baseline.
-
-### Non-Goals
-
-- Production-grade performance tuning or full operator coverage on any of the three platforms (reference implementations only; production support requires vendor collaboration).
-- Support for every verl recipe (PPO, DPO, etc.) — v0.1.0 validates GRPO only.
-- Upstreaming the plugin interface into the verl core (tracked separately).
-
-## Proposal
-
-`verl-hardware-plugin` is installed alongside verl. At import time it registers its platforms and engines into verl's registries. Users select a platform either explicitly via `export VERL_PLATFORM=<name>` or through SMI-based auto-detection, then launch any standard verl training script unchanged.
-
-```
-verl (main framework)
-    └── entry_points: verl.plugins → verl_hardware_plugin
-            │
-            ├── PlatformRegistry.register("metax")      → PlatformMetaX   (device=cuda, vendor=metax)
-            ├── PlatformRegistry.register("iluvatar")   → PlatformIluvatar(device=cuda, vendor=iluvatar)
-            ├── PlatformRegistry.register("cambricon")  → PlatformMLU     (device=mlu,  vendor=cambricon)
-            │
-            ├── EngineRegistry.register(device="cuda", vendor="metax")
-            ├── EngineRegistry.register(device="cuda", vendor="iluvatar")
-            └── EngineRegistry.register(device="mlu",  vendor="cambricon")
-```
-
-Engine lookup uses a two-level `(device, vendor)` key: an exact vendor match is preferred, falling back to the device-only base engine, and for CUDA-compatible devices to the base CUDA engine. This is what lets MetaX and Iluvatar reuse the CUDA path while still selecting vendor-specific engines when registered.
-
-## Design Details
-
-### Platform registration
-
-Each platform subclasses `verl.plugin.platform.platform_base.PlatformBase` and is registered by decorator. Key per-chip properties:
-
-| Platform | `device_name` | `vendor_name` | Comm backend | Ray resource | Detection | IPC |
-|----------|---------------|---------------|--------------|--------------|-----------|-----|
-| MetaX    | `cuda` | `metax`     | nccl / mccl | `GPU` | `mx-smi` | yes |
-| Iluvatar | `cuda` | `iluvatar`  | nccl / ixccl | `GPU` | `ixsmi` | yes |
-| Cambricon MLU | `mlu` | `cambricon` | cncl | `MLU` | `torch.mlu` | no |
-
-For the two CUDA-compatible chips, `torch.cuda.is_available()` returns `True` on both them and NVIDIA hardware. `is_platform_available(use_smi_check=True)` runs the vendor SMI command (`mx-smi` / `ixsmi`) during first-time auto-detection to disambiguate. `is_available()` (no args) calls the native `torch.<device>.is_available()` for runtime checks.
-
-Cambricon MLU uses the native `torch.mlu.*` API (via `import torch_mlu`) and a custom Ray `MLU` resource, so Ray workers must advertise it (`ray start --resources='{"MLU": 8}'`) to keep device assignment separate from CUDA GPU scheduling.
-
-### Engine registration
-
-Each platform ships FSDP (`fsdp_metax.py`, `fsdp_iluvatar.py`, `fsdp_mlu.py`) and Megatron (`megatron_metax.py`, `megatron_iluvatar.py`, `megatron_mlu.py`) engines, registered with the matching `(device, vendor)` key. The v0.1.0 acceptance runs exercise the FSDP path with a vLLM rollout backend.
+CUDA-compatible platform detection uses vendor SMI commands to distinguish
+devices. MLU uses `torch_mlu` and requires Ray workers to advertise the
+`MLU` resource. Hardware runtimes and compatible framework packages come
+from each platform's environment.
 
 ## Packaging
 
-**(Required)**
+`pyproject.toml` declares version `0.1.0`, Python >=3.10 and `verl>=0.7.0`.
+Install from the selected source revision:
 
-- **Format:** Python package (`pip`), editable or wheel install.
-- **Build/install:**
-  ```bash
-  git clone https://github.com/verl-project/verl-hardware-plugin.git
-  cd verl-hardware-plugin
-  pip install --no-build-isolation -v -e .
-  ```
-- **Discovery:** exposes the `verl.plugins` entry point (`hardware = "verl_hardware_plugin"` in `pyproject.toml`); loaded automatically once verl imports.
-- **Requirements:** Python ≥ 3.10, `verl >= 0.7.0`, plus the vendor torch/runtime stack (MACA / Corex / Cambricon) provided by each chip's base container image.
-- **Version:** `0.1.0` (see `pyproject.toml`).
+```bash
+python -m pip install --no-build-isolation -e '.[dev]'
+python -m pytest tests/test_plugin_registration.py -v
+```
+
+The broad dependency lower bound is not a tested version matrix. Acceptance
+records must include the exact verl, plugin, PyTorch, rollout and SDK versions.
 
 ## Test Plan
 
-**(Required)** Acceptance is one end-to-end GRPO run per chip (MetaX, Iluvatar, Cambricon MLU). Every run uses the same baseline (`scripts/baseline_grpo_gsm8k.sh` — Qwen3-0.6B, GSM8K, FSDP, vLLM rollout, `adv_estimator=grpo`) with an identical hyperparameter configuration; only the base image, install steps, and platform selection differ per chip.
+Follow the hardware-specific setup guide and run
+`scripts/baseline_grpo_gsm8k.sh` with Qwen3-0.6B, GSM8K, FSDP, vLLM rollout
+and `adv_estimator=grpo`:
 
-All setup and launch details (image pull, container flags, verl + plugin install, data/model download, platform selection, and the exact training command) live in each chip's user guide and must be followed end-to-end:
+- [MetaX guide](https://github.com/verl-project/verl-hardware-plugin/blob/d437ff13633e50f3e3eeb7e167758943c13754e9/docs/user_guide_metax/README.md)
+- [Iluvatar guide](https://github.com/verl-project/verl-hardware-plugin/blob/d437ff13633e50f3e3eeb7e167758943c13754e9/docs/user_guide_iluvatar/README.md)
+- [MLU guide](https://github.com/verl-project/verl-hardware-plugin/blob/d437ff13633e50f3e3eeb7e167758943c13754e9/docs/user_guide_mlu/README.md)
 
-| Platform | Detection | User Guide |
-|----------|-----------|------------|
-| MetaX | `mx-smi` | [`docs/user_guide_metax/README.md`](https://github.com/verl-project/verl-hardware-plugin/blob/main/docs/user_guide_metax/README.md) |
-| Iluvatar | `ixsmi` | [`docs/user_guide_iluvatar/README.md`](https://github.com/verl-project/verl-hardware-plugin/blob/main/docs/user_guide_iluvatar/README.md) |
-| Cambricon MLU | `torch.mlu` | [`docs/user_guide_mlu/README.md`](https://github.com/verl-project/verl-hardware-plugin/blob/main/docs/user_guide_mlu/README.md) |
+Use identical hyperparameters and the NVIDIA reference configuration.
+Require the expected platform/engine selection and a clear upward trend in
+`critic/rewards/mean` within the first 100 steps. Preserve configuration,
+environment, logs and reward curves. Absolute convergence and performance
+tuning remain outside this acceptance scope.
 
-### Expected Results
-
-The acceptance criterion is the same for all three chips: the platform initialises to the expected vendor and the GRPO reward curve (`critic/rewards/mean`) **shows a clear upward trend within the first 100 training steps**. Absolute convergence and performance are out of scope for v0.1.0.
-
-### Acceptance Status
-
-| Platform | E2E GRPO run |
-|----------|--------------|
-| MetaX | ✅ passed |
-| Iluvatar | ✅ passed |
-| Cambricon MLU | ❌ failed — tracked in [flagos-ai/community#73](https://github.com/flagos-ai/community/issues/73) |
-
-This FEP moves to `Implemented` once the Cambricon MLU run passes (see the tracking issue for logs and re-run results).
+Completion requires a passing MLU rerun and a pinned release revision.
 
 ## Related PRs
 
-<!-- Fill in with actual PR numbers as they land. -->
-
-- [ ] flagos-ai/verl-hardware-plugin#xxx — feat: MetaX platform + FSDP/Megatron engines and GRPO E2E validation
-- [ ] flagos-ai/verl-hardware-plugin#xxx — feat: Iluvatar platform + FSDP/Megatron engines and GRPO E2E validation
-- [ ] flagos-ai/verl-hardware-plugin#xxx — feat: Cambricon MLU platform (CNCL) + FSDP/Megatron engines and GRPO E2E validation
-
-## Future Plans
-
-- Add PPO/DPO recipes and expand operator/engine coverage per chip.
-- Extend to multi-node and heterogeneous cross-vendor training.
-- Add remaining reference platforms (Intel XPU, etc.) to the acceptance matrix.
-- Propose the plugin interface for upstream inclusion in verl, co-maintained with hardware vendors.
-
-## Implementation History
-
-- 2026-07-23: FEP drafted for verl-hardware-plugin v0.1.0 multi-chip GRPO E2E acceptance.
-- 2026-07-29: MetaX and Iluvatar E2E acceptance passed; Cambricon MLU failed, tracked in [flagos-ai/community#73](https://github.com/flagos-ai/community/issues/73). FEP merged as `Implementable`.
+- [x] [verl-hardware-plugin#1](https://github.com/verl-project/verl-hardware-plugin/pull/1) — Cambricon MLU integration. Merged.
+- [x] [verl-hardware-plugin#3](https://github.com/verl-project/verl-hardware-plugin/pull/3) — Iluvatar integration. Merged.
+- [x] [verl-hardware-plugin#7](https://github.com/verl-project/verl-hardware-plugin/pull/7) — MetaX integration. Merged.
+- [x] [verl-hardware-plugin#5](https://github.com/verl-project/verl-hardware-plugin/pull/5) — End-to-end and formatting checks. Merged.
+- [x] [verl-hardware-plugin#14](https://github.com/verl-project/verl-hardware-plugin/pull/14) — Plugin registration CI. Merged.
+- [x] [verl-hardware-plugin#16](https://github.com/verl-project/verl-hardware-plugin/pull/16) — MLU checkpoint buffer reuse on main. Merged.
+- [x] [verl-hardware-plugin#19](https://github.com/verl-project/verl-hardware-plugin/pull/19) — MLU runtime dependency checks on main. Merged.

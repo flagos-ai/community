@@ -2,204 +2,74 @@
 
 **Status:** `Provisional`
 
+**Updated:** 2026-09-24
+
 **Created:** 2026-08-01
 
-**Owner:** [TODO: @github-username]
+**Owner:** Unassigned
 
 **SIG:** sig-kernelgen
 
 **Target Version:** FlagOS 2.2
 
----
+## RC2 Source
+
+| Module | Branch revision | Manifest tag |
+|---|---|---|
+| kernelgen | [`2.2.0-rc2` @ `1e3262c2e53e`](https://github.com/flagos-ai/KernelGen/tree/1e3262c2e53ec5cdeec14df8c74691f6adde6b46) | [`v2.2.0-rc2.post1` @ `1e3262c2e53e`](https://github.com/flagos-ai/KernelGen/tree/1e3262c2e53ec5cdeec14df8c74691f6adde6b46) |
+| kernelgenbench | [`0.2.0-rc2` @ `e3cad63b93af`](https://github.com/flagos-ai/KernelGenBench/tree/e3cad63b93af155ddaad05795fa39289f89284eb) | [`v0.2.0-rc2.post1` @ `e3cad63b93af`](https://github.com/flagos-ai/KernelGenBench/tree/e3cad63b93af155ddaad05795fa39289f89284eb) |
 
 ## Summary
 
-**(Required)** This FEP covers the KernelGen capability-building and
-optimization-exploration work planned for the FlagOS 2.2 cycle, built on top of
-the Knowledge and Tool Hub ([FEP-0093](0093-kernelgen-knowledge-and-tool-hub.md)).
-It has two directions:
+Extend KernelGen with multi-chip generation services, coverage reporting and
+optimization prototypes. The RC2 snapshot contains existing documentation,
+skills, search maintenance and license updates. It has no corresponding
+release implementation or linked implementation PR for the seven goals below.
 
-1. **Capability building** — KernelGen 2.2 refactor, FlagOS-Coder v1, the
-   operator coverage map, the operator agent + multi-chip leaderboard, and the
-   Workbuddy operator expert.
-2. **Optimization exploration** — a vLLM end-to-end optimization prototype
-   calling KernelGen, and an optimization agent combined with compiler
-   techniques.
+## Goals and Completion
 
-Repository: https://github.com/flagos-ai/kernelgen
+| Goal | Required deliverable | RC2 status |
+|---|---|---|
+| G1: Core refactor | Generation-core changes and a chip/tool/knowledge onboarding contract | No matching implementation |
+| G2: FlagOS-Coder v1 | A 32B model for operator generation and tuning on at least five chips | No versioned model artifact or per-chip results |
+| G3: Operator coverage map | Reproducible operator/chip/status data and published view | No map generator or dataset |
+| G4: Operator agent and leaderboard | Generation/optimization workflow and comparable multi-chip rankings | No implementation or ranking artifact |
+| G5: Workbuddy operator expert | Defined operator-expert integration and input/output contract | Scope and acceptance undefined |
+| G6: vLLM optimization prototype | KernelGen invocation in a measurable end-to-end inference workflow | No prototype or benchmark result |
+| G7: Compiler optimization agent | Defined compiler transformations integrated with kernel optimization | No prototype or transformation contract |
 
-## Release Boundary and Evidence
+## Dependencies
 
-- **FlagOS 2.1 baseline:** KernelGen `v2.1.0`.
-- **FlagOS 2.2 release candidate reviewed:** `v2.2.0-rc2.post1`, as pinned by
-  the FlagOS 2.2 RC2 manifest. RC0, RC1 and RC2 resolve to the same KernelGen
-  source snapshot.
-- **Development window:** 2026-06-01 through 2026-08-31.
+The [Knowledge Hub](0093-kernelgen-knowledge-and-tool-hub.md) remains
+provisional. The planned 301 generated operators in
+[FEP-0099](../sig-operator/0099-operator-library-flagos-2.2.md) require their
+own inventory and cannot establish completion of these tools.
 
-The reviewed `v2.1.0..v2.2.0-rc2.post1` public release delta contains skills
-and TLE documentation, a Chinese-search fix, and license-header maintenance.
-No public release-tag implementation or linked implementation PR was found for
-the proposed 2.2 refactor, Knowledge Hub, FlagOS-Coder v1, coverage map,
-leaderboard, Workbuddy expert, vLLM end-to-end prototype, or compiler
-optimization agent.
+KernelGenBench has a separate RC2 artifact, but its availability does not
+provide the G4 leaderboard or the per-chip results for G2. Compiler integration
+must identify which interfaces and transformations it uses from
+[FEP-0096](../sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md) and
+[FEP-0097](../sig-compiler/0097-flagtree-compiler-optimization.md).
 
-These items remain development-roadmap goals. This FEP intentionally keeps
-`Provisional` and does not treat the roadmap or the 301-operator planning count
-as repository-verified delivery evidence.
+## Delivery and Acceptance
 
-## Motivation
+Existing KernelGen web, MCP and skill interfaces do not identify a release
+artifact for these new capabilities. Each goal needs its own versioned
+delivery and executable acceptance:
 
-The FlagOS 2.2 development plan attributes 301 generated operators in the
-operator-library target
-([FEP-0099](../sig-operator/0099-operator-library-flagos-2.2.md)) to KernelGen.
-That count still requires a public inventory and release-level evidence.
-Sustaining and scaling the planned output across 5+ domestic chips needs
-more than a one-off generation pass: it needs a refactored generation core,
-tooling that makes coverage and quality visible, and agents that turn the
-indexed knowledge into working kernels. FEP-0093 provides the knowledge/tool
-substrate; this FEP builds the capabilities that consume it and explores using
-KernelGen in end-to-end inference optimization.
+- G1: onboard a chip using the documented contract and reproduce generation
+  and testing from its environment description.
+- G2: publish the model revision, license, invocation and evaluation set;
+  report correctness and tuning results on at least five named chips.
+- G3: generate the map from versioned data with stable operator identifiers
+  and links to test results.
+- G4: reproduce an operator run and regenerate rankings from raw correctness
+  and timing records using a defined metric.
+- G5: define supported requests, output contracts and a repeatable evaluation.
+- G6: verify generated-kernel dispatch in a fixed vLLM workload, preserve
+  model correctness and measure end-to-end performance.
+- G7: identify the compiler changes and compare correctness and performance
+  with an unchanged compiler baseline.
 
-### Goals
-
-**(Required)**
-
-- **G1 (KernelGen 2.2 refactor):** Refactor the KernelGen core and define the
-  multi-chip tool and knowledge-base onboarding standard.
-  <!-- TODO: what the refactor changes; what the onboarding standard specifies
-       and how a new chip is judged onboarded. -->
-- **G2 (FlagOS-Coder v1):** Deliver v1 of FlagOS-Coder, a 32B model that
-  supports operator generation and tuning on 5+ chips.
-  <!-- TODO: the v1 acceptance bar — inputs, outputs, and how "supports
-       generation and tuning" is measured per chip. -->
-- **G3 (Operator coverage map):** Deliver the operator coverage map (the
-  Operator Coverage Map named as a follow-up in FEP-0093).
-  <!-- TODO: what the map covers (operators × chips × status?), how it is
-       generated and where it is published. -->
-- **G4 (Operator agent + multi-chip leaderboard):** Deliver the operator agent
-  and a multi-chip leaderboard (an instance of the Optimization Skill/Agent
-  Framework named as a follow-up in FEP-0093).
-  <!-- TODO: what the agent does end-to-end; what the leaderboard ranks and its
-       metric. -->
-- **G5 (Workbuddy operator expert):** Deliver the Workbuddy operator expert.
-  <!-- TODO: scope and acceptance bar. -->
-- **G6 (vLLM end-to-end optimization prototype):** Prototype vLLM end-to-end
-  optimization that calls KernelGen.
-  <!-- TODO: what "end-to-end optimization" targets and what the prototype must
-       demonstrate to count as done. -->
-- **G7 (Compiler-technique optimization agent):** Prototype an optimization
-  agent combined with compiler techniques.
-  <!-- TODO: which compiler techniques (relation to sig-compiler #96/#97) and
-       the prototype's acceptance bar. -->
-
-### Non-Goals
-
-- The Knowledge and Tool Hub itself (the `kernelgen/knowledge/` registry,
-  manifest schema, query API), tracked in FEP-0093. This FEP consumes that
-  substrate but does not build it.
-- The manually implemented and generated operator *counts* and their
-  performance acceptance, tracked in
-  [FEP-0099](../sig-operator/0099-operator-library-flagos-2.2.md). This FEP
-  builds the generation capability, not the operator-count deliverable.
-- KernelGenBench performance benchmarking, tracked in
-  [FEP-0004](0004-kernelgenbench.md).
-
-## Proposal
-
-### Direction 1: Capability Building
-
-Five capabilities on top of the FEP-0093 knowledge/tool substrate:
-
-- **KernelGen 2.2 refactor** — refactor the generation core and define the
-  standard by which a new chip's tooling and knowledge base are onboarded.
-- **FlagOS-Coder v1** — first release of FlagOS-Coder, a 32B model for operator
-  generation and tuning across 5+ chips.
-- **Operator coverage map** — the coverage map FEP-0093 names as a downstream
-  consumer of the resource registry.
-- **Operator agent + multi-chip leaderboard** — an agent that generates/optimizes
-  operators and a leaderboard comparing results across chips; an instance of
-  the Optimization Skill/Agent Framework FEP-0093 names as a follow-up.
-- **Workbuddy operator expert** — an operator-expert assistant.
-
-<!-- TODO (design): per capability — inputs/outputs, how it uses the FEP-0093
-     hub, and the target chips. -->
-
-### Direction 2: Optimization Exploration
-
-- **vLLM end-to-end optimization prototype** — a prototype that invokes
-  KernelGen within a vLLM end-to-end optimization flow.
-- **Compiler-technique optimization agent** — an optimization agent that
-  combines KernelGen with compiler techniques (relation to the sig-compiler
-  work in flagos-ai/community#96 / #97 to be defined).
-
-<!-- TODO (design): the integration path for each prototype and what it must
-     demonstrate. -->
-
-## Design Details
-
-<!-- TODO: implementation-level details for each capability and prototype, to
-     be filled before Status moves to `Implementable`. -->
-
-## Packaging
-
-N/A for now. The intended KernelGen delivery model is
-the web platform (https://kernelgen.flagos.io), the MCP service, and IDE
-skills in the flagos-ai/kernelgen repo. The reviewed RC2 tag does not provide
-release artifacts for the new capabilities listed in this FEP.
-
-<!-- TODO: per-deliverable delivery form — how FlagOS-Coder (model weights),
-     the coverage map, the agents and Workbuddy ship; platform and toolkit
-     requirements per target chip. -->
-
-## Test Plan
-
-**(Required)** Each goal is verified independently. Acceptance runs on vendor
-hardware where a target chip is involved; results (environment, logs, metrics)
-are attached to the tracking issue by the testing party.
-
-The following sections are acceptance requirements, not tests shown to have
-run on the public FlagOS 2.2 release candidate.
-
-### G1: KernelGen 2.2 refactor
-
-<!-- TODO: how the refactor and the onboarding standard are verified — e.g.
-     onboard one new chip end-to-end following the standard. -->
-
-### G2: FlagOS-Coder v1
-
-<!-- TODO: acceptance test — inputs, command, expected output. -->
-
-### G3: Operator coverage map
-
-<!-- TODO: command that generates the map; expected coverage assertions. -->
-
-### G4: Operator agent + multi-chip leaderboard
-
-<!-- TODO: agent run command and expected output; leaderboard generation
-     command and expected ranking content. -->
-
-### G5: Workbuddy operator expert
-
-<!-- TODO: acceptance test. -->
-
-### G6: vLLM end-to-end optimization prototype
-
-<!-- TODO: prototype run command, workload, and the demonstrated result. -->
-
-### G7: Compiler-technique optimization agent
-
-<!-- TODO: prototype run command and the demonstrated result. -->
-
-## Related PRs
-
-- [ ] No public implementation PR identified for G1–G7 in the reviewed 2.2
-  release evidence.
-- [ ] flagos-ai/community#93 — KernelGen Knowledge and Tool Hub (a provisional
-  dependency; no public 2.2 implementation identified)
-
-## Implementation History
-
-- 2026-08-01: FEP created as `Provisional` for the FlagOS 2.2 cycle.
-- 2026-09-17: Reconciled the proposal with the KernelGen 2.1 baseline and
-  `v2.2.0-rc2.post1`; retained all capabilities as planned because the public
-  release evidence contains no corresponding implementation PR or artifact.
+Implementation scope, target-chip assignments, package/model distribution
+and quantitative acceptance thresholds remain open.

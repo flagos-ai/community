@@ -2,293 +2,179 @@
 
 **Status:** `Provisional`
 
+**Updated:** 2026-09-24
+
 **Created:** 2026-08-01
 
-**Owner:** [TODO: @github-username]
+**Owner:** Unassigned
 
 **SIG:** sig-operator
 
 **Target Version:** FlagOS 2.2
 
----
+## RC2 Source
+
+| Module | Branch revision | Manifest tag |
+|---|---|---|
+| flaggems | [`5.4.0-rc2` @ `6ed2f39071ef`](https://github.com/flagos-ai/FlagGems/tree/6ed2f39071ef85db26b7e64f0652a162f434959c) | [`v5.4.0-rc2.post4` @ `6ed2f39071ef`](https://github.com/flagos-ai/FlagGems/tree/6ed2f39071ef85db26b7e64f0652a162f434959c) |
+| flagblas | [`0.3.0-rc2` @ `824b256fe4c5`](https://github.com/flagos-ai/FlagBLAS/tree/824b256fe4c5a0e5a8645f4752248bcdfcb61d6f) | [`v0.3.0-rc2.post2` @ `a1897220dd06`](https://github.com/flagos-ai/FlagBLAS/tree/a1897220dd06596e44e8add94cfb084b41cbb98a) |
+| flagdnn | [`0.3.0-rc2` @ `42bcbcc23beb`](https://github.com/flagos-ai/FlagDNN/tree/42bcbcc23beb8d6af287485c0df55935f38f92e9) | [`v0.3.0-rc2.post2` @ `42bcbcc23beb`](https://github.com/flagos-ai/FlagDNN/tree/42bcbcc23beb8d6af287485c0df55935f38f92e9) |
+| flagsparse | [`0.3.0-rc2` @ `b15bbcc509d3`](https://github.com/flagos-ai/FlagSparse/tree/b15bbcc509d388c27bff7e8b180017aefc7ed1f4) | [`v0.3.0-rc2.post1` @ `2d4eee7ff0a6`](https://github.com/flagos-ai/FlagSparse/tree/2d4eee7ff0a6095dc8daf28a0dd2c4e0d76e0ad5) |
+| flagfft | [`0.2.0-rc2` @ `5eecfd409b65`](https://github.com/flagos-ai/FlagFFT/tree/5eecfd409b655458a7b0d4aaad53f802660bc66f) | [`v0.2.0-rc2.post2` @ `5eecfd409b65`](https://github.com/flagos-ai/FlagFFT/tree/5eecfd409b655458a7b0d4aaad53f802660bc66f) |
+| flagattention | [`0.4.0-rc2` @ `ff6a63543741`](https://github.com/flagos-ai/FlagAttention/tree/ff6a63543741953c7c48a478211794b113064429) | [`v0.4.0-rc2.post1` @ `2dd3a7408c3f`](https://github.com/flagos-ai/FlagAttention/tree/2dd3a7408c3ff1b11baccb8758392c5da5f3aef6) |
+| flaggems-vllm | [`0.2.0-rc2` @ `b61c244b0cce`](https://github.com/flagos-ai/FlagGems-vllm/tree/b61c244b0cce2d3762d2a6a47c35efe2207bc7a3) | [`v0.2.0-rc2.post1` @ `b61c244b0cce`](https://github.com/flagos-ai/FlagGems-vllm/tree/b61c244b0cce2d3762d2a6a47c35efe2207bc7a3) |
+| flaggems-sglang | [`0.1.0-rc2` @ `e72037ad1909`](https://github.com/flagos-ai/FlagGems-sglang/tree/e72037ad19095ecbe40368c2fa45e6b3070e979a) | [`v0.1.0-rc2.post1` @ `e72037ad1909`](https://github.com/flagos-ai/FlagGems-sglang/tree/e72037ad19095ecbe40368c2fa45e6b3070e979a) |
 
 ## Summary
 
-**(Required)** This FEP covers the operator-library work planned for the
-FlagOS 2.2 release cycle, across four directions:
+Expand FlagOS operator coverage, attention kernels, TLE-based operators and
+shared optimization techniques. RC2 contains many named implementations and
+tests. The 635-operator inventory, complete attention set and five-domestic-chip
+performance matrix remain incomplete.
 
-1. **Operator scale** — grow the total operator set to 635, combining manually
-   implemented operators with operators planned through the KernelGen
-   workflow. FEP-0093 is a Knowledge Hub proposal and is not the source or
-   implementation of those 301 generated operators.
-2. **Attention operators** — high-performance Attention-class operators
-   matching NVIDIA state-of-the-art, running on 5+ domestic chips.
-3. **TLE key operators** — key operators built on the Triton Language Extension
-   (TLE), using the compiler-side TLE work (flagos-ai/community#96) as the
-   underlying capability.
-4. **General optimization techniques** — low-bit, MegaKernel fusion, reduction
-   layout, and shape-aware multi-path dispatch, applied to named operators.
+## Goals and Completion
 
-Repositories: https://github.com/flagos-ai/FlagGems,
-https://github.com/flagos-ai/FlagBLAS, https://github.com/flagos-ai/FlagDNN,
-https://github.com/flagos-ai/FlagSparse, https://github.com/flagos-ai/FlagFFT,
-https://github.com/flagos-ai/FlagAttention
+| Goal | RC2 status | Remaining work |
+|---|---|---|
+| G1: 635 operators | Multiple library and model-specific implementations present | Deduplicated inventory proving 334 manual and 301 generated entries |
+| G2: Six attention families | MLA, KDA, GDN/GLA and sparse-attention code present | SageAttention in RC2, exact family mapping and five-chip acceptance |
+| G3: Five TLE operators | KV-cache, MHC, indexer fusion and TopK paths/tests present | Per-path TLE attribution and performance matrix |
+| G4: Shared optimizations | Low-bit MoE, fusion, reduction and shape dispatch changes present | Correctness and performance results for the named workloads |
 
-## Release Boundary and Evidence
+FlagAttention PRs #43 (SageAttention) and #44 (GDN2 TLE) are merged on main
+but absent from the inspected RC2 source. FlagGems-vLLM has a separate GDN2
+implementation in RC2; its presence does not include those FlagAttention PRs.
 
-- **FlagOS 2.1 baselines:** FlagGems `v5.3.0`, FlagBLAS `v0.2.0`, FlagDNN
-  `v0.2.0`, FlagSparse `v0.2.0`, FlagFFT `v0.1.0`, FlagAttention `v0.3.0`,
-  and FlagGems-vLLM `v0.1.0`.
-- **FlagOS 2.2 release candidates reviewed:** FlagGems `v5.4.0-rc2.post1`,
-  FlagBLAS/FlagDNN/FlagSparse `v0.3.0-rc2.post1`, FlagFFT
-  `v0.2.0-rc2.post1`, FlagAttention `v0.4.0-rc2.post1`, FlagGems-vLLM
-  `v0.2.0-rc2.post1`, and FlagGems-SGLang `v0.1.0-rc2.post1`.
-- **Development window:** 2026-06-01 through 2026-08-31. Several
-  FlagAttention PRs were submitted before feature freeze and merged during
-  release stabilization; they are identified as such below.
+## Operator Inventory Target
 
-The 334 / 301 / 635 counts and the performance ratios in this FEP come from
-the 2.2 development plan and acceptance report. They have not been
-independently regenerated from one public inventory command. Repository PRs
-provide concrete evidence for many named operators, but not for the full count
-or a uniform five-domestic-chip performance matrix. Those broader claims remain
-provisional until an inventory and release-hardware rerun are published.
-
-## Motivation
-
-FlagOS 2.2 advances the operator library along three axes: scale (more
-operators covered), performance (Attention and key operators at NVIDIA
-state-of-the-art on domestic chips), and generality (shared optimization
-techniques reused across operators). Manual implementation and KernelGen
-generation are counted together as one operator set so that coverage is
-tracked against a single target rather than split across two workflows.
-
-### Goals
-
-**(Required)**
-
-- **G1 (Operator scale):** Reach 635 total operators, composed of 334 manually
-  implemented and 301 KernelGen-generated. Includes
-  the sub-targets in the [Operator Count](#operator-count) table.
-- **G2 (Attention operators):** Deliver 6 high-performance Attention-class
-  operators — Flash MLA, Flash KDA, GDN2, GLA, NSA and SageAttention — at
-  NVIDIA-GPU state-of-the-art, then extend to 5+ domestic chips with
-  performance above each vendor's native implementation. Targets in
-  [Performance Targets](#performance-targets).
-- **G3 (TLE key operators):** Deliver 5 high-value operators on the model core
-  compute path, covering KV Cache, MHC, sparse-Attention fusion and FP8
-  quantization, built on the compiler-side TLE capability
-  (flagos-ai/community#96), at NVIDIA-GPU state-of-the-art, then extend to 5+
-  domestic chips with performance above native. Targets in
-  [Performance Targets](#performance-targets).
-- **G4 (General optimization techniques):** Apply low-bit / mixed precision,
-  MegaKernel fusion, reduction-layout optimization, and shape-aware multi-path
-  dispatch across the operators named in Feature 4.
-
-### Non-Goals
-
-- The KernelGen tooling, knowledge base, and multi-chip generation mechanism
-  itself. FEP-0093 covers a proposed knowledge registry; it does not generate
-  the operators counted here. This FEP records the development-side output
-  count but does not define how KernelGen works.
-- The compiler-side TLE capability (MegaKernel, distributed primitives,
-  buffer aliasing), tracked in flagos-ai/community#96. This FEP consumes TLE
-  but does not define it.
-
-## Proposal
-
-### Feature 1: Operator Scale
-
-Grow the operator set to 635 total operators. Manually implemented operators
-span FlagBLAS, FlagDNN, FlagSparse, FlagFFT and FlagGems; generated operators
-are attributed by the development plan to the KernelGen workflow and counted
-in the same total. The per-library and per-target breakdown is in the
-[Operator Count](#operator-count) table.
-
-### Feature 2: Attention Operators
-
-Deliver 6 Attention-class operators — Flash MLA, Flash KDA, GDN2, GLA, NSA and
-SageAttention (video-generation models) — at NVIDIA-GPU state-of-the-art, then
-extend to 5+ domestic chips with performance above each vendor's native
-implementation. Per-operator NVIDIA-GPU targets are in
-[Performance Targets](#performance-targets).
-
-<!-- TODO (design): per operator, the optimization approach and the target
-     domestic chips. -->
-
-### Feature 3: TLE Key Operators
-
-Deliver 5 high-value operators on the model core compute path — covering KV
-Cache, MHC, sparse-Attention fusion and FP8 quantization — at NVIDIA-GPU
-state-of-the-art, then extend to 5+ domestic chips with performance above
-native. The TLE capability itself (MegaKernel, distributed primitives) is
-provided by the compiler side (flagos-ai/community#96); this feature is the
-operator-side adoption of it.
-
-<!-- TODO (design): map each of the 5 operators to its function
-     (reshape_and_cache / reshape_and_cache_flash, mhc_bwd,
-     fused_indexer_q_rope_quant, Topk, ...) and how each uses TLE. -->
-
-### Feature 4: General Optimization Techniques
-
-Apply reusable optimization techniques across operators:
-
-- **Low-bit / mixed precision** — FP8/FP4 storage, online dequantization and
-  high-precision accumulation, covering `per_token_group_quant_fp8`,
-  `fp8_fp4_mega_moe`, `fused_marlin_moe`, `w8a8_block_fp8_bmm`.
-- **MegaKernel fusion** — fuse dequantization, matmul, activation and routing
-  weighting to cut intermediate memory traffic and kernel launches, mainly
-  covering `fp8_fp4_mega_moe`, `fused_marlin_moe`.
-- **Reduction-layout optimization** — separate kernels and parallel strategies
-  for contiguous vs. non-contiguous reduction dimensions, covering `prod`,
-  `std`, `log_softmax`, `any`.
-- **Shape-aware multi-path dispatch** — select a plain or linearized execution
-  path by shape, data layout and hardware, covering `sparse_attention`, `mul`,
-  `index`.
-
-## Design Details
-
-<!-- TODO: implementation-level details for Features 2/3/4, to be filled before
-     Status moves to `Implementable`. -->
-
-## Operator Count
-
-Total: **635** = **334** manually implemented + **301** KernelGen-generated
-(development-plan count; public inventory command pending).
-
-### Manually implemented (334)
-
-| Library | Count |
+| Manual library target | Count |
 |---|---|
 | FlagBLAS | 21 |
 | FlagDNN | 20 |
 | FlagSparse | 12 |
 | FlagFFT | 14 |
-| FlagGems (family) | 267 |
-| **Total** | **334** |
+| FlagGems family | 267 |
+| Total manual | 334 |
+| Generated | 301 |
+| Combined | 635 |
 
-### KernelGen-generated (301)
+These are planning counts. The generated subset names at least 35 SGLang,
+3 vLLM, 4 telecom-model and 3 Mianbi operators, but does not enumerate the
+full 301. Acceptance needs stable operator identifiers, repository/revision,
+manual/generated provenance, test cases and supported chips. Count operators
+once across shared libraries and vendor specializations.
 
-Generated via the KernelGen workflow, targeting 5+ domestic chips.
-Named sub-targets:
+## Implementation
 
-| Sub-target | Count |
+Attention implementations span FlagAttention and FlagGems-vLLM:
+
+| Family | RC2 implementation/test evidence |
 |---|---|
-| gems-SGLang | ≥35 |
-| gems-vLLM | 3 |
-| Telecom-model operators | 4 |
-| Mianbi operators | 3 |
-| [TODO: remaining generated operators] | [TODO] |
-| **Total** | **301** |
+| MLA | FlagGems-vLLM `tests/test_flash_mla.py` and related MLA paths |
+| KDA | FlagAttention `src/fla/chunk_kda.py`; FlagGems-vLLM KDA tests |
+| GDN/GDN2 | FlagAttention gated-delta-rule paths; FlagGems-vLLM `tests/test_FLA/test_chunk_gdn2.py` |
+| GLA | FlagAttention `src/flag_attn/FLA/gated_linear_attention/`; FlagGems-vLLM GLA tests |
+| Sparse attention | FlagGems-vLLM NSA paths; FlagAttention Minimax sparse attention is a distinct implementation |
+| SageAttention | PR #43 is outside FlagAttention RC2 |
 
-<!-- TODO: itemize the remaining generated operators so the named sub-targets
-     sum to 301. The four named sub-targets above are the ones called out in
-     the source; the balance is not itemized there. -->
+The five TLE targets are `reshape_and_cache`, `reshape_and_cache_flash`,
+`mhc_bwd`, `fused_indexer_q_rope_quant` and TopK. Their public tests exist in
+FlagGems and/or FlagGems-vLLM. Correctness tests must record the selected
+implementation to distinguish TLE paths from alternate kernels.
 
-## Performance Targets
+Shared optimization work covers:
 
-Each speedup is against the baseline named in its row. Status is Pending until
-re-measured on the release hardware. The values are development-provided
-results, not an independently reproduced RC2 benchmark report.
+- FP8/FP4 storage, dequantization and accumulation in
+  `per_token_group_quant_fp8`, `fp8_fp4_mega_moe`, `fused_marlin_moe` and
+  block-FP8 matrix multiplication.
+- Fused dequantization, matrix multiplication, activation and routing in
+  MoE kernels.
+- Reduction-axis-specific paths for `prod`, `std`, `log_softmax` and `any`.
+- Shape/layout-dependent dispatch for sparse attention, `mul` and `index`.
 
-### G2: Attention operators (NVIDIA GPU)
-
-| Operator | Target | Baseline | Status |
-|---|---|---|---|
-| Flash MLA | 0.916–1.213× | vLLM CUDA version | Pending |
-| Flash KDA | 1.15× | official FlashKDA CUDA version | Pending |
-| GDN2 | 1.5–2× | fla Triton version | Pending |
-| GLA | fwd 1.18–1.27× / fwd+bwd 1.03–1.12× | fla Triton version | Pending |
-| NSA | 1.01–1.28× | fla Triton version | Pending |
-| SageAttention | [TODO] | [TODO] | Pending |
-
-### G3: TLE key operators (NVIDIA H800)
-
-| Operator | Target | Status |
-|---|---|---|
-| reshape_and_cache | 185.874× | Pending |
-| reshape_and_cache_flash | 138.981× | Pending |
-| mhc_bwd | 155.972× | Pending |
-| fused_indexer_q_rope_quant | 19.592× | Pending |
-| Topk (with TLE primitives) | 2.03× | Pending |
-
-<!-- TODO: SageAttention target/baseline; per-operator baselines for the H800
-     TLE speedups (workload/shape); domestic-chip "above native" targets for
-     both G2 and G3. -->
+Compiler primitives are defined in
+[FEP-0096](../sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md).
+The [KernelGen Knowledge Hub](../sig-kernelgen/0093-kernelgen-knowledge-and-tool-hub.md)
+is a separate proposal and does not establish the generated-operator count.
 
 ## Packaging
 
-Installed from source per library.
-
-```bash
-# FlagGems
-git clone https://github.com/flagos-ai/FlagGems.git
-cd FlagGems && pip install .
-```
-
-<!-- TODO: build/install commands for FlagBLAS, FlagDNN, FlagSparse, FlagFFT
-     and FlagAttention; packaging format (wheel vs. source); platform and
-     toolkit version requirements per target chip. -->
+Use each module's RC2 revision with the matching FlagTree and vendor runtime.
+Python libraries provide their repository build/install entry points;
+native libraries retain their CMake/toolchain requirements. System-package
+status is tracked in [FEP-0019](../sig-os/0019-unified-package-integration.md).
 
 ## Test Plan
 
-**(Required)** Each goal is verified independently. Acceptance runs on vendor
-hardware; results (environment, logs, metrics) are attached to the tracking
-issue by the testing party.
+Run tests from the corresponding repository checkout on supported hardware.
+FlagAttention:
 
-### G1: Operator scale
+```bash
+python -m pytest -q tests/flag_attn/test_gated_delta_rule.py \
+  tests/flag_attn/test_chunk_gla.py \
+  tests/flag_attn/test_minimax_sparse_attention.py \
+  tests/test_FLA/test_chunk_kda.py
+```
 
-<!-- TODO: how the 635 count is verified — the operator inventory / test suite
-     that enumerates implemented + generated operators, and the command that
-     produces the count. -->
+FlagGems-vLLM:
 
-### G2: Attention operators
+```bash
+python -m pytest -q tests/test_flash_mla.py \
+  tests/test_FLA/test_chunk_gdn2.py tests/test_FLA/test_chunk_gla.py \
+  tests/test_FLA/test_chunk_kda.py tests/test_persistent_topk.py \
+  tests/test_mhc_ops.py tests/test_reshape_and_cache.py \
+  tests/test_reshape_and_cache_flash.py tests/test_fused_indexer_q_rope_quant.py
+```
 
-<!-- TODO: per Attention operator — correctness test command, performance
-     benchmark command, target chips, NVIDIA SOTA baseline and parity
-     tolerance. -->
+FlagGems:
 
-### G3: TLE key operators
+```bash
+python -m pytest -q tests/test_fp8_fp4_mega_moe.py \
+  tests/test_fused_marlin_moe.py tests/test_per_token_group_quant_fp8.py \
+  tests/test_w8a8_block_fp8_matmul.py tests/test_topk.py
+```
 
-<!-- TODO: per key operator — test command and acceptance metric. -->
+For each claimed operator, retain its reference, dtype/shape matrix,
+numerical tolerance, selected kernel and skipped cases. Performance acceptance
+requires the following baselines and a fixed workload:
 
-### G4: General optimization techniques
+| Target | Baseline requirement |
+|---|---|
+| MLA | Pinned vLLM CUDA implementation |
+| KDA | Pinned official FlashKDA CUDA implementation |
+| GDN2, GLA and NSA | Pinned corresponding FLA implementation |
+| SageAttention | Named reference implementation and complete RC2 kernel |
+| Five TLE operators | Named native/reference kernel on NVIDIA H800 |
+| Domestic-chip deployment | Native implementation on each of at least five named chips |
 
-<!-- TODO: per technique/operator — test command and the measured effect
-     that counts as passing. -->
+Record warmup, timing method, toolkit, hardware, compiler, source revisions
+and per-shape results. The goal is competitive NVIDIA performance and
+improvement over each target chip's native implementation. Previously listed
+speedup figures lack a complete reproducible workload/baseline record and
+are not RC2 acceptance results. G1 inventory and G2/G3 chip assignments remain
+open design and acceptance work.
 
 ## Related PRs
 
-- [x] flagos-ai/FlagGems-vLLM#12 — FlashMLA-style TLE split-KV path
-- [x] flagos-ai/FlagGems-vLLM#20/#29 — NSA compression and parallel NSA
-- [x] flagos-ai/FlagGems-vLLM#21/#23/#55 — KDA operators and fast path
-- [x] flagos-ai/FlagGems-vLLM#22 — GLA operator
-- [x] flagos-ai/FlagGems-vLLM#26 — `fused_indexer_q_rope_quant`
-- [x] flagos-ai/FlagGems-vLLM#37/#38 — GDN/GDN2 operators
-- [x] flagos-ai/FlagGems-vLLM#56 — persistent TopK
-- [x] flagos-ai/FlagAttention#34/#40 — optimized GDN paths
-- [x] flagos-ai/FlagAttention#41 — TLE chunk KDA (submitted before freeze,
-  merged during stabilization)
-- [x] flagos-ai/FlagAttention#42 — MSA and GLA operators
-- [x] flagos-ai/FlagAttention#43 — SageAttention Triton kernel (submitted
-  before freeze, merged during stabilization)
-- [x] flagos-ai/FlagAttention#44 — optimized GDN2 TLE operator (submitted
-  before freeze, merged during stabilization)
-- [x] flagos-ai/FlagGems#4081 — `fused_indexer_q_rope_quant`
-- [x] flagos-ai/FlagGems#4572 — Triton/TLE TopK paths
-- [x] flagos-ai/FlagGems#4322 — `fp8_fp4_mega_moe`
-- [x] flagos-ai/FlagGems#3778/#4117/#4350/#5437 — `fused_marlin_moe`
-  optimization and benchmark organization
-- [x] flagos-ai/FlagGems#4794 — `w8a8_block_fp8_bmm`
-- [ ] flagos-ai/community#93 — KernelGen Knowledge and Tool Hub; related
-  metadata proposal, not the source of the 301 generated operators
-- [ ] flagos-ai/community#96 — FlagTree TLE MegaKernel + distributed primitives
-  (TLE capability consumed by G3/G4; cross-reference, not owned by this FEP)
-
-## Implementation History
-
-- 2026-08-01: FEP created as `Provisional` for the FlagOS 2.2 cycle.
-- 2026-09-17: Reconciled the FEP with the 2.1 and 2.2 RC manifests and named
-  implementation PRs. Corrected the FEP-0093 cross-reference, recorded the
-  count/performance figures as development-provided, and kept the full
-  inventory and five-chip acceptance matrix provisional.
+- [x] [FlagGems-vllm#12](https://github.com/flagos-ai/FlagGems-vllm/pull/12) — MLA TLE split-KV path. Merged.
+- [x] [FlagGems-vllm#20](https://github.com/flagos-ai/FlagGems-vllm/pull/20) — NSA compression. Merged.
+- [x] [FlagGems-vllm#29](https://github.com/flagos-ai/FlagGems-vllm/pull/29) — Parallel NSA. Merged.
+- [x] [FlagGems-vllm#21](https://github.com/flagos-ai/FlagGems-vllm/pull/21) — KDA operators. Merged.
+- [x] [FlagGems-vllm#23](https://github.com/flagos-ai/FlagGems-vllm/pull/23) — KDA optimization. Merged.
+- [x] [FlagGems-vllm#55](https://github.com/flagos-ai/FlagGems-vllm/pull/55) — KDA fast path. Merged.
+- [x] [FlagGems-vllm#22](https://github.com/flagos-ai/FlagGems-vllm/pull/22) — GLA operator. Merged.
+- [x] [FlagGems-vllm#26](https://github.com/flagos-ai/FlagGems-vllm/pull/26) — Indexer RoPE/quantization fusion. Merged.
+- [x] [FlagGems-vllm#37](https://github.com/flagos-ai/FlagGems-vllm/pull/37) — GDN operators. Merged.
+- [x] [FlagGems-vllm#38](https://github.com/flagos-ai/FlagGems-vllm/pull/38) — GDN2 operators. Merged.
+- [x] [FlagGems-vllm#56](https://github.com/flagos-ai/FlagGems-vllm/pull/56) — Persistent TopK. Merged.
+- [x] [FlagAttention#34](https://github.com/flagos-ai/FlagAttention/pull/34) — GDN optimization. Merged.
+- [x] [FlagAttention#40](https://github.com/flagos-ai/FlagAttention/pull/40) — Additional GDN paths. Merged.
+- [x] [FlagAttention#41](https://github.com/flagos-ai/FlagAttention/pull/41) — TLE chunk KDA. Merged.
+- [x] [FlagAttention#42](https://github.com/flagos-ai/FlagAttention/pull/42) — Minimax sparse attention and GLA. Merged.
+- [x] [FlagAttention#43](https://github.com/flagos-ai/FlagAttention/pull/43) — SageAttention; merged on main but absent from RC2. Merged.
+- [x] [FlagAttention#44](https://github.com/flagos-ai/FlagAttention/pull/44) — GDN2 TLE; merged on main but absent from RC2. Merged.
+- [x] [FlagGems#4081](https://github.com/flagos-ai/FlagGems/pull/4081) — Indexer RoPE/quantization fusion. Merged.
+- [x] [FlagGems#4572](https://github.com/flagos-ai/FlagGems/pull/4572) — Triton/TLE TopK paths. Merged.
+- [x] [FlagGems#4322](https://github.com/flagos-ai/FlagGems/pull/4322) — FP8/FP4 fused MoE. Merged.
+- [x] [FlagGems#5437](https://github.com/flagos-ai/FlagGems/pull/5437) — Marlin MoE optimization. Merged.
+- [x] [FlagGems#4794](https://github.com/flagos-ai/FlagGems/pull/4794) — Block-FP8 matrix multiplication. Merged.

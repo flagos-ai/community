@@ -2,6 +2,8 @@
 
 **Status:** `Provisional`
 
+**Updated:** 2026-09-24
+
 **Created:** 2026-07-30
 
 **Owner:** [@MC952-arch](https://github.com/MC952-arch)
@@ -10,337 +12,108 @@
 
 **Target Version:** FlagOS 2.2
 
----
+## RC2 Source
+
+| Module | Branch revision | Manifest tag |
+|---|---|---|
+| flagcx | [`0.14.0-rc2` @ `5154fdbf3327`](https://github.com/flagos-ai/flagcx/tree/5154fdbf3327c1c7c272e8a83684e1508a302206) | [`v0.14.0-rc2.post1` @ `cb8896cacd49`](https://github.com/flagos-ai/flagcx/tree/cb8896cacd49ef9901c39af18df9b89bd6b9f34c) |
+| flagtree-triton3.6 | [`0.7.0-rc2-triton3.6` @ `4819c190476c`](https://github.com/flagos-ai/FlagTree/tree/4819c190476cebb66057493e41379c1406c615ac) | [`0.7.0rc2.post2+triton3.6` @ `d9e65f4df7fe`](https://github.com/flagos-ai/FlagTree/tree/d9e65f4df7fe881281abd9e834ab3f37f4d0642c) |
 
 ## Summary
 
-This FEP covers the FlagCX features planned for the FlagOS 2.2
-release cycle, on top of v0.13.0:
+FlagCX 0.14 adds PPU support, extends the Device API and supports development
+of distributed fused operators. RC2 contains the communication infrastructure;
+PD-disaggregation performance and the complete distributed-operator matrix
+remain unaccepted.
 
-1. **Vendor adaptation** — T-Head (PPU) backend support, bringing FlagCX to 13
-   supported chip backends; extend the FlagCX Device API adaptor interface to
-   2 additional domestic chips (Kunlunxin plus one more vendor).
-2. **PD-disaggregation support and optimization for inference** — run
-   prefill-decode disaggregation for GLM5.2 on T-Head and MetaX with ≥3%
-   end-to-end gain over the Mooncake TransferEngine baseline, building on the
-   P2P Engine introduced in v0.13.0
-   ([FEP-0021](0021-flagcx-v0.13.0-new-features.md)).
-3. **Distributed operators** — AllGather and ReduceScatter, plus the fused
-   AllGather+GEMM and GEMM+ReduceScatter operators, targeting intra-node and
-   inter-node performance on par with Triton-distributed.
+## Goals and Completion
 
-Repository: https://github.com/flagos-ai/FlagCX
+| Goal | RC2 implementation | Remaining work |
+|---|---|---|
+| G1: T-Head PPU backend | PPU device and CCL adaptors behind `USE_PPU=1`; 13 hardware CCL backends in total | PPU collective acceptance results |
+| G2: Two additional native Device API vendors | Kunlunxin traits and device kernels present | Identify and validate the second native vendor; default fallback does not supply a native implementation |
+| G3: GLM5.2 PD disaggregation on T-Head and MetaX, at least 3% over Mooncake | P2P/KV-transfer infrastructure present; a T-Head functional run was recorded | MetaX model run and fixed-baseline end-to-end performance results |
+| G4: AllGather, ReduceScatter, AllGather+GEMM and GEMM+ReduceScatter | Host collectives, Device API/IR bindings and Tree NVSHMEM examples present | GEMM+ReduceScatter and the complete intra-/inter-node comparison with Triton-distributed |
 
-## Release Boundary and Evidence
+## Design
 
-- **FlagOS 2.1 baseline:** FlagCX `v0.13.0`. Features already present in that
-  tag, including the P2P Engine foundation, are background rather than 2.2
-  deliverables.
-- **FlagOS 2.2 release candidate reviewed:** `v0.14.0-rc2.post1`, as pinned by
-  the FlagOS 2.2 RC2 manifest.
-- **Development window:** 2026-06-01 through 2026-08-31. Work submitted during
-  that window and stabilized on the 2.2 RC branches is listed separately from
-  work first introduced after feature freeze.
-- **Evidence rule:** implementation claims require a release-candidate path or
-  a merged implementation PR. Performance and multi-vendor acceptance claims
-  remain pending unless their environment and result are available.
+PPU uses `flagcx/adaptor/device/ppu_cuda_adaptor.cc` and
+`flagcx/adaptor/ccl/ppu_nccl_adaptor.cc`.
 
-The reviewed RC2 evidence confirms the T-Head backend, Unified IR groundwork
-and Device API compatibility changes. It does not establish the planned second
-native Device API vendor, the MetaX PD-disaggregation run, or parity with
-Triton-distributed for all four operator forms.
+The Device API separates platform traits, communication traits and device
+kernels. Kunlunxin has native traits; MUSA and other platforms can use the
+default compatibility path. Device IR bindings are under `bindings/ir/`.
 
-## Motivation
+PD disaggregation uses the P2P Engine for KV transfer. The acceptance workload
+is GLM5.2 with one prefill and one decode instance, eight cards each. The
+Mooncake comparison requires the same model, topology and request workload.
+The throughput or latency metric for the 3% target is still unspecified.
 
-FlagOS 2.2 extends FlagCX along the two axes established in previous cycles:
-breadth of domestic chip coverage, and depth of LLM-workload support. The P2P
-Engine and Device API foundations shipped in v0.13.0 now need to be carried
-into production inference scenarios (PD disaggregation) and into
-compute-communication fusion (distributed operators), while the vendor adaptor
-matrix grows to include T-Head and more Device API-capable backends.
+## Distributed Operator Coverage
 
-### Goals
+| Operator | RC2 code | Validation gap |
+|---|---|---|
+| AllGather | FlagCX host collective and `test/perf/host_api/test_allgather.cpp` | Device/fused-path and Triton-distributed performance coverage |
+| ReduceScatter | FlagCX host collective and `test/perf/host_api/test_reducescatter.cpp` | Device/fused-path and Triton-distributed performance coverage |
+| AllGather+GEMM | FlagTree `python/tutorials/tle/raw/nvshmem/02-allgather-gemm` | Full topology and baseline matrix; document the NVSHMEM backend used |
+| GEMM+AllReduce | FlagTree `python/tutorials/tle/raw/nvshmem/03-gemm-allreduce` | Additional example; it has different output semantics from ReduceScatter |
+| GEMM+ReduceScatter | No runnable implementation in the inspected FlagCX or FlagTree RC2 trees | [FlagCX#620](https://github.com/flagos-ai/FlagCX/issues/620) |
 
-- **G1 (T-Head adaptation):** Support the T-Head PPU backend (device adaptor
-  `ppu_cuda_adaptor` + CCL adaptor `ppu_nccl_adaptor`, build flag `USE_PPU=1`),
-  bringing the in-tree chip backend count to 13. Merged on `main`
-  (flagos-ai/FlagCX#512); adaptation complete and ready for testing.
-- **G2 (Device API adaptor expansion):** Extend the Device API vendor traits
-  interface (`flagcx/adaptor/include/device_api/*_comm_traits.h` /
-  `*_platform_traits.h`, currently implemented for NVIDIA, Hygon DU and
-  Sunrise) to 2 additional domestic chips. Kunlunxin support landed in
-  flagos-ai/FlagCX#555 and is included in the RC2 snapshot. PRs #576 and #582
-  make MUSA and the remaining platforms use the default Device API path, but
-  are compatibility fallbacks rather than evidence of a second vendor-native
-  traits implementation. The second native vendor remains unaccepted.
-  <!-- TODO: name the second vendor once committed, and the Device API
-       primitive subset that must pass tests to count as supported. -->
-- **G3 (PD disaggregation):** GLM5.2 prefill-decode disaggregation runs
-  end-to-end on T-Head and MetaX using the FlagCX P2P Engine as the KV
-  transfer substrate, with ≥3% end-to-end gain over Mooncake TransferEngine
-  (its default configuration) on the same setup. The development report
-  records a successful T-Head GLM5.2 1P1D run on 8+8 cards, with optimization
-  still pending. MetaX had not reached the base model-running prerequisite.
-  The functional T-Head run is therefore evidence, while the ≥3% gain and
-  MetaX acceptance are not claimed as completed in this FEP.
-  <!-- TODO: metric definition for the ≥3% (throughput/TTFT/goodput) and
-       workload profile. -->
-- **G4 (Distributed operators):** AllGather and ReduceScatter, plus the
-  fused AllGather+GEMM and GEMM+ReduceScatter operators, with intra-node
-  and inter-node performance on par with Triton-distributed. The operators
-  build on the FlagCX Device API + IR bindings and NVSHMEM; vendor scope
-  this cycle is NVIDIA (sm90+). Development-side results show that the
-  implemented paths outperform torch-native in most measured scenarios;
-  comparison with Triton-distributed and coverage of all four named operator
-  forms still need release-acceptance evidence. The fused implementations
-  live in FlagTree under
-  `python/tutorials/tle/raw/nvshmem/`: `02-allgather-gemm` (with a
-  benchmark harness against torch-native) and `03-gemm-allreduce`.
-  <!-- TODO: code locations for standalone AllGather / ReduceScatter and
-       GEMM+ReduceScatter (not in the FlagTree tree as of 2026-08-25), and
-       the Triton-distributed comparison method — add a variant to
-       benchmark.py or run their upstream benchmark, and which
-       version/commit defines "on par". -->
-
-### Non-Goals
-
-- Device API CustomAllReduce / IR bindings support on vendors beyond the ones
-  named in G2 (tracked per-vendor in future cycles).
-- PD disaggregation on platforms other than T-Head and MetaX in this cycle.
-- Fused operators beyond the four listed in G4 (e.g. AlltoAll+GEMM for MoE).
-- Ascend enablement: blocked on a PCI-probe interface issue on the Ascend
-  side; not pursued standalone in this cycle, tracked together with the
-  sglang-plugin Huawei P0 work, which hits the same problem.
-
-## Proposal
-
-### Feature 1: Vendor Adaptation
-
-**1a. T-Head (PPU) backend.** Already merged on main
-(flagos-ai/FlagCX#512): adds `flagcx/adaptor/device/ppu_cuda_adaptor.cc` and
-`flagcx/adaptor/ccl/ppu_nccl_adaptor.cc` behind `USE_PPU=1`, following the
-existing per-vendor adaptor pattern. With PPU, the in-tree CCL adaptor matrix
-covers 13 chip backends: NVIDIA (nccl), Ascend (hccl), Iluvatar (ixnccl),
-Cambricon (cncl), MetaX (mccl), Moore Threads (musa_mccl), Kunlunxin (xccl),
-AMD (rccl), Hygon (dunccl), TsingMicro (tccl), Enflame (eccl), Sunrise (pccl),
-T-Head (ppu_nccl).
-
-**1b. Device API adaptor interface for 2 more domestic chips.** The Device API
-(v0.11–v0.13) dispatches device-side communication primitives through
-per-vendor traits (`comm_traits.h` / `platform_traits.h`); in the 2.1 baseline
-only NVIDIA, Hygon DU and Sunrise had vendor traits, with a default fallback.
-In 2.2, flagos-ai/FlagCX#555 adds Kunlunxin Device API support. PRs #576 and
-#582 extend the default path to MUSA and the remaining platforms. A second
-vendor-native traits implementation was not identified in the reviewed RC2
-evidence and is not counted as delivered.
-
-<!-- TODO (design): per target vendor — native primitives vs. default
-     fallback; LLVM bitcode path availability; symmetric-window vs. IPC-only
-     registration. -->
-
-### Feature 2: PD Disaggregation Support and Optimization
-
-Builds on the v0.13.0 P2P Engine (one-sided RDMA, vectorized read/write,
-topology-aware NIC selection) and its NIXL integration
-(`plugin/nixl/flagcx_p2p_on_nixl_v1.1.0.patch`). This cycle takes that
-substrate to a production inference scenario: GLM5.2 PD disaggregation on
-T-Head and MetaX, with 1 prefill + 1 decode instance (8+8 cards) and
-inter-instance KV transfers over the network; the setup runs in containers.
-Baseline for the ≥3% gain is Mooncake TransferEngine in its default
-configuration on the same topology. The development report records a
-functional T-Head run, but not the target gain. On MetaX the platform's base
-optimization was not complete and GLM did not yet run normally. These remain
-acceptance gaps rather than completed 2.2 claims.
-
-<!-- TODO (design): source of the optimization — transfer overlap, NIC
-     selection, noncontiguous KV layout handling, or other. -->
-
-### Feature 3: Distributed Operators
-
-Standalone AllGather / ReduceScatter and fused AllGather+GEMM /
-GEMM+ReduceScatter operators, targeting intra-node and inter-node
-performance on par with Triton-distributed. The operators use the FlagCX
-Device API + IR bindings and NVSHMEM for intra-node and inter-node
-transfers; vendor scope this cycle is NVIDIA (sm90+). Development-side runs
-report that most implemented scenarios outperform torch-native. The exact
-Triton-distributed baseline and complete operator coverage remain to be
-recorded before the parity target can be accepted.
-
-The fused implementations live in FlagTree
-(https://github.com/flagos-ai/FlagTree) under
-`python/tutorials/tle/raw/nvshmem/`: `02-allgather-gemm` and
-`03-gemm-allreduce`. The AG+GEMM benchmark harness sweeps seven layer
-shapes (LLaMA-7B / 3.1-8B / 3.1-70B / 3.1-405B, Mistral-7B, Qwen2-72B,
-GPT-3-175B) at M=8192 (configurable via `--M`), fp16 or bf16, gates
-correctness first (`assert_allclose` at `atol=1e-3, rtol=1e-3` per rank),
-then times six variants — fused total, AG-only, GEMM-only, on both the
-FlagTree and torch sides — and `--dump_csv` writes
-`csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup per shape. Run:
-`torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (at least 2 GPUs,
-`WORLD_SIZE % LOCAL_WORLD_SIZE == 0`).
-
-<!-- TODO:
-     1. Code locations for standalone AllGather / ReduceScatter and for
-        GEMM+ReduceScatter — neither is in the FlagTree tree as of
-        2026-08-25 (03- is GEMM+AllReduce).
-     2. Triton-distributed comparison method — add a third timing variant
-        to benchmark.py or run their upstream benchmark, and which
-        version/commit defines "on par". -->
-
-## Design Details
-
-<!-- TODO: architecture and data-flow details for Features 1b/2/3, to be
-     filled as the per-feature TODOs above are resolved. -->
+Fused examples and their tests belong in FlagTree. Each result must identify
+the communication backend and source revisions. Passing distributed-primitive
+tests does not complete fused-operator acceptance.
 
 ## Packaging
 
-Built from source per backend; no wheel is published for the core library.
-
-### Obtain Source Code
+Build from source with the vendor toolchain:
 
 ```bash
-git clone https://github.com/flagos-ai/FlagCX.git
-cd FlagCX
-git submodule update --init --recursive
+make USE_PPU=1 -j8
 ```
 
-### Build
+For NVIDIA Device API tests:
 
 ```bash
-# Core library — choose your backend flag
-make <backend>=1 -j$(nproc)
-
-# T-Head PPU backend (Feature 1a)
-make USE_PPU=1 -j$(nproc)
-
-# Device API kernel support (Features 1b / 3, where applicable)
-make USE_NVIDIA=1 COMPILE_KERNEL=1 -j$(nproc)
+make USE_NVIDIA=1 COMPILE_KERNEL=1 -j8
 ```
 
-`<backend>` is one of: `USE_NVIDIA`, `USE_ASCEND`, `USE_ILUVATAR_COREX`,
-`USE_CAMBRICON`, `USE_METAX`, `USE_MUSA`, `USE_KUNLUNXIN`, `USE_AMD`,
-`USE_DU`, `USE_TSM`, `USE_ENFLAME`, `USE_SUNRISE`, `USE_PPU`.
-
-### Dependencies
-
-- MPI (multi-process tests): OpenMPI or mpich
-- libibverbs (IBRC P2P adaptor, required for PD disaggregation transfers)
-- Vendor toolkit per backend (CUDA toolkit for NVIDIA, etc.)
-- PD disaggregation runs use the inference stack's images for the target
-  platform (the same communication library paths are exercised there), so no
-  separate legacy-driver images are required.
-<!-- TODO: T-Head toolchain/driver versions and serving-framework pins for
-     Feature 2. -->
-
-### Multi-Platform Support
-
-| Feature | Platform scope (this cycle) |
-|---|---|
-| T-Head backend | T-Head PPU |
-| Device API adaptor expansion | Kunlunxin + 1 vendor [TODO: name when committed] |
-| PD disaggregation (GLM5.2) | T-Head, MetaX (MetaX gated on its base platform optimization) |
-| Distributed operators | NVIDIA |
+MPI is required for multiprocess tests. P2P RDMA paths require libibverbs.
+The fused examples additionally require FlagTree and NVSHMEM on NVIDIA SM90+.
 
 ## Test Plan
 
-Each goal is verified independently, reusing the existing test
-infrastructure (`test/perf/host_api`, `test/perf/kv_transfer`,
-`test/perf/device_api`).
+PPU host collectives:
 
-Test inputs the development side provides before the testing window starts:
+```bash
+cd test/perf/host_api
+make USE_PPU=1
+mpirun -np 2 ./build/bin/perf_allgather
+mpirun -np 2 ./build/bin/perf_reducescatter
+```
 
-- An official test command document per feature (the CI workflows under
-  `.github/workflows/` — currently running the full suites on NVIDIA, MetaX
-  and Hygon on every code update — serve as the command reference; CI
-  coverage for the remaining vendors is being added separately).
-- A per-vendor API compatibility list for the existing host-API surface, so
-  the test matrix reflects the actual supported set rather than the CI
-  subset. Hygon and MetaX coverage in CI is current; vendors last validated
-  in earlier cycles are re-listed with the driver versions they were
-  validated against.
+Device API and IR tests are under `test/unittest/device_api/`; intra-node
+benchmarks are under `test/perf/device_api/`. Run the matching vendor build
+and require correct results on every rank.
 
-Scope rule for the 2.2 window: existing features are tested against the 2.1
-release scope (more thoroughly than 2.1); new features are tested only within
-the support scope stated in this FEP.
+AllGather+GEMM, from the FlagTree source root:
 
-### G1: T-Head backend
+```bash
+cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm
+torchrun --nproc_per_node=2 benchmark.py --dump_csv
+```
 
-| Test | Command | Expected result |
-|---|---|---|
-| Build | `make USE_PPU=1 -j$(nproc)` | Library builds without errors |
-| Collectives correctness/perf | `cd test/perf/host_api && make USE_PPU=1`, run the per-collective binaries (`test_allreduce`, `test_allgather`, `test_reducescatter`, `test_alltoall`, `test_sendrecv`, ...) via mpirun on a T-Head node <!-- TODO: rank count, expected bandwidth --> | All collectives pass correctness check |
-
-### G2: Device API adaptor expansion
-
-Kunlunxin is represented by flagos-ai/FlagCX#555 in RC2. A second native
-vendor implementation was not found in the reviewed release evidence.
-
-<!-- TODO: per new vendor — build flag, required Device API test binaries
-     (test/device_api unit tests, test_allreduce_intranode, ...), hardware. -->
-
-### G3: PD disaggregation (GLM5.2 on T-Head / MetaX)
-
-Acceptance runs on vendor hardware; results (environment, logs, metrics) are
-attached to the tracking issue by the testing party. Topology: 1P+1D, 8+8
-cards, KV transfers over the network, containerized. MetaX runs start once
-GLM runs normally there.
-
-| Test | Command | Expected result |
-|---|---|---|
-| KV transfer micro-benchmark | `test/perf/kv_transfer/kv_transfer_benchmark.py` on the target platform (connector modes per its README) <!-- TODO: args, expected bandwidth --> | Transfer bandwidth within expected range |
-| E2E PD disaggregation | <!-- TODO: prefill/decode instance launch commands, workload driver, metric collection --> | GLM5.2 serves correctly in PD mode; ≥3% gain in [TODO: metric] vs. Mooncake TransferEngine (default) on the same setup |
-
-### G4: Distributed operators
-
-Four operators in scope: AllGather, ReduceScatter, AllGather+GEMM,
-GEMM+ReduceScatter; acceptance target is intra-node and inter-node
-performance on par with Triton-distributed. NVIDIA sm90+ this cycle.
-
-The AllGather+GEMM harness (`02-allgather-gemm/benchmark.py`) sweeps seven
-layer shapes (LLaMA-7B / 3.1-8B / 3.1-70B / 3.1-405B, Mistral-7B, Qwen2-72B,
-GPT-3-175B) at M=8192 (configurable via `--M`), fp16 or bf16, gates
-correctness first (`assert_allclose` at `atol=1e-3, rtol=1e-3` per rank),
-then times six variants: fused total, AG-only, GEMM-only, on both FlagTree
-and torch sides.
-
-| Test | Command | Expected result |
-|---|---|---|
-| AllGather+GEMM | `cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm && torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (requires ≥2 GPUs, sm90+, `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`) | Correctness passes per rank; fused path outperforms torch-native total latency in the covered shapes; csv written to `csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup column |
-| GEMM+AllReduce | `03-gemm-allreduce` — test command TBD | Correctness passes; latency vs. torch-native recorded |
-| AllGather / ReduceScatter (standalone) | [TODO: code location and command] | Performance on par with Triton-distributed, intra- and inter-node |
-| GEMM+ReduceScatter | [TODO: code location and command] | Performance on par with Triton-distributed, intra- and inter-node |
-
-<!-- TODO: Triton-distributed comparison method — no baseline exists in the
-     tree today; either add a third timing variant to benchmark.py or run
-     their upstream benchmark, fixing the version/commit and the tolerance
-     that counts as "on par". -->
+The harness checks per-rank outputs with `atol=1e-3, rtol=1e-3` and exports
+shape-specific latency and speedup against torch-native. Triton-distributed
+parity requires a separate pinned baseline. G3 and missing G4 forms remain
+open until their launch commands and results are available.
 
 ## Related PRs
 
-- [x] flagos-ai/FlagCX#512 — [PAL] Add PPU support (T-Head backend)
-- [x] flagos-ai/FlagCX#539 — [UIL] Add Unified IR support (Device API / IR
-  groundwork Features 1b and 3 build on)
-- [x] flagos-ai/FlagCX#545 — [UIL] Fix multi-backend issues for Unified IR
-- [x] flagos-ai/FlagCX#555 — Kunlunxin Device API support (merged into the
-  RC2 line after feature freeze)
-- [x] flagos-ai/FlagCX#576 — make MUSA use the default Device API
-- [x] flagos-ai/FlagCX#582 — enable the default Device API for the remaining
-  platforms
-- [ ] Second vendor-native Device API traits implementation (no merged 2.2
-  implementation PR identified)
-
-## Implementation History
-
-- 2026-07-30: FEP created as `Provisional` for the FlagOS 2.2 cycle; Features
-  2 and 3 under design, Feature 1a merged on main.
-- 2026-08-24: Progress sync with development — T-Head adaptation complete
-  and testable; distributed operators adapted on NVIDIA; PD disaggregation
-  runs on T-Head with optimization in progress (baseline Mooncake);
-  Kunlunxin Device API PR expected ~09-10; MetaX PD gated on its base
-  platform optimization; Ascend deferred behind the sglang-plugin Huawei
-  P0.
-- 2026-08-25: Owner set; scope and Test Plan updated after the sync.
-- 2026-09-17: Reconciled the FEP against the `v0.13.0` baseline and
-  `v0.14.0-rc2.post1`. Recorded the Kunlunxin and default Device API changes;
-  retained the second native vendor, MetaX PD run, ≥3% PD gain and full
-  Triton-distributed comparison as pending acceptance items.
+- [x] [FlagCX#512](https://github.com/flagos-ai/FlagCX/pull/512) — PPU backend. Merged.
+- [x] [FlagCX#539](https://github.com/flagos-ai/FlagCX/pull/539) — Unified IR support. Merged.
+- [x] [FlagCX#545](https://github.com/flagos-ai/FlagCX/pull/545) — Unified IR backend fixes. Merged.
+- [x] [FlagCX#555](https://github.com/flagos-ai/FlagCX/pull/555) — Kunlunxin Device API. Merged.
+- [x] [FlagCX#576](https://github.com/flagos-ai/FlagCX/pull/576) — MUSA default Device API path. Merged.
+- [x] [FlagCX#582](https://github.com/flagos-ai/FlagCX/pull/582) — Default Device API on remaining platforms. Merged.
+- [x] [FlagTree#918](https://github.com/flagos-ai/FlagTree/pull/918) — Multi-node NVSHMEM AllGather+GEMM example. Merged.
+- [x] [FlagTree#861](https://github.com/flagos-ai/FlagTree/pull/861) — NVSHMEM GEMM+AllReduce example. Merged.

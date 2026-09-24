@@ -2,266 +2,116 @@
 
 **Status:** `Provisional`
 
+**Updated:** 2026-09-24
+
 **Created:** 2026-08-01
 
-**Owner:** [TODO: @github-username]
+**Owner:** Unassigned
 
 **SIG:** sig-compiler
 
 **Target Version:** FlagOS 2.2
 
----
+## RC2 Source
+
+| Module | Branch revision | Manifest tag |
+|---|---|---|
+| flagtree-triton3.6 | [`0.7.0-rc2-triton3.6` @ `4819c190476c`](https://github.com/flagos-ai/FlagTree/tree/4819c190476cebb66057493e41379c1406c615ac) | [`0.7.0rc2.post2+triton3.6` @ `d9e65f4df7fe`](https://github.com/flagos-ai/FlagTree/tree/d9e65f4df7fe881281abd9e834ab3f37f4d0642c) |
+| flagtree-triton3.5 | [`0.7.0-rc2-triton3.5` @ `15ec1a6cbc8d`](https://github.com/flagos-ai/FlagTree/tree/15ec1a6cbc8d51f597f46459a500e96f3812c58f) | [`0.7.0rc2.post2+triton3.5` @ `15ec1a6cbc8d`](https://github.com/flagos-ai/FlagTree/tree/15ec1a6cbc8d51f597f46459a500e96f3812c58f) |
 
 ## Summary
 
-**(Required)** This FEP covers the two Triton Language Extensions (TLE) features
-planned for FlagTree in the FlagOS 2.2 cycle:
+Extend TLE with model-level MegaKernel compilation and distributed
+communication primitives. RC2 contains distributed primitives, FlagCX
+integration and NVSHMEM fusion examples. The model-level MegaKernel compiler
+and the full fused-operator acceptance matrix are incomplete.
 
-1. **MegaKernel compiler** — a new kernel-authoring paradigm that compiles a
-   model (e.g. from a HuggingFace definition) into Triton code executed by a
-   single cooperative "mega" kernel, targeting low-latency single-batch decode.
-2. **Distributed primitives and communication-computation fusion** — a TLE
-   distributed API (`tle.remote`, `tle.distributed_barrier`, `tle.shard_id`,
-   `tle.load`/`tle.store` with signal/wait semantics) lowered onto FlagCX so
-   that inter-device collectives can be fused with computation inside a Triton
-   kernel, on par with Triton-distributed.
+## Goals and Completion
 
-Both build on the existing TLE stack in FlagTree (`python/triton/experimental/tle/`
-and the `third_party/tle` MLIR dialect).
+| Goal | RC2 implementation | Remaining work |
+|---|---|---|
+| G1: Model-level MegaKernel compiler and two demonstration operators | No model compiler or `python/tutorials/tle/mega` implementation in RC2 | Merge the compiler, scheduler and runnable model examples |
+| G2: Qwen3-32B, batch-1 decode on one H800, at least 20% over vLLM | No RC2 benchmark path | Pin model, precision, sequence lengths and baseline; publish results |
+| G3: Distributed primitives | Remote access, rank/shard queries, signal/wait and distributed barriers | Preserve QA results per backend and revision |
+| G4: FlagCX lowering on two domestic accelerators plus NVIDIA | FlagCX host/device integration is present; Ascend DSA distributed code is on 3.5 | Complete a named backend and primitive acceptance matrix |
+| G5: At least two fused operators and Triton-distributed parity | AllGather+GEMM and GEMM+AllReduce examples present | GEMM+ReduceScatter implementation and fixed-baseline performance results |
 
-Repository: https://github.com/flagos-ai/FlagTree
+## Design
 
-## Release Boundary and Evidence
+TLE device meshes describe block, device and node placement. `tle.remote`
+provides remote-memory access; `tle.shard_id`, rank queries, signals and
+barriers support coordination. FlagCX integration lives under
+`third_party/tle/dialect/` and is built through
+`scripts/build-flagcx-project.sh`.
 
-- **FlagOS 2.1 baseline:** FlagTree `0.6.0+triton3.6`,
-  `0.6.0+triton3.5`, and `0.6.0+triton3.3` for the relevant release lines.
-- **FlagOS 2.2 release candidates reviewed:**
-  `0.7.0rc2.post1+triton3.6`, `0.7.0rc2.post1+triton3.5`, and
-  `0.7.0rc2.post1+triton3.3`.
-- **Development window:** 2026-06-01 through 2026-08-31. PRs #899 and #1048
-  were opened before feature freeze and merged during stabilization; that
-  timing is recorded rather than silently treating their merge date as a new
-  feature commitment.
+Multi-device and multi-node primitive tests are under `python/test/tle/unit/`.
+The fusion examples under `python/tutorials/tle/raw/nvshmem/` use NVSHMEM
+through TLE Raw. Their presence does not establish FlagCX-backed execution
+of the same fused operators.
 
-Public evidence is strong for individual distributed primitives and examples:
-rank primitives (#701), remote offsets (#732), NVSHMEM (#787),
-GEMM+AllReduce (#861), signal/signal_wait (#863), remote-node support (#899),
-multi-node AG+GEMM (#918), a DSA distributed op (#961), node-axis `shard_id`
-(#969), and multi-GPU distributed barriers (#1048). It is not sufficient to
-claim the full goal of two domestic chips, two accepted fused operators, or
-parity with Triton-distributed across a fixed matrix.
-
-No merged implementation PR or release-candidate path was identified for the
-model-level MegaKernel compiler and its Qwen3-32B performance target. The
-feature-branch prototype remains useful design evidence, but MegaKernel is not
-claimed as a completed FlagOS 2.2 feature.
-
-## Motivation
-
-TLE expresses performance-oriented kernel structure that block-level Triton
-cannot: warp specialization (FEP-0027 `tle.pipe`), explicit shared-memory
-aliasing and layout control (FEP-0065). FlagOS 2.2 extends TLE in two
-directions for LLM serving:
-
-- **Latency.** For single-batch decode, per-layer kernel launches and the
-  round-trips they imply dominate latency. Compiling an entire decode step into
-  one persistent, cooperatively-scheduled kernel removes launch overhead and
-  keeps weights and activations resident.
-- **Scale.** Multi-device LLM inference needs communication fused with
-  computation to hide transfer latency behind compute. Giving TLE first-class
-  distributed primitives, lowered onto FlagCX, lets FlagTree express
-  compute-communication fused operators (AllGather+GEMM, GEMM+ReduceScatter) at
-  the compiler level rather than stitching collectives around kernels.
-
-### Goals
-
-**(Required)**
-
-- **G1 (MegaKernel compiler):** Provide a compiler path that turns a model
-  definition into Triton code run by a single cooperative mega-kernel, with a
-  pull-based scheduler prototype and at least two demonstration operators.
-  <!-- TODO: name the two demonstration operators and their acceptance shape. -->
-- **G2 (MegaKernel performance):** On a single H800, Qwen3-32B `bs=1` decode
-  throughput exceeds the vLLM baseline by ≥20% (and exceeds Triton-distributed).
-  <!-- TODO: pin vLLM baseline version/commit, sequence length, tensor-parallel
-       degree, quantization, and the throughput metric (tokens/s) used. -->
-- **G3 (Distributed primitives):** Provide the TLE distributed API —
-  `tle.remote`, `tle.distributed_barrier`, `tle.shard_id`, and
-  `tle.load`/`tle.store` with signal/wait memory-order semantics — with a
-  device mesh / sharding model, lowered to device-side communication.
-- **G4 (Multi-chip via FlagCX):** Lower the distributed primitives onto FlagCX
-  so at least two domestic chips (in addition to NVIDIA) can run the
-  distributed operators.
-  <!-- TODO: name the two domestic chips committed for 2.2. -->
-- **G5 (Comm-compute fusion validation):** Validate on at least two
-  communication-computation fused operators (e.g. AllGather / ReduceScatter,
-  AllGather+GEMM / GEMM+ReduceScatter) with average cross-device performance on
-  par with Triton-distributed.
-  <!-- TODO: define "on par" — Triton-distributed baseline version, tolerance,
-       message-size range, GPU count and topology, per operator. -->
-
-### Non-Goals
-
-- Replacing Triton's automatic software pipeliner or `tle.pipe` for
-  intra-CTA producer/consumer flows (FEP-0027).
-- Guaranteeing the ≥20% gain outside the named model/hardware configuration in
-  G2; performance remains workload- and hardware-dependent.
-- Full model coverage for the MegaKernel path — the deliverable is the compiler
-  paradigm plus demonstration operators, not a complete model zoo.
-- General inter-node coverage. PR #918 provides a multi-node AG+GEMM example,
-  but this FEP does not extrapolate it to a complete multi-host operator set.
-
-## Proposal
-
-### Feature 1: MegaKernel Compiler
-
-A pull-based cooperative scheduler was prototyped on the `feature/tle_mega`
-branch: kernels live under `python/tutorials/tle/mega/` (e.g.
-`kernels/linear_fused_rmsnorm.py` providing
-`linear_fused_add_rms_norm_decode_mega`), driven by a mega scheduler and
-covered by `python/test/tle/integration/test_tle_mega_scheduler.py`. The
-branch carries the compiler-side changes the paradigm needs — extensions to
-`TritonToTritonGPUPass`, WGMMA pipelining (`WGMMAPipeline.cpp`,
-`TleWGMMAAnalysis`), shared-memory allocation and membar analysis
-(`lib/Analysis/Allocation.cpp`, `lib/Analysis/Membar.cpp`), and layout handling
-(`RemoveLayoutConversions.cpp`).
-
-The model-level entry point (HuggingFace definition → Triton mega-kernel) was
-the planned 2.2 work: a front-end that composes the per-operation mega kernels
-into a full decode step and schedules them cooperatively on one launch. It was
-not found in the reviewed release evidence and remains a proposal.
-
-<!-- TODO (design):
-     1. Front-end scope — which model families / layer types the compiler
-        accepts, and how a HuggingFace config maps to mega-kernel fragments.
-     2. Scheduler — pull-based cooperative scheduling model, occupancy /
-        persistent-CTA strategy, how weights and KV stay resident.
-     3. Relationship to FlagOS-RT / TileRT positioning. -->
-
-### Feature 2: Distributed Primitives and Comm-Compute Fusion
-
-The TLE distributed API already exists on feature branches under
-`python/triton/experimental/tle/language/distributed.py` and is exported from
-`experimental/tle/language/__init__.py`: `remote`, `shard_id`,
-`distributed_barrier`, `distributed_dot`, plus a sharding model
-(`ShardedTensor`, `ShardingSpec`, `device_mesh`, `reshard`, `make_sharded_tensor`)
-and a hierarchical `MeshConfig` (node / device / block_cluster / block).
-Device-side helpers include `n_pes` and `_get_local_rank`, and the barrier
-carries `BarrierKind {arrive, wait, sync}` and `MemoryOrder {relaxed, acquire,
-release, acqrel}`.
-
-Signal/wait `load`/`store` and the FlagCX lowering are under development on the
-`add_signal_primitives_for_tle_dist`, `add_put_value_primitives`, and
-`feature/tle_remote_node` branches, which add the MLIR ops and their lowering in
-the `third_party/tle` dialect:
-
-- `Tle_PutMemOrValueOp` (`tle.putmem`) — transfer a value to a remote PE, with
-  an optional `put_type` attribute selecting signal / counter-update semantics.
-- `Tle_DeviceIntraBarrierOp` — device-local synchronization barrier
-  (arrive / wait / sync), lowered via `flagcxIntraBarrierWaitS`.
-- FlagCX integration under
-  `third_party/tle/dialect/lib/Conversion/TleToLLVM/FlagCxOpToLLVM/` and
-  `Tools/FlagcxUtils.cpp` — this is the compiler-side linkage to FlagCX
-  ([FEP-0021](../sig-network/0021-flagcx-v0.13.0-new-features.md)).
-
-Distributed-operator examples already exist on
-`triton_v3.6.x_add_intra_node_test_demo` — `test_tle_intra_node_allgather.py`,
-`test_tle_intra_node_reduce_scatter.py` and TMA / atomic-barrier variants —
-and NVSHMEM support is prototyped on a separate feature branch.
-
-The merged PRs listed in the release-evidence section land substantial parts
-of this API and several examples. FlagCX multi-chip coverage and the complete
-comm-compute fusion acceptance target remain open.
-
-<!-- TODO (design):
-     1. Final public API surface and stability level (experimental namespace).
-     2. Execution model — device-initiated (NVSHMEM-style) vs. host-scheduled
-        chunking; which is used per vendor.
-     3. FlagCX version dependency and the per-vendor CCL backends exercised. -->
-
-## Design Details
-
-<!-- TODO: architecture and data-flow details for both features, to be filled
-     before Status moves to `Implementable` (FEP Freeze 2026-08-14). -->
+The MegaKernel design uses a persistent cooperative scheduler for model
+execution. Its model conversion, demonstration operators and performance
+protocol still require a release implementation.
 
 ## Packaging
 
-**(Required)** Built as part of the FlagTree TLE components; no separate wheel.
-
-**Supported vendors:** NVIDIA (mega-kernel + distributed); distributed
-primitives additionally target 2+ domestic chips via FlagCX
-[TODO: name vendors].
-
-**Can this feature be packaged as a wheel (`.whl`)?** Yes — it ships inside the
-per-backend FlagTree wheel; there is no standalone artifact.
-
-### Build
+Distributed support ships in the FlagTree wheel with the selected FlagCX
+libraries. NVSHMEM examples additionally require CUDA, NVSHMEM and the
+matching hardware. NVIDIA fusion validation targets SM90 or later.
 
 ```bash
-git clone https://github.com/flagos-ai/FlagTree.git
-cd FlagTree
-MAX_JOBS=32 python3 -m pip install . --no-build-isolation
+bash scripts/build-flagcx-project.sh
+python -m pip wheel . --no-build-isolation --no-deps -w dist
 ```
 
-FlagCX must be available for the distributed-primitive lowering.
-<!-- TODO: FlagCX version pin and build flag / environment variable that
-     enables the FlagCX lowering path. -->
+The build script fetches FlagCX independently; record its commit and the
+loaded `libflagcx.so`/device bitcode with every test result.
 
 ## Test Plan
 
-**(Required)** Each goal is verified independently, reusing the existing TLE
-test infrastructure under `python/test/tle/` and the tutorials under
-`python/tutorials/tle/`.
+Single-node primitive tests:
 
-### G1 / G2: MegaKernel
+```bash
+bash python/test/tle/unit/test_tle_distributed_d2d.sh
+bash python/test/tle/unit/test_tle_signal.sh
+bash python/test/tle/unit/test_tle_signal_wait.sh
+bash python/test/tle/unit/test_tle_d2d_barrier.sh
+```
 
-| Test | Command | Expected result |
-|---|---|---|
-| Mega scheduler correctness | `pytest -s python/test/tle/integration/test_tle_mega_scheduler.py` | Generated cooperative kernel matches the torch reference within tolerance |
-| Qwen3-32B decode perf | <!-- TODO: launch command, bs=1 decode driver, metric collection on H800 --> | Decode throughput ≥ 1.20× vLLM [TODO: version] and > Triton-distributed |
+For node-space PUT/GET, run on both nodes with the same reachable master
+address and port, changing `NODE_RANK` on the second node:
 
-### G3 / G4: Distributed primitives on FlagCX
+```bash
+NNODES=2 NODE_RANK=0 MASTER_ADDR=10.0.0.1 \
+  bash python/test/tle/unit/test_tle_distributed_node.sh
+```
 
-| Test | Command | Expected result |
-|---|---|---|
-| Unit (primitives) | `pytest -s python/test/tle/unit/test_tle_distributed.py` | `remote` / `shard_id` / `distributed_barrier` / signal-wait `load`/`store` pass |
-| put_mem / signal | `python/test/tle/unit/test_tle_put_mem.sh` | Value/signal transfer to remote PE verified |
-| Multi-chip | <!-- TODO: per vendor — build flag, launcher, rank count, hardware --> | Primitives run on 2+ domestic chips via FlagCX |
+Every rank must pass reference-value and synchronization checks.
 
-### G5: Comm-compute fusion vs. Triton-distributed
+NVSHMEM fusion examples, on at least two supported GPUs:
 
-Baseline: Triton-distributed [TODO: version/commit], same hardware and message
-sizes.
+```bash
+cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm
+torchrun --nproc_per_node=2 benchmark.py --dump_csv
+```
 
-| Test | Command | Expected result |
-|---|---|---|
-| AllGather / ReduceScatter | `python/tutorials/tle/test_tle_intra_node_allgather.sh`, `..._reduce_scatter.sh` | Correct results; within [TODO: tolerance] of baseline |
-| AllGather+GEMM / GEMM+ReduceScatter | <!-- TODO: benchmark command, GEMM shapes, topology --> | Within [TODO: tolerance] of baseline, average parity |
+Run `03-gemm-allreduce/gemm-ar.py` with `torchrun` from its example
+directory. Compare numerical outputs with the PyTorch reference and record
+latency, shape, dtype, topology and backend.
+
+GEMM+ReduceScatter is tracked in
+[FlagCX#620](https://github.com/flagos-ai/FlagCX/issues/620). Primitive QA and
+fused-operator acceptance are separate rows in the release matrix.
 
 ## Related PRs
 
-- [ ] FlagTree — MegaKernel compiler prototype on `feature/tle_mega`; no
-  merged implementation PR identified
-- [x] flagos-ai/FlagTree#701 — Add rank count primitives
-- [x] flagos-ai/FlagTree#732 — Add optional offset to `tle.remote`
-- [x] flagos-ai/FlagTree#787 — TLERaw NVSHMEM support
-- [x] flagos-ai/FlagTree#861 — GEMM+AllReduce with multimem support
-- [x] flagos-ai/FlagTree#863 — Add signal and signal_wait operators
-- [x] flagos-ai/FlagTree#899 — Remote-node support (merged during stabilization)
-- [x] flagos-ai/FlagTree#918 — Multi-node AG+GEMM support
-- [x] flagos-ai/FlagTree#961 — TLE DSA distributed op on Triton 3.5
-- [x] flagos-ai/FlagTree#969 — Node axis in `shard_id`
-- [x] flagos-ai/FlagTree#1048 — Multi-GPU `distributed_barrier` support
-  (opened before freeze, merged during stabilization)
-
-## Implementation History
-
-- 2026-08-01: FEP created as `Provisional` for the FlagOS 2.2 cycle. MegaKernel
-  scheduler prototype and TLE distributed API present on feature branches;
-  model-level MegaKernel front-end, FlagCX multi-chip lowering, and
-  comm-compute fusion parity are the remaining 2.2 work. Owner and quantified
-  acceptance targets (G2, G4, G5) pending fill-in before FEP Freeze.
-- 2026-09-17: Reconciled the FEP with the 2.2 RC2 lines and implementation
-  PRs. Kept MegaKernel, two-domestic-chip coverage, and the full parity target
-  provisional; recorded the distributed primitives and examples that actually
-  merged.
+- [x] [FlagTree#701](https://github.com/flagos-ai/FlagTree/pull/701) — Distributed rank primitives. Merged.
+- [x] [FlagTree#732](https://github.com/flagos-ai/FlagTree/pull/732) — Remote offset support. Merged.
+- [x] [FlagTree#861](https://github.com/flagos-ai/FlagTree/pull/861) — NVSHMEM GEMM+AllReduce example. Merged.
+- [x] [FlagTree#863](https://github.com/flagos-ai/FlagTree/pull/863) — Signal and signal_wait primitives. Merged.
+- [x] [FlagTree#899](https://github.com/flagos-ai/FlagTree/pull/899) — Remote node support. Merged.
+- [x] [FlagTree#918](https://github.com/flagos-ai/FlagTree/pull/918) — Multi-node AllGather+GEMM example. Merged.
+- [x] [FlagTree#961](https://github.com/flagos-ai/FlagTree/pull/961) — DSA distributed operations on Triton 3.5. Merged.
+- [x] [FlagTree#969](https://github.com/flagos-ai/FlagTree/pull/969) — Node-axis shard_id. Merged.
+- [x] [FlagTree#1048](https://github.com/flagos-ai/FlagTree/pull/1048) — Multi-GPU distributed barriers. Merged.
+- [x] [FlagTree#1255](https://github.com/flagos-ai/FlagTree/pull/1255) — FlagCX load error handling in RC2. Merged.
