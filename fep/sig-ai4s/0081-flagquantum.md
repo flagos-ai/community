@@ -1,6 +1,6 @@
 # FEP-0081: FlagQuantum Development Direction
 
-**Status:** `Provisional`
+**Status:** `Deferred`
 
 **Updated:** 2026-09-24
 
@@ -10,15 +10,14 @@
 
 **SIG:** sig-ai4s
 
-**Target Version:** FlagOS 2.2
+**Target Version:** FlagOS 2.3
 
 ## Scope
 
-FlagQuantum's next-stage design remains subject to intellectual-property
-review. This FEP does not specify a new public API, platform capability or
-performance target for FlagOS 2.2.
+Define the next FlagQuantum API, platform capabilities and performance
+targets for FlagOS 2.3 after intellectual-property review.
 
-## Source Status
+## Baseline
 
 The FlagOS 2.2 RC2 manifest has no FlagQuantum entry, and the repository has
 no RC2 branch. FlagQuantum `v0.1.0` is the earlier baseline, not a module
@@ -29,17 +28,10 @@ The inspected main revision is
 PRs #12 and #14 cover backend documentation and license headers. Later
 development on main has no assigned 2.2 release artifact in this FEP.
 
-## Delivery Requirements
+## Deliverables
 
-A new release claim requires a defined capability, source revision, package
-and acceptance criteria. Technical design remains in the separately reviewed
-materials until cleared for disclosure. No new public 2.2 capability can be
-marked complete from the current scope.
-
-## Verification Boundary
-
-The missing public scope prevents a release-level completion decision. It
-does not establish that the separately reviewed implementation is unfinished.
+A reviewed public design, pinned implementation, release package and
+executable capability/acceptance matrix.
 
 ## Related PRs
 

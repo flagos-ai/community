@@ -24,7 +24,7 @@ Add shared-memory alias views through `tle.gpu.alloc` and explicit tensor
 layouts through `tle.gpu.set_layout`. Both APIs are present in the Triton 3.6
 RC2 branch.
 
-## Goals and Completion
+## Delivered Scope
 
 | Goal | RC2 implementation | Acceptance |
 |---|---|---|
@@ -79,7 +79,7 @@ python -m pip wheel . --no-build-isolation --no-deps -w dist
 NVIDIA SM90 is the reference target for the shared-memory and MMA tests.
 Moore Threads has a separate `set_layout` backend test.
 
-## Test Plan
+## Test Commands
 
 From the FlagTree source root on the matching accelerator:
 
@@ -101,15 +101,15 @@ regressions under `third_party/tle/test/GPU/` include:
 Valid views must preserve reference results without extra shared-memory
 allocation. Invalid bounds, offsets, layouts and conflicting anchors must
 fail compilation. Required conversions must remain; redundant conversions
-must disappear. The feature CI results below cover the merged implementation included in RC2.
+must disappear.
 
-## Recorded Validation
+## Validation
 
 NVIDIA build and test jobs passed for [alias allocation](https://github.com/flagos-ai/FlagTree/actions/runs/32091166625/job/95573500265)
 and [layout integration](https://github.com/flagos-ai/FlagTree/actions/runs/32687963733/job/97316379054).
 The logs include the alias unit cases, TLE frontend tests and numerical
 integration suite. PR #1037 also passed the MUSA unit and Qwen jobs.
-These are feature-revision results for code retained in RC2.
+The tested feature revisions are included in RC2.
 
 ## Related PRs
 

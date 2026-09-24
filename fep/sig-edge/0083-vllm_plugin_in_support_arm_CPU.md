@@ -38,10 +38,9 @@ branch heads:
 | FlagGems #5904 | `1fda4b11ae528c02ae5187cda551af4a61a514c5` |
 | [FlagTree CPU](https://github.com/flagos-ai/flagtree-cpu/tree/2c35990a30e96665f8f9b5e158562288b4011048) | `2c35990a30e96665f8f9b5e158562288b4011048` |
 
-The plugin change is in the vLLM 0.24.0 release line, not the 0.20.2 line.
-The recorded acceptance below applies to these fixed test revisions. The
-accepted plugin and operator changes are included in RC2; compiler artifact
-assignment remains a release packaging task.
+The plugin change is in the vLLM 0.24.0 release line. The acceptance below
+applies to these fixed test revisions; the plugin and operator changes are
+included in RC2.
 
 ## Design
 
@@ -123,7 +122,7 @@ These measurements are reproducibility references, not release thresholds.
 Independent compiler checks are in
 [FEP-0082](0082-flagtree-cpu-bump-to-triton-3_7.md).
 
-## Limits and Follow-up
+## Known Limitations
 
 Empty-cache first use can spend roughly fifteen minutes compiling CPU
 kernels. Prewarming requires a persistent `TRITON_CACHE_DIR`, matching
@@ -134,10 +133,13 @@ The published activation metadata is symmetric while the FlagGems operator
 uses asymmetric dynamic activation quantization. Broader quality claims require a BF16
 comparison on a defined evaluation set. Long context, concurrency and
 production throughput are outside the completed functional PoC acceptance.
-The CPU release artifact and assembled dependency regression remain release
-packaging tasks.
 
 ## Related PRs
 
 - [x] [vllm-plugin-FL#433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — Arm64 packed W4A8 integration in the 0.24.0 RC2 line. Merged.
 - [x] [FlagGems#5904](https://github.com/flagos-ai/FlagGems/pull/5904) — Arm W4A8 operator and public packer in RC2. Merged.
+
+## Deferred to FlagOS 2.3
+
+CPU compiler release-artifact integration and assembled dependency regression,
+tracked with [FEP-0082](0082-flagtree-cpu-bump-to-triton-3_7.md#deferred-to-flagos-23).

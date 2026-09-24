@@ -75,9 +75,7 @@ build before testing.
 
 ## Release Packaging and Limits
 
-The compiler acceptance above has passed. CPU artifact assignment and the
-release-manifest entry remain packaging tasks. Model startup,
-quality and throughput are covered by FEP-0083. Its roughly fifteen-minute
+Model startup, quality and throughput are covered by FEP-0083. Its roughly fifteen-minute
 empty-cache model JIT is not represented by the small vector-add timing.
 GPU/NPU, x86_64, macOS and Windows are outside this Arm64 acceptance scope.
 
@@ -85,3 +83,8 @@ GPU/NPU, x86_64, macOS and Windows are outside this Arm64 acceptance scope.
 
 - [x] [FlagGems#5904](https://github.com/flagos-ai/FlagGems/pull/5904) — Arm W4A8 operator and numerical tests; included in FlagGems RC2. Merged.
 - [x] [vllm-plugin-FL#433](https://github.com/flagos-ai/vllm-plugin-FL/pull/433) — Downstream Arm64 integration; included in the 0.24.0 RC2 line. Merged.
+
+## Deferred to FlagOS 2.3
+
+CPU compiler release-artifact assignment, manifest integration and packaged
+dependency regression.

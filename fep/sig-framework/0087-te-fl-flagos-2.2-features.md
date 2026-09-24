@@ -1,6 +1,6 @@
-# FEP-0087: TransformerEngine-FL Features for FlagOS 2.2
+# FEP-0087: TransformerEngine 2.17 and Four-Platform Training Integration
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -20,22 +20,17 @@
 
 ## Summary
 
-TransformerEngine-FL 0.3 synchronizes with upstream TransformerEngine 2.17.0
-and extends vendor backends, optimizer interfaces and communication-overlap
-support. Full ten-vendor acceptance remains pending. FSA is deferred from the
-2.2 scope.
+TransformerEngine-FL 0.3 integrates upstream TransformerEngine 2.17.0.
+The 2.2 acceptance scope covers Qwen training through the vendor and FlagOS
+TE routes on PPU, Hygon, Ascend and MetaX.
 
-## Goals and Completion
+## Delivered Scope
 
-| Goal | RC2 implementation | Remaining work |
+| Feature | Implementation | Validation |
 |---|---|---|
-| G1: Ten-vendor adaptation matrix | Nine vendor directories plus shared/reference paths; per-vendor test runners present | Name and verify all ten platforms in a capability matrix |
-| G2: Upstream TE 2.17 | `build_tools/VERSION.txt` is `2.17.0`; plugin synchronization and regression fixes present | Four-platform Megatron integration passed; remaining vendor/operator combinations need results |
-| G3: FSA sparse attention | Deferred | No FSA release claim |
-
-Vendor directories are CUDA, Enflame, Hygon, Iluvatar, Kunlunxin, MetaX,
-MUSA, NPU and Tsingmicro. Shared CUDA-compatible execution must be recorded
-against the actual vendor and SDK in the acceptance matrix.
+| Upstream synchronization | TE 2.17.0 and FL plugin interfaces | Four-platform Megatron regression |
+| Vendor/FlagOS dispatch | Backend registry and reference/FlagOS operator paths | Qwen3-0.6B and Qwen3.5-4B training |
+| Training integration | Optimizer and checkpoint interfaces | Save/load and converted-checkpoint continuation |
 
 ## Design
 
@@ -57,7 +52,7 @@ upstream TE build system; dependencies and ABI differ by vendor.
 python -m pip wheel . --no-build-isolation --no-deps -w dist
 ```
 
-## Test Plan
+## Test Commands
 
 Shared plugin tests:
 
@@ -73,29 +68,20 @@ NVIDIA test entry:
 bash tests/plugin/backend/cuda/run_unit_tests.sh unittest distributed
 ```
 
-MetaX, MUSA, Hygon, Kunlunxin and Enflame have corresponding runner scripts
-under `tests/plugin/backend/`; use their vendor environments and integration
-scripts. Require correct operators, optimizer state updates and Megatron
-training, including TP communication overlap where claimed. Record toolkit,
-PyTorch, TE-FL and Megatron revisions with each result.
-
-The ten-vendor capability matrix and complete RC2 acceptance results remain
-outstanding.
-
-## Recorded Validation
+## Validation
 
 The [September 24 execution matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records Qwen3-0.6B training,
-checkpoint save/load and converted-weight continuation across PPU, Hygon,
-Ascend and MetaX. Qwen3.5-4B also passed the vendor and FlagOS TE routes
-with FlagCX disabled, including 2TP-to-4TP checkpoint conversion.
+checkpoint save/load and converted-weight continuation on PPU, Hygon,
+Ascend and MetaX. Qwen3.5-4B passed the vendor and FlagOS TE routes with
+FlagCX disabled, including 2TP-to-4TP checkpoint conversion.
 
-The full-stack paths have narrower coverage: selected FlagGems operators
-are disabled on PPU/MetaX, and the matrix records failing Qwen3.5 cases on
-Hygon/Ascend with FlagGems enabled. FlagCX training is a separate unresolved
-path, tracked in [Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
+## Known Limitations
 
-These results verify four concrete training environments. The original
-ten-vendor operator and overlap matrix still needs a complete result set.
+FlagCX-enabled training remains affected by
+[Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
+Full FlagGems enablement is not part of the accepted Qwen3.5 configuration:
+PPU/MetaX runs exclude selected operators, and Hygon/Ascend have recorded
+failures with FlagGems enabled.
 
 ## Related PRs
 
@@ -114,3 +100,7 @@ ten-vendor operator and overlap matrix still needs a complete result set.
 - [x] [TransformerEngine-FL#125](https://github.com/flagos-ai/TransformerEngine-FL/pull/125) — RC2 backports. Merged.
 - [x] [TransformerEngine-FL#127](https://github.com/flagos-ai/TransformerEngine-FL/pull/127) — Additional RC2 backports. Merged.
 - [x] [TransformerEngine-FL#130](https://github.com/flagos-ai/TransformerEngine-FL/pull/130) — MetaX TE package-layout compatibility in RC2. Merged.
+
+## Deferred to FlagOS 2.3
+
+Complete the ten-vendor operator and communication-overlap matrix; validate FSA sparse attention.

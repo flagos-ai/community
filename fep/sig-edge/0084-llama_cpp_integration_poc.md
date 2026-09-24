@@ -10,14 +10,13 @@
 
 **SIG:** sig-edge
 
-**Target Version:** Deferred from FlagOS 2.2; candidate for FlagOS 2.3
+**Target Version:** FlagOS 2.3
 
-## Scope and Release Decision
+## Scope
 
-Explore a FlagOS GGML dynamic backend for unmodified llama.cpp on Qualcomm
-Hexagon. On 2026-08-24, the owner recommended postponing the feature to
-FlagOS 2.3 because the framework and code were not ready for release. No
-implementation PR or RC2 artifact is assigned to this FEP.
+Implement a FlagOS GGML dynamic backend for unmodified llama.cpp on
+Qualcomm Hexagon. The initial scope is a quantized matrix-multiplication
+operator and a small GGUF model with CPU fallback.
 
 ## Proposed Design
 
@@ -38,7 +37,7 @@ script and deployment instructions. The implementation must pin llama.cpp,
 the GGML ABI, FlagTree, the Qualcomm SDK and the target SoC. No stable binary
 or compatibility guarantee is defined yet.
 
-## Acceptance for Reactivation
+## Acceptance
 
 1. Build the pinned, unmodified llama.cpp with dynamic GGML backend loading.
 2. Load the FlagOS library and enumerate the Hexagon device.
@@ -51,9 +50,3 @@ or compatibility guarantee is defined yet.
 
 A working operator and model path establish feasibility. Production scope
 and performance targets require a separate release decision.
-
-## Decision Reference
-
-The [owner's August 24 review](https://github.com/flagos-ai/community/pull/84)
-records the postponement. This item is excluded from the active FlagOS 2.2
-FEP count.

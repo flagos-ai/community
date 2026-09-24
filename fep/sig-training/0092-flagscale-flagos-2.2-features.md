@@ -1,6 +1,6 @@
-# FEP-0092: FlagScale Features for FlagOS 2.2
+# FEP-0092: FlagScale Qwen Training and Checkpoint Portability
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -20,49 +20,27 @@
 
 ## Summary
 
-FlagScale 2.1 adds training observability, model/checkpoint updates,
-function-level overrides, native Ascend integration and a shared VLA serving
-entry point. The RC2 source contains these changes and the Megatron Core
-0.18.2 integration. Training and checkpoint validation is recorded below; other model and
-serving goals retain separate acceptance items.
+FlagScale 2.1 integrates Megatron Core 0.18.2, Qwen training/checkpoint
+updates and native Ascend adaptation. The 2.2 scope includes the validated
+four-platform Qwen configurations and GR00T N1.5 checkpoint portability.
 
-DeepSeek-V4 base support and initial Qwen3.5 support belong to the FlagOS 2.1
-baseline. The 2.2 changes extend their training and checkpoint paths.
+## Delivered Scope
 
-## Goals and Completion
-
-| Goal | RC2 implementation | Remaining acceptance |
+| Feature | Implementation | Validation |
 |---|---|---|
-| G1: Observability | Straggler detector, performance monitor and progress heartbeat | Distributed training reports and monitoring overhead |
-| G2: Models | Qwen3.5 conversion, Qwen3-VL, Qwen-GR00T Orca, GLM5 and Qwen3.6 paths | Per-model training and checkpoint results |
-| G3: Multi-platform integration | Function overrides, device dispatch and in-tree Ascend adaptor | Platform dispatch and training regression |
-| G4: Checkpoints | GR00T portability and Qwen3.5 uneven-PP/Qwen3.6 conversion | Cross-node reload and numerical round trips |
-| G5: Performance | DeepSeek-V4 FLOPs accounting, DualPipeV fix and PI0.5 loading changes | Scheduling regression and measured memory/throughput |
-| G6: VLA serving | Shared `run_serve_vla.py` entry point | PI0, PI0.5, Qwen-GR00T and GR00T N1.5 serving results |
-| G7: Engineering | Vendor training CI, golden updates and license headers | Completed RC2 platform matrix |
+| Qwen training | Device overrides, native Ascend adaptor and Core 0.18.2 | PPU/Hygon/Ascend/MetaX training |
+| Qwen checkpoints | Save/load and conversion tools | 2TP-to-4TP continuation |
+| GR00T portability | Runtime device override and saved base-model path | Ascend training, reload and action inference |
 
 ## Design
 
-`flagscale/runner/straggler/` collects rank-level progress and reports slow
-workers. `flagscale/train/perf_monitor/` records step performance, estimated
-FLOPs and memory. Both have unit tests and standalone distributed smoke
-programs.
+The override plugin selects device-specific Megatron functions. Ascend's
+MegatronAdaptor is integrated in-tree. Qwen checkpoint tools convert model
+weights for the destination tensor-parallel configuration.
 
-The override plugin replaces selected Megatron functions through registered
-device-specific implementations. Its dispatch tests are in
-`flagscale/train/megatron/plugin_flagscale/test_override.py`. Ascend's
-MegatronAdaptor is integrated in-tree; the vendor runtime remains an external
-dependency.
-
-Checkpoint tools extend the existing model workflow. VLA serving selects
-PI0/PI0.5/Qwen-GR00T/GR00T N1.5 from one entry point under
-`flagscale/serve/`. PI0.5 loading uses empty-weight initialization and assigned
-state to reduce peak allocation.
-
-RC2 includes the Megatron 0.18.2 update and Enflame/Kunlunxin CI work. PR
-#1283 removes inference/serving CI and focuses the unified workflow on
-training; the presence of VLA test files does not establish an active VLA CI
-lane.
+GR00T saves an absolute local base-model path or a HuggingFace identifier.
+Serving replaces the processor's saved device with the runtime device.
+The shared serving entry point is `flagscale/serve/run_serve_vla.py`.
 
 ## Packaging
 
@@ -72,74 +50,51 @@ is 2.1.0 within FlagOS 2.2. The YAML runner remains the user entry point.
 Debian/RPM integration is still open in PR #1205 and tracked by
 [FEP-0019](../sig-os/0019-unified-package-integration.md).
 
-## Test Plan
-
-From the RC2 checkout in the configured training environment:
+## Test Commands
 
 ```bash
-python -m pytest -q tests/unit_tests/runner/straggler \
-  tests/unit_tests/runner/test_runner_train_straggler.py \
-  tests/unit_tests/train/test_perf_monitor.py
 python -m pytest -q tests/unit_tests/checkpoint/test_qwen35_converter.py
 python -m pytest -q flagscale/train/megatron/plugin_flagscale/test_override.py
 ```
 
-Standalone observability checks on two configured workers:
+Run the model's training configuration, save a checkpoint, convert it and
+resume training. GR00T validation also checks the saved base-model path,
+runtime device override, `/healthz` and action output.
 
-```bash
-torchrun --standalone --nproc_per_node=2 tools/straggler/straggler_smoke.py \
-  --output-dir /tmp/flagscale-straggler
-torchrun --standalone --nproc_per_node=2 tools/perf_monitor/perf_smoke.py \
-  --output-dir /tmp/flagscale-perf
-```
-
-Require valid rank reports and performance records. Run the model's checked-in
-training configuration and checkpoint conversion on each claimed platform;
-verify loss against its reference, reload correctness and uneven-PP handling.
-For GR00T, reload on another node. For PI0.5, compare peak loading memory
-against the previous implementation. For DualPipeV, verify completion and
-reference-compatible gradients under the affected schedule.
-
-Run all four VLA families through the shared serving entry and validate
-responses against the corresponding model reference. Record these runs
-separately from training CI. Preserve source/dependency revisions, model
-configuration, hardware, logs and measurements for the release matrix.
-
-## Recorded Validation
+## Validation
 
 The [September 24 execution matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records Qwen3-0.6B training,
-checkpoint save/load and converted-weight continuation across PPU, Hygon,
-Ascend and MetaX. Qwen3.5-4B also passed the vendor and FlagOS TE routes
-with FlagCX disabled, including 2TP-to-4TP checkpoint conversion.
+checkpoint save/load and converted-weight continuation on PPU, Hygon,
+Ascend and MetaX. Qwen3.5-4B passed the vendor and FlagOS TE routes with
+FlagCX disabled, including 2TP-to-4TP checkpoint conversion.
 
-The full-stack paths have narrower coverage: selected FlagGems operators
-are disabled on PPU/MetaX, and the matrix records failing Qwen3.5 cases on
-Hygon/Ascend with FlagGems enabled. FlagCX training is a separate unresolved
-path, tracked in [Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
+[PR #1219](https://github.com/flagos-ai/FlagScale/pull/1219) records five-step
+GR00T N1.5 training on Ascend 910B, checkpoint save, a simulated saved MUSA
+device, and successful reload on NPU. `/healthz` returned `OK`; WebSocket
+inference returned actions of shape `(16, 7)`.
 
-These results cover real training and checkpoint paths. They do not cover
-all four VLA serving families, GR00T cross-node reload or the monitoring
-overhead targets in this FEP. Those remaining cases need their own results.
+## Known Limitations
+
+FlagCX-enabled training remains affected by
+[Megatron-LM-FL#172](https://github.com/flagos-ai/Megatron-LM-FL/issues/172).
+Full FlagGems enablement is not part of the accepted Qwen3.5 configuration:
+PPU/MetaX runs exclude selected operators, and Hygon/Ascend have recorded
+failures with FlagGems enabled.
 
 ## Related PRs
 
-- [x] [FlagScale#1215](https://github.com/flagos-ai/FlagScale/pull/1215) — Straggler detection. Merged.
-- [x] [FlagScale#1216](https://github.com/flagos-ai/FlagScale/pull/1216) — Performance monitor. Merged.
-- [x] [FlagScale#1243](https://github.com/flagos-ai/FlagScale/pull/1243) — Low-overhead progress heartbeat. Merged.
 - [x] [FlagScale#1214](https://github.com/flagos-ai/FlagScale/pull/1214) — Function-level override plugin. Merged.
 - [x] [FlagScale#1226](https://github.com/flagos-ai/FlagScale/pull/1226) — Native Ascend adaptor. Merged.
 - [x] [FlagScale#1233](https://github.com/flagos-ai/FlagScale/pull/1233) — Qwen3.5 MoE conversion and uneven pipeline parallelism. Merged.
-- [x] [FlagScale#1235](https://github.com/flagos-ai/FlagScale/pull/1235) — Qwen3-VL update. Merged.
-- [x] [FlagScale#1228](https://github.com/flagos-ai/FlagScale/pull/1228) — Qwen-GR00T Orca features. Merged.
 - [x] [FlagScale#1219](https://github.com/flagos-ai/FlagScale/pull/1219) — GR00T checkpoint portability. Merged.
-- [x] [FlagScale#1230](https://github.com/flagos-ai/FlagScale/pull/1230) — DeepSeek-V4 FLOPs accounting. Merged.
-- [x] [FlagScale#1207](https://github.com/flagos-ai/FlagScale/pull/1207) — DualPipeV scheduling fix. Merged.
-- [x] [FlagScale#1221](https://github.com/flagos-ai/FlagScale/pull/1221) — PI0.5 loading memory reduction. Merged.
 - [x] [FlagScale#1225](https://github.com/flagos-ai/FlagScale/pull/1225) — Unified VLA serving entry point. Merged.
-- [x] [FlagScale#1227](https://github.com/flagos-ai/FlagScale/pull/1227) — GLM5 training. Merged.
-- [x] [FlagScale#1273](https://github.com/flagos-ai/FlagScale/pull/1273) — Qwen3.6 model and checkpoint support. Merged.
 - [x] [FlagScale#1284](https://github.com/flagos-ai/FlagScale/pull/1284) — Megatron Core 0.18.2 update. Merged.
-- [x] [FlagScale#1275](https://github.com/flagos-ai/FlagScale/pull/1275) — Enflame CI. Merged.
-- [x] [FlagScale#1282](https://github.com/flagos-ai/FlagScale/pull/1282) — Kunlunxin CI. Merged.
 - [x] [FlagScale#1283](https://github.com/flagos-ai/FlagScale/pull/1283) — Training-only CI scope. Merged.
 - [x] [FlagScale#1301](https://github.com/flagos-ai/FlagScale/pull/1301) — RC2 source update. Merged.
+
+## Deferred to FlagOS 2.3
+
+- Monitoring overhead and distributed straggler/performance acceptance for [#1215](https://github.com/flagos-ai/FlagScale/pull/1215), [#1216](https://github.com/flagos-ai/FlagScale/pull/1216) and heartbeat [#1243](https://github.com/flagos-ai/FlagScale/pull/1243).
+- Model acceptance for Qwen3.6 [#1273](https://github.com/flagos-ai/FlagScale/pull/1273), GLM5 [#1227](https://github.com/flagos-ai/FlagScale/pull/1227), Qwen3-VL [#1235](https://github.com/flagos-ai/FlagScale/pull/1235) and Qwen-GR00T [#1228](https://github.com/flagos-ai/FlagScale/pull/1228).
+- The complete PI0/PI0.5/Qwen-GR00T/GR00T serving matrix and physical cross-node checkpoint reload.
+- DualPipeV scheduling regression for [#1207](https://github.com/flagos-ai/FlagScale/pull/1207) and PI0.5 loading-memory measurements for [#1221](https://github.com/flagos-ai/FlagScale/pull/1221).

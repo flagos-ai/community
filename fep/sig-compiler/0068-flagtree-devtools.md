@@ -27,14 +27,14 @@ runtime and build integration for Ascend on Triton 3.5 and Iluvatar on Triton
 3.6. The public component namespaces are `flagtree.debugger` and
 `flagtree.profiler`.
 
-## Goals and Completion
+## Delivered Scope
 
-| Goal | RC2 implementation | Remaining work |
+| Feature | RC2 implementation | Validation |
 |---|---|---|
 | Debugger instrumentation and reports | Host callbacks, statement metadata, launch context and debugger registration | Ascend hardware examples and Iluvatar delivery validation passed |
 | Profiler integration | Optional profiler registration and shared build integration | Ascend trace generation passed; Iluvatar delivery validation recorded |
 | Source/IR/runtime correlation | Compiler and statement events in `python/flagtree/_flagprism.py` | Ascend debugger reports and profiler timeline verified |
-| Optional components | `TRITON_BUILD_FLAGPRISM` build control and compatibility checks | Record the external FlagPrism revision used for each RC2 build |
+| Optional components | `TRITON_BUILD_FLAGPRISM` build control and compatibility checks | Host registration tests and component builds |
 
 `python/setup_tools/setup_helper.py` enables FlagPrism for Ascend and
 Iluvatar. Other backends are outside this RC2 build policy. The dependency
@@ -54,9 +54,7 @@ legacy Proton build cannot both be enabled.
 
 ## Packaging
 
-Components are built with FlagTree and its matching LLVM/MLIR ABI; RC2 does
-not use the proposed independent `flagtree-debugger` and
-`flagtree-profiler` wheel arrangement.
+Components are built with FlagTree and its matching LLVM/MLIR ABI.
 
 On the Ascend 3.5 or Iluvatar 3.6 source line, with the vendor toolchain:
 
@@ -68,7 +66,7 @@ TRITON_BUILD_FLAGPRISM=ON TRITON_BUILD_PROTON=OFF \
 Record the FlagTree and FlagPrism commits with the wheel. Build with
 `TRITON_BUILD_FLAGPRISM=OFF` to verify operation without the components.
 
-## Test Plan
+## Test Commands
 
 ```bash
 python -m pytest -q python/test/unit/test_flagprism.py
@@ -79,9 +77,9 @@ Host tests must verify namespace ownership, registration, version/capability
 rejection and enabled/disabled build behavior. On each supported accelerator,
 run the matching FlagPrism debugger and profiler tests, verify source/IR
 correlation and readable profiles, and compare kernel results with collection
-disabled. The recorded validation below covers the two backends integrated in this RC2 build policy.
+disabled.
 
-## Recorded Validation
+## Validation
 
 [PR #916](https://github.com/flagos-ai/FlagTree/pull/916) records an Ascend
 wheel build/install, 47 Python tests passed with 2 skipped, 10 debugger lit
@@ -89,16 +87,16 @@ tests and 45 C++ tests passed. Hardware `abs`, `softmax` and `tiny_mlp`
 examples passed; the profiler timeline contained 37,500 events.
 
 [Iluvatar build and unit CI](https://github.com/flagos-ai/FlagTree/actions/runs/33497559834/job/99823186237)
-passed. The [September 22 tool delivery report](https://jwolpxeehx.feishu.cn/wiki/Hctaw47I3ixMFTkSzm4cNqzRnnb)
-records debugger and profiler delivery on Ascend, Iluvatar and MUSA.
-MUSA integration PR #1106 is on main, outside this RC2 build policy;
-NVIDIA #1262 and Enflame #1239 remain open. These later backend additions
-are separate from the implemented Ascend/Iluvatar integration.
+passed. The [September 22 tool report](https://jwolpxeehx.feishu.cn/wiki/Hctaw47I3ixMFTkSzm4cNqzRnnb)
+records debugger and profiler delivery on Ascend and Iluvatar.
 
 ## Related PRs
 
 - [x] [FlagTree#916](https://github.com/flagos-ai/FlagTree/pull/916) — Ascend integration on the Triton 3.5 line. Merged.
 - [x] [FlagTree#1035](https://github.com/flagos-ai/FlagTree/pull/1035) — Iluvatar integration on the Triton 3.6 line. Merged.
-- [x] [FlagTree#1106](https://github.com/flagos-ai/FlagTree/pull/1106) — MUSA tools; merged on main, outside the inspected RC2 build policy.
-- [ ] [FlagTree#1262](https://github.com/flagos-ai/FlagTree/pull/1262) — NVIDIA tools. Open.
-- [ ] [FlagTree#1239](https://github.com/flagos-ai/FlagTree/pull/1239) — Enflame tools. Open.
+
+## Deferred to FlagOS 2.3
+
+- MUSA release integration: [FlagTree#1106](https://github.com/flagos-ai/FlagTree/pull/1106), merged on main.
+- NVIDIA tools: [FlagTree#1262](https://github.com/flagos-ai/FlagTree/pull/1262).
+- Enflame tools: [FlagTree#1239](https://github.com/flagos-ai/FlagTree/pull/1239).

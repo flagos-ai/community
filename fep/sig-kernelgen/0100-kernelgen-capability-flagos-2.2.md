@@ -1,6 +1,6 @@
-# FEP-0100: KernelGen Capability Building and Optimization Exploration for FlagOS 2.2
+# FEP-0100: KernelGen Generation Tools and Optimization Workflows
 
-**Status:** `Provisional`
+**Status:** `Deferred`
 
 **Updated:** 2026-09-24
 
@@ -10,9 +10,9 @@
 
 **SIG:** sig-kernelgen
 
-**Target Version:** FlagOS 2.2
+**Target Version:** FlagOS 2.3
 
-## RC2 Source
+## FlagOS 2.2 RC2 Baseline
 
 | Module | Branch revision | Manifest tag |
 |---|---|---|
@@ -21,70 +21,40 @@
 
 ## Summary
 
-Extend KernelGen with multi-chip generation services, coverage reporting and
-optimization prototypes. The RC2 snapshot contains existing documentation,
-skills, search maintenance and license updates. The deployed generation service has completed multi-chip tests. Its
-implementation and model artifacts are not mapped to this public RC2
-snapshot, and the seven roadmap goals require separate delivery evidence.
+Deliver versioned KernelGen generation tools, model assets, coverage
+reporting and optimization workflows for FlagOS 2.3.
 
-## Goals and Completion
+## Deliverables
 
-| Goal | Required deliverable | RC2 status |
-|---|---|---|
-| G1: Core refactor | Generation-core changes and a chip/tool/knowledge onboarding contract | Deployed generation workflow tested; refactor/source mapping unresolved |
-| G2: FlagOS-Coder v1 | A 32B model for operator generation and tuning on at least five chips | No versioned model artifact or per-chip results |
-| G3: Operator coverage map | Reproducible operator/chip/status data and published view | No map generator or dataset |
-| G4: Operator agent and leaderboard | Generation/optimization workflow and comparable multi-chip rankings | Generation/optimization workflow tested; leaderboard artifact not identified |
-| G5: Workbuddy operator expert | Defined operator-expert integration and input/output contract | Scope and acceptance undefined |
-| G6: vLLM optimization prototype | KernelGen invocation in a measurable end-to-end inference workflow | No prototype or benchmark result |
-| G7: Compiler optimization agent | Defined compiler transformations integrated with kernel optimization | No prototype or transformation contract |
+| Capability | Deliverable |
+|---|---|
+| Core refactor | Generation core and chip/tool/knowledge onboarding contract |
+| FlagOS-Coder v1 | Versioned 32B model and generation/tuning results on at least five chips |
+| Operator map | Reproducible operator/chip/status dataset and published view |
+| Operator agent and leaderboard | Executable workflow and rankings from correctness/timing records |
+| Workbuddy integration | Defined request/output contract and evaluation cases |
+| vLLM optimization | Generated-kernel integration and end-to-end benchmark |
+| Compiler optimization agent | Explicit transformations and correctness/performance comparison |
 
 ## Dependencies
 
-The [Knowledge Hub](0093-kernelgen-knowledge-and-tool-hub.md) remains
-provisional. The planned 301 generated operators in
-[FEP-0099](../sig-operator/0099-operator-library-flagos-2.2.md) require their
-own inventory and cannot establish completion of these tools.
+The [Knowledge and Tool Hub](0093-kernelgen-knowledge-and-tool-hub.md)
+provides the resource registry. KernelGenBench supplies benchmark tooling;
+model artifacts, generated operators and rankings retain their own versions.
 
-KernelGenBench has a separate RC2 artifact, but its availability does not
-provide the G4 leaderboard or the per-chip results for G2. Compiler integration
-must identify which interfaces and transformations it uses from
-[FEP-0096](../sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md) and
-[FEP-0097](../sig-compiler/0097-flagtree-compiler-optimization.md).
-
-## Delivery and Acceptance
-
-The service QA covers existing KernelGen MCP generation, autotuning and TLE
-interfaces; it does not identify versioned artifacts for every new capability. Each goal needs its own versioned
-delivery and executable acceptance:
-
-- G1: onboard a chip using the documented contract and reproduce generation
-  and testing from its environment description.
-- G2: publish the model revision, license, invocation and evaluation set;
-  report correctness and tuning results on at least five named chips.
-- G3: generate the map from versioned data with stable operator identifiers
-  and links to test results.
-- G4: reproduce an operator run and regenerate rankings from raw correctness
-  and timing records using a defined metric.
-- G5: define supported requests, output contracts and a repeatable evaluation.
-- G6: verify generated-kernel dispatch in a fixed vLLM workload, preserve
-  model correctness and measure end-to-end performance.
-- G7: identify the compiler changes and compare correctness and performance
-  with an unchanged compiler baseline.
-
-Implementation scope, target-chip assignments, package/model distribution
-and quantitative acceptance thresholds remain open.
-
-## Recorded Validation
+## Service Baseline
 
 [Service QA](https://jwolpxeehx.feishu.cn/docx/ZLthdWsWqoniLVxIScVcktEinVb)
-tested nine platforms and four operator families through generation,
-autotuning and TLE execution. NVIDIA, MetaX, Enflame, Iluvatar, Ascend and
-Hygon passed all three stages: 24 of 36 platform/operator combinations.
-MUSA autotuning failed; Kunlunxin and AMD had device/environment failures.
-Rows with zero performance tests establish workflow execution only.
+tested generation, autotuning and TLE execution on nine platforms and four
+operator families. NVIDIA, MetaX, Enflame, Iluvatar, Ascend and Hygon passed
+all three stages: 24 of 36 platform/operator combinations. MUSA autotuning
+failed; Kunlunxin and AMD had device/environment failures. Rows with zero
+performance tests establish workflow execution only.
 
-This is positive evidence of an implemented, tested service. It does not
-establish delivery of the 32B model, coverage map, leaderboard, Workbuddy
-integration or the two optimization prototypes. Their source/artifact and
-acceptance mapping remains unresolved.
+## Acceptance
+
+Each capability supplies a source/model revision, executable entry point,
+test dataset and result artifact. Onboarding must reproduce generation and
+testing from a documented environment. Coverage maps and rankings must be
+regenerable from versioned data. The two optimization workflows must preserve
+numerical correctness and compare performance against a fixed baseline.

@@ -1,6 +1,6 @@
-# FEP-0088: Torch-FL Features for FlagOS 2.2
+# FEP-0088: Torch-FL Runtime, Operator Dispatch and Distributed Support
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -20,38 +20,27 @@
 
 ## Summary
 
-Torch-FL exposes the `flagos` device through PyTorch PrivateUse1, with
-per-operator routing to FlagGems, vendor kernels and compatibility boxing.
-RC2 includes distributed, profiler and compilation integration, with
-capabilities varying by platform.
+Torch-FL exposes the `flagos` device through PyTorch PrivateUse1 and
+routes operators to FlagGems, vendor kernels or compatibility boxing. The
+2.2 scope covers CUDA, MetaX, Ascend, MUSA, Hygon, PPU and Enflame.
 
-## Goals and Completion
+## Delivered Scope
 
-| Goal | RC2 implementation | Remaining work |
+| Feature | Implementation | Validation |
 |---|---|---|
-| G1: Seven-chip workload support | Routes for Hygon, MetaX, Ascend, PPU, MUSA and Enflame; additional BPU/Tsingmicro runtime code | Map the reported Kunlunxin validation to released source; complete workload coverage |
-| G2: At least 90% / about 380 FlagGems operators | Routing tables, C++ dispatch and consistency tests present | Reproducible operator inventory and model-route coverage |
-| G3: Per-vendor release packages | `setup.py` builds `torch_fl` with vendor-specific contents and local version suffixes | Package version alignment and published artifact matrix |
-| G4: FlagCX collectives and DDP | `torch_fl/comm/` and platform-specific live tests present | Collective/DDP validation recorded; retain per-platform limits and test revisions |
+| Runtime and dispatch | PrivateUse1 registration, platform configuration and operator routing | Seven-platform RC2 build/test CI |
+| FlagGems integration | Python/C++ dispatch and routing consistency checks | Integration suites and hardware adaptation records |
+| Distributed execution | FlagCX-backed `ProcessGroupFlagOS` and collectives | Basic distributed and DDP validation |
 
-The RC2 README pins PyTorch to `>=2.10,<2.11`. The QA inventory includes Kunlunxin/P800, but its tested source is not
-identified by a Kunlunxin backend in this RC2 tree. FSDP remains outside the
-committed scope.
+PyTorch compatibility is `>=2.10,<2.11` in this RC2 source. Supported model
+operations depend on each platform's routing configuration and vendor runtime.
 
 ## Design
 
-Backend configuration under `torch_fl/configs/` selects FlagGems, native
-kernels, boxing or supported CPU fallback per ATen operation. CUDA-compatible
-boxing reuses the matching vendor libtorch. Native backend coverage depends
-on the vendor operator library.
-
-The RC2 compatibility table lists NVIDIA/MetaX support, Ascend/Hygon beta
-routes, experimental PPU/GCU/MUSA routes, BPU graph compilation and
-Tsingmicro runtime setup. Eager and training coverage vary by platform.
-
-FlagCX-backed `ProcessGroupFlagOS` supplies collectives and DDP integration.
-Profiler and `torch.compile` paths have separate platform limits. Model
-validation must record the route exercised and any fallback.
+Configuration under `torch_fl/configs/` selects FlagGems, native kernels,
+boxing or supported CPU fallback per ATen operation. CUDA-compatible boxing
+reuses vendor libtorch. `torch_fl/comm/` provides FlagCX collectives and the
+distributed process group. Profiler and compilation coverage vary by platform.
 
 ## Packaging
 
@@ -67,7 +56,7 @@ SDK suffix; separate package names such as `torch-fl-mx` are not the RC2
 packaging contract. `setup.py` still sets the base wheel version to `0.1.0`,
 while the release tag is `v0.2.0-rc2.post1`. This mismatch remains unresolved.
 
-## Test Plan
+## Test Commands
 
 ```bash
 python -m pytest -q tests/integration/ops/test_flaggems_conf_consistency.py
@@ -75,28 +64,18 @@ python -m pytest -q tests/integration/ops/test_flaggems_cpp_dispatch.py
 python -m pytest -q tests/integration/ops/test_full_cuda_coverage.py
 ```
 
-Run live distributed cases from `tests/manual/`, including the Ascend and
-MUSA DDP scripts, on the corresponding hardware. Use the checked-in
-transformers test automation for model validation. Require successful
-forward/backward execution and reference-compatible results for each claimed
-workload; record unsupported operations and CPU/vendor fallback separately.
+Live collective and DDP scripts are under `tests/manual/`. Model cases use
+the repository's transformers test automation.
 
-The 90% target needs an explicit operator denominator and observed dispatch
-coverage. Wheel acceptance requires installation from the built artifact in a
-clean vendor environment with matching package and source versions.
-
-## Recorded Validation
+## Validation
 
 [RC2 workflow 34449750253](https://github.com/flagos-ai/Torch-FL/actions/runs/34449750253)
-passed all 16 checks at `400cf8652ae2`: build/test lanes for CUDA, MetaX,
-Ascend, MUSA, Hygon/DCU, PPU and Enflame/GCU, plus configuration checks.
+passed all 16 checks at `400cf8652ae2`, including build/test lanes for CUDA,
+MetaX, Ascend, MUSA, Hygon/DCU, PPU and Enflame/GCU.
 
-The [hardware adaptation inventory](https://jwolpxeehx.feishu.cn/wiki/EnckwVHbfixDcAkllaZcRlMgnMf)
-records runtime, FlagCX, basic distributed, DDP and FSDP2 support across
-seven domestic platforms. FSDP2 is additional validation, outside this FEP's
-original commitment. Kunlunxin lacks profiler, RNG and compile coverage in
-that inventory. The 90% routing target still needs its denominator; the
-inventory's operator counts alone do not prove that percentage.
+The [hardware inventory](https://jwolpxeehx.feishu.cn/wiki/EnckwVHbfixDcAkllaZcRlMgnMf)
+records runtime, FlagCX, basic distributed and DDP support. Its model and
+operator counts are platform-specific; they are not a universal routing ratio.
 
 ## Related PRs
 
@@ -112,3 +91,9 @@ inventory's operator counts alone do not prove that percentage.
 - [x] [Torch-FL#247](https://github.com/flagos-ai/Torch-FL/pull/247) — Transformers test triage and workflow integration. Merged.
 - [x] [Torch-FL#258](https://github.com/flagos-ai/Torch-FL/pull/258) — Unsigned dtype cast support. Merged.
 - [x] [Torch-FL#270](https://github.com/flagos-ai/Torch-FL/pull/270) — Fused SDPA on the boxing route. Merged.
+
+## Deferred to FlagOS 2.3
+
+- Kunlunxin's released-source and PyTorch-version integration.
+- A measured 90% FlagGems routing target with a fixed operator denominator.
+- Expanded transformers/diffusers and fine-tuning coverage.

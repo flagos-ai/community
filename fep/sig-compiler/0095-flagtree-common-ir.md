@@ -24,7 +24,7 @@ Common IR provides a lower-level route from TLE DSA operations to Ascend
 code generation. The implemented scope is an Ascend 910B/910C proof of
 concept on FlagTree's Triton 3.5 line.
 
-## Goals and Completion
+## Delivered Scope
 
 | Goal | Result |
 |---|---|
@@ -56,7 +56,7 @@ python -m pip wheel . --no-build-isolation --no-deps -w dist
 
 The feature is part of FlagTree; there is no separate Common IR package.
 
-## Test Plan
+## Test Commands
 
 The RC2 test root is `test/CommonIR`, with unit tests and separate successful,
 performance and known-failing Ascend samples.

@@ -1,6 +1,6 @@
-# FEP-0085: FlagCX New Features for FlagOS 2.2
+# FEP-0085: FlagCX Backend, Device API and Distributed Operator Support
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -21,47 +21,28 @@
 
 ## Summary
 
-FlagCX 0.14 adds PPU support, extends the Device API and supports development
-of distributed fused operators. PPU, Kunlunxin Device API and NVIDIA
-collective/fusion tests have passed. PD performance and the remaining
-operator/topology combinations have separate acceptance items.
+FlagCX 0.14 adds the PPU backend and Kunlunxin Device API support.
+The distributed operator scope covers NVIDIA AllGather, ReduceScatter and
+the FlagTree AllGather+GEMM example.
 
-## Goals and Completion
+## Delivered Scope
 
-| Goal | RC2 implementation | Validation and remaining work |
+| Feature | Implementation | Validation |
 |---|---|---|
-| G1: T-Head PPU backend | PPU device and CCL adaptors behind `USE_PPU=1`; 13 hardware CCL backends in total | PPU backend QA and CI passed |
-| G2: Two additional native Device API vendors | Kunlunxin traits and device kernels present | Identify and validate the second native vendor; default fallback does not supply a native implementation |
-| G3: GLM5.2 PD disaggregation on T-Head and MetaX, at least 3% over Mooncake | P2P/KV-transfer infrastructure present; a T-Head functional run was recorded | MetaX model run and fixed-baseline end-to-end performance results |
-| G4: AllGather, ReduceScatter, AllGather+GEMM and GEMM+ReduceScatter | Host collectives, Device API/IR bindings and Tree NVSHMEM examples present | GEMM+ReduceScatter and the complete intra-/inter-node comparison with Triton-distributed |
+| PPU backend | `ppu_cuda_adaptor.cc`, `ppu_nccl_adaptor.cc`, `USE_PPU=1` | Backend QA and CI passed |
+| Kunlunxin Device API | Native platform/communication traits and device kernels | Device API QA passed |
+| NVIDIA collectives | Host AllGather and ReduceScatter | Multiprocess tests passed |
+| AllGather+GEMM | FlagTree TLE Raw/NVSHMEM example | Eight-H800 numerical and performance run passed |
 
 ## Design
 
-PPU uses `flagcx/adaptor/device/ppu_cuda_adaptor.cc` and
-`flagcx/adaptor/ccl/ppu_nccl_adaptor.cc`.
-
 The Device API separates platform traits, communication traits and device
-kernels. Kunlunxin has native traits; MUSA and other platforms can use the
-default compatibility path. Device IR bindings are under `bindings/ir/`.
+kernels. Device IR bindings are under `bindings/ir/`. MUSA and other
+platforms use the default compatibility path where native traits are absent.
 
-PD disaggregation uses the P2P Engine for KV transfer. The acceptance workload
-is GLM5.2 with one prefill and one decode instance, eight cards each. The
-Mooncake comparison requires the same model, topology and request workload.
-The throughput or latency metric for the 3% target is still unspecified.
-
-## Distributed Operator Coverage
-
-| Operator | RC2 code | Validation and remaining work |
-|---|---|---|
-| AllGather | FlagCX host collective and `test/perf/host_api/test_allgather.cpp` | NVIDIA tests passed; full topology/Triton-distributed comparison remains separate |
-| ReduceScatter | FlagCX host collective and `test/perf/host_api/test_reducescatter.cpp` | NVIDIA tests passed; full topology/Triton-distributed comparison remains separate |
-| AllGather+GEMM | FlagTree `python/tutorials/tle/raw/nvshmem/02-allgather-gemm` | Eight-H800 NVSHMEM run passed against PyTorch; full topology/baseline matrix remains separate |
-| GEMM+AllReduce | FlagTree `python/tutorials/tle/raw/nvshmem/03-gemm-allreduce` | Additional example; it has different output semantics from ReduceScatter |
-| GEMM+ReduceScatter | No runnable implementation in the inspected FlagCX or FlagTree RC2 trees | [FlagCX#620](https://github.com/flagos-ai/FlagCX/issues/620) |
-
-Fused examples and their tests belong in FlagTree. Each result must identify
-the communication backend and source revisions. Passing distributed-primitive
-tests does not complete fused-operator acceptance.
+The AllGather+GEMM example is under FlagTree's
+`python/tutorials/tle/raw/nvshmem/02-allgather-gemm/`. It uses NVSHMEM;
+its benchmark is not a FlagCX-backed fused-kernel result.
 
 ## Packaging
 
@@ -80,7 +61,7 @@ make USE_NVIDIA=1 COMPILE_KERNEL=1 -j8
 MPI is required for multiprocess tests. P2P RDMA paths require libibverbs.
 The fused examples additionally require FlagTree and NVSHMEM on NVIDIA SM90+.
 
-## Test Plan
+## Test Commands
 
 PPU host collectives:
 
@@ -102,27 +83,16 @@ cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm
 torchrun --nproc_per_node=2 benchmark.py --dump_csv
 ```
 
-The harness checks per-rank outputs with `atol=1e-3, rtol=1e-3` and exports
-shape-specific latency and speedup against torch-native. Triton-distributed
-parity requires a separate pinned baseline. G3 and missing G4 forms remain
-open until their launch commands and results are available.
+## Validation
 
-## Recorded Validation
+The [release QA record](https://jwolpxeehx.feishu.cn/wiki/MuxCwz4q3iV8BzkwmJtcfJZwnah) records PPU backend, Kunlunxin Device
+API and NVIDIA distributed-operator completion, with passing FlagCX CI on
+NVIDIA, MetaX, Hygon and PPU.
 
-The [release QA record](https://jwolpxeehx.feishu.cn/wiki/MuxCwz4q3iV8BzkwmJtcfJZwnah), reviewed September 24, marks PPU backend
-support, Kunlunxin Device API and NVIDIA distributed operator testing complete.
-It also records successful FlagCX CI on NVIDIA, MetaX, Hygon and PPU.
-GLM5.2 PD validation is still unchecked in that record.
-
-The [NVIDIA operator report](https://jwolpxeehx.feishu.cn/docx/MuygdfqaNoaOLkxiHqycWkNxnBc)
-records passing AllGather and ReduceScatter, plus an eight-H800
-AllGather+GEMM run with seven benchmark rows, all numerically correct and
-1.13–1.67× the PyTorch baseline. The fused example uses TLE Raw/NVSHMEM.
-
-[Issue #620](https://github.com/flagos-ai/FlagCX/issues/620) tracks the missing
-GEMM+ReduceScatter example and its end-to-end validation. It does not reopen
-the completed Tree primitive QA. The release clarification treats this
-missing case as non-blocking; communication/compute examples belong in Tree.
+The [NVIDIA report](https://jwolpxeehx.feishu.cn/docx/MuygdfqaNoaOLkxiHqycWkNxnBc)
+records AllGather and ReduceScatter passing, and seven AllGather+GEMM
+benchmark rows on eight H800s passing numerical checks with 1.13–1.67×
+speedup over the PyTorch baseline.
 
 ## Related PRs
 
@@ -133,4 +103,9 @@ missing case as non-blocking; communication/compute examples belong in Tree.
 - [x] [FlagCX#576](https://github.com/flagos-ai/FlagCX/pull/576) — MUSA default Device API path. Merged.
 - [x] [FlagCX#582](https://github.com/flagos-ai/FlagCX/pull/582) — Default Device API on remaining platforms. Merged.
 - [x] [FlagTree#918](https://github.com/flagos-ai/FlagTree/pull/918) — Multi-node NVSHMEM AllGather+GEMM example. Merged.
-- [x] [FlagTree#861](https://github.com/flagos-ai/FlagTree/pull/861) — NVSHMEM GEMM+AllReduce example. Merged.
+
+## Deferred to FlagOS 2.3
+
+- A second native Device API backend and its primitive matrix.
+- GLM5.2 PD validation on PPU/MetaX and the Mooncake performance comparison.
+- GEMM+ReduceScatter in FlagTree and the full intra-/inter-node Triton-distributed comparison: [FlagCX#620](https://github.com/flagos-ai/FlagCX/issues/620).

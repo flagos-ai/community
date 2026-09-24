@@ -1,6 +1,6 @@
-# FEP-0091: FlagOS-Compressor — Model Quantization Framework (First Release)
+# FEP-0091: FlagOS-Compressor Checkpoint Conversion and Quantized Export
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -20,20 +20,19 @@
 
 ## Summary
 
-FlagOS-Compressor 0.1.0 converts local HuggingFace sharded safetensors
-checkpoints to BF16 or compressed-tensors INT4/INT8 formats. RC2 contains
-PRs #1–#5, the same source as `release/v0.1.0`. Calibrated GPTQ, AWQ and
-AutoRound from PR #6 are outside this release snapshot.
+FlagOS-Compressor 0.1.0 converts local sharded safetensors checkpoints
+to BF16 and exports MSE-quantized W4A16, W8A16 and W8A8 artifacts. The
+2.2 scope is the producer-side format, planning and validation contract.
 
-## Goals and Completion
+## Delivered Scope
 
-| Goal | RC2 implementation | Remaining acceptance |
+| Feature | Implementation | Validation |
 |---|---|---|
-| G1: BF16 dequantization | MXFP4 and block FP8 decoders, format detection and conversion | Model-scale numerical comparison |
-| G2: INT4/INT8 export | MSE weight quantization and dynamic-token W8A8 | Full-model accuracy and target-runtime loading |
-| G3: Module selection and recipes | Group/regex selection, version-1 recipes and plan validation | Model recipe equivalence and selection records |
-| G4: Dense and MoE models | Dense/2D weights and Qwen3.5 fused-expert adapter | Qwen3.5 dense/MoE and DeepSeek checkpoint matrix |
-| G5: CPU/CUDA backends | Both conversion backends present | Paired numerical and output-metadata results |
+| BF16 conversion | MXFP4/block-FP8 decoding and format detection | Conversion and numerical fixtures |
+| W4A16/W8A16 | MSE weight quantization and packed output | Packing, selection and artifact tests |
+| W8A8 | INT8 weights, FP32 scales and dynamic-token metadata | Synthetic fused-MoE end-to-end export |
+| Recipes and selectors | Group/regex selection, plan checks and version-1 recipes | Planner and rejection tests |
+| Distribution | `flagos_compressor` package and `flagos-compressor` CLI | Wheel build and isolated installation |
 
 ## Format Contract
 
@@ -85,73 +84,36 @@ The CLI entry point is `flagos-compressor`. CPU and CUDA are the only
 compression backends. Serving the output on PPU or Hygon uses those runtimes'
 inference kernels and requires separate validation.
 
-## Test Plan
-
-Run the checked-in classifier, planner, format, quantization, recipe, MoE and
-end-to-end fixtures:
+## Test Commands
 
 ```bash
 python -m pytest tests/ -v
 ```
 
-The numerical fixtures include exact packing recovery, INT4 MSE below 0.02,
-INT8 MSE below 1e-4 and W8A8 relative error below 0.02 for their respective
-test tensors. These are fixture checks, not full-model accuracy thresholds.
-
-For a supported source checkpoint:
+The fixtures check exact packing recovery, INT4 MSE below 0.02, INT8 MSE
+below 1e-4 and W8A8 relative error below 0.02 on the specified test tensors.
+These bounds apply to producer-side fixtures, not model-task accuracy.
 
 ```bash
 flagos-compressor inspect --input /data/models/source --json
-flagos-compressor convert --input /data/models/source \
-  --output /data/models/source-bf16 --backend cpu
-flagos-compressor validate --input /data/models/source-bf16
+flagos-compressor quantize --input /data/models/source \
+  --output /data/models/output --select linear --bits 4 \
+  --strategy group --group-size 32 --backend cpu
+flagos-compressor validate --input /data/models/output
 ```
 
-For a dense checkpoint, inspect the plan, execute and validate:
+Add `--dry-run` to inspect the quantization plan without writing output.
 
-```bash
-flagos-compressor quantize --input /data/models/dense \
-  --output /data/models/dense-w4a16 --select linear \
-  --bits 4 --strategy group --group-size 32 --backend cpu --dry-run
-flagos-compressor quantize --input /data/models/dense \
-  --output /data/models/dense-w4a16 --select linear \
-  --bits 4 --strategy group --group-size 32 --backend cpu
-flagos-compressor validate --input /data/models/dense-w4a16
-```
+## Validation
 
-Repeat with separate output directories for W8A16 group-128, W8A16 channel
-and W8A8 channel (`--bits 8 --activation-bits 8 --strategy channel`). Compare
-CPU and CUDA results using the same checkpoint and resolved plan.
-
-| Acceptance case | Required result |
+| Revision | Recorded result |
 |---|---|
-| Dense Qwen3.5 | Correct selected tensors, encoding, scales and output config |
-| Qwen3.5-MoE | Routed-only and routed-plus-attention selection; valid fused-bank handling |
-| DeepSeek | Correct MLA/2D expert classification and selection |
-| Recipe vs. CLI | Equivalent plan, encoding and output metadata |
-| Invalid selection/layout | Rejected fused-pair split, empty selection, incompatible group size and unknown 3D layout |
-| Backend comparison | Matching metadata/shapes and documented numerical agreement |
+| [PR #2](https://github.com/flagos-ai/FlagOS-Compressor/pull/2) | 40 tests passed; wheel build and isolated installation verified |
+| [PR #3](https://github.com/flagos-ai/FlagOS-Compressor/pull/3) | 57 tests passed after INT8 support |
+| [PR #5](https://github.com/flagos-ai/FlagOS-Compressor/pull/5) | 65 tests passed, including synthetic Qwen3.5 fused-MoE artifact export, validation and rescan |
 
-Each real run follows a successful dry run and `validate`. Require zero
-unmatched quantized tensors, nonempty selection and no unexplained fallback.
-Keep `quantization_manifest.json`, `quantization_report.json` or the
-conversion report with source revisions and model hashes.
-
-For serving acceptance, load each output on NVIDIA, PPU and Hygon using a
-named framework/kernel version. Verify the selected quantization route and
-compare accuracy against BF16 on the same evaluation set. Record memory,
-TTFT, TPOT and throughput separately. The model-scale tolerances, evaluation
-set and complete serving matrix remain unresolved. A valid checkpoint alone
-does not establish runtime kernel support.
-
-## Recorded Validation
-
-The [September 24 development report](https://jwolpxeehx.feishu.cn/wiki/SJc8wh08si8x9vk9ECgcjXtPnJc) records conversion and
-inference experiments for MiMo and DeepSeek, including calibrated GPTQ.
-The calibrated implementation is PR #6 on main, outside the inspected RC2
-snapshot. Those experiments cannot validate every MSE conversion mode in
-RC2. The reviewed QA record does not identify a complete CPU/CUDA,
-dense/MoE and serving result matrix for PRs #1–#5.
+The RC2 snapshot contains these changes. Full-size loading, generation and
+task accuracy on target accelerators are outside the producer-side acceptance.
 
 ## Related PRs
 
@@ -160,5 +122,8 @@ dense/MoE and serving result matrix for PRs #1–#5.
 - [x] [FlagOS-Compressor#3](https://github.com/flagos-ai/FlagOS-Compressor/pull/3) — INT8 weight quantization. Merged.
 - [x] [FlagOS-Compressor#4](https://github.com/flagos-ai/FlagOS-Compressor/pull/4) — CLI operation summaries. Merged.
 - [x] [FlagOS-Compressor#5](https://github.com/flagos-ai/FlagOS-Compressor/pull/5) — Dynamic-token W8A8 MoE export. Merged.
-- [x] [FlagOS-Compressor#6](https://github.com/flagos-ai/FlagOS-Compressor/pull/6) — Calibrated methods on main; excluded from RC2. Merged.
-- [x] [vllm-plugin-FL#313](https://github.com/flagos-ai/vllm-plugin-FL/pull/313) — Serving-side W4A16 scaffolding; separate from compressor acceptance. Merged.
+
+## Deferred to FlagOS 2.3
+
+- Full-model Qwen dense/MoE and DeepSeek CPU/CUDA comparisons and NVIDIA/PPU/Hygon serving acceptance, including the W4A16 serving path in [vllm-plugin-FL#313](https://github.com/flagos-ai/vllm-plugin-FL/pull/313).
+- Calibrated GPTQ/AWQ/AutoRound integration: [FlagOS-Compressor#6](https://github.com/flagos-ai/FlagOS-Compressor/pull/6), merged on main outside RC2.

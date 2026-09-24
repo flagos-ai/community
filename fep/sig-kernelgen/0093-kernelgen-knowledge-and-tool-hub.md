@@ -1,6 +1,6 @@
 # FEP-0093: KernelGen Knowledge and Tool Hub
 
-**Status:** `Provisional`
+**Status:** `Deferred`
 
 **Updated:** 2026-09-24
 
@@ -10,9 +10,9 @@
 
 **SIG:** sig-kernelgen
 
-**Target Version:** FlagOS 2.2
+**Target Version:** FlagOS 2.3
 
-## RC2 Source
+## FlagOS 2.2 RC2 Baseline
 
 | Module | Branch revision | Manifest tag |
 |---|---|---|
@@ -21,23 +21,17 @@
 ## Summary
 
 Create a machine-readable registry of multi-chip operator references,
-profiling tools and optimization tools. RC2 contains documentation and
-existing skills, but no Knowledge Hub directory, schema, query API or index
-generator in this public snapshot. The deployed generation service is tested
-separately; it does not identify the registry implementation or release revision.
+profiling tools and optimization tools for FlagOS 2.3. The registry includes
+an entry schema, filtered query API and generated Markdown index.
 
-## Goals and Completion
+## Deliverables
 
-| Deliverable | RC2 status |
+| Deliverable | Acceptance |
 |---|---|
-| Resource registry under `knowledge/` | Absent |
-| Validated entry schema | Absent |
-| Query by resource type, chip, topic and license | Absent |
-| Generated Markdown index | Absent |
-| Initial multi-chip resource/tool entries | No registry entry set |
-
-Existing TLE and skill documentation is background material; it does not
-implement the registry contract below.
+| Resource registry | Unique identifiers and schema-valid metadata |
+| Query API | Filtering by resource type, chip, topic and license |
+| Markdown index | Deterministic generation from the registry |
+| Tool entries | At least seven chips with profiling tools and three optimization tools |
 
 ## Proposed Design
 
@@ -60,7 +54,7 @@ those consumers, replace profilers or generate the operator inventory in
 ## Packaging and Acceptance
 
 The proposed Python package bundles the schema, entries, validator, query
-API and index generator. Browsing/querying requires no accelerator; invoking
+API and index generator. Querying requires no accelerator; invoking
 a profiler requires its vendor runtime.
 
 Completion requires an implementation PR and runnable tests that verify:
@@ -75,13 +69,8 @@ Completion requires an implementation PR and runnable tests that verify:
 5. An installed package can load its bundled data, and link checking reports
    broken references.
 
-The final API, package integration and executable acceptance commands remain
-undefined in RC2.
-
-## Recorded Validation
+## Service Baseline
 
 [KernelGen service QA](https://jwolpxeehx.feishu.cn/docx/ZLthdWsWqoniLVxIScVcktEinVb)
-tested generation, autotuning and TLE execution. It does not exercise this
-FEP's registry schema, metadata queries or index generator. Service
-availability therefore establishes neither registry absence nor acceptance;
-the public API and implementation mapping remain unresolved.
+covers generation, autotuning and TLE execution. Registry schema, query and
+index tests are separate acceptance cases for this FEP.

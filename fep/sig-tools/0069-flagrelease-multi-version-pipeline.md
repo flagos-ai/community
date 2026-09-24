@@ -1,6 +1,6 @@
 # FEP-0069: FlagRelease Multi-Version Automated Migration & Release Pipeline
 
-**Status:** `Implementable`
+**Status:** `Deferred`
 
 **Updated:** 2026-09-24
 
@@ -10,9 +10,9 @@
 
 **SIG:** sig-tools
 
-**Target Version:** FlagOS 2.2
+**Target Version:** FlagOS 2.3
 
-## RC2 Source
+## FlagOS 2.2 RC2 Baseline
 
 | Module | Branch revision | Manifest tag |
 |---|---|---|
@@ -21,11 +21,11 @@
 ## Summary
 
 Extend [FEP-0012](0012-flagrelease-automated-migration.md) with deterministic
-pipeline routing, V1–V4 artifacts and accuracy/performance gates. The design
-is tracked in PR #20, which remains open. RC2 contains the earlier migration
-framework; the proposed multi-version pipeline is not included.
+pipeline routing, V1–V4 artifacts and accuracy/performance gates for FlagOS
+2.3. PR #20 contains the proposed implementation. The 2.2 RC2 baseline
+contains the earlier migration framework.
 
-## Goals and Completion
+## Implementation Status
 
 | Goal | RC2 status |
 |---|---|
@@ -107,14 +107,11 @@ The current RC2 scripts do not execute this acceptance matrix. Merging the
 implementation and recording the gate tests and representative backend runs
 are required for completion.
 
-## Recorded Validation
+## Validation
 
-The [September 24 delivery report](https://jwolpxeehx.feishu.cn/docx/BOSRdLTIDoK64bxXLVIcviKXnV6)
-records production migration runs, including 39 tasks on the improved
-workflow across PPU and Iluvatar. The deployed workflow has been exercised.
-Its release-to-source mapping and the V1–V4 gate matrix are not established
-by those task totals. PR #20 remains open, and its new scripts are absent
-from the inspected RC2 tree.
+The [September 24 report](https://jwolpxeehx.feishu.cn/docx/BOSRdLTIDoK64bxXLVIcviKXnV6)
+records 39 production migration tasks on the improved PPU/Iluvatar workflow.
+The V1–V4 source mapping and gate acceptance remain part of this proposal.
 
 ## Related PRs
 

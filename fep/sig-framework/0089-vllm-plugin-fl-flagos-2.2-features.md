@@ -1,6 +1,6 @@
-# FEP-0089: vLLM-Plugin-FL Features for FlagOS 2.2
+# FEP-0089: vLLM 0.20.2/0.24.0 Vendor Integration and Empty Builds
 
-**Status:** `Implementable`
+**Status:** `Implemented`
 
 **Updated:** 2026-09-24
 
@@ -21,38 +21,28 @@
 
 ## Summary
 
-Maintain vLLM 0.20.2 and 0.24.0 plugin lines, expand vendor integration and
-support device-less vLLM builds. RC2 contains both version lines and additional
-vendor ports. Automatic performance-based operator selection remains
-unimplemented in the release policy.
+Maintain the vLLM 0.20.2 and 0.24.0 plugin lines, vendor dispatch and
+device-less framework builds. The plugin supplies device operations and
+configured operator selection.
 
-## Goals and Completion
+## Delivered Scope
 
-| Goal | RC2 implementation | Remaining work |
+| Feature | Implementation | Validation |
 |---|---|---|
-| G1: Ten vendors on vLLM 0.20.2 | Vendor dispatch, compatibility patches and platform tests in `0.2.2-rc2` | Basic model tests passed on the listed vendor/version rows; retain stress-test exceptions |
-| G2: Five vendors on vLLM 0.24.0 | `0.3.0-rc2` contains MUSA, Iluvatar, Ascend, Kunlunxin, MetaX, GCU, MLU, Sunrise, PPU and TXDA paths in addition to CUDA | Basic model tests passed; results and limits recorded below |
-| G3: Empty build | Device-less build instructions and plugin-owned device/operator integration present | Empty-build runs recorded; retain each environment's operator exclusions |
-| G4: Operator auto-tuning | Configurable dispatch policy and throughput benchmark present | Measured implementation selection, result persistence and performance acceptance |
+| vLLM 0.20.2 | `0.2.2-rc2` vendor integrations | Basic model inference in the release matrix |
+| vLLM 0.24.0 | `0.3.0-rc2` vendor integrations | Basic model inference in the release matrix |
+| Empty builds | Plugin-owned platform, operator and communication routes | Device-less framework runs |
+| Operator policy | Configured preference among FlagOS, vendor and reference kernels | Dispatch tests and model execution |
 
 ## Design
 
 Vendor implementations are under `vllm_fl/dispatch/backends/vendor/`.
-CUDA-compatible vendors may share a route, so backend directories do not
-represent independent acceptance results.
+CUDA-compatible vendors may share a route. Empty builds retain the
+device-neutral vLLM framework and require the target accelerator runtime.
 
-The Empty build keeps the vLLM framework device-neutral. The plugin supplies
-platform detection, operator dispatch and FlagCX communication; the target
-accelerator runtime is still required.
-
-`vllm_fl/dispatch/policy.py` implements configured preference and per-operator
-order among FlagOS, vendor and reference implementations. The existing
-`benchmarks/benchmark_throughput_autotune.py` is a measurement harness; RC2
-still needs the proposed automatic runtime selection and persistence path.
-
-RC2 fixes include device binding for MUSA workers, symmetric-memory import
-compatibility, vendor ports and worker shutdown. Arm64 W4A8 is included in the
-0.24.0 line and tracked separately by [FEP-0083](../sig-edge/0083-vllm_plugin_in_support_arm_CPU.md).
+`vllm_fl/dispatch/policy.py` applies configured kernel preferences. It does
+not perform automatic performance measurements or persist tuning decisions.
+Arm64 W4A8 is covered by [FEP-0083](../sig-edge/0083-vllm_plugin_in_support_arm_CPU.md).
 
 ## Packaging
 
@@ -71,7 +61,7 @@ Vendor SDKs and framework build options follow the branch's installation
 instructions and platform CI configuration. Empty-mode validation must use a
 device-less framework build.
 
-## Test Plan
+## Test Commands
 
 On a configured NVIDIA A100 test environment:
 
@@ -86,22 +76,22 @@ run both release lines where claimed. Model cases are under `tests/models/`.
 Require operator correctness, collective correctness, inference and HTTP
 serving results; record skipped cases, precision and TP settings.
 
-For G3, repeat inference on the Empty build and verify the plugin route is
-used. For G4, a future tuning implementation must reproduce its saved
-selection and match or exceed the default configuration on a fixed workload.
-G4 has no executable RC2 acceptance path yet.
+## Validation
 
-## Recorded Validation
+The [September 24 matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records passing basic inference for
+Qwen3.6-35B-A3B and Qwen3.6-27B across 17 vendor/version rows. Hygon, MetaX,
+Iluvatar, PPU, MUSA and Kunlunxin completed functional, performance and
+stress tests in the listed configurations.
 
-The [September 24 execution matrix](https://jwolpxeehx.feishu.cn/wiki/Kg47wjKm1if8eOk1GfscLiIcnDe) records passing basic inference
-for Qwen3.6-35B-A3B and Qwen3.6-27B across 17 vendor/version rows. Hygon,
-MetaX, Iluvatar, PPU, MUSA and Kunlunxin have completed functional,
-performance and stress tests in the reported configurations.
+## Known Limitations
 
-The same record lists Ascend NaNs, Sunrise image-output errors and a
-Tsingmicro environment failure in stress testing; Enflame stress testing
-was still running. These limits coexist with the passing basic tests.
-Automatic measured operator selection remains a distinct undelivered goal.
+Stress testing recorded Ascend NaNs
+([FlagGems#6446](https://github.com/flagos-ai/FlagGems/issues/6446),
+[FlagTree#1220](https://github.com/flagos-ai/FlagTree/issues/1220)), Sunrise
+image-output errors ([FlagGems#6123](https://github.com/flagos-ai/FlagGems/issues/6123))
+and a Tsingmicro environment failure. Enflame stress testing was still
+running in the September 24 record. The accepted basic-inference matrix does
+not establish long-running stability for these configurations.
 
 ## Related PRs
 
@@ -118,3 +108,7 @@ Automatic measured operator selection remains a distinct undelivered goal.
 - [x] [vllm-plugin-FL#537](https://github.com/flagos-ai/vllm-plugin-FL/pull/537) — MUSA worker device binding. Merged.
 - [x] [vllm-plugin-FL#549](https://github.com/flagos-ai/vllm-plugin-FL/pull/549) — Symmetric-memory import fallback. Merged.
 - [x] [vllm-plugin-FL#553](https://github.com/flagos-ai/vllm-plugin-FL/pull/553) — Worker shutdown backport to 0.2.2 RC2. Merged.
+
+## Deferred to FlagOS 2.3
+
+Automatic per-hardware operator selection, persisted tuning results and comparison against the configured default policy.

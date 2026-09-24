@@ -1,6 +1,6 @@
-# FEP-19: Unified Package Integration for FlagOS Repositories
+# FEP-0019: Unified Package Integration for FlagOS Repositories
 
-**Status:** `Implementable`
+**Status:** `Deferred`
 
 **Updated:** 2026-09-24
 
@@ -10,9 +10,9 @@
 
 **SIG:** sig-os
 
-**Target Version:** FlagOS 2.2
+**Target Version:** FlagOS 2.3
 
-## RC2 Source
+## FlagOS 2.2 RC2 Baseline
 
 | Module | Branch revision | Manifest tag |
 |---|---|---|
@@ -30,13 +30,12 @@
 
 ## Summary
 
-Provide Debian and RPM packages for eleven FlagOS repositories, with Python
-wheels for Python projects, reproducible builds and release publication to
-FlagOS Nexus. Nine Wave 1 repositories contain Debian and RPM build code in
-RC2. FlagScale and FlagQuantum remain incomplete. Artifact publication and
-installation acceptance are still required.
+Provide Debian and RPM packages for eleven FlagOS repositories, Python
+wheels where applicable, and publication to FlagOS Nexus. Nine repositories
+have packaging code in the 2.2 RC2 baseline. FlagScale/FlagQuantum integration
+and the complete publication/install matrix are scheduled for FlagOS 2.3.
 
-## Goals and Completion
+## Implementation Status
 
 | Wave 1 repository | Source status | Remaining work |
 |---|---|---|
@@ -50,7 +49,7 @@ installation acceptance are still required.
 | FlagAttention | Packaging #31 and later RPM fix #74 present | Validate release artifacts |
 | FlagSparse | Packaging #12 and later RPM fixes present | Validate release artifacts |
 | FlagScale | PR #1205 open; no RC2 packaging tree | Merge integration and complete package acceptance |
-| FlagQuantum | PR #4 open; no RC2 branch or manifest entry | Complete integration and assign a release artifact |
+| FlagQuantum | PR #4 closed without merge; no RC2 branch or manifest entry | Complete integration and assign a release artifact |
 
 FlagFFT, originally Wave 2, also has Debian/RPM packaging in its RC2 branch.
 It does not replace either missing Wave 1 repository. KernelGen and FlagPerf
@@ -135,13 +134,13 @@ python3 -c "import importlib.util, sys; sys.exit(importlib.util.find_spec('flag_
 Completion requires all eleven Wave 1 integrations and their artifact and
 installation results. Tracking: [community#59](https://github.com/flagos-ai/community/issues/59).
 
-## Recorded Validation
+## Validation
 
 The inspected RC2 CI runs successfully built Debian and RPM packages for
 FlagAudio and FlagGems; FlagFFT's Debian build also passed. Publication jobs
 and other package builds include failures. Successful package builds do not
 cover download and clean-install acceptance for all eleven repositories.
-FlagScale #1205 and FlagQuantum #4 remain open integrations.
+FlagScale #1205 is open; FlagQuantum #4 was closed without merge.
 
 ## Related PRs
 
