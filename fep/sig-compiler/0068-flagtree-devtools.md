@@ -1,74 +1,102 @@
 # FEP-0068: FlagTree DevTools — Optional Debugging and Profiling Components
 
-**Status:** `Provisional`
+**Status:** `Implemented`
+
+**Updated:** 2026-09-24
 
 **Created:** 2026-07-24
 
-**Owner:** @TBD
+**Owner:** Unassigned
 
 **SIG:** sig-compiler
 
 **Target Version:** FlagOS 2.2
 
----
+## RC2 Source
+
+| Module | Branch revision | Manifest tag |
+|---|---|---|
+| flagtree-triton3.5 | [`0.7.0-rc2-triton3.5` @ `15ec1a6cbc8d`](https://github.com/flagos-ai/FlagTree/tree/15ec1a6cbc8d51f597f46459a500e96f3812c58f) | [`0.7.0rc2.post2+triton3.5` @ `15ec1a6cbc8d`](https://github.com/flagos-ai/FlagTree/tree/15ec1a6cbc8d51f597f46459a500e96f3812c58f) |
+| flagtree-triton3.6 | [`0.7.0-rc2-triton3.6` @ `4819c190476c`](https://github.com/flagos-ai/FlagTree/tree/4819c190476cebb66057493e41379c1406c615ac) | [`0.7.0rc2.post2+triton3.6` @ `d9e65f4df7fe`](https://github.com/flagos-ai/FlagTree/tree/d9e65f4df7fe881281abd9e834ab3f37f4d0642c) |
 
 ## Summary
 
-FlagTree DevTools provides debugging and performance-analysis capabilities for Triton kernels compiled by FlagTree. It includes FlagTree Debugger, which correlates Triton source and compiler IR with runtime values and memory access information, and FlagTree Profiler, which records execution context, timing, and hardware performance metrics. Together, these tools provide a consistent workflow for locating correctness issues and performance bottlenecks across supported accelerator backends.
+FlagTree debugging and profiling are implemented through
+[FlagPrism](https://github.com/flagos-ai/FlagPrism). RC2 contains the compiler,
+runtime and build integration for Ascend on Triton 3.5 and Iluvatar on Triton
+3.6. The public component namespaces are `flagtree.debugger` and
+`flagtree.profiler`.
 
-Repository: TBD
+## Delivered Scope
 
-## Motivation
+| Feature | RC2 implementation | Validation |
+|---|---|---|
+| Debugger instrumentation and reports | Host callbacks, statement metadata, launch context and debugger registration | Ascend hardware examples and Iluvatar delivery validation passed |
+| Profiler integration | Optional profiler registration and shared build integration | Ascend trace generation passed; Iluvatar delivery validation recorded |
+| Source/IR/runtime correlation | Compiler and statement events in `python/flagtree/_flagprism.py` | Ascend debugger reports and profiler timeline verified |
+| Optional components | `TRITON_BUILD_FLAGPRISM` build control and compatibility checks | Host registration tests and component builds |
 
-Developing Triton kernels across different AI accelerators requires a consistent way to diagnose correctness and performance problems. Existing workflows often rely on intrusive kernel modifications or vendor-specific tools and do not clearly connect Python context, Triton source, compiler IR, runtime values, memory accesses, and performance metrics. FlagTree DevTools provides a unified debugging and profiling layer for supported FlagTree backends, helping developers locate incorrect results and performance bottlenecks without maintaining separate workflows for each accelerator.
+`python/setup_tools/setup_helper.py` enables FlagPrism for Ascend and
+Iluvatar. Other backends are outside this RC2 build policy. The dependency
+registry points to the FlagPrism repository without a commit pin.
 
-### Goals
+## Design
 
-- Provide user-friendly debugging and profiling workflows through stable Python APIs and command-line tools.
-- Collect operation-level execution information, including intermediate values, numerical summaries, memory access behavior, execution time, and available hardware performance metrics.
-- Correlate Triton source and compiler IR with runtime values, memory accesses, and performance data.
-- Provide consistent debugging and profiling interfaces across accelerator backends, with an extensible architecture for adding new backends quickly.
+`flagtree._flagprism` defines host API version 2.0, component registration,
+capability checks, compiler callbacks and launch events. Kernel collection
+uses `flagtree.language.debug_collect_start` and `debug_collect_end`.
+Missing components and incompatible host/component APIs raise explicit errors.
+Core callbacks remain inactive until a component registers.
 
-### Non-Goals
-
-- Replacing vendor profilers such as Nsight Systems, CUPTI, ROC-tracer, or CANN profiling services.
-- Making Debugger or Profiler mandatory dependencies of the FlagTree core wheel.
-- Treating the internal `flagtree_debugger` and `flagtree_profiler` packages as stable public APIs.
-- Guaranteeing that every diagnostic backend and metric is available on every accelerator.
-- Renaming the existing `flagtree-debugger`, `flagtree-profiler`, `triton.debugger`, or `triton.profiler` user interfaces as part of this FEP.
-
-## Proposal
-
-With FlagTree Debugger, users activate debugging through `triton.debugger` and mark regions of a Triton kernel for collection. Running the kernel produces reports that correlate Triton statements and compiler IR operations with intermediate values, numerical summaries, and memory access information, helping users locate correctness issues without manually adding temporary stores or print operations.
-
-With FlagTree Profiler, users profile a function or code region through `triton.profiler` or the `proton` command-line tool. The profiler records execution context, kernel timing, and available hardware or intra-kernel metrics, and presents the results through generated profiles and `proton-viewer`. Both tools provide consistent user interfaces across supported FlagTree backends.
-
-## Design Details
-
-- **Debugger**: compiler passes instrument selected Triton regions and attach source and IR metadata to operations. At runtime, the generated kernel writes debugging records to a device buffer; the host runtime decodes these records and generates statement-level and operation-level reports.
-- **Profiler**: profiling sessions track Python or user-defined scopes and kernel launches. Backend adapters collect timing and hardware data, while compiler instrumentation can collect intra-kernel metrics. The collected data is exported as trace or tree profiles for analysis.
-- **FlagTree integration**: FlagTree provides the `triton.debugger` and `triton.profiler` facades together with optional-component registration and compiler/runtime hooks. FlagTree DevTools supplies the component implementations and backend adapters, allowing new backends to reuse the public interfaces while implementing their own collection mechanisms.
+The build loads FlagPrism from `third_party/FlagPrism`. Its build helper adds
+the debugger and profiler packages to the FlagTree build. FlagPrism and the
+legacy Proton build cannot both be enabled.
 
 ## Packaging
 
-FlagTree Debugger and FlagTree Profiler are distributed as the optional `flagtree-debugger` and `flagtree-profiler` wheels. Users install either wheel on top of a compatible FlagTree release according to their debugging or profiling needs.
+Components are built with FlagTree and its matching LLVM/MLIR ABI.
 
-The two wheels are built independently from the corresponding source directories in `FlagTree_DevTools`. FlagTree must provide the public facade modules and compiler/runtime registration hooks used by these wheels, and native extensions must be built against the matching FlagTree LLVM/MLIR and `libtriton` ABI. The initial release requires Python 3.10 or later and `flagtree>=0.6,<0.7`, together with the runtime required by the selected accelerator backend.
+On the Ascend 3.5 or Iluvatar 3.6 source line, with the vendor toolchain:
 
-## Test Plan
+```bash
+TRITON_BUILD_FLAGPRISM=ON TRITON_BUILD_PROTON=OFF \
+  python -m pip wheel . --no-build-isolation --no-deps -w dist
+```
 
-Testing is performed in the backend-specific build and hardware environments used by the matching FlagTree release. It covers the following dimensions:
+Record the FlagTree and FlagPrism commits with the wheel. Build with
+`TRITON_BUILD_FLAGPRISM=OFF` to verify operation without the components.
 
-- **Installation and integration**: verify that both wheels can be installed against a compatible FlagTree package and that their public Python and command-line interfaces are available.
-- **Debugger correctness**: verify compiler instrumentation, runtime record collection, source/IR correlation, numerical summaries, memory access information, and report generation without changing kernel results.
-- **Profiler correctness**: verify profiling session lifecycle, execution-context tracking, timing and hardware metric collection, profile generation, and result visualization.
-- **Multi-backend compatibility**: run representative debugging and profiling workloads on every declared backend and verify that the public interfaces and output semantics remain consistent.
-- **Optional-component isolation**: verify that FlagTree compilation and execution continue to work when either or both DevTools wheels are not installed.
+## Test Commands
+
+```bash
+python -m pytest -q python/test/unit/test_flagprism.py
+python -c 'import flagtree.debugger; import flagtree.profiler'
+```
+
+Host tests must verify namespace ownership, registration, version/capability
+rejection and enabled/disabled build behavior. On each supported accelerator,
+run the matching FlagPrism debugger and profiler tests, verify source/IR
+correlation and readable profiles, and compare kernel results with collection
+disabled.
+
+## Validation
+
+[PR #916](https://github.com/flagos-ai/FlagTree/pull/916) records an Ascend
+wheel build/install, 47 Python tests passed with 2 skipped, 10 debugger lit
+tests and 45 C++ tests passed. Hardware `abs`, `softmax` and `tiny_mlp`
+examples passed; the profiler timeline contained 37,500 events.
+
+[Iluvatar build and unit CI](https://github.com/flagos-ai/FlagTree/actions/runs/33497559834/job/99823186237)
+passed. The [September 22 tool report](https://jwolpxeehx.feishu.cn/wiki/Hctaw47I3ixMFTkSzm4cNqzRnnb)
+records debugger and profiler delivery on Ascend and Iluvatar.
 
 ## Related PRs
 
-None yet.
+- [x] [FlagTree#916](https://github.com/flagos-ai/FlagTree/pull/916) — Ascend integration on the Triton 3.5 line. Merged.
+- [x] [FlagTree#1035](https://github.com/flagos-ai/FlagTree/pull/1035) — Iluvatar integration on the Triton 3.6 line. Merged.
 
-## Implementation History
+## Deferred to FlagOS 2.3
 
-- 2026-07-24: Initial provisional FEP drafted.
+- MUSA release integration: [FlagTree#1106](https://github.com/flagos-ai/FlagTree/pull/1106), merged on main.
+- NVIDIA tools: [FlagTree#1262](https://github.com/flagos-ai/FlagTree/pull/1262).
+- Enflame tools: [FlagTree#1239](https://github.com/flagos-ai/FlagTree/pull/1239).
