@@ -8,10 +8,12 @@
 #   vcs import src < release-2.2.yaml
 #
 # Versioning and tag targets (review snapshot: 2026-09-28):
-#   - version is the official release tag, with the rc/post suffix removed.
+#   - version is the official release tag, normally with the rc/post suffix
+#     removed. flagtree-cpu starts its independent release series at v0.1.0.
 #   - target-commit records the exact commit proposed for each official tag.
-#   - L1 operator libraries use the HEAD of rc2-branch captured at review time.
+#   - L1 operator libraries and FlagCX use the HEAD of rc2-branch at review time.
 #     rc2 records the RC2 manifest baseline, which may differ from the target.
+#   - flagtree-cpu uses the captured HEAD of source-branch: triton_v3.7.x.
 #   - Other entries retain existing official tags, or use the snapshot pinned
 #     in release-2.2-rc2.yaml when the official tag does not yet exist.
 #   - tag-status: existing = official tag matches target-commit; pending = tag
@@ -23,9 +25,9 @@
 #     resolves to its target-commit.
 #
 # Naming:
-#   - Official tag: v{X}.{Y}.{Z} (e.g. v0.2.0). FlagTree is the exception:
-#     it keeps the upstream local-version format (e.g. 0.7.0+triton3.6,
-#     no v prefix)
+#   - Official tag: v{X}.{Y}.{Z} (e.g. v0.2.0), including flagtree-cpu.
+#     FlagTree GPU variants keep the upstream local-version format
+#     (e.g. 0.7.0+triton3.6, no v prefix).
 # =============================================================================
 
 repositories:
@@ -60,15 +62,23 @@ repositories:
     # target-commit: 0abc361ee426e4a8c9d39d8af90c37120bbd8f4a
     # tag-status: existing
 
+  flagtree-cpu:
+    type: git
+    url: https://github.com/flagos-ai/flagtree-cpu.git
+    version: v0.1.0
+    # source-branch: triton_v3.7.x
+    # target-commit: 2c35990a30e96665f8f9b5e158562288b4011048
+    # tag-status: pending
+    # Independent CPU release series; no +triton suffix or RC2 baseline.
+
   flagcx:
     type: git
     url: https://github.com/flagos-ai/flagcx.git
     version: v0.14.0
     # rc2: v0.14.0-rc2.post1
-    # target-commit: cb8896cacd49ef9901c39af18df9b89bd6b9f34c
+    # rc2-branch: 0.14.0-rc2
+    # target-commit: d1cf5cb9ae375198437a98622573443b363b1c44
     # tag-status: pending
-    # Review: v0.14.0-rc2.post2 exists; RC2 branch has further commits.
-    # This target remains the RC2 manifest's post1 snapshot pending review.
 
   # ===========================================================================
   # L1 — Compute library layer (core operators + domain operators)
@@ -268,12 +278,4 @@ repositories:
     version: v0.2.0
     # rc2: v0.2.0-rc2.post1
     # target-commit: e3cad63b93af155ddaad05795fa39289f89284eb
-    # tag-status: pending
-
-  flagrelease:
-    type: git
-    url: https://github.com/flagos-ai/flagrelease.git
-    version: v0.3.0
-    # rc2: v0.3.0-rc2.post1
-    # target-commit: c1a5956a22641e4d16ce6d1320dcb215851b4b3a
     # tag-status: pending
