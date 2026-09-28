@@ -71,7 +71,7 @@ repositories:
     version: v0.1.0
     # source-branch: triton_v3.7.x
     # target-commit: 2c35990a30e96665f8f9b5e158562288b4011048
-    # tag-status: pending
+    # tag-status: existing
     # Independent CPU release series; no +triton suffix or RC2 baseline.
 
   flagcx:
