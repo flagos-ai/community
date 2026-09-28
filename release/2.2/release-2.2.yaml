@@ -11,7 +11,9 @@
 #   - version names the official release tag. flagtree-cpu uses its independent
 #     release series at v0.1.0.
 #   - GitHub Releases use the existing official tags at their current commits;
-#     already-created Releases are preserved. This pass does not create or move tags.
+#     already-created Releases and tag references are preserved.
+#   - Six previously missing tags were approved at their recorded target-commits
+#     and published. Torch-FL remains pending and is excluded from this pass.
 #   - FlagTree GPU variants and flagtree-cpu are excluded from this publication
 #     pass; their entries retain the previous review snapshot.
 #   - For other entries with an existing tag, target-commit records its observed
@@ -78,8 +80,9 @@ repositories:
     version: v0.14.0
     # rc2: v0.14.0-rc2.post1
     # rc2-branch: 0.14.0-rc2
+    # release-source: existing-tag
     # target-commit: d1cf5cb9ae375198437a98622573443b363b1c44
-    # tag-status: pending
+    # tag-status: existing
 
   # ===========================================================================
   # L1 — Compute library layer (core operators + domain operators)
@@ -216,8 +219,9 @@ repositories:
     url: https://github.com/flagos-ai/TransformerEngine-FL.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
+    # release-source: existing-tag
     # target-commit: 255a6bfd28b295bb2b35e111fdfeeba63bbac1d7
-    # tag-status: pending
+    # tag-status: existing
 
   megatron-lm-fl:
     type: git
@@ -234,8 +238,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagOS-Compressor.git
     version: v0.1.0
     # rc2: v0.1.0-rc2.post1
+    # release-source: existing-tag
     # target-commit: eecf2faed14d70831c96f4d45fd02c693df834d6
-    # tag-status: pending
+    # tag-status: existing
     # RC2 follows release/v0.1.0.
 
   # ===========================================================================
@@ -247,8 +252,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagScale.git
     version: v2.1.0
     # rc2: v2.1.0-rc2.post2
+    # release-source: existing-tag
     # target-commit: 333964d5937ec2401d4324b92569158c663154de
-    # tag-status: pending
+    # tag-status: existing
     # Review: RC2 branch has a later FlagCX initialization fix (#1304).
 
   kernelgen:
@@ -256,13 +262,15 @@ repositories:
     url: https://github.com/flagos-ai/KernelGen.git
     version: v2.2.0
     # rc2: v2.2.0-rc2.post1
+    # release-source: existing-tag
     # target-commit: 1e3262c2e53ec5cdeec14df8c74691f6adde6b46
-    # tag-status: pending
+    # tag-status: existing
 
   kernelgenbench:
     type: git
     url: https://github.com/flagos-ai/KernelGenBench.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post1
+    # release-source: existing-tag
     # target-commit: e3cad63b93af155ddaad05795fa39289f89284eb
-    # tag-status: pending
+    # tag-status: existing
