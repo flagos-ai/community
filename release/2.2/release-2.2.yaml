@@ -7,11 +7,17 @@
 #   mkdir flagos-2.2 && cd flagos-2.2
 #   vcs import src < release-2.2.yaml
 #
-# Versioning:
-#   - The version field points to the official release tag (bare version,
-#     no rc/post suffix)
-#   - Each official tag is placed on the commit that passed the module's
-#     final rc2 verification
+# Versioning and tag targets (review snapshot: 2026-09-28):
+#   - version is the official release tag, with the rc/post suffix removed.
+#   - target-commit records the exact commit proposed for each official tag.
+#   - Existing official tags retain their currently resolved commits; the
+#     rc2 comment records the RC2 manifest baseline and may differ from them.
+#   - Pending official tags use the snapshot pinned in release-2.2-rc2.yaml.
+#     Later RC2 branch commits are not included automatically.
+#   - tag-status records whether the official tag existed at review time.
+#     Pending tags must only be created after this manifest is confirmed.
+#   - This manifest does not certify test results or artifact availability.
+#     vcs import requires all pending tags to have been created first.
 #
 # Naming:
 #   - Official tag: v{X}.{Y}.{Z} (e.g. v0.2.0). FlagTree is the exception:
@@ -22,12 +28,238 @@
 repositories:
 
   # ===========================================================================
+  # L0 — Infrastructure layer (compiler + communication library)
+  # ===========================================================================
+
+  # FlagTree keeps separate official tags for the three Triton version lines.
+  flagtree-triton3.6:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: 0.7.0+triton3.6
+    # rc2: 0.7.0rc2.post2+triton3.6
+    # target-commit: 4819c190476cebb66057493e41379c1406c615ac
+    # tag-status: existing
+    # Review: existing tag differs from rc2; RC2 branch also has later commits.
+
+  flagtree-triton3.5:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: 0.7.0+triton3.5
+    # rc2: 0.7.0rc2.post2+triton3.5
+    # target-commit: 15ec1a6cbc8d51f597f46459a500e96f3812c58f
+    # tag-status: existing
+
+  flagtree-triton3.3:
+    type: git
+    url: https://github.com/flagos-ai/FlagTree.git
+    version: 0.7.0+triton3.3
+    # rc2: 0.7.0rc2.post2+triton3.3
+    # target-commit: 0abc361ee426e4a8c9d39d8af90c37120bbd8f4a
+    # tag-status: existing
+
+  flagcx:
+    type: git
+    url: https://github.com/flagos-ai/flagcx.git
+    version: v0.14.0
+    # rc2: v0.14.0-rc2.post1
+    # target-commit: cb8896cacd49ef9901c39af18df9b89bd6b9f34c
+    # tag-status: pending
+    # Review: v0.14.0-rc2.post2 exists; RC2 branch has further commits.
+    # This target remains the RC2 manifest's post1 snapshot pending review.
+
+  # ===========================================================================
+  # L1 — Compute library layer (core operators + domain operators)
+  # ===========================================================================
+
+  flaggems:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems.git
+    version: v5.4.0
+    # rc2: v5.4.0-rc2.post4
+    # target-commit: 6ed2f39071ef85db26b7e64f0652a162f434959c
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flagfft:
+    type: git
+    url: https://github.com/flagos-ai/FlagFFT.git
+    version: v0.2.0
+    # rc2: v0.2.0-rc2.post2
+    # target-commit: 5eecfd409b655458a7b0d4aaad53f802660bc66f
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flagsparse:
+    type: git
+    url: https://github.com/flagos-ai/FlagSparse.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post1
+    # target-commit: 2d4eee7ff0a6095dc8daf28a0dd2c4e0d76e0ad5
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flagdnn:
+    type: git
+    url: https://github.com/flagos-ai/FlagDNN.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+    # target-commit: 42bcbcc23beb8d6af287485c0df55935f38f92e9
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flagblas:
+    type: git
+    url: https://github.com/flagos-ai/FlagBLAS.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+    # target-commit: a1897220dd06596e44e8add94cfb084b41cbb98a
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flagtensor:
+    type: git
+    url: https://github.com/flagos-ai/FlagTensor.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+    # target-commit: bcc97844bf17e169705802ac1231e91df470f279
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flagaudio:
+    type: git
+    url: https://github.com/flagos-ai/FlagAudio.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+    # target-commit: 00b07b261e7035d7193113db012fd96a8f9917de
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flagattention:
+    type: git
+    url: https://github.com/flagos-ai/FlagAttention.git
+    version: v0.4.0
+    # rc2: v0.4.0-rc2.post1
+    # target-commit: 2dd3a7408c3ff1b11baccb8758392c5da5f3aef6
+    # tag-status: existing
+    # Review: RC2 branch has later commits not included in this tag.
+
+  flaggems-vllm:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-vllm.git
+    version: v0.2.0
+    # rc2: v0.2.0-rc2.post1
+    # target-commit: b61c244b0cce2d3762d2a6a47c35efe2207bc7a3
+    # tag-status: existing
+
+  flaggems-sglang:
+    type: git
+    url: https://github.com/flagos-ai/FlagGems-sglang.git
+    version: v0.1.0
+    # rc2: v0.1.0-rc2.post1
+    # target-commit: e72037ad19095ecbe40368c2fa45e6b3070e979a
+    # tag-status: existing
+
+  # ===========================================================================
   # L2 — Framework adaptation layer (PyTorch plugins + training/inference
   #      frameworks + quantization)
   # ===========================================================================
+
+  torch-fl:
+    type: git
+    url: https://github.com/flagos-ai/Torch-FL.git
+    version: v0.2.0
+    # rc2: v0.2.0-rc2.post1
+    # target-commit: 400cf8652ae2744e0e6bc6f621ff6e45cbb07b9a
+    # tag-status: pending
+    # Review: setup.py at this commit still declares package version 0.1.0.
+
+  # Both vLLM compatibility lines are included in FlagOS 2.2.
+  vllm-plugin-fl:
+    type: git
+    url: https://github.com/flagos-ai/vllm-plugin-FL.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post3
+    # target-commit: f1052770d3ff2666d86f46d1779648dba62b2cbc
+    # tag-status: pending
+    # vLLM 0.24.0 line (main).
+
+  vllm-plugin-fl-0.2:
+    type: git
+    url: https://github.com/flagos-ai/vllm-plugin-FL.git
+    version: v0.2.2
+    # rc2: v0.2.2-rc2.post3
+    # target-commit: 675548ab2ee52b8124b0b6a82a2f795c0553e1fa
+    # tag-status: pending
+    # vLLM 0.20.2 line (release/0.2).
 
   sglang-plugin-fl:
     type: git
     url: https://github.com/flagos-ai/sglang-plugin-FL.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post1
+    # target-commit: 1c84db70fc337569029edb7fce75285c8024e608
+    # tag-status: existing
+    # Existing tag includes commits after rc2 and equals the reviewed RC2 HEAD.
+
+  transformerengine-fl:
+    type: git
+    url: https://github.com/flagos-ai/TransformerEngine-FL.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post2
+    # target-commit: 255a6bfd28b295bb2b35e111fdfeeba63bbac1d7
+    # tag-status: pending
+
+  megatron-lm-fl:
+    type: git
+    url: https://github.com/flagos-ai/Megatron-LM-FL.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post1
+    # target-commit: 128dbd4f3deb05b57d721c33ecfe8f9986e53540
+    # tag-status: existing
+    # Existing tag includes commits after rc2 and equals the reviewed RC2 HEAD.
+
+  flagos-compressor:
+    type: git
+    url: https://github.com/flagos-ai/FlagOS-Compressor.git
+    version: v0.1.0
+    # rc2: v0.1.0-rc2.post1
+    # target-commit: eecf2faed14d70831c96f4d45fd02c693df834d6
+    # tag-status: pending
+    # RC2 follows release/v0.1.0.
+
+  # ===========================================================================
+  # L3 — Application/tool layer (orchestration + tools)
+  # ===========================================================================
+
+  flagscale:
+    type: git
+    url: https://github.com/flagos-ai/FlagScale.git
+    version: v2.1.0
+    # rc2: v2.1.0-rc2.post2
+    # target-commit: 333964d5937ec2401d4324b92569158c663154de
+    # tag-status: pending
+    # Review: RC2 branch has a later FlagCX initialization fix (#1304).
+
+  kernelgen:
+    type: git
+    url: https://github.com/flagos-ai/KernelGen.git
+    version: v2.2.0
+    # rc2: v2.2.0-rc2.post1
+    # target-commit: 1e3262c2e53ec5cdeec14df8c74691f6adde6b46
+    # tag-status: pending
+
+  kernelgenbench:
+    type: git
+    url: https://github.com/flagos-ai/KernelGenBench.git
+    version: v0.2.0
+    # rc2: v0.2.0-rc2.post1
+    # target-commit: e3cad63b93af155ddaad05795fa39289f89284eb
+    # tag-status: pending
+
+  flagrelease:
+    type: git
+    url: https://github.com/flagos-ai/flagrelease.git
+    version: v0.3.0
+    # rc2: v0.3.0-rc2.post1
+    # target-commit: c1a5956a22641e4d16ce6d1320dcb215851b4b3a
+    # tag-status: pending
