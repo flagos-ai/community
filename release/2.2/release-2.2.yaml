@@ -177,10 +177,11 @@ repositories:
   torch-fl:
     type: git
     url: https://github.com/flagos-ai/Torch-FL.git
-    version: v0.2.0
+    version: v2.10.0
     # rc2: v0.2.0-rc2.post1
     # target-commit: 400cf8652ae2744e0e6bc6f621ff6e45cbb07b9a
     # tag-status: pending
+    # Review: v2.10.0 tag is absent; target-commit remains a proposal.
     # Review: setup.py at this commit still declares package version 0.1.0.
 
   # Both vLLM compatibility lines are included in FlagOS 2.2.
