@@ -218,7 +218,7 @@ repositories:
     version: v0.3.0
     # rc2: v0.3.0-rc2.post3
     # target-commit: f1052770d3ff2666d86f46d1779648dba62b2cbc
-    # tag-status: pending
+    # tag-status: existing
     # vLLM 0.24.0 line (main).
 
   vllm-plugin-fl-0.2:
@@ -227,7 +227,7 @@ repositories:
     version: v0.2.2
     # rc2: v0.2.2-rc2.post3
     # target-commit: 675548ab2ee52b8124b0b6a82a2f795c0553e1fa
-    # tag-status: pending
+    # tag-status: existing
     # vLLM 0.20.2 line (release/0.2).
 
   sglang-plugin-fl:
