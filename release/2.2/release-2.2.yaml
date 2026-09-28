@@ -7,23 +7,20 @@
 #   mkdir flagos-2.2 && cd flagos-2.2
 #   vcs import src < release-2.2.yaml
 #
-# Release policy (review snapshot: 2026-09-28):
+# Release policy (six-library correction: 2026-09-29):
 #   - version names the official release tag. flagtree-cpu uses its independent
 #     release series at v0.1.0.
-#   - GitHub Releases use the existing official tags at their current commits;
-#     already-created Releases and tag references are preserved.
-#   - Six previously missing tags were approved at their recorded target-commits
-#     and published. Torch-FL remains pending and is excluded from this pass.
-#   - FlagTree GPU variants and flagtree-cpu are excluded from this publication
-#     pass; their entries retain the previous review snapshot.
-#   - For other entries with an existing tag, target-commit records its observed
-#     commit and release-source is existing-tag. This supersedes earlier proposed
-#     RC2/main-cutoff targets for those entries.
-#   - Entries without an official tag retain their previously proposed
-#     target-commit and remain pending until that tag is available.
+#   - FlagFFT, FlagSparse, FlagDNN, FlagBLAS, FlagTensor and FlagAttention use
+#     the last primary-branch commit strictly before 2026-09-28 09:00:00
+#     Asia/Shanghai (2026-09-28T01:00:00Z), following first-parent history.
+#     Their source branch is main, or master for FlagDNN and FlagBLAS.
+#   - For these six libraries, target-commit records the corrected official
+#     tag commit; release-source is primary-branch-cutoff.
+#   - FlagGems, FlagGems-vllm and FlagGems-sglang keep their existing tags.
+#     Other entries retain their previous review snapshots.
 #   - rc2 is the historical RC2 baseline and may differ from the release source.
-#   - tag-status: existing = tag matched target-commit when reviewed;
-#     pending = official tag was absent. Comments are a review snapshot.
+#   - tag-status: existing = tag matched target-commit when that entry was
+#     reviewed; pending = official tag was absent. Comments are review snapshots.
 #   - This manifest does not certify test results or artifact availability.
 #     vcs import requires every version tag to exist.
 #
@@ -102,8 +99,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagFFT.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post2
-    # release-source: existing-tag
-    # target-commit: 5eecfd409b655458a7b0d4aaad53f802660bc66f
+    # release-source: primary-branch-cutoff
+    # source-branch: main
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: 46338c97352621fa11e2f3ccbe1ddf1cf1ebf397
     # tag-status: existing
 
   flagsparse:
@@ -111,8 +110,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagSparse.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post1
-    # release-source: existing-tag
-    # target-commit: 2d4eee7ff0a6095dc8daf28a0dd2c4e0d76e0ad5
+    # release-source: primary-branch-cutoff
+    # source-branch: main
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: 097a3c05ef3505fd3e06afbe91034e70d5c55d0e
     # tag-status: existing
 
   flagdnn:
@@ -120,8 +121,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagDNN.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # release-source: existing-tag
-    # target-commit: 42bcbcc23beb8d6af287485c0df55935f38f92e9
+    # release-source: primary-branch-cutoff
+    # source-branch: master
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: 6dbbc065cb326b1b76789e51ea4c02e0c37046f0
     # tag-status: existing
 
   flagblas:
@@ -129,8 +132,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagBLAS.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # release-source: existing-tag
-    # target-commit: a1897220dd06596e44e8add94cfb084b41cbb98a
+    # release-source: primary-branch-cutoff
+    # source-branch: master
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: f0a86661aa44013c3e542082bf479b9b157251c6
     # tag-status: existing
 
   flagtensor:
@@ -138,8 +143,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagTensor.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # release-source: existing-tag
-    # target-commit: bcc97844bf17e169705802ac1231e91df470f279
+    # release-source: primary-branch-cutoff
+    # source-branch: main
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: ebb2a932d28a7c6a0a3420ece25ff2e24595c1e3
     # tag-status: existing
 
   flagattention:
@@ -147,8 +154,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagAttention.git
     version: v0.4.0
     # rc2: v0.4.0-rc2.post1
-    # release-source: existing-tag
-    # target-commit: 2dd3a7408c3ff1b11baccb8758392c5da5f3aef6
+    # release-source: primary-branch-cutoff
+    # source-branch: main
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: d9adc17cfc2b4ac3776537548886da3de20e8085
     # tag-status: existing
 
   flaggems-vllm:
