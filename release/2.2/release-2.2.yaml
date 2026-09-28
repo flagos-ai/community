@@ -10,14 +10,17 @@
 # Versioning and tag targets (review snapshot: 2026-09-28):
 #   - version is the official release tag, with the rc/post suffix removed.
 #   - target-commit records the exact commit proposed for each official tag.
-#   - Existing official tags retain their currently resolved commits; the
-#     rc2 comment records the RC2 manifest baseline and may differ from them.
-#   - Pending official tags use the snapshot pinned in release-2.2-rc2.yaml.
-#     Later RC2 branch commits are not included automatically.
-#   - tag-status records whether the official tag existed at review time.
-#     Pending tags must only be created after this manifest is confirmed.
+#   - L1 operator libraries use the HEAD of rc2-branch captured at review time.
+#     rc2 records the RC2 manifest baseline, which may differ from the target.
+#   - Other entries retain existing official tags, or use the snapshot pinned
+#     in release-2.2-rc2.yaml when the official tag does not yet exist.
+#   - tag-status: existing = official tag matches target-commit; pending = tag
+#     does not exist; existing-target-mismatch = tag exists at another commit,
+#     recorded as existing-tag-commit. These conflicts need a tag/version decision.
+#   - Tag operations remain deferred until this manifest is confirmed.
 #   - This manifest does not certify test results or artifact availability.
-#     vcs import requires all pending tags to have been created first.
+#     vcs import reproduces the selected sources only once every version tag
+#     resolves to its target-commit.
 #
 # Naming:
 #   - Official tag: v{X}.{Y}.{Z} (e.g. v0.2.0). FlagTree is the exception:
@@ -76,86 +79,97 @@ repositories:
     url: https://github.com/flagos-ai/FlagGems.git
     version: v5.4.0
     # rc2: v5.4.0-rc2.post4
-    # target-commit: 6ed2f39071ef85db26b7e64f0652a162f434959c
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 5.4.0-rc2
+    # target-commit: 0d95c20928ae2002d7d51f6d2df3307eb11bd8a3
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: 6ed2f39071ef85db26b7e64f0652a162f434959c
 
   flagfft:
     type: git
     url: https://github.com/flagos-ai/FlagFFT.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post2
-    # target-commit: 5eecfd409b655458a7b0d4aaad53f802660bc66f
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 0.2.0-rc2
+    # target-commit: 1b7c47a52409d288fcf531d1a547c3bef0fafbdf
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: 5eecfd409b655458a7b0d4aaad53f802660bc66f
 
   flagsparse:
     type: git
     url: https://github.com/flagos-ai/FlagSparse.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post1
-    # target-commit: 2d4eee7ff0a6095dc8daf28a0dd2c4e0d76e0ad5
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 0.3.0-rc2
+    # target-commit: 81cb9b595bf51242d12933129a98fc754e181105
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: 2d4eee7ff0a6095dc8daf28a0dd2c4e0d76e0ad5
 
   flagdnn:
     type: git
     url: https://github.com/flagos-ai/FlagDNN.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # target-commit: 42bcbcc23beb8d6af287485c0df55935f38f92e9
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 0.3.0-rc2
+    # target-commit: 5e7a6b7bb0da5e80732e564a11deead79bedd2f8
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: 42bcbcc23beb8d6af287485c0df55935f38f92e9
 
   flagblas:
     type: git
     url: https://github.com/flagos-ai/FlagBLAS.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # target-commit: a1897220dd06596e44e8add94cfb084b41cbb98a
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 0.3.0-rc2
+    # target-commit: b9a3c09c503fc68a36a06e9cad28576997bdaad8
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: a1897220dd06596e44e8add94cfb084b41cbb98a
 
   flagtensor:
     type: git
     url: https://github.com/flagos-ai/FlagTensor.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # target-commit: bcc97844bf17e169705802ac1231e91df470f279
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 0.3.0-rc2
+    # target-commit: f10919429fae33dbaf3c06e99cbf4d69c6a85d8f
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: bcc97844bf17e169705802ac1231e91df470f279
 
   flagaudio:
     type: git
     url: https://github.com/flagos-ai/FlagAudio.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # target-commit: 00b07b261e7035d7193113db012fd96a8f9917de
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 0.3.0-rc2
+    # target-commit: 343b0ceb92b8dfe6f31e3cd279d7dd90750c8c10
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: 00b07b261e7035d7193113db012fd96a8f9917de
 
   flagattention:
     type: git
     url: https://github.com/flagos-ai/FlagAttention.git
     version: v0.4.0
     # rc2: v0.4.0-rc2.post1
-    # target-commit: 2dd3a7408c3ff1b11baccb8758392c5da5f3aef6
-    # tag-status: existing
-    # Review: RC2 branch has later commits not included in this tag.
+    # rc2-branch: 0.4.0-rc2
+    # target-commit: ff6a63543741953c7c48a478211794b113064429
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: 2dd3a7408c3ff1b11baccb8758392c5da5f3aef6
 
   flaggems-vllm:
     type: git
     url: https://github.com/flagos-ai/FlagGems-vllm.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post1
+    # rc2-branch: 0.2.0-rc2
     # target-commit: b61c244b0cce2d3762d2a6a47c35efe2207bc7a3
     # tag-status: existing
+    # Review: pyproject.toml at this commit declares package version 0.1.0.
 
   flaggems-sglang:
     type: git
     url: https://github.com/flagos-ai/FlagGems-sglang.git
     version: v0.1.0
     # rc2: v0.1.0-rc2.post1
+    # rc2-branch: 0.1.0-rc2
     # target-commit: e72037ad19095ecbe40368c2fa45e6b3070e979a
     # tag-status: existing
 
