@@ -11,7 +11,10 @@
 #   - version is the official release tag, normally with the rc/post suffix
 #     removed. flagtree-cpu starts its independent release series at v0.1.0.
 #   - target-commit records the exact commit proposed for each official tag.
-#   - L1 operator libraries and FlagCX use the HEAD of rc2-branch at review time.
+#   - L1 operator libraries except FlagGems use the last first-parent commit on
+#     source-branch at or before 2026-09-28 09:00:00 Asia/Shanghai (01:00:00 UTC),
+#     selected by committer timestamp. master is used where main does not exist.
+#   - FlagGems and FlagCX retain their captured RC2 branch HEADs.
 #     rc2 records the RC2 manifest baseline, which may differ from the target.
 #   - flagtree-cpu uses the captured HEAD of source-branch: triton_v3.7.x.
 #   - Other entries retain existing official tags, or use the snapshot pinned
@@ -99,8 +102,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagFFT.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post2
-    # rc2-branch: 0.2.0-rc2
-    # target-commit: 1b7c47a52409d288fcf531d1a547c3bef0fafbdf
+    # source-branch: main
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: 46338c97352621fa11e2f3ccbe1ddf1cf1ebf397
     # tag-status: existing-target-mismatch
     # existing-tag-commit: 5eecfd409b655458a7b0d4aaad53f802660bc66f
 
@@ -109,8 +113,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagSparse.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post1
-    # rc2-branch: 0.3.0-rc2
-    # target-commit: 81cb9b595bf51242d12933129a98fc754e181105
+    # source-branch: main
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: 097a3c05ef3505fd3e06afbe91034e70d5c55d0e
     # tag-status: existing-target-mismatch
     # existing-tag-commit: 2d4eee7ff0a6095dc8daf28a0dd2c4e0d76e0ad5
 
@@ -119,8 +124,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagDNN.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # rc2-branch: 0.3.0-rc2
-    # target-commit: 5e7a6b7bb0da5e80732e564a11deead79bedd2f8
+    # source-branch: master
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: 6dbbc065cb326b1b76789e51ea4c02e0c37046f0
     # tag-status: existing-target-mismatch
     # existing-tag-commit: 42bcbcc23beb8d6af287485c0df55935f38f92e9
 
@@ -129,8 +135,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagBLAS.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # rc2-branch: 0.3.0-rc2
-    # target-commit: b9a3c09c503fc68a36a06e9cad28576997bdaad8
+    # source-branch: master
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: f0a86661aa44013c3e542082bf479b9b157251c6
     # tag-status: existing-target-mismatch
     # existing-tag-commit: a1897220dd06596e44e8add94cfb084b41cbb98a
 
@@ -139,8 +146,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagTensor.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # rc2-branch: 0.3.0-rc2
-    # target-commit: f10919429fae33dbaf3c06e99cbf4d69c6a85d8f
+    # source-branch: main
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: ebb2a932d28a7c6a0a3420ece25ff2e24595c1e3
     # tag-status: existing-target-mismatch
     # existing-tag-commit: bcc97844bf17e169705802ac1231e91df470f279
 
@@ -149,8 +157,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagAudio.git
     version: v0.3.0
     # rc2: v0.3.0-rc2.post2
-    # rc2-branch: 0.3.0-rc2
-    # target-commit: 343b0ceb92b8dfe6f31e3cd279d7dd90750c8c10
+    # source-branch: main
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: 28a76ca276032608e04f07415df9d9df90c0aa8c
     # tag-status: existing-target-mismatch
     # existing-tag-commit: 00b07b261e7035d7193113db012fd96a8f9917de
 
@@ -159,8 +168,9 @@ repositories:
     url: https://github.com/flagos-ai/FlagAttention.git
     version: v0.4.0
     # rc2: v0.4.0-rc2.post1
-    # rc2-branch: 0.4.0-rc2
-    # target-commit: ff6a63543741953c7c48a478211794b113064429
+    # source-branch: main
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: d9adc17cfc2b4ac3776537548886da3de20e8085
     # tag-status: existing-target-mismatch
     # existing-tag-commit: 2dd3a7408c3ff1b11baccb8758392c5da5f3aef6
 
@@ -169,9 +179,11 @@ repositories:
     url: https://github.com/flagos-ai/FlagGems-vllm.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post1
-    # rc2-branch: 0.2.0-rc2
-    # target-commit: b61c244b0cce2d3762d2a6a47c35efe2207bc7a3
-    # tag-status: existing
+    # source-branch: main
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: b5c2c2249319277ccda4d41aa0f65164bd9b2a19
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: b61c244b0cce2d3762d2a6a47c35efe2207bc7a3
     # Review: pyproject.toml at this commit declares package version 0.1.0.
 
   flaggems-sglang:
@@ -179,9 +191,11 @@ repositories:
     url: https://github.com/flagos-ai/FlagGems-sglang.git
     version: v0.1.0
     # rc2: v0.1.0-rc2.post1
-    # rc2-branch: 0.1.0-rc2
-    # target-commit: e72037ad19095ecbe40368c2fa45e6b3070e979a
-    # tag-status: existing
+    # source-branch: master
+    # source-cutoff: 2026-09-28T09:00:00+08:00
+    # target-commit: 575d5bc3f0efea506a468e25b9a61e4a80989023
+    # tag-status: existing-target-mismatch
+    # existing-tag-commit: e72037ad19095ecbe40368c2fa45e6b3070e979a
 
   # ===========================================================================
   # L2 — Framework adaptation layer (PyTorch plugins + training/inference
