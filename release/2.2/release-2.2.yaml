@@ -18,6 +18,7 @@
 #     FlagGems-sglang.
 #   - For these eight libraries, target-commit records the corrected official
 #     tag commit; release-source is primary-branch-cutoff.
+#   - FlagScale uses the reviewed HEAD of 2.1.0-rc2, including fix #1304.
 #   - FlagGems keeps its existing tag. Other entries retain their previous
 #     review snapshots.
 #   - rc2 is the historical RC2 baseline and may differ from the release source.
@@ -268,10 +269,11 @@ repositories:
     url: https://github.com/flagos-ai/FlagScale.git
     version: v2.1.0
     # rc2: v2.1.0-rc2.post2
-    # release-source: existing-tag
-    # target-commit: 333964d5937ec2401d4324b92569158c663154de
+    # release-source: rc2-head
+    # source-branch: 2.1.0-rc2
+    # target-commit: 4371924fbfb4174ec36971c829158cb5ac4d2a47
     # tag-status: existing
-    # Review: RC2 branch has a later FlagCX initialization fix (#1304).
+    # Includes the FlagCX non-heterogeneous initialization fix (#1304).
 
   kernelgen:
     type: git
