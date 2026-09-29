@@ -26,7 +26,7 @@ release cycle, on top of v0.13.0:
    P2P Engine introduced in v0.13.0
    ([FEP-0021](0021-flagcx-v0.13.0-new-features.md)).
 3. **Distributed operators** — AllGather and ReduceScatter, plus the fused
-   AllGather+GEMM and GEMM+ReduceScatter operators, targeting intra-node and
+   AllGather+GEMM operator, targeting intra-node and
    inter-node performance on par with Triton-distributed.
 
 Repository: https://github.com/flagos-ai/FlagCX
@@ -48,7 +48,7 @@ Repository: https://github.com/flagos-ai/FlagCX
 The reviewed RC2 evidence confirms the T-Head backend, Unified IR groundwork
 and Device API compatibility changes. It does not establish the planned second
 native Device API vendor, the MetaX PD-disaggregation run, or parity with
-Triton-distributed for all four operator forms.
+Triton-distributed for the three in-scope operator forms.
 
 ## Motivation
 
@@ -86,18 +86,20 @@ matrix grows to include T-Head and more Device API-capable backends.
   <!-- TODO: metric definition for the ≥3% (throughput/TTFT/goodput) and
        workload profile. -->
 - **G4 (Distributed operators):** AllGather and ReduceScatter, plus the
-  fused AllGather+GEMM and GEMM+ReduceScatter operators, with intra-node
+  fused AllGather+GEMM operator, with intra-node
   and inter-node performance on par with Triton-distributed. The operators
   build on the FlagCX Device API + IR bindings and NVSHMEM; vendor scope
   this cycle is NVIDIA (sm90+). Development-side results show that the
   implemented paths outperform torch-native in most measured scenarios;
-  comparison with Triton-distributed and coverage of all four named operator
-  forms still need release-acceptance evidence. The fused implementations
-  live in FlagTree under
+  comparison with Triton-distributed and coverage of the three named
+  operator forms still need release-acceptance evidence. The fused
+  implementations live in FlagTree under
   `python/tutorials/tle/raw/nvshmem/`: `02-allgather-gemm` (with a
   benchmark harness against torch-native) and `03-gemm-allreduce`.
-  <!-- TODO: code locations for standalone AllGather / ReduceScatter and
-       GEMM+ReduceScatter (not in the FlagTree tree as of 2026-08-25), and
+  GEMM+ReduceScatter was in the original feature list but has no
+  implementation in FlagCX or FlagTree (flagos-ai/FlagCX#620) and is out of
+  2.2; see Non-Goals.
+  <!-- TODO: code locations for standalone AllGather / ReduceScatter, and
        the Triton-distributed comparison method — add a variant to
        benchmark.py or run their upstream benchmark, and which
        version/commit defines "on par". -->
@@ -107,7 +109,11 @@ matrix grows to include T-Head and more Device API-capable backends.
 - Device API CustomAllReduce / IR bindings support on vendors beyond the ones
   named in G2 (tracked per-vendor in future cycles).
 - PD disaggregation on platforms other than T-Head and MetaX in this cycle.
-- Fused operators beyond the four listed in G4 (e.g. AlltoAll+GEMM for MoE).
+- GEMM+ReduceScatter: in the original 2.2 feature list, but 2.2-rc2 testing
+  found no implementation in FlagCX or FlagTree (flagos-ai/FlagCX#620);
+  deferred out of 2.2 per agreement with development.
+- Fused operators beyond the three listed in G4 (e.g. AlltoAll+GEMM for
+  MoE).
 - Ascend enablement: blocked on a PCI-probe interface issue on the Ascend
   side; not pursued standalone in this cycle, tracked together with the
   sglang-plugin Huawei P0 work, which hits the same problem.
@@ -157,14 +163,16 @@ acceptance gaps rather than completed 2.2 claims.
 
 ### Feature 3: Distributed Operators
 
-Standalone AllGather / ReduceScatter and fused AllGather+GEMM /
-GEMM+ReduceScatter operators, targeting intra-node and inter-node
+Standalone AllGather / ReduceScatter and the fused AllGather+GEMM
+operator, targeting intra-node and inter-node
 performance on par with Triton-distributed. The operators use the FlagCX
 Device API + IR bindings and NVSHMEM for intra-node and inter-node
 transfers; vendor scope this cycle is NVIDIA (sm90+). Development-side runs
 report that most implemented scenarios outperform torch-native. The exact
 Triton-distributed baseline and complete operator coverage remain to be
-recorded before the parity target can be accepted.
+recorded before the parity target can be accepted. GEMM+ReduceScatter was
+dropped from this cycle: 2.2-rc2 testing found no implementation in FlagCX
+or FlagTree (flagos-ai/FlagCX#620).
 
 The fused implementations live in FlagTree
 (https://github.com/flagos-ai/FlagTree) under
@@ -180,9 +188,8 @@ FlagTree and torch sides — and `--dump_csv` writes
 `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`).
 
 <!-- TODO:
-     1. Code locations for standalone AllGather / ReduceScatter and for
-        GEMM+ReduceScatter — neither is in the FlagTree tree as of
-        2026-08-25 (03- is GEMM+AllReduce).
+     1. Code locations for standalone AllGather / ReduceScatter — not in the
+        FlagTree tree as of 2026-08-25 (03- is GEMM+AllReduce).
      2. Triton-distributed comparison method — add a third timing variant
         to benchmark.py or run their upstream benchmark, and which
         version/commit defines "on par". -->
@@ -292,9 +299,10 @@ GLM runs normally there.
 
 ### G4: Distributed operators
 
-Four operators in scope: AllGather, ReduceScatter, AllGather+GEMM,
-GEMM+ReduceScatter; acceptance target is intra-node and inter-node
+Three operators in scope: AllGather, ReduceScatter, AllGather+GEMM;
+acceptance target is intra-node and inter-node
 performance on par with Triton-distributed. NVIDIA sm90+ this cycle.
+GEMM+ReduceScatter is out of 2.2 (no implementation; flagos-ai/FlagCX#620).
 
 The AllGather+GEMM harness (`02-allgather-gemm/benchmark.py`) sweeps seven
 layer shapes (LLaMA-7B / 3.1-8B / 3.1-70B / 3.1-405B, Mistral-7B, Qwen2-72B,
@@ -308,7 +316,6 @@ and torch sides.
 | AllGather+GEMM | `cd python/tutorials/tle/raw/nvshmem/02-allgather-gemm && torchrun --nproc_per_node=<N> benchmark.py --dump_csv` (requires ≥2 GPUs, sm90+, `WORLD_SIZE % LOCAL_WORLD_SIZE == 0`) | Correctness passes per rank; fused path outperforms torch-native total latency in the covered shapes; csv written to `csv/perf_ag_gemm_<world_size>_ranks.csv` with speedup column |
 | GEMM+AllReduce | `03-gemm-allreduce` — test command TBD | Correctness passes; latency vs. torch-native recorded |
 | AllGather / ReduceScatter (standalone) | [TODO: code location and command] | Performance on par with Triton-distributed, intra- and inter-node |
-| GEMM+ReduceScatter | [TODO: code location and command] | Performance on par with Triton-distributed, intra- and inter-node |
 
 <!-- TODO: Triton-distributed comparison method — no baseline exists in the
      tree today; either add a third timing variant to benchmark.py or run
@@ -344,3 +351,7 @@ and torch sides.
   `v0.14.0-rc2.post1`. Recorded the Kunlunxin and default Device API changes;
   retained the second native vendor, MetaX PD run, ≥3% PD gain and full
   Triton-distributed comparison as pending acceptance items.
+- 2026-09-23: GEMM+ReduceScatter removed from the 2.2 scope. 2.2-rc2 testing
+  found no implementation in FlagCX `0.14.0-rc2` or FlagTree
+  `0.7.0-rc2-triton3.6` (flagos-ai/FlagCX#620); agreed with development to
+  defer it. G4 covers three operators this cycle.
