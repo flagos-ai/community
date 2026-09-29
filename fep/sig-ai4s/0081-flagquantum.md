@@ -1,6 +1,8 @@
 # FEP-0081: FlagQuantum Development Direction
 
-**Status:** `Provisional`
+**Status:** `Deferred`
+
+**Updated:** 2026-09-24
 
 **Created:** 2026-07-29
 
@@ -8,78 +10,30 @@
 
 **SIG:** sig-ai4s
 
-**Target Version:** FlagOS 2.2
-
----
-
-## Summary
-
-This FEP proposes the next-stage development direction for FlagQuantum.
-
-FlagQuantum will continue improving its overall product experience and
-ecosystem compatibility.
-
-## Release Boundary and Evidence
-
-- **FlagOS 2.1 baseline:** FlagQuantum `v0.1.0`.
-- **FlagOS 2.2 release candidate reviewed:** the FlagOS 2.2 RC2 manifest still
-  pins FlagQuantum to `v0.1.0`; no new 2.2 release artifact is identified.
-- **Development window:** 2026-06-01 through 2026-08-31.
-
-Public repository evidence in the 2.2 window is limited to documentation of
-multi-chip backend support (flagos-ai/FlagQuantum#12) and Apache 2.0 source
-headers (flagos-ai/FlagQuantum#14). Later vNext implementation activity first
-appears after the 2026-08-31 feature freeze and is not treated as FlagOS 2.2
-delivery evidence.
-
-Because this FEP intentionally withholds technical design pending
-intellectual-property review, it cannot yet define an implementable interface,
-package delta or acceptance test. `Provisional` records the direction without
-claiming that undisclosed capabilities are included in the FlagOS 2.2
-artifact.
-
-## Motivation
-
-FlagQuantum requires a clear and consistent direction for future development,
-collaboration, and delivery.
-
-## Principles
-
-- Maintain a coherent product identity.
-- Improve usability and compatibility.
-- Introduce capabilities progressively.
-- Define support boundaries clearly.
-- Validate maturity before making public claims.
+**Target Version:** FlagOS 2.3
 
 ## Scope
 
-This FEP records product direction only. It does not define or disclose any
-specific architecture, method, implementation, performance technique, or
-platform capability.
+Define the next FlagQuantum API, platform capabilities and performance
+targets for FlagOS 2.3 after intellectual-property review.
 
-All technical designs and supporting materials are maintained separately and
-are subject to intellectual-property review before disclosure.
+## Baseline
 
-## Packaging
+The FlagOS 2.2 RC2 manifest has no FlagQuantum entry, and the repository has
+no RC2 branch. FlagQuantum `v0.1.0` is the earlier baseline, not a module
+pinned by the current RC2 manifest.
 
-No packaging change beyond the existing `v0.1.0` artifact is claimed for
-FlagOS 2.2 by this FEP.
+The inspected main revision is
+[`3dfd68d51a6c`](https://github.com/flagos-ai/FlagQuantum/tree/3dfd68d51a6c9dc7502d26d68172536bcd24cda3).
+PRs #12 and #14 cover backend documentation and license headers. Later
+development on main has no assigned 2.2 release artifact in this FEP.
 
-## Test Plan
+## Deliverables
 
-No new public 2.2 capability is specified for acceptance. Any future status
-change requires a reviewable public scope, release artifact and test boundary,
-or an explicitly approved confidential acceptance process documented by the
-release owner.
+A reviewed public design, pinned implementation, release package and
+executable capability/acceptance matrix.
 
 ## Related PRs
 
-- [x] flagos-ai/FlagQuantum#12 — document multi-chip backend support
-- [x] flagos-ai/FlagQuantum#14 — add Apache 2.0 source headers
-
-## Implementation History
-
-- 2026-07-29: FEP created as a product-direction proposal.
-- 2026-09-17: Reconciled the FEP with the FlagOS 2.1 and 2.2 manifests. Status
-  changed to `Provisional` because both manifests pin `v0.1.0` and the public
-  evidence does not define a new testable 2.2 capability.
+- [x] [FlagQuantum#12](https://github.com/flagos-ai/FlagQuantum/pull/12) — Multi-chip backend documentation. Merged.
+- [x] [FlagQuantum#14](https://github.com/flagos-ai/FlagQuantum/pull/14) — Apache 2.0 source headers. Merged.
