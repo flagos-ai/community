@@ -7,17 +7,19 @@
 #   mkdir flagos-2.2 && cd flagos-2.2
 #   vcs import src < release-2.2.yaml
 #
-# Release policy (six-library correction: 2026-09-29):
+# Release policy (operator-library correction: 2026-09-29):
 #   - version names the official release tag. flagtree-cpu uses its independent
 #     release series at v0.1.0.
-#   - FlagFFT, FlagSparse, FlagDNN, FlagBLAS, FlagTensor and FlagAttention use
-#     the last primary-branch commit strictly before 2026-09-28 09:00:00
-#     Asia/Shanghai (2026-09-28T01:00:00Z), following first-parent history.
-#     Their source branch is main, or master for FlagDNN and FlagBLAS.
-#   - For these six libraries, target-commit records the corrected official
+#   - FlagFFT, FlagSparse, FlagDNN, FlagBLAS, FlagTensor, FlagAttention,
+#     FlagGems-vllm and FlagGems-sglang use the last primary-branch commit
+#     strictly before 2026-09-28 09:00:00 Asia/Shanghai (2026-09-28T01:00:00Z),
+#     following first-parent history.
+#     Their source branch is main, or master for FlagDNN, FlagBLAS and
+#     FlagGems-sglang.
+#   - For these eight libraries, target-commit records the corrected official
 #     tag commit; release-source is primary-branch-cutoff.
-#   - FlagGems, FlagGems-vllm and FlagGems-sglang keep their existing tags.
-#     Other entries retain their previous review snapshots.
+#   - FlagGems keeps its existing tag. Other entries retain their previous
+#     review snapshots.
 #   - rc2 is the historical RC2 baseline and may differ from the release source.
 #   - tag-status: existing = tag matched target-commit when that entry was
 #     reviewed; pending = official tag was absent. Comments are review snapshots.
@@ -165,8 +167,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagGems-vllm.git
     version: v0.2.0
     # rc2: v0.2.0-rc2.post1
-    # release-source: existing-tag
-    # target-commit: b61c244b0cce2d3762d2a6a47c35efe2207bc7a3
+    # release-source: primary-branch-cutoff
+    # source-branch: main
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: b5c2c2249319277ccda4d41aa0f65164bd9b2a19
     # tag-status: existing
 
   flaggems-sglang:
@@ -174,8 +178,10 @@ repositories:
     url: https://github.com/flagos-ai/FlagGems-sglang.git
     version: v0.1.0
     # rc2: v0.1.0-rc2.post1
-    # release-source: existing-tag
-    # target-commit: e72037ad19095ecbe40368c2fa45e6b3070e979a
+    # release-source: primary-branch-cutoff
+    # source-branch: master
+    # cutoff-before: 2026-09-28T09:00:00+08:00
+    # target-commit: 575d5bc3f0efea506a468e25b9a61e4a80989023
     # tag-status: existing
 
   # ===========================================================================
