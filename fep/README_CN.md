@@ -15,14 +15,16 @@ FEP (FlagOS Enhancement Proposal) 是 FlagOS 的特性管理机制。每个跨�
 按 FlagOS 版本实时展示 FEP 进度。徽章直接读取 GitHub Milestones API,自动更新。看板:[**FlagOS FEP Tracker**](https://github.com/orgs/flagos-ai/projects/6)(视图说明见[标签、Milestone 与看板](#标签milestone-与看板))。
 
 [![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
-[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2&color=blue)](https://github.com/flagos-ai/community/milestone/2)
+[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2&color=brightgreen)](https://github.com/flagos-ai/community/milestone/2)
+[![FlagOS 2.3](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/3?label=FlagOS%202.3&color=blue)](https://github.com/flagos-ai/community/milestone/3)
 
 | 版本 | 截止 | 状态 | FEP Milestone |
 |------|------|------|---------------|
 | **FlagOS 2.1** | 2026-06-11 | ✅ 已发布 — FEP 全部合入 | [milestone/1](https://github.com/flagos-ai/community/milestone/1) |
-| **FlagOS 2.2** | 2026-09-28 | 🔵 进行中 — 接受 FEP | [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
+| **FlagOS 2.2** | 2026-09-28 | ✅ 已发布 | [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
+| **FlagOS 2.3** | 2026-12-28 | 🔵 进行中 — 接受 FEP | [milestone/3](https://github.com/flagos-ai/community/milestone/3) |
 
-> **FlagOS 2.2 关键日期** — 特性冻结(Feature Freeze):**2026-08-31** · 测试期:09-01 → 09-24。完整时间表与冻结规则:[release/2.2/schedule_CN.md](../release/2.2/schedule_CN.md)。
+> **FlagOS 2.3 关键日期** — FEP 合入截止:**2026-11-16** · 特性冻结(Feature Freeze):**2026-11-30** · 测试期:12-01 → 12-24 · GA:**2026-12-28**。完整时间表与冻结规则:[release/2.3/schedule_CN.md](../release/2.3/schedule_CN.md)。
 
 ## SIG 分组
 

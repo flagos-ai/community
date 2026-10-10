@@ -17,14 +17,16 @@ stored under `fep/sig-*/`, submitted and reviewed via PR.
 Live FEP progress per FlagOS release. Badges read from the GitHub Milestones API and update automatically. Board: [**FlagOS FEP Tracker**](https://github.com/orgs/flagos-ai/projects/6) (views explained in [Labels, Milestone & Board](#labels-milestone--board)).
 
 [![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
-[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2&color=blue)](https://github.com/flagos-ai/community/milestone/2)
+[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2&color=brightgreen)](https://github.com/flagos-ai/community/milestone/2)
+[![FlagOS 2.3](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/3?label=FlagOS%202.3&color=blue)](https://github.com/flagos-ai/community/milestone/3)
 
 | Release | Due | Status | FEP Milestone |
 |---------|-----|--------|---------------|
 | **FlagOS 2.1** | 2026-06-11 | ✅ Released — all FEPs merged | [milestone/1](https://github.com/flagos-ai/community/milestone/1) |
-| **FlagOS 2.2** | 2026-09-28 | 🔵 Open — accepting FEPs | [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
+| **FlagOS 2.2** | 2026-09-28 | ✅ Released | [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
+| **FlagOS 2.3** | 2026-12-28 | 🔵 Open — accepting FEPs | [milestone/3](https://github.com/flagos-ai/community/milestone/3) |
 
-> **FlagOS 2.2 key dates** — Feature Freeze: **2026-08-31** · Testing: 09-01 → 09-24. Full schedule and freeze rules: [release/2.2/schedule.md](../release/2.2/schedule.md).
+> **FlagOS 2.3 key dates** — FEP Merge Deadline: **2026-11-16** · Feature Freeze: **2026-11-30** · Testing: 12-01 → 12-24 · GA: **2026-12-28**. Full schedule and freeze rules: [release/2.3/schedule.md](../release/2.3/schedule.md).
 
 ## SIG Groups
 
