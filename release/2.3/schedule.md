@@ -12,8 +12,9 @@
 | **2026-11-13** | **FEP Merge Deadline** | Hard cutoff: FEPs targeting 2.3 must be **merged** by this date. FEPs not merged are `Deferred` to the next release — no retroactive admission. Submit at least 2 weeks earlier; Approver initial feedback takes up to 2 weeks per the [Review Guide](../../fep/REVIEW_GUIDE.md#8-approver-code-of-conduct). |
 | **2026-11-30** | **Feature Freeze — rc0 cut** | Implementation code submitted in module repositories; **rc0 branch and tag created, version identifiers consistent** (tag = manifest = package metadata). The RM runs `vcs import` + full-module build from the rc0 manifest so source/tag mismatches surface now, not at GA. After this date: acceptance testing, bug fixes, tuning, and FEP doc updates only — no new 2.3 feature code. |
 | **2026-12-07** | **rc1 cut** | First full integration round (1 week). Each FEP tracking issue carries an executable Test Plan (commands + environment + expected results) by rc1. |
-| **2026-12-14** | **rc2 cut** | Second validation round (2 weeks, through 12-28). Bugfixes land on the active rc branch and merge back to `main`. |
-| **2026-12-30** | **Release (GA)** 🚀 | FlagOS 2.3 GA. Go/No-Go: written report as a milestone issue 48h before, TSC votes there; release-scope changes happen at that gate, not on release day. The GA manifest accepts `existing-tag` sources only. FEPs with acceptance passed flip Status to `Implemented`; the rest keep `Implementable` with a follow-up acceptance issue. |
+| **2026-12-14** | **rc2 cut** | Second validation round (2 weeks). Bugfixes land on the active rc branch and merge back to `main`. |
+| **2026-12-25** | **Testing ends — code lock** | Acceptance testing closes and the release manifest is locked: every entry's official tag exists and is final. `Hotfix` only past this point, each approved by the RM. |
+| **2026-12-30** | **Release (GA)** 🚀 | FlagOS 2.3 GA. Go/No-Go: written report as a milestone issue 48h before, based on the locked manifest; TSC votes there. Release-scope changes happen at that gate, not on release day. The GA manifest accepts `existing-tag` sources only. FEPs with acceptance passed flip Status to `Implemented`; the rest keep `Implementable` with a follow-up acceptance issue. |
 
 Release candidates are cut on Mondays. Bugfixes land on the active rc branch and merge back to `main`.
 

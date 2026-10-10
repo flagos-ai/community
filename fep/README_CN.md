@@ -24,7 +24,7 @@ FEP (FlagOS Enhancement Proposal) 是 FlagOS 的特性管理机制。每个跨�
 | **FlagOS 2.2** | 2026-09-28 | ✅ 已发布 | [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
 | **FlagOS 2.3** | 2026-12-30 | 🔵 进行中 — 接受 FEP | [milestone/3](https://github.com/flagos-ai/community/milestone/3) |
 
-> **FlagOS 2.3 关键日期** — FEP 合入截止:**2026-11-13** · 特性冻结 + rc0:**2026-11-30** · rc1:12-07 · rc2:12-14 · GA:**2026-12-30**。完整时间表与冻结规则:[release/2.3/schedule_CN.md](../release/2.3/schedule_CN.md)。
+> **FlagOS 2.3 关键日期** — FEP 合入截止:**2026-11-13** · 特性冻结 + rc0:**2026-11-30** · rc1:12-07 · rc2:12-14 · 封板:12-25 · GA:**2026-12-30**。完整时间表与冻结规则:[release/2.3/schedule_CN.md](../release/2.3/schedule_CN.md)。
 
 ## SIG 分组
 
