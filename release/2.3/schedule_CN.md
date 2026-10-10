@@ -9,14 +9,13 @@
 
 | 日期 | 节点 | 含义 |
 |------|------|------|
-| **2026-11-13** | **FEP 合入截止(FEP Merge Deadline)** | 硬截止:目标 2.3 的 FEP 须在此日期前**完成合入**。未合入的 FEP 标为 `Deferred` 顺延下一版本,不做追认。(建议至少提前 2 周提交;Approver 初审意见最长 2 周,见[评审指南](../../fep/REVIEW_GUIDE.md#8-approver-code-of-conduct)。) |
-| **2026-11-27** | **特性冻结(Feature Freeze)— 拉 rc0** | 实现代码已提交至各模块仓库,**rc0 分支与 rc0 tag 已创建,版本号三处一致**(tag = manifest = 包元数据)。此日期后:只做验收测试、bug 修复、调优和 FEP 文档更新——不再进 2.3 特性代码。后续版本的特性开发在 `main` 上继续。 |
-| 2026-12-01 | **集成冒烟** | 用 rc0 manifest 执行 `vcs import` + 全模块在参考环境构建。源码/tag 不一致问题在这里暴露,而不是留到 GA。 |
-| **2026-12-04** | **拉 rc1** | 第一轮完整集成验证(1 周)。每个 FEP 的 tracking issue 须在 rc1 前挂上可执行的 Test Plan(命令 + 环境 + 期望结果)。 |
-| **2026-12-11** | **拉 rc2** | 第二轮验证(2 周)。bug 修复进当前 rc 分支并合回 `main`。 |
-| 2026-12-25 | **rc2 稳定期结束** | 此后仅接受 hotfix。 |
-| **2026-12-29** | **Go/No-Go** | RM 在 GA 前 48 小时发布书面 Go/No-Go 报告(issue 形式,挂 milestone),TSC 在 issue 中投票。发布范围变更只能发生在这里,不能发生在发布日。 |
-| **2026-12-31** | **发布(GA)** 🚀 | FlagOS 2.3 GA。GA manifest 只接受 `existing-tag` 发布源——每个条目的正式 tag 必须已存在。验收通过的 FEP 将 Status 更新为 `Implemented`;未通过的保持 `Implementable` 并单独开验收 issue。 |
+| **2026-11-13** | **FEP 合入截止(FEP Merge Deadline)** | 硬截止:目标 2.3 的 FEP 须在此日期前**完成合入**。未合入的 FEP 标为 `Deferred` 顺延下一版本,不做追认。建议至少提前 2 周提交;Approver 初审意见最长 2 周,见[评审指南](../../fep/REVIEW_GUIDE.md#8-approver-code-of-conduct)。 |
+| **2026-11-30** | **特性冻结(Feature Freeze)— 拉 rc0** | 实现代码已提交至各模块仓库;**rc0 分支与 tag 已创建,版本号三处一致**(tag = manifest = 包元数据)。RM 当周用 rc0 manifest 执行 `vcs import` + 全模块构建,源码/tag 不一致问题在此暴露,不留到 GA。此日期后:只做验收测试、bug 修复、调优和 FEP 文档更新——不再进 2.3 特性代码。 |
+| **2026-12-07** | **拉 rc1** | 第一轮完整集成验证(1 周)。每个 FEP 的 tracking issue 须在 rc1 前挂上可执行的 Test Plan(命令 + 环境 + 期望结果)。 |
+| **2026-12-14** | **拉 rc2** | 第二轮验证(2 周,至 12-28)。bug 修复进当前 rc 分支并合回 `main`。 |
+| **2026-12-30** | **发布(GA)** 🚀 | FlagOS 2.3 GA。Go/No-Go:GA 前 48 小时 RM 发布书面报告(issue 形式,挂 milestone),TSC 在 issue 中投票;发布范围变更只能发生在这道门,不能发生在发布日。GA manifest 只接受 `existing-tag` 发布源。验收通过的 FEP 将 Status 更新为 `Implemented`;未通过的保持 `Implementable` 并单独开验收 issue。 |
+
+rc 统一在周一切分支。bug 修复进当前 rc 分支并合回 `main`。
 
 ## 冻结规则
 
