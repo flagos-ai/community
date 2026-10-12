@@ -1,0 +1,31 @@
+# FlagOS projects — per-project maintainership. PK = project name.
+#
+# roles: `maintainers` (active) and `emeritus` (former contributors,
+#         listed as emeritus-contributor, not in people).
+# Every id below is a github id from people.yaml (foreign key).
+# Every project key is a repository name.
+projects:
+  FlagCX:
+    maintainers: [MC952-arch, Caozhou1995, mikethegoblin]
+    emeritus: [yanminjia, yzhang35, aoyulong]
+  FlagGems:
+    maintainers: ["0x45f", zhzhcookie]
+    emeritus: [StrongSpoon, iclementine, Bowen12992, tongxin, kiddyjinjin]
+  FlagGems-vLLM:
+    maintainers: [huangyiqun]
+  FlagQuantum:
+    maintainers: [FlagQuantum]
+  FlagRelease:
+    maintainers: [tianxiao-baai]
+    emeritus: [shh2000]
+  FlagScale:
+    maintainers: [zhaoyinglia, ceci3, heavyrain-lzy, Caozhou1995, cyber-pioneer]
+    emeritus: [aoyulong]
+  FlagTree:
+    maintainers: [menchunlei, zhzhcookie, sunnycase, hxl0809, i3wanna2, Galaxy1458, sgjzfzzf]
+  KernelgenBench:
+    maintainers: [factnn]
+  docs:
+    maintainers: [armstrongttwalker-alt, cheng874]
+  kernelGen:
+    maintainers: [zacliu2023]
