@@ -40,7 +40,7 @@ The following areas have been identified as important but no Chair candidate has
 
 1. Proposer submits a Charter draft + initial member list to TSC (PR to community repo)
 2. TSC votes within 2 weeks
-3. Upon approval, create directory structure, OWNERS file, and add to this index page
+3. Upon approval, create directory structure and add to this index page
 4. Chair executes the [SIG Launch Checklist](#sig-launch-checklist)
 
 ### SIG Launch Checklist
@@ -48,7 +48,7 @@ The following areas have been identified as important but no Chair candidate has
 After TSC approves a new SIG, the Chair must complete the following within **2 weeks**.
 
 **GitHub**
-- [ ] Create `sigs/sig-xxx/` directory: `README.md` (Charter), `OWNERS`, `meetings/`
+- [ ] Create `sigs/sig-xxx/` directory: `README.md` (Charter), `meetings/`
 - [ ] Request a SIG-specific GitHub label (`sig/xxx`) for tagging Issues and PRs
 - [ ] Update this page (`sigs/README.md`) with the SIG list and meeting calendar
 
@@ -69,21 +69,16 @@ After TSC approves a new SIG, the Chair must complete the following within **2 w
 
 **Bootstrap Phase Simplification**: Before the TSC is formed, the ZhongZhi FlagOS Community will assist the Chair with the checklist items involving WeChat groups, GitHub labels, Bilibili playlists, etc. GitHub label requests will be filed by TSC members on behalf of the SIG.
 
-## OWNERS Specification
+## SIG Roles
 
-Format of the OWNERS file in each SIG directory:
+A SIG has exactly two roles — **Chair** and **Tech Lead** — recorded centrally in
+[data/sigs.yaml](../data/sigs.yaml). Code merge and PR approval authority belongs
+to the subproject (per [data/projects.yaml](../data/projects.yaml)); a SIG has no
+Approver/Reviewer roles, and there is no per-SIG `OWNERS` file. FEPs are approved
+by the Chair + Tech Lead.
 
-```yaml
-reviewers:
-  # - sig-xxx-reviewers   ← references an alias in COMMUNITY/OWNERS_ALIASES
-
-approvers:
-  # - sig-xxx-approvers   ← references an alias in COMMUNITY/OWNERS_ALIASES
-```
-
-**Use aliases instead of specific GitHub IDs**: Each SIG's Reviewer and Approver teams are centrally defined in the community root [OWNERS_ALIASES](../OWNERS_ALIASES). When personnel change, only OWNERS_ALIASES needs updating — no need to modify individual module OWNERS files.
-
-**Do NOT fill OWNERS with TBD, placeholder, or unconfirmed individuals.** Leave fields empty if no one is assigned.
+**Do NOT fill roles with TBD, placeholder, or unconfirmed individuals.** Leave
+fields empty if no one is assigned.
 
 ## Meeting Calendar
 

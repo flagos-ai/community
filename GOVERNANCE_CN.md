@@ -26,7 +26,7 @@ TSC 首次会议召开之前，项目由 **众智FlagOS社区** 代行最高决�
 
 **决策方式**：众智FlagOS社区的决策在 GitHub 上公开进行。日常决策遵循 lazy consensus（PR/Issue 发出后 72h 无反对即通过），重大决策（SIG 创建、版本发布、治理规则变更）在 GitHub Discussions 或对应 PR/Issue 中以投票方式决定（2/3 多数）。所有决策必须有 GitHub 记录。
 
-**Bootstrap 例外**：启动期的首批角色（TSC 成员、SIG Chair、SIG Approver）无需经过标准晋升流程。由众智FlagOS社区直接任命，在 MAINTAINERS.md 和对应 OWNERS 文件中确认。一旦首批角色就位，后续晋升严格按 [角色定义与晋升路径](contributors/roles.md) 执行。
+**Bootstrap 例外**：启动期的首批角色（TSC 成员、SIG Chair、Tech Lead）无需经过标准晋升流程。由众智FlagOS社区直接任命，在 MAINTAINERS.md 和 sigs.yaml 中确认。一旦首批角色就位，后续晋升严格按 [角色定义与晋升路径](contributors/roles.md) 执行。
 
 ### 首批角色任命顺序
 
@@ -37,7 +37,7 @@ TSC 首次会议召开之前，项目由 **众智FlagOS社区** 代行最高决�
   │
   ├→ Step 2: TSC 从社区贡献者中确认各 SIG Chair + Tech Lead → 填入 MAINTAINERS.md
   │
-  ├→ Step 3: Chair + TSC 确认各 SIG Approver → 填入 OWNERS 文件
+  ├→ Step 3: TSC 确认各 SIG 的 Tech Lead → 填入 sigs.yaml
   │
   └→ 过渡状态结束：标准晋升流程生效
 ```
@@ -69,11 +69,11 @@ TSC 首次会议召开之前，项目由 **众智FlagOS社区** 代行最高决�
 
 ### 过渡结束
 
-OWNERS 文件首次填充（对应角色已确认且本人知情同意），并且 TSC 已召开首次会议后，过渡状态结束。目标是 **3 个月内**完成首批 Chair 和 Approver 确认。
+sigs.yaml 首次填充（对应角色已确认且本人知情同意），并且 TSC 已召开首次会议后，过渡状态结束。目标是 **3 个月内**完成首批 Chair 和 Tech Lead 确认。
 
 ### 启动期 SIG 说明
 
-当前 7 个 SIG 的目录和 Charter 已预创建，作为启动期技术方向的占位。这些 SIG 属于 **"预创建等待激活"** 状态——目录存在，但 OWNERS 为空，决策权在 TSC。
+当前 7 个 SIG 的目录和 Charter 已预创建，作为启动期技术方向的占位。这些 SIG 属于 **"预创建等待激活"** 状态——目录存在，但 sigs.yaml 中无 Chair，决策权在 TSC。
 
 未来新增 SIG 严格遵循 [SIG 创建条件](#创建条件)：**找不到 Chair 的 SIG 不创建**。只有在 ≥1 名 Chair 确认后才创建目录结构。
 
@@ -147,18 +147,16 @@ SIG 是围绕特定技术领域或生态方向组织的常设小组。
 | 角色 | 职责 | 任期 |
 |------|------|------|
 | **Chair** (≥1) | 主持 SIG 例会、对外代表 SIG、向 TSC 年度汇报 | 1 年，可连任 |
-| **Tech Lead** (≥1) | SIG 技术方向决策、架构评审 | 无固定任期 |
-| **Approver** | 审批 FEP 和 PR（绑定）、合入代码 | 持续活跃 |
-| **Reviewer** | 对 PR 给出 LGTM（非绑定） | 持续活跃 |
+| **Tech Lead** (≥1) | SIG 技术方向决策、架构评审、审批 FEP | 无固定任期 |
 | **Member** | 参与例会、提交 Issue 和 PR | — |
 
-晋升路径：Member → Reviewer (≥5 个合入 PR) → Approver (持续贡献 ≥3 月 + 2/3 Approver 投票) → Tech Lead (Chair 提名 + TSC 批准) → Chair (Tech Lead 中选出 + TSC 批准)
+SIG 只有 Chair 和 Tech Lead 两种角色。代码合入与 PR 审批权属于**项目**（见 [子项目](#子项目-subproject)），SIG 不设 Approver/Reviewer。FEP 由 Chair + Tech Lead 审批。
 
 ### 创建流程
 
 1. 发起人向 TSC 提交 SIG Proposal（PR 到 community repo，含 Charter 草稿 + 初始成员名单）
 2. TSC 在 2 周内投票决定
-3. 批准后创建 `sigs/sig-xxx/` 目录（Charter + OWNERS + meetings/）
+3. 批准后创建 `sigs/sig-xxx/` 目录（Charter + meetings/）
 
 ### 关停流程
 
@@ -171,42 +169,38 @@ SIG 是围绕特定技术领域或生态方向组织的常设小组。
 
 SIG 范围内的具体工作由 **子项目** 组织。FlagOS 的每个模块仓库为一个子项目，归属于对应的 SIG。
 
-**子项目 OWNERS**
+**项目角色**
 
-每个子项目有自己的 OWNERS 文件，定义该模块的技术负责人：
+每个子项目在 community 仓的 `data/projects.yaml` 中登记技术负责人：
 
 ```yaml
-# 模块仓库根目录 OWNERS
-approvers:
-  - sig-xxx-approvers   # 引用社区 OWNERS_ALIASES 中的别名
-
-reviewers:
-  - sig-xxx-reviewers
+projects:
+  vllm-plugin-FL:
+    maintainers: [tengqm, huangyiqun]
+    emeritus: [aoyulong]
 ```
 
-> **OWNERS_ALIASES**：社区根目录的 [OWNERS_ALIASES](OWNERS_ALIASES) 集中定义各 SIG 的 Reviewer 和 Approver 别名。各模块 OWNERS 文件引用别名而非具体 GitHub ID。人员变动时只需更新 OWNERS_ALIASES，无需逐个修改模块 OWNERS 文件。
+> **单一来源**：项目角色集中记录在 [data/projects.yaml](data/projects.yaml)，按仓库名索引，成员以 GitHub ID 引用 [data/people.yaml](data/people.yaml)。角色仅两类：`maintainers`（现任）与 `emeritus`（离职维护者，即 emeritus-contributor）。community 是权威来源；模块仓库可保留本地副本（如生成的 OWNERS 文件），但只是镜像，变更只从 community 向外流，绝不反向。
 
-子项目 Approver 对该模块内的代码变更有绑定审批权。跨子项目的变更（如修改公共 API）需相关子项目的 Approver 均 approve。
+Maintainer 对该模块内的代码变更有绑定审批权。跨子项目的变更（如修改公共 API）需相关子项目的 Maintainer 均 approve。
 
 **子项目与 SIG 的关系**
 
 | 层级 | 决策范围 | 角色 |
 |------|----------|------|
-| **SIG** | SIG 范围内跨模块的 FEP、架构方向、人员晋升 | Chair + Tech Lead + Approver |
-| **子项目** | 单个模块仓库内的 PR 审批、模块级技术决策 | 子项目 Approver + Reviewer |
-
-SIG Approver 自动拥有下属各子项目的审批权（可跨模块 approve）。子项目 Approver 仅在其负责的模块范围内有审批权。
+| **SIG** | SIG 范围内跨模块的 FEP、架构方向、人员晋升 | Chair + Tech Lead |
+| **子项目** | 单个模块仓库内的 PR 审批、模块级技术决策 | 子项目 Maintainer |
 
 **子项目创建**
 
-1. SIG Chair 或已有子项目的 Approver 提交 PR，在新模块仓库添加 OWNERS 文件
-2. 指定至少 1 名子项目 Approver（初始可由 SIG Chair 或 Tech Lead 兼任）
+1. SIG Chair 或已有子项目的 Maintainer 提交 PR，在 `data/projects.yaml` 中登记新模块仓库
+2. 指定至少 1 名 Maintainer（初始可由 SIG Chair 或 Tech Lead 兼任）
 3. 在 SIG Charter 的 "Subprojects" 表格中登记
 
 **子项目退役**
 
 - 模块归档/弃用时，SIG Chair 提交 PR 更新 SIG Charter
-- 归档模块的 OWNERS 文件保留，标注 `archived: true`
+- `data/projects.yaml` 中的该模块条目保留，标注 `archived: true`
 - 相关 GitHub label 和 CI 资源由 TSC 协调回收
 
 ### 孵化工作组 (Working Group)
@@ -224,12 +218,12 @@ FEP 是管理跨模块或重大功能的提案机制。详见 [fep/README.md](fe
 简版流程：
 1. 在相关 SIG 中 socialize 想法
 2. 复制 fep 模板，撰写提案
-3. 开 PR，SIG Approver 审批
+3. 开 PR，Chair + Tech Lead 审批
 4. 跨 SIG 评审（如涉及）
 5. 合入，状态设为 Implementable
 6. 实现完成后更新状态为 Implemented
 
-> **启动期注意**：SIG 尚未正式运转时，上述流程中的"SIG Approver 审批"由 TSC 直接执行。详见上方 [启动期过渡](#启动期过渡)。
+> **启动期注意**：SIG 尚未正式运转时，上述流程中的"Chair + Tech Lead 审批"由 TSC 直接执行。详见上方 [启动期过渡](#启动期过渡)。
 
 ---
 
@@ -273,4 +267,5 @@ FEP 是管理跨模块或重大功能的提案机制。详见 [fep/README.md](fe
 - [通信渠道运营](contributors/communication-guidelines.md) — 各渠道创建、运营与 Moderation 规范
 - [代码审查指南](contributors/review-guide.md) — PR 审查标准和操作流程
 - [Issue Triage 指南](contributors/issue-triage.md) — Issue 分类、优先级和响应规范
-- [OWNERS_ALIASES](OWNERS_ALIASES) — 各 SIG 的 Reviewer/Approver 别名定义
+- [data/people.yaml](data/people.yaml) — 贡献者身份与归属（权威来源）
+- [data/projects.yaml](data/projects.yaml) — 各模块仓库的 Maintainer/Emeritus（权威来源）

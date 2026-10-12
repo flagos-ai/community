@@ -48,9 +48,6 @@
 |------|--------|-------------|--------|
 | (TBD) | — | — | Pending TSC confirmation |
 
-### Approvers
-See [OWNERS](./OWNERS)
-
 ## Communication
 
 - **Meetings**: TBD (biweekly)
@@ -59,13 +56,14 @@ See [OWNERS](./OWNERS)
 
 ## Decision Making
 
-- Routine PR/FEP approval: Any Approver in OWNERS may approve
+- Routine PR approval: Subproject Maintainers (see [data/projects.yaml](../../data/projects.yaml))
+- FEP approval: Chair + Tech Lead
 - New chip access approval: sig-chip internal 2/3 vote + TSC approval
 - Unresolved disputes escalate to TSC
 
 ## Chip Vendor Participation
 
-Vendor participation follows a 4-tier model: Contributor → Approver → Chair → TSC. For detailed promotion criteria, see [contributors/roles.md](../../contributors/roles.md).
+Vendor participation follows a 4-tier model: Contributor → Subproject Maintainer → Chair → TSC. For detailed promotion criteria, see [contributors/roles.md](../../contributors/roles.md).
 
 **New Vendor Onboarding Process:**
 1. Submit a [Chip Support Request](chip-support-request.md)

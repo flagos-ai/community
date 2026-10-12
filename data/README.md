@@ -26,7 +26,7 @@ The schema is relational. Primary keys are shown; foreign keys are `github id`s.
 | `units` | `people.yaml` | unit `id` | organization names + optional `domains` fallback |
 | `people` | `people.yaml` | `id` (= github login) | `name`, `emails[]`, `affiliations[]` |
 | `projects` | `projects.yaml` | repository name | `maintainers[]`, `emeritus[]` |
-| `sigs` | `sigs.yaml` (future) | sig `id` | `chair`, `tech_leads[]` |
+| `sigs` | `sigs.yaml` | sig `id` | `chair`, `tech_leads[]` |
 
 ### Foreign keys (two, on purpose)
 
@@ -69,17 +69,3 @@ The same person is therefore reachable by either key; `people.yaml` is the hub.
   category, not an error).
 - The units that happen to be commissioned vendors are a **report-time filter**,
   never a field on the record — all units are peers.
-
-## Governance changes implied
-
-Consolidating people data here removes two hand-maintained artifacts and one
-ambiguity. Pending TSC sign-off:
-
-1. **FEP approval** currently reads "SIG Approver / TSC" in `GOVERNANCE.md`.
-   With no SIG-side approvers, approval falls to **chair + tech-lead**; the
-   governance text should be updated to say so.
-2. **`OWNERS_ALIASES`** exists only to avoid editing N `OWNERS` files when a
-   person changes; with a single people source it has no purpose and should be
-   deleted.
-3. **`sigs/*/OWNERS`** are built on reviewer/approver roles that SIGs no longer
-   have; they should be removed or reduced to generated mirrors.

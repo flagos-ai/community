@@ -26,7 +26,7 @@ Before the first TSC meeting, the project is governed by the **ZhongZhi FlagOS C
 
 **Decision-Making**: All decisions by the ZhongZhi FlagOS Community are made publicly on GitHub. Routine decisions follow lazy consensus (a proposal passes if no objection is raised within 72 hours on the PR/Issue). Major decisions (SIG creation, version releases, governance changes) are decided by vote (2/3 majority) on GitHub Discussions or the corresponding PR/Issue. All decisions must have a GitHub record.
 
-**Bootstrap Exception**: The initial cohort of roles (TSC members, SIG Chairs, SIG Approvers) are directly appointed by the ZhongZhi FlagOS Community without going through the standard promotion process. They are confirmed in MAINTAINERS.md and the corresponding OWNERS files. Once the initial roles are in place, all subsequent promotions follow the standard process defined in [Role Definitions & Promotion](contributors/roles.md).
+**Bootstrap Exception**: The initial cohort of roles (TSC members, SIG Chairs, Tech Leads) are directly appointed by the ZhongZhi FlagOS Community without going through the standard promotion process. They are confirmed in MAINTAINERS.md and sigs.yaml. Once the initial roles are in place, all subsequent promotions follow the standard process defined in [Role Definitions & Promotion](contributors/roles.md).
 
 ### Initial Role Appointment Sequence
 
@@ -37,7 +37,7 @@ ZhongZhi FlagOS Community
   │
   ├→ Step 2: TSC confirms SIG Chairs + Tech Leads from community contributors → record in MAINTAINERS.md
   │
-  ├→ Step 3: Chair + TSC confirm SIG Approvers → record in OWNERS files
+  ├→ Step 3: TSC confirms SIG Tech Leads → record in sigs.yaml
   │
   └→ Transition ends: standard promotion process takes effect
 ```
@@ -69,11 +69,11 @@ After the first meeting, day-to-day decisions are handled by the TSC. Transition
 
 ### Transition Completion
 
-The transition period ends when OWNERS files are first populated (roles confirmed with informed consent) and the TSC has held its first meeting. The target is to complete Chair and Approver confirmation within **3 months**.
+The transition period ends when sigs.yaml is first populated (roles confirmed with informed consent) and the TSC has held its first meeting. The target is to complete Chair and Tech Lead confirmation within **3 months**.
 
 ### Bootstrap SIG Notes
 
-The directories and charters for the current 7 SIGs have been pre-created as placeholders for bootstrap-phase technical directions. These SIGs are in a **"pre-created, awaiting activation"** state — directories exist, but OWNERS are empty and decision-making authority rests with the TSC.
+The directories and charters for the current 7 SIGs have been pre-created as placeholders for bootstrap-phase technical directions. These SIGs are in a **"pre-created, awaiting activation"** state — directories exist, but sigs.yaml has no Chair and decision-making authority rests with the TSC.
 
 Future SIGs must strictly follow the [SIG Creation Conditions](#creation-conditions): **a SIG without a Chair is not created**. Directory structure is created only after ≥ 1 Chair is confirmed.
 
@@ -147,18 +147,16 @@ A SIG is a standing group organized around a specific technical domain or ecosys
 | Role | Responsibilities | Term |
 |------|-----------------|------|
 | **Chair** (≥1) | Run SIG meetings, represent the SIG externally, report annually to TSC | 1 year, renewable |
-| **Tech Lead** (≥1) | SIG-level technical direction decisions, architecture review | No fixed term |
-| **Approver** | Approve FEPs and PRs (binding), merge code | Ongoing activity |
-| **Reviewer** | Provide LGTM on PRs (non-binding) | Ongoing activity |
+| **Tech Lead** (≥1) | SIG-level technical direction decisions, architecture review, approve FEPs | No fixed term |
 | **Member** | Attend meetings, file Issues and PRs | — |
 
-Promotion path: Member → Reviewer (≥ 5 merged PRs) → Approver (sustained contribution ≥ 3 months + 2/3 Approver vote) → Tech Lead (Chair nomination + TSC approval) → Chair (elected from Tech Leads + TSC approval)
+A SIG has exactly two roles: Chair and Tech Lead. Code merge and PR approval authority belongs to the **subproject** (see [Subprojects](#subprojects)); a SIG has no Approver/Reviewer roles. FEPs are approved by the Chair + Tech Lead.
 
 ### Creation Process
 
 1. Proposer submits a SIG Proposal to the TSC (PR to community repo, including draft Charter + initial member list)
 2. TSC votes within 2 weeks
-3. Upon approval, create the `sigs/sig-xxx/` directory (Charter + OWNERS + meetings/)
+3. Upon approval, create the `sigs/sig-xxx/` directory (Charter + meetings/)
 
 ### Dissolution Process
 
@@ -171,42 +169,38 @@ Promotion path: Member → Reviewer (≥ 5 merged PRs) → Approver (sustained c
 
 Concrete work within a SIG is organized into **subprojects**. Each module repository in FlagOS is a subproject belonging to its corresponding SIG.
 
-**Subproject OWNERS**
+**Project roles**
 
-Each subproject has its own OWNERS file defining the module's technical leads:
+Each subproject records its technical leads in the community repo's `data/projects.yaml`:
 
 ```yaml
-# Module repo root OWNERS
-approvers:
-  - sig-xxx-approvers   # References the alias in community OWNERS_ALIASES
-
-reviewers:
-  - sig-xxx-reviewers
+projects:
+  vllm-plugin-FL:
+    maintainers: [tengqm, huangyiqun]
+    emeritus: [aoyulong]
 ```
 
-> **OWNERS_ALIASES**: The community root [OWNERS_ALIASES](OWNERS_ALIASES) centrally defines the Reviewer and Approver aliases for each SIG. Module OWNERS files reference aliases rather than individual GitHub IDs. When personnel change, only OWNERS_ALIASES needs updating — no need to update each module's OWNERS file individually.
+> **Single source**: Project roles are recorded centrally in [data/projects.yaml](data/projects.yaml), indexed by repository name, with members referenced by GitHub ID from [data/people.yaml](data/people.yaml). There are two roles: `maintainers` (current) and `emeritus` (former maintainers, i.e. emeritus-contributor). The community repo is authoritative; module repositories may keep a local copy (e.g. a generated OWNERS file), but it is a mirror — changes flow from here outward, never the reverse.
 
-Subproject Approvers have binding approval authority over code changes within their module. Cross-subproject changes (e.g., modifying public APIs) require approval from Approvers of all affected subprojects.
+Maintainers have binding approval authority over code changes within their module. Cross-subproject changes (e.g., modifying public APIs) require approval from Maintainers of all affected subprojects.
 
 **Subproject vs. SIG**
 
 | Level | Decision Scope | Roles |
 |-------|---------------|-------|
-| **SIG** | Cross-module FEPs within the SIG's domain, architecture direction, personnel promotion | Chair + Tech Lead + Approvers |
-| **Subproject** | PR approval within a single module repo, module-level technical decisions | Subproject Approvers + Reviewers |
-
-SIG Approvers automatically have approval authority across all subprojects under their SIG (cross-module approval). Subproject Approvers only have approval authority within their assigned module scope.
+| **SIG** | Cross-module FEPs within the SIG's domain, architecture direction, personnel promotion | Chair + Tech Lead |
+| **Subproject** | PR approval within a single module repo, module-level technical decisions | Subproject Maintainers |
 
 **Subproject Creation**
 
-1. The SIG Chair or an existing subproject Approver submits a PR adding an OWNERS file to the new module repository
-2. At least 1 subproject Approver is designated (may initially be the SIG Chair or Tech Lead)
+1. The SIG Chair or an existing subproject Maintainer submits a PR registering the new module repository in `data/projects.yaml`
+2. At least 1 Maintainer is designated (may initially be the SIG Chair or Tech Lead)
 3. The subproject is registered in the "Subprojects" table of the SIG Charter
 
 **Subproject Retirement**
 
 - When a module is archived/deprecated, the SIG Chair submits a PR to update the SIG Charter
-- The archived module's OWNERS file is preserved, marked `archived: true`
+- The module's entry in `data/projects.yaml` is preserved, marked `archived: true`
 - Related GitHub labels and CI resources are recycled under TSC coordination
 
 ### Working Group (WG)
@@ -224,12 +218,12 @@ The FEP is the proposal mechanism for managing cross-module or significant featu
 Abbreviated workflow:
 1. Socialize the idea in the relevant SIG
 2. Copy the FEP template and draft the proposal
-3. Open a PR for SIG Approver review
+3. Open a PR for Chair + Tech Lead review
 4. Cross-SIG review (if applicable)
 5. Merge; set status to Implementable
 6. Update status to Implemented once implementation is complete
 
-> **Bootstrap note**: When a SIG is not yet formally operational, "SIG Approver review" in the above workflow is performed directly by the TSC. See [Bootstrap Phase Transition](#bootstrap-phase-transition) above.
+> **Bootstrap note**: When a SIG is not yet formally operational, "Chair + Tech Lead review" in the above workflow is performed directly by the TSC. See [Bootstrap Phase Transition](#bootstrap-phase-transition) above.
 
 ---
 
@@ -273,4 +267,5 @@ All participants must abide by the [Code of Conduct](CODE_OF_CONDUCT.md).
 - [Communication Channels](contributors/communication-guidelines.md) — Channel operations and moderation
 - [Code Review Guide](contributors/review-guide.md) — PR review standards and workflow
 - [Issue Triage Guide](contributors/issue-triage.md) — Issue classification, priority, and response SLAs
-- [OWNERS_ALIASES](OWNERS_ALIASES) — Reviewer/Approver alias definitions for each SIG
+- [data/people.yaml](data/people.yaml) — contributor identity & affiliation (authoritative)
+- [data/projects.yaml](data/projects.yaml) — per-repository maintainers/emeritus (authoritative)

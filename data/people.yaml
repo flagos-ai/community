@@ -109,6 +109,11 @@ people:
     emails: ["kiddyjinjin@gmail.com"]
     affiliations: [{ unit: baai }]
 
+  - id: kevinzs2048
+    name: Kevin Zhao
+    emails: ["kevinzs2048@gmail.com"]
+    affiliations: [{ unit: baai }]
+
   - id: MC952-arch
     name: 常韬
     emails: ["mc952-arch@qq.com"]

@@ -9,7 +9,7 @@ A WG is the precursor to a SIG. When a technical area does not yet have enough c
 | Chair Requirement | 1 Organizer is sufficient | >=1 Chair (target >=2) |
 | Decision Authority | Cannot approve FEPs | Can approve FEPs within SIG scope |
 | Meeting Requirement | Recommended but not mandatory | Biweekly meetings (mandatory) |
-| OWNERS Authority | No binding approve | Approvers can merge code |
+| Merge Authority | No binding approve | Subproject Maintainers merge code |
 
 ## Promotion Criteria
 
