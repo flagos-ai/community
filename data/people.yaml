@@ -40,15 +40,15 @@ orgs:
 
 people:
 
-  - id: zacliu2023
-    name: 刘广
-    emails: ["aaronlg2010@gmail.com"]
-    affiliations: [{ org: baai }]
-
   - id: "0x45f"
     name: 王震
     emails: ["wangzhen@baai.ac.cn", "23097963+0x45f@users.noreply.github.com"]
     affiliations: [{ org: baai }]
+
+  - id: anxinqi
+    name: anxinqi
+    emails: ["anxinqi@cambricon.com"]
+    affiliations: [{ org: cambricon }]
 
   - id: aoyulong
     name: 敖玉龙
@@ -59,6 +59,16 @@ people:
     name: 赵志强
     emails: ["armstrongttwalker@gmail.com"]
     affiliations: [{ org: baai }]
+
+  - id: awayzjj
+    name: awayzjj
+    emails: ["junjian.zhan@iluvatar.com", "zjj51234@foxmail.com"]
+    affiliations: [{ org: iluvatar }]
+
+  - id: baoqi.liu
+    name: baoqi.liu
+    emails: ["baoqi.liu@enflame-tech.com"]
+    affiliations: [{ org: enflame }]
 
   - id: Bowen12992
     name: 张博
@@ -75,14 +85,49 @@ people:
     emails: ["592712189@qq.com"]
     affiliations: [{ org: baai }]
 
+  - id: "Chen Hui"
+    name: Chen Hui
+    emails: ["hui.chen@enflame-tech.com"]
+    affiliations: [{ org: enflame }]
+
   - id: cheng874
     name: 李程
     emails: ["licheng_0205@qq.com"]
     affiliations: [{ org: baai }]
 
+  - id: chengjiahui
+    name: chengjiahui
+    emails: ["jiahui.cheng@metax-tech.com"]
+    affiliations: [{ org: metax }]
+
+  - id: chongzhouyang
+    name: chongzhouyang
+    emails: ["chongzhou.yang@enflame-tech.com", "yang605439282@163.com"]
+    affiliations: [{ org: enflame }]
+
+  - id: cuichaowen
+    name: cuichaowen
+    emails: ["939136265@qq.com", "cuichaowen@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: cyber-pioneer
     name: 陈卓
     emails: ["chenzhuo@tju.edu.cn"]
+    affiliations: [{ org: baai }]
+
+  - id: DannyP0
+    name: DannyP0
+    emails: ["fanglai.peng@iluvatar.com"]
+    affiliations: [{ org: iluvatar }]
+
+  - id: Denis
+    name: Denis
+    emails: ["zhentao.du@mthreads.com"]
+    affiliations: [{ org: mthreads }]
+
+  - id: Dongxu-H
+    name: Dongxu-H
+    emails: ["dongxu.han@baai.ac.cn", "dxhan@baai.ac.cn"]
     affiliations: [{ org: baai }]
 
   - id: factnn
@@ -105,10 +150,20 @@ people:
     emails: ["1528794076@qq.com"]
     affiliations: [{ org: baai }]
 
+  - id: hexi
+    name: hexi
+    emails: ["hexi@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: huangyiqun
     name: 黄轶群
     emails: ["huangyiqun@mail.bnu.edu.cn", "63465798+huangyiqun@users.noreply.github.com"]
     affiliations: [{ org: baai }]
+
+  - id: huxinxin04-kunlunxin
+    name: huxinxin04-kunlunxin
+    emails: ["huxinxin04@kunlunxin.com"]
+    affiliations: [{ org: kunlunxin }]
 
   - id: hxl0809
     name: 韩晓雷
@@ -125,15 +180,35 @@ people:
     emails: ["iclementine@outlook.com"]
     affiliations: [{ org: baai }]
 
+  - id: kevinzs2048
+    name: Kevin Zhao
+    emails: ["kevinzs2048@gmail.com"]
+    affiliations: [{ org: baai }]
+
   - id: kiddyjinjin
     name: 田津津
     emails: ["kiddyjinjin@gmail.com", "54064850+kiddyjinjin@users.noreply.github.com", "kiddyjinjin@gmailcom"]
     affiliations: [{ org: baai }]
 
-  - id: kevinzs2048
-    name: Kevin Zhao
-    emails: ["kevinzs2048@gmail.com"]
-    affiliations: [{ org: baai }]
+  - id: Kylin1207
+    name: Kylin1207
+    emails: ["13345006231@163.com", "qilin.gai@mthreads.com"]
+    affiliations: [{ org: mthreads }]
+
+  - id: lihaiqiang
+    name: lihaiqiang
+    emails: ["lihaiqiang@dev.com", "lihaiqiang@tsingmicro.com"]
+    affiliations: [{ org: tsingmicro }]
+
+  - id: lingfeng.qiu
+    name: lingfeng.qiu
+    emails: ["lingfeng.qiu@mthreads.com"]
+    affiliations: [{ org: mthreads }]
+
+  - id: liwener
+    name: liwener
+    emails: ["liwen.chen@iluvatar.com", "liwener.c@gmail.com"]
+    affiliations: [{ org: iluvatar }]
 
   - id: MC952-arch
     name: 常韬
@@ -149,6 +224,26 @@ people:
     name: 顾泽宇
     emails: ["mikegu0508@gmail.com"]
     affiliations: [{ org: baai }]
+
+  - id: mx-flaggems-user
+    name: mx-flaggems-user
+    emails: ["m01080@metax-tech.com", "mingwei.zhang@metax-tech.com"]
+    affiliations: [{ org: metax }]
+
+  - id: pengyang1
+    name: pengyang1
+    emails: ["pengyang1@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
+  - id: ruantingfeng
+    name: ruantingfeng
+    emails: ["ruantingfeng@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
+  - id: Salamanca
+    name: Salamanca
+    emails: ["liwei.dai@iluvatar.com"]
+    affiliations: [{ org: iluvatar }]
 
   - id: sgjzfzzf
     name: 刘津榤
@@ -185,14 +280,64 @@ people:
     emails: ["waffle.bai@gmail.com"]
     affiliations: [{ org: baai }]
 
+  - id: tsingmicro-public
+    name: tsingmicro-public
+    emails: ["guohuijiang@tsingmicro.com"]
+    affiliations: [{ org: tsingmicro }]
+
+  - id: tsingmicro-public-e
+    name: tsingmicro-public-e
+    emails: ["wangzhongxiang@tsingmicro.com"]
+    affiliations: [{ org: tsingmicro }]
+
+  - id: wangjiahui-99
+    name: wangjiahui-99
+    emails: ["wangjiahui17@kunlunxin.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: xuhao
+    name: xuhao
+    emails: ["xuhao@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: yanminjia
     name: 贾彦民
     emails: ["jiayanmin@gmail.com"]
     affiliations: [{ org: baai }]
 
+  - id: yaoxu
+    name: yaoxu
+    emails: ["yaoxu@baai.ac.cn"]
+    affiliations: [{ org: baai }]
+
+  - id: yejuntao
+    name: yejuntao
+    emails: ["yejuntao@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
+  - id: yuanbaofen
+    name: yuanbaofen
+    emails: ["yuanbaofen@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: yzhang35
     name: 张琰
     emails: ["yzhang35@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: zacliu2023
+    name: 刘广
+    emails: ["aaronlg2010@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: zengping
+    name: zengping
+    emails: ["sethbrin@gmail.com", "zengping@cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
+  - id: zhangjie
+    name: zhangjie
+    emails: ["zhangjie@baai.ac.cn"]
     affiliations: [{ org: baai }]
 
   - id: zhaoyinglia
@@ -200,137 +345,22 @@ people:
     emails: ["yinglizhao@outlook.com"]
     affiliations: [{ org: baai }]
 
+  - id: "Zhendong Fu"
+    name: Zhendong Fu
+    emails: ["zhendong.fu@iluvatar.com"]
+    affiliations: [{ org: iluvatar }]
+
+  - id: zhengliutao
+    name: zhengliutao
+    emails: ["zhengliutao@internal.cambricon.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: zhzhcookie
     name: 郑杨
     emails: ["zhengyang@baai.ac.cn", "zhengyang_pku@163.com"]
     affiliations: [{ org: baai }]
 
-  # --- domain-inferred org (FlagGems scan) ---
-  - id: anxinqi
-    name: anxinqi
-    emails: [anxinqi@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: awayzjj
-    name: awayzjj
-    emails: [junjian.zhan@iluvatar.com, zjj51234@foxmail.com]
-    affiliations: [{ org: iluvatar }]
-  - id: baoqi.liu
-    name: baoqi.liu
-    emails: [baoqi.liu@enflame-tech.com]
-    affiliations: [{ org: enflame }]
-  - id: Chen Hui
-    name: Chen Hui
-    emails: [hui.chen@enflame-tech.com]
-    affiliations: [{ org: enflame }]
-  - id: chengjiahui
-    name: chengjiahui
-    emails: [jiahui.cheng@metax-tech.com]
-    affiliations: [{ org: metax }]
-  - id: chongzhouyang
-    name: chongzhouyang
-    emails: [chongzhou.yang@enflame-tech.com, yang605439282@163.com]
-    affiliations: [{ org: enflame }]
-  - id: cuichaowen
-    name: cuichaowen
-    emails: [939136265@qq.com, cuichaowen@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: DannyP0
-    name: DannyP0
-    emails: [fanglai.peng@iluvatar.com]
-    affiliations: [{ org: iluvatar }]
-  - id: Denis
-    name: Denis
-    emails: [zhentao.du@mthreads.com]
-    affiliations: [{ org: mthreads }]
-  - id: Dongxu-H
-    name: Dongxu-H
-    emails: [dongxu.han@baai.ac.cn, dxhan@baai.ac.cn]
-    affiliations: [{ org: baai }]
-  - id: hexi
-    name: hexi
-    emails: [hexi@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: huxinxin04-kunlunxin
-    name: huxinxin04-kunlunxin
-    emails: [huxinxin04@kunlunxin.com]
-    affiliations: [{ org: kunlunxin }]
-  - id: Kylin1207
-    name: Kylin1207
-    emails: [13345006231@163.com, qilin.gai@mthreads.com]
-    affiliations: [{ org: mthreads }]
-  - id: lihaiqiang
-    name: lihaiqiang
-    emails: [lihaiqiang@dev.com, lihaiqiang@tsingmicro.com]
-    affiliations: [{ org: tsingmicro }]
-  - id: lingfeng.qiu
-    name: lingfeng.qiu
-    emails: [lingfeng.qiu@mthreads.com]
-    affiliations: [{ org: mthreads }]
-  - id: liwener
-    name: liwener
-    emails: [liwen.chen@iluvatar.com, liwener.c@gmail.com]
-    affiliations: [{ org: iluvatar }]
-  - id: mx-flaggems-user
-    name: mx-flaggems-user
-    emails: [m01080@metax-tech.com, mingwei.zhang@metax-tech.com]
-    affiliations: [{ org: metax }]
-  - id: pengyang1
-    name: pengyang1
-    emails: [pengyang1@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: ruantingfeng
-    name: ruantingfeng
-    emails: [ruantingfeng@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: Salamanca
-    name: Salamanca
-    emails: [liwei.dai@iluvatar.com]
-    affiliations: [{ org: iluvatar }]
-  - id: tsingmicro-public
-    name: tsingmicro-public
-    emails: [guohuijiang@tsingmicro.com]
-    affiliations: [{ org: tsingmicro }]
-  - id: tsingmicro-public-e
-    name: tsingmicro-public-e
-    emails: [wangzhongxiang@tsingmicro.com]
-    affiliations: [{ org: tsingmicro }]
-  - id: wangjiahui-99
-    name: wangjiahui-99
-    emails: [wangjiahui17@kunlunxin.com]
-    affiliations: [{ org: kunlunxin }]
-  - id: xuhao
-    name: xuhao
-    emails: [xuhao@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: yaoxu
-    name: yaoxu
-    emails: [yaoxu@baai.ac.cn]
-    affiliations: [{ org: baai }]
-  - id: yejuntao
-    name: yejuntao
-    emails: [yejuntao@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: yuanbaofen
-    name: yuanbaofen
-    emails: [yuanbaofen@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: zengping
-    name: zengping
-    emails: [sethbrin@gmail.com, zengping@cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: zhangjie
-    name: zhangjie
-    emails: [zhangjie@baai.ac.cn]
-    affiliations: [{ org: baai }]
-  - id: Zhendong Fu
-    name: Zhendong Fu
-    emails: [zhendong.fu@iluvatar.com]
-    affiliations: [{ org: iluvatar }]
-  - id: zhengliutao
-    name: zhengliutao
-    emails: [zhengliutao@internal.cambricon.com]
-    affiliations: [{ org: cambricon }]
-  - id: 於琦
+  - id: "於琦"
     name: 於琦
-    emails: [moeyfishyq@outlook.com, qi.yu@mthreads.com]
+    emails: ["moeyfishyq@outlook.com", "qi.yu@mthreads.com"]
     affiliations: [{ org: mthreads }]
