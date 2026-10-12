@@ -1,0 +1,175 @@
+# FlagOS people — identity & affiliation tables.
+#
+# people: entity table, PK = github id (canonical).
+#   - name  : display name
+#   - emails: git-history join key (array; one person, several addresses)
+#   - affiliations: open-ended `{unit}` by default — leavers keep `{unit: baai}`
+#     here (they usually stop contributing, so no departure date is recorded).
+#     When a leaver later contributes under a new org, add a new affiliation
+#     `{unit: X, from: <date their new-org contributions begin>}` and close the
+#     prior one with `to:` at that same date; non-overlapping bands keep history
+#     exact (pre-date commits → old unit, post-date → new unit).
+# units: affiliation targets; `domains` is a corporate-domain fallback so
+#   people on that domain need no explicit listing.
+# Governance (sigs, projects) references people by github id as a foreign key.
+units:
+  - id: baai
+    name: BAAI
+    domains: [baai.ac.cn]
+
+people:
+
+  - id: zacliu2023
+    name: 刘广
+    emails: ["aaronlg2010@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: "0x45f"
+    name: 王震
+    emails: ["wangzhen@baai.ac.cn"]
+    affiliations: [{ unit: baai }]
+
+  - id: aoyulong
+    name: 敖玉龙
+    emails: ["aoyulong@outlook.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: armstrongttwalker-alt
+    name: 赵志强
+    emails: ["armstrongttwalker@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: Bowen12992
+    name: 张博
+    emails: ["zhangbluestars@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: Caozhou1995
+    name: 曹州
+    emails: ["caozhou@radi.ac.cn"]
+    affiliations: [{ unit: baai }]
+
+  - id: ceci3
+    name: 吕梦思
+    emails: ["592712189@qq.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: cheng874
+    name: 李程
+    emails: ["licheng_0205@qq.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: cyber-pioneer
+    name: 陈卓
+    emails: ["chenzhuo@tju.edu.cn"]
+    affiliations: [{ unit: baai }]
+
+  - id: factnn
+    name: 臧珮瑜
+    emails: []
+    affiliations: [{ unit: baai }]
+
+  - id: FlagQuantum
+    name: 柳伟
+    emails: ["liuwei.chem.phys@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: Galaxy1458
+    name: 杨锐林
+    emails: ["rlyanger01@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: heavyrain-lzy
+    name: 李志宇
+    emails: ["1528794076@qq.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: huangyiqun
+    name: 黄轶群
+    emails: ["huangyiqun@mail.bnu.edu.cn"]
+    affiliations: [{ unit: baai }]
+
+  - id: hxl0809
+    name: 韩晓雷
+    emails: ["hxl0809@163.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: i3wanna2
+    name: 刘笑妍
+    emails: ["15910307812@163.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: iclementine
+    name: 陈飞宇
+    emails: ["iclementine@outlook.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: kiddyjinjin
+    name: 田津津
+    emails: ["kiddyjinjin@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: MC952-arch
+    name: 常韬
+    emails: ["mc952-arch@qq.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: menchunlei
+    name: 门春雷
+    emails: ["menchunlei@163.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: mikethegoblin
+    name: 顾泽宇
+    emails: ["mikegu0508@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: sgjzfzzf
+    name: 刘津榤
+    emails: ["jinjie.liu@usc.edu"]
+    affiliations: [{ unit: baai }]
+
+  - id: shh2000
+    name: 石浤澔
+    emails: ["13820618441@163.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: StrongSpoon
+    name: 李之昕
+    emails: ["strongspoon@outlook.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: sunnycase
+    name: 郭晖
+    emails: ["sunnycase@live.cn"]
+    affiliations: [{ unit: baai }]
+
+  - id: tianxiao-baai
+    name: 田霄
+    emails: ["tianxiao@baai.ac.cn"]
+    affiliations: [{ unit: baai }]
+
+  - id: tongxin
+    name: 白童心
+    emails: ["waffle.bai@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: yanminjia
+    name: 贾彦民
+    emails: ["jiayanmin@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: yzhang35
+    name: 张琰
+    emails: ["yzhang35@gmail.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: zhaoyinglia
+    name: 赵英利
+    emails: ["yinglizhao@outlook.com"]
+    affiliations: [{ unit: baai }]
+
+  - id: zhzhcookie
+    name: 郑杨
+    emails: ["zhengyang@baai.ac.cn"]
+    affiliations: [{ unit: baai }]
