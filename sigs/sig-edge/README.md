@@ -218,7 +218,7 @@ Performance reports should include:
 
 ## Governance and Communication
 
-- **Ownership and approvals:** [OWNERS](./OWNERS)
+- **Ownership and approvals:** Subproject Maintainers (see [data/projects.yaml](../../data/projects.yaml)); FEP approval by Chair + Tech Lead
 - **Community maintainer roster:** [MAINTAINERS.md](../../MAINTAINERS.md)
 - **Meeting notes:** [meetings/](meetings/)
 - **GitHub Discussions:** [flagos-ai/community](https://github.com/flagos-ai/community/discussions)

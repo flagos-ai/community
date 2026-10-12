@@ -8,7 +8,7 @@ FlagOS project maintainer roster. This file is maintained by the TSC and updated
 > - Email: contact@flagos.io
 > - GitHub Discussions: [FlagOS Community](https://github.com/FlagOS-AI/community/discussions)
 >
-> **Bootstrap Phase PR Approval**: When OWNERS is empty, explain the situation in a PR comment and post a request in GitHub Discussions. The ZhongZhi FlagOS Community members will respond and handle the review.
+> **Bootstrap Phase PR Approval**: Before SIG roles are confirmed, explain the situation in a PR comment and post a request in GitHub Discussions. The ZhongZhi FlagOS Community members will respond and handle the review.
 
 ## Technical Steering Committee (TSC)
 

@@ -28,9 +28,6 @@
 |------|--------|-------------|------|
 | (TBD) | — | — | Pending TSC confirmation |
 
-### Approvers
-See [OWNERS](./OWNERS)
-
 ## Communication
 
 - **Regular Meeting**: TBD (bi-weekly)
@@ -39,7 +36,8 @@ See [OWNERS](./OWNERS)
 
 ## Decision Making
 
-- Routine PR/FEP approval: any Approver in OWNERS
+- Routine PR approval: Subproject Maintainers (see [data/projects.yaml](../../data/projects.yaml))
+- FEP approval: Chair + Tech Lead
 - Major SIG decisions: 2/3 majority vote
 - Disputes that cannot reach consensus are escalated to TSC
 

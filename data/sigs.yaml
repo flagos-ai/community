@@ -1,0 +1,16 @@
+# FlagOS SIG roles — authoritative source.
+#
+# Each SIG has exactly two roles: `chair` and `tech_leads`.
+# Code merge authority is per-project (data/projects.yaml), not per-SIG.
+#
+# Role vocabulary (closed):
+#   chair       — runs the SIG, represents it externally, reports to TSC
+#   tech_leads  — SIG technical direction, architecture review, approve FEPs
+#
+# Members are github ids from data/people.yaml (foreign key).
+# chair is a single id; tech_leads is a list.
+
+sigs:
+  - id: sig-edge
+    chair:
+    tech_leads: [kevinzs2048]
