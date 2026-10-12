@@ -3,7 +3,7 @@
 This directory is the **authoritative, machine-readable** source of two things
 that the whole FlagOS community needs to agree on:
 
-1. **Affiliation** — which unit (organization) each contributor belongs to, over time.
+1. **Affiliation** — which org (organization) each contributor belongs to, over time.
 2. **Governance roles** — who holds which role in a SIG or a project.
 
 Everything else about people is *derived*, not stored here: contribution
@@ -23,7 +23,7 @@ The schema is relational. Primary keys are shown; foreign keys are `github id`s.
 
 | Table | File | Primary key | Content |
 |-------|------|-------------|---------|
-| `units` | `people.yaml` | unit `id` | organization names + optional `domains` fallback |
+| `orgs` | `people.yaml` | org `id` | organization names + optional `domains` fallback |
 | `people` | `people.yaml` | `id` (= github login) | `name`, `emails[]`, `affiliations[]` |
 | `projects` | `projects.yaml` | repository name | `maintainers[]`, `emeritus[]` |
 | `sigs` | `sigs.yaml` | sig `id` | `chair`, `tech_leads[]` |
@@ -45,27 +45,27 @@ The same person is therefore reachable by either key; `people.yaml` is the hub.
 - SIGs have **no** approver/reviewer roles — code merge authority is per-project.
 - `emeritus-contributor` records former maintainership. It is orthogonal to
   affiliation: an emeritus contributor may or may not still be affiliated with
-  the unit they worked for.
+  the org they worked for.
 
 ## Affiliation rules
 
-- An affiliation is `{unit}` by default — open-ended, no dates.
-- **Departure is not recorded.** A leaver keeps `{unit: baai}` because they
+- An affiliation is `{org}` by default — open-ended, no dates.
+- **Departure is not recorded.** A leaver keeps `{org: baai}` because they
   usually stop contributing.
-- When a leaver later contributes under a **new** organization, add a new
-  affiliation `{unit: X, from: <first new-org contribution date>}` and close the
+- When a leaver later contributes under a **new** org, add a new
+  affiliation `{org: X, from: <first new-org contribution date>}` and close the
   prior one with `to:` at that same date. Non-overlapping bands keep history
-  exact: earlier commits resolve to the old unit, later ones to the new.
-- `units[].domains` is a corporate-domain fallback, so people committing from
+  exact: earlier commits resolve to the old org, later ones to the new.
+- `orgs[].domains` is a corporate-domain fallback, so people committing from
   `@company.com` need no explicit listing; only personal-email contributors or
-  those who changed units require a `people` entry.
+  those who changed orgs require a `people` entry.
 
 ## Contribution statistics (consumer of these tables)
 
 - Contribution volume is pure code volume (additions / deletions / files / PR
   count), not person-days.
-- Authors matched to a unit are attributed to it by their PR's **merge date**.
-- Authors matched to no unit are reported as `independent` (a first-class
+- Authors matched to an org are attributed to it by their PR's **merge date**.
+- Authors matched to no org are reported as `independent` (a first-class
   category, not an error).
-- The units that happen to be commissioned vendors are a **report-time filter**,
-  never a field on the record — all units are peers.
+- The orgs that happen to be commissioned vendors are a **report-time filter**,
+  never a field on the record — all orgs are peers.
