@@ -132,6 +132,11 @@ people:
     emails: ["baoqi.liu@enflame-tech.com"]
     affiliations: [{ org: enflame }]
 
+  - id: baoqiliu
+    name: 刘宝琦
+    emails: ["147715075+baoqiliu@users.noreply.github.com"]
+    affiliations: [{ org: enflame }]
+
   - id: Bigeyes
     name: 全俊坤
     emails: ["qjk595391@gmail.com"]
@@ -255,6 +260,11 @@ people:
   - id: Dongxu-H
     name: Dongxu-H
     emails: ["dongxu.han@baai.ac.cn", "dxhan@baai.ac.cn"]
+    affiliations: [{ org: baai }]
+
+  - id: douxetpur
+    name: 刘馨鸿
+    emails: ["liuxh0217@qq.com"]
     affiliations: [{ org: baai }]
 
   - id: duanyaqi
@@ -562,6 +572,11 @@ people:
     emails: ["liwei.dai@iluvatar.com"]
     affiliations: [{ org: iluvatar }]
 
+  - id: "Sam Yuan"
+    name: 袁怿
+    emails: ["yy19902439@126.com"]
+    affiliations: []
+
   - id: sgjzfzzf
     name: 刘津榤
     emails: ["jinjie.liu@usc.edu", "68475640+sgjzfzzf@users.noreply.github.com", "jjliu@baai.ac.cn"]
@@ -657,6 +672,11 @@ people:
     emails: ["wangjiahui17@kunlunxin.com"]
     affiliations: [{ org: kunlunxin }]
 
+  - id: wbavon
+    name: 王蕴博
+    emails: ["wbtigergithub@126.com"]
+    affiliations: [{ org: baai }]
+
   - id: "Wentao Wu"
     name: Wentao Wu
     emails: ["wuwentao2000@126.com"]
@@ -691,6 +711,11 @@ people:
     name: xingxingjiang
     emails: ["xingxingjiang@compiler-dev.com"]
     affiliations: [{ org: kmcompiler }]
+
+  - id: XMing
+    name: 胡小明
+    emails: ["xmhubj@gmail.com"]
+    affiliations: [{ org: baai }]
 
   - id: xuanzhengdu-eng
     name: xuanzhengdu-eng
