@@ -12,6 +12,7 @@
 # orgs: affiliation targets; `domains` is a corporate-domain fallback so
 #   people on that domain need no explicit listing.
 # Governance (sigs, projects) references people by github id as a foreign key.
+
 orgs:
   - id: baai
     name: BAAI
@@ -37,6 +38,29 @@ orgs:
   - id: kunlunxin
     name: Kunlunxin
     domains: [kunlunxin.com]
+  - id: kmcompiler
+    name: KMCompiler
+    domains: [compiler-dev.com]
+  - id: advancedcompiler
+    name: AdvancedCompiler
+  - id: siliconflow
+    name: SiliconFlow
+    domains: [siliconflow.cn]
+  - id: perfxlab
+    name: PerfXLab
+  - id: qingcheng
+    name: Qingcheng.AI
+  - id: sunrise
+    name: Sunrise
+  - id: spacemit
+    name: SpaceMiT
+    domains: [spacemit.com]
+  - id: hygon
+    name: Hygon
+
+  - id: huawei
+    name: Huawei
+    domains: [huawei.com]
 
 people:
 
@@ -44,6 +68,26 @@ people:
     name: 王震
     emails: ["wangzhen@baai.ac.cn", "23097963+0x45f@users.noreply.github.com"]
     affiliations: [{ org: baai }]
+
+  - id: "103yiran"
+    name: "103yiran"
+    emails: ["1039105206@qq.com", "103915206@qq.com"]
+    affiliations: [{ org: baai }]
+
+  - id: AdvancedCompiler
+    name: AdvancedCompiler
+    emails: ["pikachu_jun@outlook.com"]
+    affiliations: [{ org: advancedcompiler }]
+
+  - id: alex-spacemit
+    name: alex-spacemit
+    emails: ["jinghui.huang@spacemit.com"]
+    affiliations: [{ org: spacemit }]
+
+  - id: alvin-ychen
+    name: Alvin-YCHEN
+    emails: ["31070581+alvin-ychen@users.noreply.github.com", "chy_24@163.com"]
+    affiliations: [{ org: metax }]
 
   - id: anxinqi
     name: anxinqi
@@ -55,10 +99,20 @@ people:
     emails: ["aoyulong@outlook.com"]
     affiliations: [{ org: baai }]
 
+  - id: arashifeng
+    name: arashifeng
+    emails: ["63136177+arashifeng@users.noreply.github.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: armstrongttwalker-alt
     name: 赵志强
     emails: ["armstrongttwalker@gmail.com"]
     affiliations: [{ org: baai }]
+
+  - id: Ason93
+    name: Ason93
+    emails: ["18817617225@163.com"]
+    affiliations: [{ org: kunlunxin }]
 
   - id: awayzjj
     name: awayzjj
@@ -70,9 +124,24 @@ people:
     emails: ["baoqi.liu@enflame-tech.com"]
     affiliations: [{ org: enflame }]
 
+  - id: Bigeyes
+    name: 全俊坤
+    emails: ["qjk595391@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: bin913
+    name: 张宾
+    emails: ["842884726@qq.com"]
+    affiliations: [{ org: perfxlab }]
+
   - id: Bowen12992
     name: 张博
     emails: ["zhangbluestars@gmail.com", "81504862+Bowen12992@users.noreply.github.com", "zhangbo.sjtu@qq.com"]
+    affiliations: [{ org: baai }]
+
+  - id: bwbwzzz
+    name: bwbwzzz
+    emails: ["96050438+bwbwzzz@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
   - id: Caozhou1995
@@ -84,6 +153,11 @@ people:
     name: 吕梦思
     emails: ["592712189@qq.com"]
     affiliations: [{ org: baai }]
+
+  - id: cheersluvs
+    name: cheersluvs
+    emails: ["52296506+cheersluvs@users.noreply.github.com"]
+    affiliations: [{ org: kmcompiler }]
 
   - id: "Chen Hui"
     name: Chen Hui
@@ -100,10 +174,30 @@ people:
     emails: ["jiahui.cheng@metax-tech.com"]
     affiliations: [{ org: metax }]
 
+  - id: chenkc2025
+    name: chenkc2025
+    emails: ["chenkc2025@163.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: chenmiao1919
+    name: chenmiao1919
+    emails: ["165134474+chenmiao1919@users.noreply.github.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: chongzhouyang
     name: chongzhouyang
     emails: ["chongzhou.yang@enflame-tech.com", "yang605439282@163.com"]
     affiliations: [{ org: enflame }]
+
+  - id: chx7514
+    name: chx7514
+    emails: ["49188554+chx7514@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
+  - id: coyechen
+    name: Coye_Chen
+    emails: ["52786734+coyechen@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
 
   - id: cuichaowen
     name: cuichaowen
@@ -120,20 +214,55 @@ people:
     emails: ["fanglai.peng@iluvatar.com"]
     affiliations: [{ org: iluvatar }]
 
+  - id: Dayrker
+    name: Dayrker
+    emails: ["421712389@qq.com", "dayrker@zju.edu.cn"]
+    affiliations: [{ org: sunrise }]
+
   - id: Denis
     name: Denis
     emails: ["zhentao.du@mthreads.com"]
     affiliations: [{ org: mthreads }]
+
+  - id: dingxingdi
+    name: Dingxingdi
+    emails: ["203511052+dingxingdi@users.noreply.github.com", "784318034@qq.com"]
+    affiliations: [{ org: baai }]
 
   - id: Dongxu-H
     name: Dongxu-H
     emails: ["dongxu.han@baai.ac.cn", "dxhan@baai.ac.cn"]
     affiliations: [{ org: baai }]
 
+  - id: duanyaqi
+    name: 段亚齐
+    emails: ["30496905+duanyaqi@users.noreply.github.com", "duanyaqiduanyaqi@gmail.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: elllzat
+    name: 艾力扎提
+    emails: ["163713563+elllzat@users.noreply.github.com"]
+    affiliations: [{ org: kmcompiler }]
+
   - id: factnn
     name: 臧珮瑜
     emails: ["166481866+factnn@users.noreply.github.com", "1050552884@qq.com"]
     affiliations: [{ org: baai }]
+
+  - id: fangzexian
+    name: fangzexian
+    emails: ["62974631+fangzexian@users.noreply.github.com"]
+    affiliations: [{ org: hygon }]
+
+  - id: fantasy666
+    name: fantasy666
+    emails: ["39185229+fantasy666@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: finneyyan
+    name: finneyyan
+    emails: ["yanfengnian123@gmail.com"]
+    affiliations: [{ org: huawei }]
 
   - id: FlagQuantum
     name: 柳伟
@@ -145,6 +274,16 @@ people:
     emails: ["rlyanger01@gmail.com", "55453380+Galaxy1458@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
+  - id: gao0624
+    name: gao0624
+    emails: ["77333149+gao0624@users.noreply.github.com"]
+    affiliations: [{ org: mthreads }]
+
+  - id: ggbondbest
+    name: ggbondbest
+    emails: ["2106767038@qq.com"]
+    affiliations: [{ org: qingcheng }]
+
   - id: heavyrain-lzy
     name: 李志宇
     emails: ["1528794076@qq.com"]
@@ -154,6 +293,11 @@ people:
     name: hexi
     emails: ["hexi@cambricon.com"]
     affiliations: [{ org: cambricon }]
+
+  - id: huanglianghong
+    name: huanglianghong
+    emails: ["48401384+huanglianghong@users.noreply.github.com"]
+    affiliations: [{ org: metax }]
 
   - id: huangyiqun
     name: 黄轶群
@@ -180,6 +324,26 @@ people:
     emails: ["iclementine@outlook.com"]
     affiliations: [{ org: baai }]
 
+  - id: jack
+    name: jack
+    emails: ["hellojack163@gmail.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: "Jianhua Zheng"
+    name: Jianhua Zheng
+    emails: ["zhengjianhua@siliconflow.cn"]
+    affiliations: [{ org: siliconflow }]
+
+  - id: Jingze
+    name: Jingze
+    emails: ["losercheems@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: july-h5kf3
+    name: H5KF3
+    emails: ["155284769+july-h5kf3@users.noreply.github.com"]
+    affiliations: [{ org: qingcheng }]
+
   - id: kevinzs2048
     name: Kevin Zhao
     emails: ["kevinzs2048@gmail.com"]
@@ -190,10 +354,30 @@ people:
     emails: ["kiddyjinjin@gmail.com", "54064850+kiddyjinjin@users.noreply.github.com", "kiddyjinjin@gmailcom"]
     affiliations: [{ org: baai }]
 
+  - id: kkkwb
+    name: kkkwb
+    emails: ["125181785+kkkwb@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
   - id: Kylin1207
     name: Kylin1207
     emails: ["13345006231@163.com", "qilin.gai@mthreads.com"]
     affiliations: [{ org: mthreads }]
+
+  - id: ldwang
+    name: ldwang
+    emails: ["ftgreat@163.com"]
+    affiliations: [{ org: baai }]
+
+  - id: lelongmask-cmp
+    name: lelongmask-cmp
+    emails: ["lelongmask@gmail.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: liangjiabao
+    name: liangjiabao
+    emails: ["liangjiabao@siliconflow.cn", "jiabao18437907605@gmail.com"]
+    affiliations: [{ org: siliconflow }]
 
   - id: lihaiqiang
     name: lihaiqiang
@@ -205,10 +389,50 @@ people:
     emails: ["lingfeng.qiu@mthreads.com"]
     affiliations: [{ org: mthreads }]
 
+  - id: lingfengqiu
+    name: lingfengqiu
+    emails: ["71885245+lingfengqiu@users.noreply.github.com"]
+    affiliations: [{ org: mthreads }]
+
+  - id: littlekid-zxt
+    name: littlekid-zxt
+    emails: ["291586685@qq.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: littleshun1214
+    name: littleshun1214
+    emails: ["95418258+littleshun1214@users.noreply.github.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: liuxiao-hnc
+    name: liuxiao-hnc
+    emails: ["xiao.liu@compiler-dev.com"]
+    affiliations: [{ org: kmcompiler }]
+
   - id: liwener
     name: liwener
     emails: ["liwen.chen@iluvatar.com", "liwener.c@gmail.com"]
     affiliations: [{ org: iluvatar }]
+
+  - id: lizhangyu258
+    name: lizhangyu258
+    emails: ["zhangyu.li@compiler-dev.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: llaboon
+    name: binliu
+    emails: ["87918526+llaboon@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: lyujheng
+    name: lyujheng
+    emails: ["lyujheng@gmail.com"]
+    affiliations: [{ org: mthreads }]
+
+  - id: MARD1NO
+    name: MARD1NO
+    emails: ["359521840@qq.com"]
+    affiliations: [{ org: siliconflow }]
 
   - id: MC952-arch
     name: 常韬
@@ -220,9 +444,19 @@ people:
     emails: ["menchunlei@163.com"]
     affiliations: [{ org: baai }]
 
+  - id: Mike7180
+    name: Mike7180
+    emails: ["2440863591@qq.com"]
+    affiliations: [{ org: kmcompiler }]
+
   - id: mikethegoblin
     name: 顾泽宇
     emails: ["mikegu0508@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: modao1234
+    name: 苏畅
+    emails: ["78893168+modao1234@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
   - id: mx-flaggems-user
@@ -230,15 +464,50 @@ people:
     emails: ["m01080@metax-tech.com", "mingwei.zhang@metax-tech.com"]
     affiliations: [{ org: metax }]
 
+  - id: nianqi-tian
+    name: nianqi-tian
+    emails: ["85143461+nianqi-tian@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: oslomayor
+    name: oslomayor
+    emails: ["34310801+oslomayor@users.noreply.github.com"]
+    affiliations: [{ org: mthreads }]
+
   - id: pengyang1
     name: pengyang1
     emails: ["pengyang1@cambricon.com"]
     affiliations: [{ org: cambricon }]
 
+  - id: purerli98
+    name: purerli98
+    emails: ["82259540+purerli98@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: qhait
+    name: qhait
+    emails: ["2329292023@qq.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: robertluobo
+    name: RobertLuobo
+    emails: ["39897093+robertluobo@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
   - id: ruantingfeng
     name: ruantingfeng
     emails: ["ruantingfeng@cambricon.com"]
     affiliations: [{ org: cambricon }]
+
+  - id: "Runxin Zhong"
+    name: Runxin Zhong
+    emails: ["rxzhong@outlook.com"]
+    affiliations: [{ org: qingcheng }]
+
+  - id: rye985
+    name: rye985
+    emails: ["1246761649@qq.com"]
+    affiliations: [{ org: kmcompiler }]
 
   - id: Salamanca
     name: Salamanca
@@ -248,6 +517,16 @@ people:
   - id: sgjzfzzf
     name: 刘津榤
     emails: ["jinjie.liu@usc.edu", "68475640+sgjzfzzf@users.noreply.github.com", "jjliu@baai.ac.cn"]
+    affiliations: [{ org: baai }]
+
+  - id: sh1653487844
+    name: sh1653487844
+    emails: ["103512696+sh1653487844@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: shawnsying
+    name: Ying Shuangshuang
+    emails: ["114674425+shawnsying@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
   - id: shh2000
@@ -290,15 +569,85 @@ people:
     emails: ["wangzhongxiang@tsingmicro.com"]
     affiliations: [{ org: tsingmicro }]
 
+  - id: up-to-star
+    name: up-to-star
+    emails: ["63030526+up-to-star@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: V2yield
+    name: V2yield
+    emails: ["wye2207256537@gmail.com"]
+    affiliations: [{ org: perfxlab }]
+
+  - id: w1120029931-bit
+    name: w1120029931-bit
+    emails: ["w1120029931@gmail.com"]
+    affiliations: [{ org: advancedcompiler }]
+
+  - id: wanghairui
+    name: wanghairui
+    emails: ["hairui.wang@compiler-dev.com"]
+    affiliations: [{ org: kmcompiler }]
+
   - id: wangjiahui-99
     name: wangjiahui-99
     emails: ["wangjiahui17@kunlunxin.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: "Wentao Wu"
+    name: Wentao Wu
+    emails: ["wuwentao2000@126.com"]
+    affiliations: [{ org: baai }]
+
+  - id: winfan1314
+    name: winfan1314
+    emails: ["59993589+winfan1314@users.noreply.github.com"]
+    affiliations: [{ org: siliconflow }]
+
+  - id: wuhansky
+    name: wuhansky
+    emails: ["138176408+wuhansky@users.noreply.github.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: xdyuanzhulee
+    name: xdyuanzhulee
+    emails: ["93123184+xdyuanzhulee@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
+  - id: "XIE Xuan"
+    name: XIE Xuan
+    emails: ["xiexuanx2@gmail.com"]
+    affiliations: [{ org: siliconflow }]
+
+  - id: xingxingjiang
+    name: xingxingjiang
+    emails: ["xingxingjiang@compiler-dev.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: xuanzhengdu-eng
+    name: xuanzhengdu-eng
+    emails: ["xuanzhengdu@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: xuexingtu
+    name: xuexingtu
+    emails: ["88195961+xuexingtu@users.noreply.github.com"]
     affiliations: [{ org: kunlunxin }]
 
   - id: xuhao
     name: xuhao
     emails: ["xuhao@cambricon.com"]
     affiliations: [{ org: cambricon }]
+
+  - id: YangLong114514
+    name: YangLong114514
+    emails: ["long.yang@compiler-dev.com"]
+    affiliations: [{ org: kmcompiler }]
+
+  - id: yangyang0906c
+    name: yangyang0906c
+    emails: ["108457377+yangyang0906c@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
 
   - id: yanminjia
     name: 贾彦民
@@ -315,14 +664,34 @@ people:
     emails: ["yejuntao@cambricon.com"]
     affiliations: [{ org: cambricon }]
 
+  - id: youseeyouonedayday
+    name: 小兔子爱吃大灰狼
+    emails: ["81555989+youseeyouonedayday@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
   - id: yuanbaofen
     name: yuanbaofen
     emails: ["yuanbaofen@cambricon.com"]
     affiliations: [{ org: cambricon }]
 
+  - id: "Yufan Shi"
+    name: Yufan Shi
+    emails: ["1254271288@qq.com", "sgyshi37@liverpool.ac.uk"]
+    affiliations: [{ org: baai }]
+
+  - id: yukun-cui
+    name: KK
+    emails: ["102746679+yukun-cui@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
   - id: yzhang35
     name: 张琰
     emails: ["yzhang35@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: yzw1128
+    name: yzw1128
+    emails: ["120315675+yzw1128@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
   - id: zacliu2023
@@ -334,6 +703,11 @@ people:
     name: zengping
     emails: ["sethbrin@gmail.com", "zengping@cambricon.com"]
     affiliations: [{ org: cambricon }]
+
+  - id: zeno
+    name: zeno
+    emails: ["4pyqm84rz7@privaterelay.appleid.com"]
+    affiliations: [{ org: kunlunxin }]
 
   - id: zhangjie
     name: zhangjie
@@ -354,6 +728,16 @@ people:
     name: zhengliutao
     emails: ["zhengliutao@internal.cambricon.com"]
     affiliations: [{ org: cambricon }]
+
+  - id: ZhiwenDeng
+    name: ZhiwenDeng
+    emails: ["dzw13054973993@163.com"]
+    affiliations: [{ org: baai }]
+
+  - id: zhoubo567
+    name: zhoubo567
+    emails: ["781266327@qq.com"]
+    affiliations: [{ org: advancedcompiler }]
 
   - id: zhzhcookie
     name: 郑杨
