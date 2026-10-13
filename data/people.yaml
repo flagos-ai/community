@@ -62,6 +62,9 @@ orgs:
     name: Huawei
     domains: [huawei.com]
 
+  - id: kubuds
+    name: Kubuds
+
 people:
 
   - id: "0x45f"
@@ -88,6 +91,11 @@ people:
     name: Alvin-YCHEN
     emails: ["31070581+alvin-ychen@users.noreply.github.com", "chy_24@163.com"]
     affiliations: [{ org: metax }]
+
+  - id: ankaluoer
+    name: Ankaluoer
+    emails: ["131965967+ankaluoer@users.noreply.github.com"]
+    affiliations: [{ org: cambricon }]
 
   - id: anxinqi
     name: anxinqi
@@ -164,6 +172,11 @@ people:
     emails: ["hui.chen@enflame-tech.com"]
     affiliations: [{ org: enflame }]
 
+  - id: "Cheng Li"
+    name: Cheng Li
+    emails: ["shiptux@gmail.com"]
+    affiliations: [{ org: kubuds }]
+
   - id: cheng874
     name: 李程
     emails: ["licheng_0205@qq.com"]
@@ -193,6 +206,16 @@ people:
     name: chx7514
     emails: ["49188554+chx7514@users.noreply.github.com"]
     affiliations: [{ org: baai }]
+
+  - id: clytou
+    name: 陈旅游
+    emails: ["142978647+clytou@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
+  - id: cocytus486
+    name: Cocytus
+    emails: ["150886841+cocytus486@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
 
   - id: coyechen
     name: Coye_Chen
@@ -258,6 +281,11 @@ people:
     name: fantasy666
     emails: ["39185229+fantasy666@users.noreply.github.com"]
     affiliations: [{ org: kunlunxin }]
+
+  - id: fattysand
+    name: fattysand
+    emails: ["44150064+fattysand@users.noreply.github.com"]
+    affiliations: [{ org: mthreads }]
 
   - id: finneyyan
     name: finneyyan
@@ -329,6 +357,11 @@ people:
     emails: ["hellojack163@gmail.com"]
     affiliations: [{ org: kmcompiler }]
 
+  - id: jia-heng
+    name: jianheng
+    emails: ["52306276+jia-heng@users.noreply.github.com"]
+    affiliations: [{ org: iluvatar }]
+
   - id: "Jianhua Zheng"
     name: Jianhua Zheng
     emails: ["zhengjianhua@siliconflow.cn"]
@@ -337,6 +370,11 @@ people:
   - id: Jingze
     name: Jingze
     emails: ["losercheems@gmail.com"]
+    affiliations: [{ org: baai }]
+
+  - id: JosephNew
+    name: 牛金健
+    emails: ["bcoc2121@gmail.com"]
     affiliations: [{ org: baai }]
 
   - id: july-h5kf3
@@ -422,6 +460,16 @@ people:
   - id: llaboon
     name: binliu
     emails: ["87918526+llaboon@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: lukatao
+    name: 陶健
+    emails: ["60033270+lukatao@users.noreply.github.com", "60033270+schopenhauer-loves-hegel@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
+  - id: lvxu2020
+    name: lvxu
+    emails: ["61312335+lvxu2020@users.noreply.github.com"]
     affiliations: [{ org: kunlunxin }]
 
   - id: lyujheng
@@ -539,10 +587,20 @@ people:
     emails: ["strongspoon@outlook.com", "35829812+StrongSpoon@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
+  - id: sunge666-ui
+    name: sunge666-ui
+    emails: ["1760274456@qq.com"]
+    affiliations: [{ org: kunlunxin }]
+
   - id: sunnycase
     name: 郭晖
     emails: ["sunnycase@live.cn"]
     affiliations: [{ org: baai }]
+
+  - id: suxiangm
+    name: suxiangM
+    emails: ["161282354+suxiangm@users.noreply.github.com", "maxiang992@126.com", "maxiang992@128.com"]
+    affiliations: [{ org: hygon }]
 
   - id: tengqm
     name: Qiming Teng
@@ -579,6 +637,11 @@ people:
     emails: ["wye2207256537@gmail.com"]
     affiliations: [{ org: perfxlab }]
 
+  - id: "Vincent Xiao"
+    name: 肖航
+    emails: ["vincent.xiao.me@gmail.com"]
+    affiliations: [{ org: baai }]
+
   - id: w1120029931-bit
     name: w1120029931-bit
     emails: ["w1120029931@gmail.com"]
@@ -608,6 +671,11 @@ people:
     name: wuhansky
     emails: ["138176408+wuhansky@users.noreply.github.com"]
     affiliations: [{ org: kmcompiler }]
+
+  - id: wyc202008
+    name: wyc
+    emails: ["70201210+wyc202008@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
 
   - id: xdyuanzhulee
     name: xdyuanzhulee
@@ -708,6 +776,11 @@ people:
     name: zeno
     emails: ["4pyqm84rz7@privaterelay.appleid.com"]
     affiliations: [{ org: kunlunxin }]
+
+  - id: zfu82
+    name: zfu82
+    emails: ["east1_fu@163.com", "fuzhendong97@gmail.com"]
+    affiliations: [{ org: iluvatar }]
 
   - id: zhangjie
     name: zhangjie
