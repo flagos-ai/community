@@ -3,7 +3,7 @@
 <div align="center">
 
 [![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1%20FEPs&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
-[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2%20FEPs&color=blue)](https://github.com/flagos-ai/community/milestone/2)
+[![FlagOS 2.3](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/3?label=FlagOS%202.3%20FEPs&color=blue)](https://github.com/flagos-ai/community/milestone/3)
 [![Release Tracker](https://img.shields.io/badge/🚩_Release_Tracker-fep%2FREADME-orange)](fep/README.md#-release-tracker)
 
 **Language** | **语言**
@@ -29,11 +29,11 @@ FlagOS is a unified, open-source AI system software stack designed for multi-chi
 
 | I want to… | Role | Start here |
 |------------|------|------------|
-| **Propose a new feature** (cross-module, new chip, new repo) | Feature developer / FEP Owner | [FEP process](fep/README.md) → [authoring guide](contributors/fep-guide.md) → mind the [**2.2 Feature Freeze: 2026-08-31**](release/2.2/schedule.md) |
+| **Propose a new feature** (cross-module, new chip, new repo) | Feature developer / FEP Owner | [FEP process](fep/README.md) → [authoring guide](contributors/fep-guide.md) → mind the [**2.3 FEP Merge Deadline: 2026-11-13**](release/2.3/schedule.md) |
 | **Onboard my chip** to FlagOS | Chip vendor | [Chip vendor guide](contributors/chip-vendor-guide.md) → example [FEP-0033 (SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
 | **Fix a bug / send a small PR** | Code contributor | [CONTRIBUTING.md](CONTRIBUTING.md) → the target repo's own `CONTRIBUTING.md` |
 | **Review FEPs** | SIG Approver / TSC | [Review guide](fep/REVIEW_GUIDE.md) → [FEP Tracker board](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |
-| **Test a release** | Tester / QA | [2.2 schedule](release/2.2/schedule.md) → [tracking issue #47](https://github.com/flagos-ai/community/issues/47) (test matrix maintained per FEP, finalized at Feature Freeze) |
+| **Test a release** | Tester / QA | [2.3 schedule](release/2.3/schedule.md) → [tracking issue #131](https://github.com/flagos-ai/community/issues/131) (test matrix maintained per FEP, finalized at Feature Freeze) |
 | **Track release progress** | Release Manager / anyone | [🚩 Release Tracker](fep/README.md#-release-tracker) · [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
 | **Join or start a SIG** | New member / org | [sigs/](sigs/) → [roles](contributors/roles.md) |
 | **Understand governance** | Everyone | [GOVERNANCE.md](GOVERNANCE.md) · [MAINTAINERS.md](MAINTAINERS.md) |
@@ -67,7 +67,7 @@ flowchart LR
 - **Release Manager** enforces the Feature Freeze and tracks progress via the milestone.
 - **Tester** validates each merged FEP against its Test Plan during the testing window.
 
-Full rules: [FEP lifecycle](fep/README.md#fep-lifecycle). Concrete dates for the current cycle: [release/2.2/schedule.md](release/2.2/schedule.md).
+Full rules: [FEP lifecycle](fep/README.md#fep-lifecycle). Concrete dates for the current cycle: [release/2.3/schedule.md](release/2.3/schedule.md).
 
 ## Community Navigation
 
