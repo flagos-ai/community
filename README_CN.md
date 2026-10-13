@@ -3,7 +3,7 @@
 <div align="center">
 
 [![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1%20FEPs&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
-[![FlagOS 2.2](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/2?label=FlagOS%202.2%20FEPs&color=blue)](https://github.com/flagos-ai/community/milestone/2)
+[![FlagOS 2.3](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/3?label=FlagOS%202.3%20FEPs&color=blue)](https://github.com/flagos-ai/community/milestone/3)
 [![版本追踪](https://img.shields.io/badge/🚩_版本追踪-fep%2FREADME__CN-orange)](fep/README_CN.md#-版本追踪-release-tracker)
 
 **语言** | **Language**
@@ -29,11 +29,11 @@ FlagOS 是一个统一的、开源的 AI 系统软件栈，专为多芯片场景
 
 | 我想… | 角色 | 从这里开始 |
 |-------|------|-----------|
-| **提交新特性**(跨模块、新芯片、新仓库) | 特性开发者 / FEP Owner | [FEP 流程](fep/README_CN.md) → [编写指引](contributors/fep-guide.md) → 注意 [**2.2 特性冻结:2026-08-31**](release/2.2/schedule_CN.md) |
+| **提交新特性**(跨模块、新芯片、新仓库) | 特性开发者 / FEP Owner | [FEP 流程](fep/README_CN.md) → [编写指引](contributors/fep-guide.md) → 注意 [**2.3 FEP 合入截止:2026-11-13**](release/2.3/schedule_CN.md) |
 | **让我的芯片接入** FlagOS | 芯片厂商 | [芯片厂商指南](contributors/chip-vendor-guide.md) → 范例 [FEP-0033(SpacemiT)](fep/sig-operator/0033-flaggems-spacemit-backend.md) |
 | **修 bug / 提小 PR** | 代码贡献者 | [CONTRIBUTING.md](CONTRIBUTING_CN.md) → 目标仓库自己的 `CONTRIBUTING.md` |
 | **评审 FEP** | SIG Approver / TSC | [评审指南](fep/REVIEW_GUIDE.md) → [FEP Tracker 看板](https://github.com/orgs/flagos-ai/projects/6/views/1?layout=board&groupedBy%5BcolumnId%5D=365272770) |
-| **参与版本测试** | 测试者 / QA | [2.2 时间表](release/2.2/schedule_CN.md) → [追踪 issue #47](https://github.com/flagos-ai/community/issues/47)(测试矩阵按 FEP 滚动维护,特性冻结日定稿) |
+| **参与版本测试** | 测试者 / QA | [2.3 时间表](release/2.3/schedule_CN.md) → [追踪 issue #131](https://github.com/flagos-ai/community/issues/131)(测试矩阵按 FEP 滚动维护,特性冻结日定稿) |
 | **了解版本进度** | Release Manager / 任何人 | [🚩 版本追踪](fep/README_CN.md#-版本追踪-release-tracker) · [milestone/2](https://github.com/flagos-ai/community/milestone/2) |
 | **加入或创建 SIG** | 新成员 / 组织 | [sigs/](sigs/) → [角色定义](contributors/roles_CN.md) |
 | **了解治理机制** | 所有人 | [GOVERNANCE.md](GOVERNANCE_CN.md) · [MAINTAINERS.md](MAINTAINERS.md) |
@@ -67,7 +67,7 @@ flowchart LR
 - **Release Manager**:执行特性冻结,通过 milestone 追踪进度。
 - **测试者**:在测试期依据各 FEP 的 Test Plan 验证已合入的功能。
 
-完整规则:[FEP 生命周期](fep/README_CN.md#fep-生命周期)。当前周期的具体日期见:[release/2.2/schedule_CN.md](release/2.2/schedule_CN.md)。
+完整规则:[FEP 生命周期](fep/README_CN.md#fep-生命周期)。当前周期的具体日期见:[release/2.3/schedule_CN.md](release/2.3/schedule_CN.md)。
 
 ## 社区导航
 
