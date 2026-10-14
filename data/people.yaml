@@ -51,7 +51,7 @@ orgs:
   - id: qingcheng
     name: Qingcheng.AI
   - id: sunrise
-    name: Sunrise
+    name: Sunrise（曦望）
   - id: spacemit
     name: SpaceMiT
     domains: [spacemit.com]
@@ -65,7 +65,19 @@ orgs:
   - id: kubuds
     name: Kubuds
 
+  - id: thead
+    name: T-Head
+
+  - id: nvidia
+    name: NVIDIA
+    domains: [nvidia.com]
+
 people:
+
+  - id: 0songhan
+    name: 0songHan
+    emails: ["150684670+0songhan@users.noreply.github.com"]
+    affiliations: [{ org: kunlunxin }]
 
   - id: "0x45f"
     name: 王震
@@ -227,6 +239,11 @@ people:
     emails: ["52786734+coyechen@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
+  - id: creaspoggg
+    name: creaspoggg
+    emails: ["30494669+creaspoggg@users.noreply.github.com"]
+    affiliations: [{ org: hygon }]
+
   - id: cuichaowen
     name: cuichaowen
     emails: ["939136265@qq.com", "cuichaowen@cambricon.com"]
@@ -276,6 +293,11 @@ people:
     name: 艾力扎提
     emails: ["163713563+elllzat@users.noreply.github.com"]
     affiliations: [{ org: kmcompiler }]
+
+  - id: f-theworld
+    name: f-theworld
+    emails: ["130728707+f-theworld@users.noreply.github.com"]
+    affiliations: [{ org: sunrise }]
 
   - id: factnn
     name: 臧珮瑜
@@ -342,6 +364,11 @@ people:
     emails: ["huangyiqun@mail.bnu.edu.cn", "63465798+huangyiqun@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
+  - id: huatuo.li
+    name: huatuo.li
+    emails: ["huatuoli@126.com"]
+    affiliations: [{ org: iluvatar }]
+
   - id: huxinxin04-kunlunxin
     name: huxinxin04-kunlunxin
     emails: ["huxinxin04@kunlunxin.com"]
@@ -371,6 +398,11 @@ people:
     name: jianheng
     emails: ["52306276+jia-heng@users.noreply.github.com"]
     affiliations: [{ org: iluvatar }]
+
+  - id: "Jiang Jinghui"
+    name: Jiang Jinghui
+    emails: ["jiangjh0930@163.com", "jinghui.jiang@metax-tech.com"]
+    affiliations: [{ org: metax }]
 
   - id: "Jianhua Zheng"
     name: Jianhua Zheng
@@ -512,6 +544,11 @@ people:
     emails: ["mikegu0508@gmail.com"]
     affiliations: [{ org: baai }]
 
+  - id: mikiya1991
+    name: mikiya1991
+    emails: ["anakinlancer@gmail.com", "wangrun06@baidu.com"]
+    affiliations: [{ org: kunlunxin }]
+
   - id: modao1234
     name: 苏畅
     emails: ["78893168+modao1234@users.noreply.github.com"]
@@ -546,6 +583,16 @@ people:
     name: qhait
     emails: ["2329292023@qq.com"]
     affiliations: [{ org: kmcompiler }]
+
+  - id: "Raul Puri"
+    name: Raul Puri
+    emails: ["raulp@nvidia.com", "raulpuric@berkeley.edu"]
+    affiliations: [{ org: nvidia }]
+
+  - id: rdzhu225
+    name: 朱瑞迪
+    emails: ["zedith0903@gmail.com"]
+    affiliations: [{ org: baai }]
 
   - id: robertluobo
     name: RobertLuobo
@@ -632,6 +679,11 @@ people:
     emails: ["waffle.bai@gmail.com"]
     affiliations: [{ org: baai }]
 
+  - id: tsingmicro
+    name: tsingmicro
+    emails: ["ruanchunyang@tsingmicro.com", "taozhiwei@tsingmicro.com"]
+    affiliations: [{ org: tsingmicro }]
+
   - id: tsingmicro-public
     name: tsingmicro-public
     emails: ["guohuijiang@tsingmicro.com"]
@@ -640,6 +692,11 @@ people:
   - id: tsingmicro-public-e
     name: tsingmicro-public-e
     emails: ["wangzhongxiang@tsingmicro.com"]
+    affiliations: [{ org: tsingmicro }]
+
+  - id: tsm-code
+    name: tsm-code
+    emails: ["malin@tsingmicro.com"]
     affiliations: [{ org: tsingmicro }]
 
   - id: up-to-star
@@ -697,6 +754,11 @@ people:
     emails: ["70201210+wyc202008@users.noreply.github.com"]
     affiliations: [{ org: kunlunxin }]
 
+  - id: xdali-adora
+    name: xdali-adora
+    emails: ["50559954+xdali-adora@users.noreply.github.com"]
+    affiliations: [{ org: sunrise }]
+
   - id: xdyuanzhulee
     name: xdyuanzhulee
     emails: ["93123184+xdyuanzhulee@users.noreply.github.com"]
@@ -706,6 +768,11 @@ people:
     name: XIE Xuan
     emails: ["xiexuanx2@gmail.com"]
     affiliations: [{ org: siliconflow }]
+
+  - id: xin2an
+    name: xin2an
+    emails: ["yuxinan@perfxlab.com"]
+    affiliations: [{ org: perfxlab }]
 
   - id: xingxingjiang
     name: xingxingjiang
@@ -831,6 +898,11 @@ people:
     name: ZhiwenDeng
     emails: ["dzw13054973993@163.com"]
     affiliations: [{ org: baai }]
+
+  - id: zhongsanming
+    name: zhongsanming
+    emails: ["116532846+zhongsanming@users.noreply.github.com", "sanming.zhong@compiler-dev.com"]
+    affiliations: [{ org: kmcompiler }]
 
   - id: zhoubo567
     name: zhoubo567
