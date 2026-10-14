@@ -1,0 +1,77 @@
+# TransformerEngine-FL contributors with no org yet.
+# Fill `affiliation:` with an org id from data/people.yaml `orgs`,
+# then hand back to merge into people.yaml.
+#
+# `id` is the github login where known, otherwise the author name.
+# Accounts renamed on GitHub are merged by numeric id (see emails).
+# `prs` counts squash-merge commits (subject contains `(#N)`).
+#
+# Scope: commits since the FlagOS fork point (2025-12-11,
+# `[Version] Reset to TransformerEngine v2.9 (#5)`), i.e. FL-fork work only.
+# Upstream NVIDIA TransformerEngine history is excluded by construction.
+#
+# Certain vendor-tag / corporate-domain authors were already landed:
+#   dinghaodhd (METAX), jiamingwang-mt (@mthreads.com), ssuurrffaaccee
+#   (KUNLUNXIN), wendell (hygon), 龚细军 (ENFLAME), Hanting Ma (BAAI);
+#   DannyP0 [iluvatar] merged via noreply into the existing iluvatar entry.
+people:
+
+  - id: lxd-cumt
+    emails: ["30922914+lxd-cumt@users.noreply.github.com"]
+    prs: 15
+    clue: "FL 多平台补丁与版本同步(v2.9/v2.14/v2.17)、Kunlunxin 注册修复"
+    affiliation:
+
+  - id: lihongyang1990
+    emails: ["119582226+lihongyang1990@users.noreply.github.com"]
+    prs: 11
+    clue: "多后端架构、Triton 融合 RoPE、多张量优化器、SDPA"
+    affiliation:
+
+  - id: darryl233
+    emails: ["75082260+darryl233@users.noreply.github.com"]
+    prs: 2
+    clue: "昇腾 NPU 集成、TE QA 测试流水线"
+    affiliation:
+
+  - id: wangxshuai
+    emails: ["1940692628@qq.com"]
+    prs: 2
+    clue: "海光(hygon) HCU 多张量算子与库路径修复"
+    affiliation:
+
+  - id: qqjxzxq
+    emails: ["114602943+qqjxzxq@users.noreply.github.com"]
+    prs: 2
+    clue: "CI 流水线(CUDA 单测覆盖/沐曦 MACA)"
+    affiliation:
+
+  - id: wenqingqian
+    emails: ["wenqq3@outlook.com"]
+    prs: 2
+    clue: "FlagOS layernorm 与 generic_gemm"
+    affiliation:
+
+  - id: BrianPei
+    emails: ["kaworu228@gmail.com"]
+    prs: 2
+    clue: "FlagCICD 流水线迁移与沐曦 runner"
+    affiliation:
+
+  - id: majiangn
+    emails: ["jiangnan.ma@intel.com"]
+    prs: 1
+    clue: "昆仑芯(KunLunXin)后端补丁，Intel 邮箱"
+    affiliation:
+
+  - id: ltllt1
+    emails: ["119106423+ltllt1@users.noreply.github.com"]
+    prs: 1
+    clue: "昇腾 MegatronAdaptor 原生集成"
+    affiliation:
+
+  - id: chai-xiaonan
+    emails: ["3072824838@qq.com"]
+    prs: 1
+    clue: "FlagOS te_groups_gemm 算子"
+    affiliation:

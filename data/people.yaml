@@ -254,9 +254,14 @@ people:
     emails: ["chenzhuo@tju.edu.cn"]
     affiliations: [{ org: baai }]
 
+  - id: cyx11111
+    name: cyx11111
+    emails: ["1643042751@qq.com"]
+    affiliations: [{ org: sunrise }]
+
   - id: DannyP0
     name: DannyP0
-    emails: ["fanglai.peng@iluvatar.com"]
+    emails: ["fanglai.peng@iluvatar.com", "14259448+dannyp0@users.noreply.github.com"]
     affiliations: [{ org: iluvatar }]
 
   - id: Dayrker
@@ -268,6 +273,11 @@ people:
     name: Denis
     emails: ["zhentao.du@mthreads.com"]
     affiliations: [{ org: mthreads }]
+
+  - id: dinghaodhd
+    name: dinghaodhd
+    emails: ["986165956@qq.com"]
+    affiliations: [{ org: metax }]
 
   - id: dingxingdi
     name: Dingxingdi
@@ -303,6 +313,11 @@ people:
     name: 臧珮瑜
     emails: ["166481866+factnn@users.noreply.github.com", "1050552884@qq.com"]
     affiliations: [{ org: baai }]
+
+  - id: fanfanfanWu
+    name: Fan Wu
+    emails: ["62191792+fanfanfanWu@users.noreply.github.com"]
+    affiliations: [{ org: enflame }]
 
   - id: fangzexian
     name: fangzexian
@@ -343,6 +358,11 @@ people:
     name: ggbondbest
     emails: ["2106767038@qq.com"]
     affiliations: [{ org: qingcheng }]
+
+  - id: Hanting Ma
+    name: Hanting Ma
+    emails: ["19025408700@163.com"]
+    affiliations: [{ org: baai }]
 
   - id: heavyrain-lzy
     name: 李志宇
@@ -399,6 +419,11 @@ people:
     emails: ["52306276+jia-heng@users.noreply.github.com"]
     affiliations: [{ org: iluvatar }]
 
+  - id: jiamingwang-mt
+    name: jiamingwang-mt
+    emails: ["jiaming.wang@mthreads.com"]
+    affiliations: [{ org: mthreads }]
+
   - id: "Jiang Jinghui"
     name: Jiang Jinghui
     emails: ["jiangjh0930@163.com", "jinghui.jiang@metax-tech.com"]
@@ -413,6 +438,11 @@ people:
     name: Jingze
     emails: ["losercheems@gmail.com"]
     affiliations: [{ org: baai }]
+
+  - id: Joiin0392
+    name: Joiin0392
+    emails: ["184679216@qq.com"]
+    affiliations: [{ org: huawei }]
 
   - id: JosephNew
     name: 牛金健
@@ -644,6 +674,16 @@ people:
     emails: ["13820618441@163.com"]
     affiliations: [{ org: baai }]
 
+  - id: ssuurrffaaccee
+    name: ssuurrffaaccee
+    emails: ["455013643@qq.com"]
+    affiliations: [{ org: kunlunxin }]
+
+  - id: starkhu
+    name: huyongan
+    emails: ["30859191+starkhu@users.noreply.github.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: StrongSpoon
     name: 李之昕
     emails: ["strongspoon@outlook.com", "35829812+StrongSpoon@users.noreply.github.com"]
@@ -673,6 +713,11 @@ people:
     name: 田霄
     emails: ["tianxiao@baai.ac.cn"]
     affiliations: [{ org: baai }]
+
+  - id: titikim
+    name: titikim
+    emails: ["50958753+titikim@users.noreply.github.com"]
+    affiliations: [{ org: huawei }]
 
   - id: tongxin
     name: 白童心
@@ -734,10 +779,20 @@ people:
     emails: ["wbtigergithub@126.com"]
     affiliations: [{ org: baai }]
 
+  - id: wendell
+    name: wendell
+    emails: ["wendell@wenobug.com"]
+    affiliations: [{ org: hygon }]
+
   - id: "Wentao Wu"
     name: Wentao Wu
     emails: ["wuwentao2000@126.com"]
     affiliations: [{ org: baai }]
+
+  - id: whollo
+    name: whollo
+    emails: ["128107323+whollo@users.noreply.github.com"]
+    affiliations: [{ org: mthreads }]
 
   - id: winfan1314
     name: winfan1314
@@ -778,6 +833,11 @@ people:
     name: xingxingjiang
     emails: ["xingxingjiang@compiler-dev.com"]
     affiliations: [{ org: kmcompiler }]
+
+  - id: XingZibo-666
+    name: XingZibo-666
+    emails: ["xingzibo@tsingmicro.com"]
+    affiliations: [{ org: tsingmicro }]
 
   - id: XMing
     name: 胡小明
@@ -844,6 +904,11 @@ people:
     emails: ["102746679+yukun-cui@users.noreply.github.com"]
     affiliations: [{ org: baai }]
 
+  - id: Yupu
+    name: Yupu
+    emails: ["ypfeng@baai.ac.cn", "feng.yu.pu0330@gmail.com"]
+    affiliations: [{ org: baai }]
+
   - id: yzhang35
     name: 张琰
     emails: ["yzhang35@gmail.com"]
@@ -894,6 +959,11 @@ people:
     emails: ["zhengliutao@internal.cambricon.com"]
     affiliations: [{ org: cambricon }]
 
+  - id: "Zhi Guangda"
+    name: Zhi Guangda
+    emails: ["317132773@qq.com"]
+    affiliations: [{ org: cambricon }]
+
   - id: ZhiwenDeng
     name: ZhiwenDeng
     emails: ["dzw13054973993@163.com"]
@@ -909,6 +979,11 @@ people:
     emails: ["781266327@qq.com"]
     affiliations: [{ org: advancedcompiler }]
 
+  - id: zhujiaxiaowang
+    name: zhujiaxiaowang
+    emails: ["54239200+zhujiaxiaowang@users.noreply.github.com"]
+    affiliations: [{ org: metax }]
+
   - id: zhzhcookie
     name: 郑杨
     emails: ["zhengyang@baai.ac.cn", "zhengyang_pku@163.com"]
@@ -918,3 +993,8 @@ people:
     name: 於琦
     emails: ["moeyfishyq@outlook.com", "qi.yu@mthreads.com"]
     affiliations: [{ org: mthreads }]
+
+  - id: "龚细军"
+    name: 龚细军
+    emails: ["1005267096@qq.com"]
+    affiliations: [{ org: enflame }]
