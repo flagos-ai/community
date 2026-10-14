@@ -779,6 +779,11 @@ people:
     emails: ["xingxingjiang@compiler-dev.com"]
     affiliations: [{ org: kmcompiler }]
 
+  - id: XingZibo-666
+    name: XingZibo-666
+    emails: ["xingzibo@tsingmicro.com"]
+    affiliations: [{ org: tsingmicro }]
+
   - id: XMing
     name: 胡小明
     emails: ["xmhubj@gmail.com"]
@@ -842,6 +847,11 @@ people:
   - id: yukun-cui
     name: KK
     emails: ["102746679+yukun-cui@users.noreply.github.com"]
+    affiliations: [{ org: baai }]
+
+  - id: Yupu
+    name: Yupu
+    emails: ["ypfeng@baai.ac.cn", "feng.yu.pu0330@gmail.com"]
     affiliations: [{ org: baai }]
 
   - id: yzhang35
