@@ -261,7 +261,7 @@ people:
 
   - id: DannyP0
     name: DannyP0
-    emails: ["fanglai.peng@iluvatar.com"]
+    emails: ["fanglai.peng@iluvatar.com", "14259448+dannyp0@users.noreply.github.com"]
     affiliations: [{ org: iluvatar }]
 
   - id: Dayrker
@@ -273,6 +273,11 @@ people:
     name: Denis
     emails: ["zhentao.du@mthreads.com"]
     affiliations: [{ org: mthreads }]
+
+  - id: dinghaodhd
+    name: dinghaodhd
+    emails: ["986165956@qq.com"]
+    affiliations: [{ org: metax }]
 
   - id: dingxingdi
     name: Dingxingdi
@@ -354,6 +359,11 @@ people:
     emails: ["2106767038@qq.com"]
     affiliations: [{ org: qingcheng }]
 
+  - id: Hanting Ma
+    name: Hanting Ma
+    emails: ["19025408700@163.com"]
+    affiliations: [{ org: baai }]
+
   - id: heavyrain-lzy
     name: 李志宇
     emails: ["1528794076@qq.com"]
@@ -408,6 +418,11 @@ people:
     name: jianheng
     emails: ["52306276+jia-heng@users.noreply.github.com"]
     affiliations: [{ org: iluvatar }]
+
+  - id: jiamingwang-mt
+    name: jiamingwang-mt
+    emails: ["jiaming.wang@mthreads.com"]
+    affiliations: [{ org: mthreads }]
 
   - id: "Jiang Jinghui"
     name: Jiang Jinghui
@@ -659,6 +674,11 @@ people:
     emails: ["13820618441@163.com"]
     affiliations: [{ org: baai }]
 
+  - id: ssuurrffaaccee
+    name: ssuurrffaaccee
+    emails: ["455013643@qq.com"]
+    affiliations: [{ org: kunlunxin }]
+
   - id: starkhu
     name: huyongan
     emails: ["30859191+starkhu@users.noreply.github.com"]
@@ -758,6 +778,11 @@ people:
     name: 王蕴博
     emails: ["wbtigergithub@126.com"]
     affiliations: [{ org: baai }]
+
+  - id: wendell
+    name: wendell
+    emails: ["wendell@wenobug.com"]
+    affiliations: [{ org: hygon }]
 
   - id: "Wentao Wu"
     name: Wentao Wu
@@ -968,3 +993,8 @@ people:
     name: 於琦
     emails: ["moeyfishyq@outlook.com", "qi.yu@mthreads.com"]
     affiliations: [{ org: mthreads }]
+
+  - id: "龚细军"
+    name: 龚细军
+    emails: ["1005267096@qq.com"]
+    affiliations: [{ org: enflame }]
