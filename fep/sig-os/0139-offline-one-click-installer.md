@@ -244,8 +244,8 @@ with the NVIDIA driver preinstalled and the network disabled:
 
 ## Related PRs
 
-- [ ] flagos-ai/community#TBD — this FEP
-- [ ] flagos-ai/build-infra#TBD — `scripts/build_offline_bundle.py` + `offline-bundle.yml` + offline verify
+- [ ] flagos-ai/community#139 — this FEP
+- [x] flagos-ai/build-infra#1348 — `scripts/build_offline_bundle.py` + `offline-bundle.yml` + offline verify
 
 ## Implementation History
 
