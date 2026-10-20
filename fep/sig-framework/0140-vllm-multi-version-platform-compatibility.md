@@ -28,8 +28,6 @@ Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across thre
 | G2 — Release 0.28 | Support the ten vendors in the matrix below on the main release version. | November |
 | G3 — Introduce 0.32 | Support five vendors selected by Day-0 demand; the roster is pending. | Start mid-November; finish before mid-December |
 
-The G3 upstream version may change with the vLLM release schedule. Update usage documentation in the plugin repository with each upgrade. NVIDIA regression coverage and AMD Day-0 work are additional to the ten-vendor roster.
-
 ## Proposal
 
 Users choose a version and platform from the compatibility matrix, then use its wheel, runtime and model configuration. Each version has migration instructions and a validated rollback package.
@@ -60,10 +58,6 @@ The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 co
 | Sunrise | Carry-over; merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Upgrade pending | Pending |
 | NVIDIA (additional) | Existing support | Merged ([#484](https://github.com/flagos-ai/vllm-plugin-FL/pull/484)) | Adaptation in draft ([#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615)) |
 
-Integration status tracks repository changes; release support requires the device/model tests below. The five G3 vendors have not been selected. The `0.5.0-dev` base still pins vLLM 0.28; its inherited platform list does not establish 0.32 support.
-
-**To finalize:** Owner; devices and model configurations for the named vendors; G3's five-vendor roster; exact upstream patches; accuracy thresholds and performance regression limits.
-
 ## Packaging
 
 **Supported vendors:** The matrix above defines the ten-vendor scope for 0.24 and 0.28, with NVIDIA regression coverage in addition. The 0.32 five-vendor roster remains to be selected.
@@ -86,30 +80,65 @@ Publish the wheel, dependency lock and image recipe for each supported combinati
 
 ## Test Plan
 
-Run in each target version/platform environment. Set `FEP_PLATFORM`, `FEP_DEVICE`, `FEP_MODEL` and `FEP_CASE` from that checkout's `tests/platforms` and `tests/models` configurations. Add configurations for newly supported combinations.
+Use the FlagOS 2.2 release-test workflow for G1–G3. Run it for each target vLLM version and chip with matching plugin, driver, SDK, FlagGems and FlagTree versions. Keep Qwen3.6-27B (Dense) and Qwen3.6-35B-A3B (MoE) as the baseline models, using real weights. Add model-specific cases for Day-0 adaptations.
 
-### G1–G3: platform compatibility
+| Test | Method | Expected result |
+|---|---|---|
+| Build and load | Verify vLLM, the plugin, FlagGems and FlagTree builds; check installed versions and start the service. | Components load, versions match the release configuration, and the service uses the FL plugin. |
+| Basic functionality | Test both models with text, image and mixed requests, including eight concurrent requests. Run eager and graph configurations supported by the target platform. | Answers pass the case checks, without empty, garbled or repetitive output. Graph configurations complete graph capture and inference. |
+| Performance | Measure throughput, time to first token (TTFT) and time per output token (TPOT) after warmup. | All requests complete; record mean and P99 latency and compare results with the previous release on the same chip and workload. |
+| Load | Repeat the benchmark at concurrency 1, 8, 32 and 64. | No failed requests, out-of-memory errors or hangs within the configured workload. |
+| 24-hour stability and resources | Run sustained requests while sampling device memory and utilization every five seconds. | No service crash, hang, NaN errors or sustained memory growth; retain request results and resource logs. |
+
+### G1–G3: build and load checks
+
+After building the release packages, verify the installed components:
 
 ```bash
-python tests/run.py --platform "${FEP_PLATFORM:?}" --device "${FEP_DEVICE:?}" --scope functional
+python -c "import vllm, vllm_fl, flag_gems, triton; print(vllm.__version__, vllm_fl.__file__, flag_gems.__version__, triton.__version__)"
 ```
 
-**Expected:** Required operator, compilation and communication tests pass on every declared device.
+**Expected:** Imports succeed and the versions and module paths match the target release. Check the service startup log for FL plugin activation and the selected device backend.
 
-### G1–G3: model inference and serving
+### G1–G3: basic functionality
+
+Use the repository's `tools/adaptation-gate-cases` scripts. With the platform's runtime and device settings loaded, start a service from the plugin checkout:
 
 ```bash
-for FEP_TASK in inference serving; do
-  python tests/run.py --platform "${FEP_PLATFORM:?}" --device "${FEP_DEVICE:?}" \
-    --scope e2e --task "$FEP_TASK" --model "${FEP_MODEL:?}" --case "${FEP_CASE:?}" || exit 1
-done
+cd tools/adaptation-gate-cases
+MODEL_PATH=/models/Qwen3.6-27B PORT=8000 TENSOR_PARALLEL_SIZE=2 \
+  ./run_serve_eager.sh
 ```
 
-**Expected:** Each declared model passes inference and serving checks. For example, the 0.28 Iluvatar configuration provides `iluvatar` / `bi-v150` / `qwen2_5` / `7b_tp2` for both tasks.
+In a second terminal, run the tests from the same checkout:
 
-Compare model outputs and task scores with the agreed reference. Measure throughput and latency with fixed weights, hardware, precision and workload settings; meet the agreed regression limits. Retain results with the tested artifact and configuration.
+```bash
+cd tools/adaptation-gate-cases
+MODEL_PATH=/models/Qwen3.6-27B PORT=8000 ./run_test.sh
+```
 
-All required cases must execute and pass. An empty selection, skipped case or missing result does not satisfy acceptance. Publish a combination only after its wheel loads on the target device and its required tests pass.
+Repeat for Qwen3.6-35B-A3B, adjusting the model path and tensor-parallel size for the device. For graph coverage, stop the eager service, start `run_serve_graph.sh` on port 8001 and run the same tests against port 8001.
+
+**Expected:** Each model/mode run passes all five scenarios: single text, single image, concurrent text, concurrent image and mixed requests. These send 26 requests in total. Keep the generated JSON results for each model and mode.
+
+### G1–G3: performance, load and stability
+
+Against the running service, use the same benchmark settings as the 2.2 performance tests:
+
+```bash
+vllm bench serve --host 127.0.0.1 --port 8000 \
+  --backend openai --endpoint /v1/completions \
+  --model /models/Qwen3.6-27B --tokenizer /models/Qwen3.6-27B \
+  --dataset-name random --random-input-len 4096 --random-output-len 1024 \
+  --num-prompts 640 --max-concurrency 64 --seed 0 \
+  --ignore-eos --trust-remote-code --save-result --result-dir ./perf-results
+```
+
+Run once for warmup and three times for measurement. Repeat with input length 16384, then for the other model and supported execution modes. Keep the input/output lengths, model weights, precision and card count fixed when comparing releases. Repeat with the previous compatible FlagGems/FlagTree versions to check the effect of dependency upgrades.
+
+For load testing, repeat with `--max-concurrency` set to 1, 8, 32 and 64. For stability testing, repeat the workload continuously for 24 hours and collect device memory and utilization with the vendor's monitoring tool.
+
+**Expected:** Each benchmark round completes all 640 requests. Save throughput, mean/P99 TTFT and TPOT, and the 24-hour service and resource logs. Investigate performance regressions before release.
 
 ## Related PRs
 
