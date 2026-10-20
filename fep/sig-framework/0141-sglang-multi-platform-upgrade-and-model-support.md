@@ -26,7 +26,7 @@ Release three capabilities in [SGLang-Plugin-FL](https://github.com/flagos-ai/sg
 |---|---|---|
 | G1 — Platform upgrade | SGLang 0.5.18 on ten vendors, including NVIDIA, Huawei Ascend 910C, Moore Threads, T-Head and MetaX. | Before mid-December |
 | G2 — Empty mode | Seven remaining vendors, including Hygon, Iluvatar and Enflame; Qwen3.6-27B and Qwen3.6-35B-A3B on 0.5.11/0.5.12. | Integration follows operator coverage and accuracy readiness. |
-| G3 — W8A8 models | DeepSeek-V4-Flash and DeepSeek-V4-Pro on 0.5.18; optimize on NVIDIA and extend to at least one domestic platform. | Model adaptation in early/mid-November; optimization by end-December |
+| G3 — W8A8 models | DeepSeek-V4-Flash and DeepSeek-V4-Pro on 0.5.18; optimize on NVIDIA and extend to at least one additional vendor platform. | Model adaptation in early/mid-November; optimization by end-December |
 
 G3 targets a 10% overall throughput improvement on NVIDIA. The two DeepSeek variants are the planned models; finalize checkpoints and any model changes before acceptance.
 
@@ -50,13 +50,13 @@ Derive the coverage list from both workloads and verify successful execution thr
 
 ### W8A8 inference and optimization
 
-Match checkpoint layouts and scales to attention/MoE kernels and tensor parallelism. Validate both DeepSeek variants on NVIDIA and the selected domestic platform. Compare the baseline and optimized configurations using identical weights, precision, workload and hardware.
+Match checkpoint layouts and scales to attention/MoE kernels and tensor parallelism. Validate both DeepSeek variants on NVIDIA and the selected additional vendor platform. Compare the baseline and optimized configurations using identical weights, precision, workload and hardware.
 
 **To finalize:** Owner; complete vendor/device lists; runtime pins; model/checkpoint revisions; Empty operator delivery and integration dates; W8A8 baseline, accuracy thresholds and performance regression limits.
 
 ## Packaging
 
-**Supported vendors:** G1 covers ten including NVIDIA; G2 covers seven remaining vendors including Hygon, Iluvatar and Enflame; G3 covers NVIDIA and at least one domestic vendor.
+**Supported vendors:** G1 covers ten including NVIDIA; G2 covers seven remaining vendors including Hygon, Iluvatar and Enflame; G3 covers NVIDIA and at least one additional vendor.
 
 **Can this feature be packaged as a wheel (`.whl`)?** Yes. Build from the matching version checkout:
 
@@ -113,7 +113,7 @@ python -m pytest tests/acceptance_flagos23/test_deepseek_v4_w8a8.py -v
 python tests/acceptance_flagos23/benchmark_deepseek_v4_w8a8.py --matrix acceptance/flagos23/deepseek-v4-w8a8.yaml
 ```
 
-**Expected:** Both DeepSeek variants load through the intended W8A8 paths and pass quality and TP consistency checks on NVIDIA and at least one domestic platform. After warm-up, repeat paired runs with real weights and report output tokens/s, TTFT, TPOT, memory and variability. Report progress against the NVIDIA 1.10× throughput target and report domestic-platform results separately.
+**Expected:** Both DeepSeek variants load through the intended W8A8 paths and pass quality and TP consistency checks on NVIDIA and at least one additional vendor platform. After warm-up, repeat paired runs with real weights and report output tokens/s, TTFT, TPOT, memory and variability. Report progress against the NVIDIA 1.10× throughput target and report results for the additional platform separately.
 
 ## Related PRs
 
