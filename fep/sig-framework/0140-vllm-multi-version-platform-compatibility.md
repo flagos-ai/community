@@ -58,28 +58,6 @@ The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 co
 | Sunrise | 2.3 Adapting; Merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Upgrade pending | Pending |
 | NVIDIA (additional) | Existing support | Merged ([#484](https://github.com/flagos-ai/vllm-plugin-FL/pull/484)) | Adaptation in draft ([#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615)) |
 
-## Packaging
-
-**Supported vendors:** The matrix above defines the ten-vendor scope for 0.24 and 0.28, with NVIDIA regression coverage in addition. The 0.32 five-vendor roster remains to be selected.
-
-**Can this feature be packaged as a wheel (`.whl`)?** Yes.
-
-The [wheel build workflow](https://github.com/flagos-ai/vllm-plugin-FL/blob/main/.github/workflows/_build_wheel.yml) builds the plugin package. Wheels for the FlagOS 2.2 plugin versions, 0.2.2 (vLLM 0.20.2) and 0.3.0 (vLLM 0.24.0), are available in the [FlagOS package repository](https://resource.flagos.net/repository/flagos-pypi-hosted/simple/vllm-plugin-fl/).
-
-Build from the matching version checkout. For a Python-only wheel:
-
-```bash
-VLLM_VENDOR= python -m build --wheel
-```
-
-The published `py3-none-any` wheels do not contain `vllm_fl._C`. For configurations requiring that extension, build with the matching PyTorch, SDK and build dependencies:
-
-```bash
-VLLM_VENDOR=cuda python -m build --wheel --no-isolation
-```
-
-Maintain the platform image build files under [`docker/`](https://github.com/flagos-ai/vllm-plugin-FL/tree/main/docker). Record the image tag or digest and the component revisions used for each tested combination.
-
 ## Test Plan
 
 Use the FlagOS 2.2 release-test workflow for G1–G3. The 2.2 tests documented in the platform manuals use vendor or FlagOS images, with source installation or updates to the plugin and dependencies as needed. Follow this deployment method for each target vLLM version and chip, with matching plugin, driver, SDK, FlagGems and FlagTree versions. Record any component changes made after starting the container.
