@@ -14,136 +14,127 @@
 
 ## Summary
 
-Release three SGLang capabilities: the planned 0.5.18 platform upgrade, Empty-mode support on seven additional vendors using the selected 0.5.11/0.5.12 base, and DeepSeek-V4 W8A8 inference on 0.5.18. Each feature has its own artifacts, dependency versions and test matrix.
-
-Repository: [sglang-plugin-FL](https://github.com/flagos-ai/sglang-plugin-FL).
+Release three capabilities in [SGLang-Plugin-FL](https://github.com/flagos-ai/sglang-plugin-FL): a ten-vendor upgrade to SGLang 0.5.18, Empty mode on seven remaining vendors using 0.5.11/0.5.12, and DeepSeek-V4 W8A8 inference and optimization on 0.5.18.
 
 ## Motivation
 
-[FEP-0090](0090-sglang-plugin-fl-flagos-2.2-features.md) provides the 0.5.11/0.5.12 baseline and initial Empty-mode coverage. This release extends platform coverage, updates upstream integration and adds the selected W8A8 model configurations.
+[FEP-0090](https://github.com/flagos-ai/community/blob/main/fep/sig-framework/0090-sglang-plugin-fl-flagos-2.2-features.md) covers the 0.5.11/0.5.12 platform baseline and initial Empty-mode scope. FlagOS 2.3 expands that coverage, updates upstream integration and adds leading-model support.
 
 ### Goals
 
-- **G1 — Platform upgrade:** Validate the 0.5.18 upstream/plugin/SDK combination on ten vendor/device rows including NVIDIA, preserving inference and serving behavior.
-- **G2 — Empty mode:** Validate seven additional vendors, including Hygon, Iluvatar and Enflame, with Qwen3.6-27B and Qwen3.6-35B-A3B on the selected 0.5.11/0.5.12 base. Verify operator coverage, accuracy and dispatch.
-- **G3 — W8A8:** Validate DeepSeek-V4-Flash and DeepSeek-V4-Pro W8A8 on NVIDIA and at least one domestic platform. Report quality, memory, throughput and latency. A 10% NVIDIA throughput improvement is a stretch target.
+| Goal | Scope | Planned milestone in 2026 |
+|---|---|---|
+| G1 — Platform upgrade | SGLang 0.5.18 on ten vendors, including NVIDIA, Huawei Ascend 910C, Moore Threads, T-Head and MetaX. | Before mid-December |
+| G2 — Empty mode | Seven remaining vendors, including Hygon, Iluvatar and Enflame; Qwen3.6-27B and Qwen3.6-35B-A3B on 0.5.11/0.5.12. | Integration follows operator coverage and accuracy readiness. |
+| G3 — W8A8 models | DeepSeek-V4-Flash and DeepSeek-V4-Pro on 0.5.18; optimize on NVIDIA and extend to at least one domestic platform. | Model adaptation in early/mid-November; optimization by end-December |
 
-### Non-Goals
-
-Reimplementing Empty mode, SGLang 0.5.19 and PD disaggregation.
+G3 targets a 10% overall throughput improvement on NVIDIA. The two DeepSeek variants are the planned models; finalize checkpoints and any model changes before acceptance.
 
 ## Proposal
 
-### Feature 1: Platform upgrade
+Users select a feature, platform and model from the support matrix. G1 and G3 use 0.5.18; G2 retains 0.5.11/0.5.12. Each combination supplies matching packages, dependencies and launch settings.
 
-Users select a 0.5.18 platform package and retain the existing plugin entry point.
-
-### Feature 2: Empty mode
-
-Users run the device-decoupled SGLang build with the FL plugin, vendor runtime and matching operator package. A model/platform row requires all operators needed by that workload.
-
-### Feature 3: W8A8 inference
-
-Users select a supported W8A8 checkpoint and serving configuration. The plugin selects compatible kernels and rejects unsupported checkpoint/kernel combinations.
+Alongside the release work, support Day-0 adaptation and new-model PR review, FlagRelease model adaptation and operator-coverage tooling, and the Zhipu–Ascend project for large-scale prefill/decode disaggregation optimization.
 
 ## Design Details
 
-Keep the three matrices separate. The 0.5.18 upgrade does not rebase the Empty-mode feature, and a vendor in one matrix need not support the other features. Each row records model revision, upstream/plugin versions, SDKs, precision, parallelism and device.
+### Platform upgrade
 
-### Feature 1
+Update upstream adapters and preserve plugin entry points. Agree exact FlagTree, FlagGems, vendor SDK and other runtime versions with their maintainers and quality team. Record the device, model revision, precision, TP/PP and graph settings for each combination, and retain a validated rollback package.
 
-Update plugin adapters for upstream API changes, run existing regressions and retain the previous validated package for rollback. Freeze upstream patches and SDK versions with FlagGems, FlagTree and SVT/quality. Map each row to a device and execution method; reconcile these rows with FlagCICD coverage.
+### Empty mode
 
-### Feature 2
+Integrate FlagGems/flaggems-sglang operators and dispatch on the selected 0.5.11/0.5.12 base. The operator team must supply all operators required by both Qwen models and align their accuracy before framework acceptance.
 
-Derive the operator list from both model graphs. The operator library supplies implementations; the plugin integrates dispatch. Record the backend for each required operation. Missing operators and forbidden fallbacks fail the case.
+Derive the coverage list from both workloads and verify successful execution through the supplied operator implementations. Temporary vendor fallbacks may support integration work, but unresolved operator gaps block G2 completion. Keep vendor device runtimes and communication dependencies explicit.
 
-### Feature 3
+### W8A8 inference and optimization
 
-Match checkpoint layout and scales to attention/MoE kernels and tensor parallelism. Compare optimization enabled and disabled with identical weights, prompt/output lengths, precision, batch/concurrency, graph mode and hardware. Measure output tokens/s, TTFT, TPOT, memory and accuracy after warm-up, using repeated runs. Report NVIDIA and domestic results separately.
+Match checkpoint layouts and scales to attention/MoE kernels and tensor parallelism. Validate both DeepSeek variants on NVIDIA and the selected domestic platform. Compare the baseline and optimized configurations using identical weights, precision, workload and hardware.
 
-**Dependencies:** FlagGems/flaggems-sglang, required FlagTree paths, vendor SDKs and checkpoint formats. Coordinate domestic attention kernels with sig-operator.
-
-**Open decisions:** Vendor/device lists for each feature; exact upstream patches; Qwen3.6 and DeepSeek-V4 checkpoint IDs/revisions; Empty-mode operator package; SDK pins; TP settings; quality and regression limits. Reconcile the model identifiers with the training proposal's Qwen3.5 workloads.
+**To finalize:** Owner; complete vendor/device lists; runtime pins; model/checkpoint revisions; Empty operator delivery and integration dates; W8A8 baseline, accuracy thresholds and performance regression limits.
 
 ## Packaging
 
-**Supported vendors:** Feature 1: ten vendors including NVIDIA. Feature 2: seven additional vendors including Hygon, Iluvatar and Enflame. Feature 3: NVIDIA and at least one domestic vendor. Remaining names and devices are pending.
+**Supported vendors:** G1 covers ten including NVIDIA; G2 covers seven remaining vendors including Hygon, Iluvatar and Enflame; G3 covers NVIDIA and at least one domestic vendor.
 
-**Can this feature be packaged as a wheel (`.whl`)?** Yes.
+**Can this feature be packaged as a wheel (`.whl`)?** Yes. Build from the matching version checkout:
 
-Build with `python -m build --wheel`, following `.github/workflows/_build_wheel.yml`. Publish version-specific plugin wheels and dependency locks. Empty-mode packages use the selected 0.5.11/0.5.12 base; upgrade and W8A8 packages use 0.5.18. Include checkpoint formats, scales and serving-kernel requirements for W8A8.
+```bash
+python -m build --wheel
+```
 
-**Build record:** Pin Python/PyTorch, framework, operator/compiler libraries, SDK/driver and native ABI as applicable. Record source revisions, build configuration and artifact digest.
-
-At Feature Freeze, provide the module rc0 branch and tag with matching tag, manifest and package-metadata versions.
+Publish version-specific wheels, dependency locks and image recipes. Empty packages retain 0.5.11/0.5.12; upgrade and W8A8 packages use 0.5.18. Include W8A8 checkpoint formats, scales and kernel requirements. Record source revisions, build settings and artifact digests; align the rc0 tag, package version and release manifest at Feature Freeze.
 
 ## Test Plan
 
-Tests marked Proposed remain to be implemented. Run each case against the specified artifact and matrix configuration, and retain its command and results. Set `FEP_PLATFORM` and `FEP_DEVICE` from that configuration.
+Run each feature in its declared version/platform environment. Set `FEP_PLATFORM`, `FEP_DEVICE`, `FEP_MODEL` and `FEP_CASE` from the corresponding test configurations. All required cases must execute and pass; empty selections, skips and missing results remain incomplete.
 
-### Feature 1 / G1: Existing runner
-
-```bash
-python tests/run.py --platform "$FEP_PLATFORM" --device "$FEP_DEVICE" --scope functional
-```
-
-**Expected result:** Every selected operation, compilation and distributed case passes on each declared platform.
-
-### Feature 1 / G1: Existing runner
+### G1: platform and model regression
 
 ```bash
-python tests/run.py --platform "$FEP_PLATFORM" --device "$FEP_DEVICE" --scope e2e
+python tests/run.py --platform "${FEP_PLATFORM:?}" --device "${FEP_DEVICE:?}" --scope functional || exit 1
+for FEP_TASK in inference serving concurrent; do
+  python tests/run.py --platform "${FEP_PLATFORM:?}" --device "${FEP_DEVICE:?}" \
+    --scope e2e --task "$FEP_TASK" --model "${FEP_MODEL:?}" --case "${FEP_CASE:?}" || exit 1
+done
 ```
 
-**Expected result:** The frozen regression model list passes inference, serving and applicable concurrency checks with versioned accuracy thresholds.
+**Expected:** Required operator, compilation and communication checks pass. Each declared model completes inference, serving and concurrency tests on all ten vendors, meeting the agreed quality and regression limits.
 
-### Feature 1 / G1: Proposed acceptance test
+### G2: Empty mode and operator coverage
+
+Register both Qwen cases on every G2 platform. Existing case definitions use TP4 with graph execution disabled:
 
 ```bash
-python -m pytest tests/acceptance_flagos23/test_sglang_release_manifest.py -v
+for FEP_TASK in inference serving concurrent; do
+  python tests/run.py --platform "${FEP_PLATFORM:?}" --device "${FEP_DEVICE:?}" \
+    --scope e2e --task "$FEP_TASK" --model qwen3_6 \
+    --cases '[{"model":"qwen3_6","case":"27b_tp4_nograph"},{"model":"qwen3_6","case":"35b_a3b_tp4_nograph"}]' || exit 1
+done
 ```
 
-**Expected result:** The ten accepted rows resolve to the frozen release artifacts and their evidence; manifest versions match package metadata.
+**Expected:** Both Qwen models pass all three tasks on each of the seven vendors using its declared 0.5.11/0.5.12 runtime.
 
-### Feature 2 / G2: Existing runner; model cases must be bound to both named models
+Planned acceptance tests to implement with the operator integration:
 
 ```bash
-python tests/run.py --platform "$FEP_PLATFORM" --device "$FEP_DEVICE" --scope e2e
+python -m pytest tests/acceptance_flagos23/test_sglang_empty_operator_routes.py tests/acceptance_flagos23/test_sglang_empty_accuracy.py -v
 ```
 
-**Expected result:** Both models complete the configured inference/serving workloads on every declared new vendor.
+**Expected:** Every required operator has a working implementation in the supplied operator library; dispatch uses those implementations, and both models meet the agreed output and task-score tolerances. Missing coverage or unresolved vendor fallbacks fail acceptance.
 
-### Feature 2 / G2: Proposed acceptance test
+### G3: W8A8 correctness and performance
 
-```bash
-python -m pytest tests/acceptance_flagos23/test_sglang_empty_operator_routes.py -v
-```
-
-**Expected result:** All required operators use the permitted implementations; unavailable required operators and forbidden fallback paths fail the case.
-
-### Feature 2 / G2: Proposed acceptance test
-
-```bash
-python -m pytest tests/acceptance_flagos23/test_sglang_empty_accuracy.py -v
-```
-
-**Expected result:** Outputs and task scores meet the frozen reference/tolerance for each model; skips and unresolved operators remain uncovered.
-
-### Feature 3 / G3: Proposed acceptance test
+Planned tests and benchmark matrix to implement with the W8A8 adaptation:
 
 ```bash
 python -m pytest tests/acceptance_flagos23/test_deepseek_v4_w8a8.py -v
-```
-
-**Expected result:** Both model variants load with the intended W8A8 kernel paths and pass task accuracy and TP consistency gates on each declared platform.
-
-### Feature 3 / G3: Proposed acceptance driver
-
-```bash
 python tests/acceptance_flagos23/benchmark_deepseek_v4_w8a8.py --matrix acceptance/flagos23/deepseek-v4-w8a8.yaml
 ```
 
-**Expected result:** Report paired end-to-end baseline/optimized metrics, variability and throughput ratio. State whether the NVIDIA stretch target of 1.10x is met; report domestic results separately.
+**Expected:** Both DeepSeek variants load through the intended W8A8 paths and pass quality and TP consistency checks on NVIDIA and at least one domestic platform. After warm-up, repeat paired runs with real weights and report output tokens/s, TTFT, TPOT, memory and variability. Report progress against the NVIDIA 1.10× throughput target and report domestic-platform results separately.
 
-Run each feature with its own version, resolved model revision and platform configuration.
+## Related PRs
+
+### SGLang 0.5.18
+
+- [x] [#89](https://github.com/flagos-ai/sglang-plugin-FL/pull/89) — NVIDIA upgrade.
+- [x] [#95](https://github.com/flagos-ai/sglang-plugin-FL/pull/95) — MUSA Empty runtime.
+- [x] [#99](https://github.com/flagos-ai/sglang-plugin-FL/pull/99) — NVIDIA CI.
+- [x] [#123](https://github.com/flagos-ai/sglang-plugin-FL/pull/123) — CUDA multi-node stability.
+- [x] [#132](https://github.com/flagos-ai/sglang-plugin-FL/pull/132) — Iluvatar fused operators.
+- [ ] [#131](https://github.com/flagos-ai/sglang-plugin-FL/pull/131) — Ascend upgrade.
+- [ ] [#138](https://github.com/flagos-ai/sglang-plugin-FL/pull/138) — Hygon Empty upgrade.
+- [ ] [#139](https://github.com/flagos-ai/sglang-plugin-FL/pull/139) — Iluvatar Empty upgrade.
+
+### Empty operators and dispatch on main
+
+- [ ] [#120](https://github.com/flagos-ai/sglang-plugin-FL/pull/120) — FlagGems FLA and fused MoE operators.
+- [ ] [#124](https://github.com/flagos-ai/sglang-plugin-FL/pull/124) — Hygon integration with reference fallbacks.
+- [ ] [#125](https://github.com/flagos-ai/sglang-plugin-FL/pull/125) — MUSA Qwen3.6 release and performance paths.
+- [ ] [#129](https://github.com/flagos-ai/sglang-plugin-FL/pull/129) — Successful dispatch and fallback logging.
+- [ ] [#136](https://github.com/flagos-ai/sglang-plugin-FL/pull/136) — Kunlunxin Empty support.
+- [ ] [#145](https://github.com/flagos-ai/sglang-plugin-FL/pull/145) — PPU Empty support.
+
+Operator-library scope: [FlagGems-sglang FEP, community #106](https://github.com/flagos-ai/community/pull/106).
