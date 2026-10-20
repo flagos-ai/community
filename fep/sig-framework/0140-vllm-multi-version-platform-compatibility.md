@@ -14,7 +14,7 @@
 
 ## Summary
 
-Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across three upstream versions: complete the remaining 0.24 adaptations, deliver 0.28 as the main release version, and introduce 0.32 on selected domestic platforms. Ship matching wheels, dependency versions, model configurations and usage documentation.
+Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across three upstream versions: complete the remaining 0.24 adaptations, deliver 0.28 as the main release version, and introduce 0.32 on selected platforms. Ship matching wheels, dependency versions, model configurations and usage documentation.
 
 ## Motivation
 
@@ -24,11 +24,11 @@ Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across thre
 
 | Goal | Scope | Planned milestone in 2026 |
 |---|---|---|
-| G1 — Complete 0.24 | Adapt the remaining five domestic vendors. | Mid-October |
-| G2 — Release 0.28 | Support ten domestic vendors on the main release version. | November |
-| G3 — Introduce 0.32 | Support five domestic vendors selected by Day-0 demand. | Start mid-November; finish before mid-December |
+| G1 — Complete 0.24 | Close the carry-over adaptations for Huawei Ascend, Kunlunxin, Enflame, Tsingmicro and Sunrise. | Mid-October |
+| G2 — Release 0.28 | Support the ten vendors in the matrix below on the main release version. | November |
+| G3 — Introduce 0.32 | Support five vendors selected by Day-0 demand; the roster is pending. | Start mid-November; finish before mid-December |
 
-The G3 upstream version may change with the vLLM release schedule. Update usage documentation with each upgrade. NVIDIA and AMD support is tracked separately from the domestic-vendor targets.
+The G3 upstream version may change with the vLLM release schedule. Update usage documentation in the plugin repository with each upgrade. NVIDIA regression coverage and AMD Day-0 work are additional to the ten-vendor roster.
 
 ## Proposal
 
@@ -42,11 +42,31 @@ Maintain the three version lines separately. Reconcile the remaining 0.24 work w
 
 Each compatibility entry records the vendor/device, upstream patch, plugin version, Python/PyTorch, SDK/driver, FlagGems, applicable FlagTree and communication libraries, plus the model revision, precision, TP/PP and graph settings. Agree dependency versions with the component maintainers and quality team.
 
-**To finalize:** Owner; vendor/device lists for all three goals; exact upstream patches and model configurations; accuracy thresholds and performance regression limits. Select G3's five vendors according to Day-0 demand.
+### Vendor matrix
+
+The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 completes coverage of the same ten-vendor roster used by G2. The carry-over group records the original release scope; several adaptations have since merged.
+
+| Vendor | 0.24 scope and integration | 0.28 integration | 0.32 selection |
+|---|---|---|---|
+| Huawei Ascend | Carry-over; Qwen3.6/graph update in review ([#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606)) | Merged ([#487](https://github.com/flagos-ai/vllm-plugin-FL/pull/487)) | Pending |
+| T-Head | 2.2 baseline | Merged ([#574](https://github.com/flagos-ai/vllm-plugin-FL/pull/574)) | Pending |
+| Hygon | 2.2 baseline | In review ([#576](https://github.com/flagos-ai/vllm-plugin-FL/pull/576)) | Pending |
+| Moore Threads | 2.2 baseline | In review ([#575](https://github.com/flagos-ai/vllm-plugin-FL/pull/575)) | Pending |
+| MetaX | 2.2 baseline | In review ([#554](https://github.com/flagos-ai/vllm-plugin-FL/pull/554)) | Pending |
+| Kunlunxin | Carry-over; merged ([#516](https://github.com/flagos-ai/vllm-plugin-FL/pull/516), [#561](https://github.com/flagos-ai/vllm-plugin-FL/pull/561)) | In review ([#585](https://github.com/flagos-ai/vllm-plugin-FL/pull/585)) | Pending |
+| Iluvatar | 2.2 baseline | Merged ([#566](https://github.com/flagos-ai/vllm-plugin-FL/pull/566)) | Pending |
+| Enflame | Carry-over; merged ([#464](https://github.com/flagos-ai/vllm-plugin-FL/pull/464)) | In review ([#582](https://github.com/flagos-ai/vllm-plugin-FL/pull/582)) | Pending |
+| Tsingmicro | Carry-over; merged ([#447](https://github.com/flagos-ai/vllm-plugin-FL/pull/447)) | Upgrade pending | Pending |
+| Sunrise | Carry-over; merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Upgrade pending | Pending |
+| NVIDIA (additional) | Existing support | Merged ([#484](https://github.com/flagos-ai/vllm-plugin-FL/pull/484)) | Adaptation in draft ([#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615)) |
+
+Integration status tracks repository changes; release support requires the device/model tests below. The five G3 vendors have not been selected. The `0.5.0-dev` base still pins vLLM 0.28; its inherited platform list does not establish 0.32 support.
+
+**To finalize:** Owner; devices and model configurations for the named vendors; G3's five-vendor roster; exact upstream patches; accuracy thresholds and performance regression limits.
 
 ## Packaging
 
-**Supported vendors:** Five remaining domestic vendors for 0.24, ten for 0.28 and five for 0.32. Final names and devices will be recorded in the compatibility matrix.
+**Supported vendors:** The matrix above defines the ten-vendor scope for 0.24 and 0.28, with NVIDIA regression coverage in addition. The 0.32 five-vendor roster remains to be selected.
 
 **Can this feature be packaged as a wheel (`.whl`)?** Yes.
 
@@ -92,6 +112,15 @@ Compare model outputs and task scores with the agreed reference. Measure through
 All required cases must execute and pass. An empty selection, skipped case or missing result does not satisfy acceptance. Publish a combination only after its wheel loads on the target device and its required tests pass.
 
 ## Related PRs
+
+### vLLM 0.24 carry-over work
+
+- [x] [#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391) — Sunrise attention backend.
+- [x] [#447](https://github.com/flagos-ai/vllm-plugin-FL/pull/447) — Tsingmicro TXDA backend.
+- [x] [#464](https://github.com/flagos-ai/vllm-plugin-FL/pull/464) — Enflame S60 adaptation.
+- [x] [#516](https://github.com/flagos-ai/vllm-plugin-FL/pull/516) — Kunlunxin adaptation.
+- [x] [#561](https://github.com/flagos-ai/vllm-plugin-FL/pull/561) — Kunlunxin P800 CI.
+- [ ] [#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606) — Ascend Qwen3.6 and full-decode graphs.
 
 ### vLLM 0.28
 
