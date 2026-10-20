@@ -28,12 +28,6 @@ Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across thre
 | G2 — Release 0.28 | Support the ten vendors in the matrix below on the main release version. | November |
 | G3 — Introduce 0.32 | Support five vendors selected by Day-0 demand; the roster is pending. | Start mid-November; finish before mid-December |
 
-## Proposal
-
-Users choose a version and platform from the compatibility matrix, start the corresponding vendor or FlagOS runtime image, and use the target plugin revision and model configuration. Install or update the plugin inside the container using the repository's source-install instructions.
-
-Alongside the release work, support Day-0 adaptation including AMD, review new-model PRs, and contribute model adaptations and operator-coverage tooling to FlagRelease and KT phase 2.
-
 ## Design Details
 
 Maintain the three version lines separately. Reconcile the remaining 0.24 work with the 2.2 release matrix, update platform adapters for 0.28 and 0.32 API changes, and run regression tests on each target device.
