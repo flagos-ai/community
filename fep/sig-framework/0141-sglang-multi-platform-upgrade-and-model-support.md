@@ -28,12 +28,6 @@ Upgrade [SGLang-Plugin-FL](https://github.com/flagos-ai/sglang-plugin-FL) to SGL
 | G2 — Empty mode | Complete the remaining seven vendors, including Hygon, Iluvatar and Enflame, on 0.5.11/0.5.12. Support Qwen3.6-27B and Qwen3.6-35B-A3B with full operator coverage and aligned accuracy. | Integration follows operator delivery and accuracy validation. |
 | G3 — W8A8 models | DeepSeek-V4-Flash and DeepSeek-V4-Pro on 0.5.18. Target a 10% throughput improvement on NVIDIA and extend optimization to at least one additional vendor. | Model adaptation in early/mid-November; optimization by end-December |
 
-## Proposal
-
-Use the target platform's vendor or FlagOS image, with the matching SGLang version, plugin revision and model configuration. Install or update the plugin from source inside the container when needed.
-
-Alongside the release work, support Day-0 adaptation and new-model PR review, FlagRelease model adaptation and operator-coverage tooling for KT phase 2, and the Zhipu–Ascend project for large-scale prefill/decode disaggregation optimization.
-
 ## Design Details
 
 ### Platform upgrade
