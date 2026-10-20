@@ -24,7 +24,7 @@ Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across thre
 
 | Goal | Scope | Planned milestone in 2026 |
 |---|---|---|
-| G1 — Complete 0.24 | Close the carry-over adaptations for Huawei Ascend, Kunlunxin, Enflame, Tsingmicro and Sunrise. | Mid-October |
+| G1 — Complete 0.24 | Complete the FlagOS 2.3 adaptations for Huawei Ascend, Kunlunxin, Enflame, Tsingmicro and Sunrise. | Mid-October |
 | G2 — Release 0.28 | Support the ten vendors in the matrix below on the main release version. | November |
 | G3 — Introduce 0.32 | Support five vendors selected by Day-0 demand; the roster is pending. | Start mid-November; finish before mid-December |
 
@@ -42,20 +42,20 @@ Each compatibility entry records the vendor/device, upstream patch, plugin versi
 
 ### Vendor matrix
 
-The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 completes coverage of the same ten-vendor roster used by G2. The carry-over group records the original release scope; several adaptations have since merged.
+The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 completes coverage of the same ten-vendor roster used by G2.
 
 | Vendor | 0.24 scope and integration | 0.28 integration | 0.32 selection |
 |---|---|---|---|
-| Huawei Ascend | Carry-over; Qwen3.6/graph update in review ([#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606)) | Merged ([#487](https://github.com/flagos-ai/vllm-plugin-FL/pull/487)) | Pending |
+| Huawei Ascend | 2.3 adaptation in progress; In review ([#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606)) | Merged ([#487](https://github.com/flagos-ai/vllm-plugin-FL/pull/487)) | Pending |
 | T-Head | 2.2 baseline | Merged ([#574](https://github.com/flagos-ai/vllm-plugin-FL/pull/574)) | Pending |
 | Hygon | 2.2 baseline | In review ([#576](https://github.com/flagos-ai/vllm-plugin-FL/pull/576)) | Pending |
 | Moore Threads | 2.2 baseline | In review ([#575](https://github.com/flagos-ai/vllm-plugin-FL/pull/575)) | Pending |
 | MetaX | 2.2 baseline | In review ([#554](https://github.com/flagos-ai/vllm-plugin-FL/pull/554)) | Pending |
-| Kunlunxin | Carry-over; merged ([#516](https://github.com/flagos-ai/vllm-plugin-FL/pull/516), [#561](https://github.com/flagos-ai/vllm-plugin-FL/pull/561)) | In review ([#585](https://github.com/flagos-ai/vllm-plugin-FL/pull/585)) | Pending |
+| Kunlunxin | 2.3 adaptation in progress; Merged ([#516](https://github.com/flagos-ai/vllm-plugin-FL/pull/516), [#561](https://github.com/flagos-ai/vllm-plugin-FL/pull/561)) | In review ([#585](https://github.com/flagos-ai/vllm-plugin-FL/pull/585)) | Pending |
 | Iluvatar | 2.2 baseline | Merged ([#566](https://github.com/flagos-ai/vllm-plugin-FL/pull/566)) | Pending |
-| Enflame | Carry-over; merged ([#464](https://github.com/flagos-ai/vllm-plugin-FL/pull/464)) | In review ([#582](https://github.com/flagos-ai/vllm-plugin-FL/pull/582)) | Pending |
-| Tsingmicro | Carry-over; merged ([#447](https://github.com/flagos-ai/vllm-plugin-FL/pull/447)) | Upgrade pending | Pending |
-| Sunrise | Carry-over; merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Upgrade pending | Pending |
+| Enflame | 2.3 adaptation in progress; Merged ([#464](https://github.com/flagos-ai/vllm-plugin-FL/pull/464)) | In review ([#582](https://github.com/flagos-ai/vllm-plugin-FL/pull/582)) | Pending |
+| Tsingmicro | 2.3 adaptation in progress; Merged ([#447](https://github.com/flagos-ai/vllm-plugin-FL/pull/447)) | Upgrade pending | Pending |
+| Sunrise | 2.3 adaptation in progress; Merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Upgrade pending | Pending |
 | NVIDIA (additional) | Existing support | Merged ([#484](https://github.com/flagos-ai/vllm-plugin-FL/pull/484)) | Adaptation in draft ([#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615)) |
 
 ## Packaging
@@ -142,7 +142,7 @@ For load testing, repeat with `--max-concurrency` set to 1, 8, 32 and 64. For st
 
 ## Related PRs
 
-### vLLM 0.24 carry-over work
+### vLLM 0.24 adaptations for FlagOS 2.3
 
 - [x] [#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391) — Sunrise attention backend.
 - [x] [#447](https://github.com/flagos-ai/vllm-plugin-FL/pull/447) — Tsingmicro TXDA backend.
