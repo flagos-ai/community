@@ -14,7 +14,7 @@
 
 ## Summary
 
-Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across three upstream versions: complete the remaining 0.24 adaptations, deliver 0.28 as the main release version, and introduce 0.32 on selected platforms. Ship matching wheels, dependency versions, model configurations and usage documentation.
+Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across three upstream versions: complete the remaining 0.24 adaptations, deliver 0.28 as the main release version, and introduce 0.32 on selected platforms. Provide matching deployment instructions, dependency versions and model configurations.
 
 ## Motivation
 
@@ -30,7 +30,7 @@ Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across thre
 
 ## Proposal
 
-Users choose a version and platform from the compatibility matrix, then use its wheel, runtime and model configuration. Each version has migration instructions and a validated rollback package.
+Users choose a version and platform from the compatibility matrix, start the corresponding vendor or FlagOS runtime image, and use the target plugin revision and model configuration. Install or update the plugin inside the container using the repository's source-install instructions.
 
 Alongside the release work, support Day-0 adaptation including AMD, review new-model PRs, and contribute model adaptations and operator-coverage tooling to FlagRelease and KT phase 2.
 
@@ -64,41 +64,67 @@ The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 co
 
 **Can this feature be packaged as a wheel (`.whl`)?** Yes.
 
-Build from the matching version checkout. For platforms whose runtime does not require `vllm_fl._C`:
+The [wheel build workflow](https://github.com/flagos-ai/vllm-plugin-FL/blob/main/.github/workflows/_build_wheel.yml) builds the plugin package. Wheels for the FlagOS 2.2 plugin versions, 0.2.2 (vLLM 0.20.2) and 0.3.0 (vLLM 0.24.0), are available in the [FlagOS package repository](https://resource.flagos.net/repository/flagos-pypi-hosted/simple/vllm-plugin-fl/).
+
+Build from the matching version checkout. For a Python-only wheel:
 
 ```bash
 VLLM_VENDOR= python -m build --wheel
 ```
 
-For platforms using the CUDA native-extension build route, with the matching PyTorch, SDK and build dependencies:
+The published `py3-none-any` wheels do not contain `vllm_fl._C`. For configurations requiring that extension, build with the matching PyTorch, SDK and build dependencies:
 
 ```bash
 VLLM_VENDOR=cuda python -m build --wheel --no-isolation
 ```
 
-Publish the wheel, dependency lock and image recipe for each supported combination. Record the source revision, build settings and artifact digest. At Feature Freeze, provide an rc0 branch/tag with matching package and release-manifest versions.
+Maintain the platform image build files under [`docker/`](https://github.com/flagos-ai/vllm-plugin-FL/tree/main/docker). Record the image tag or digest and the component revisions used for each tested combination.
 
 ## Test Plan
 
-Use the FlagOS 2.2 release-test workflow for G1–G3. Run it for each target vLLM version and chip with matching plugin, driver, SDK, FlagGems and FlagTree versions. Keep Qwen3.6-27B (Dense) and Qwen3.6-35B-A3B (MoE) as the baseline models, using real weights. Add model-specific cases for Day-0 adaptations.
+Use the FlagOS 2.2 release-test workflow for G1–G3. The 2.2 tests documented in the platform manuals use vendor or FlagOS images, with source installation or updates to the plugin and dependencies as needed. Follow this deployment method for each target vLLM version and chip, with matching plugin, driver, SDK, FlagGems and FlagTree versions. Record any component changes made after starting the container.
+
+Keep Qwen3.6-27B (Dense) and Qwen3.6-35B-A3B (MoE) as the baseline models, using real weights. Add model-specific cases for Day-0 adaptations.
 
 | Test | Method | Expected result |
 |---|---|---|
-| Build and load | Verify vLLM, the plugin, FlagGems and FlagTree builds; check installed versions and start the service. | Components load, versions match the release configuration, and the service uses the FL plugin. |
+| Installation and loading | Start the target image, check the installed vLLM, plugin, FlagGems and FlagTree versions, and install the target plugin revision when needed. | Components load, versions match the test configuration, and the service uses the FL plugin. |
 | Basic functionality | Test both models with text, image and mixed requests, including eight concurrent requests. Run eager and graph configurations supported by the target platform. | Answers pass the case checks, without empty, garbled or repetitive output. Graph configurations complete graph capture and inference. |
 | Performance | Measure throughput, time to first token (TTFT) and time per output token (TPOT) after warmup. | All requests complete; record mean and P99 latency and compare results with the previous release on the same chip and workload. |
-| Load | Repeat the benchmark at concurrency 1, 8, 32 and 64. | No failed requests, out-of-memory errors or hangs within the configured workload. |
+| Load | Vary request concurrency within the target device's workload range and record the settings. | No failed requests, out-of-memory errors or hangs within the configured workload. |
 | 24-hour stability and resources | Run sustained requests while sampling device memory and utilization every five seconds. | No service crash, hang, NaN errors or sustained memory growth; retain request results and resource logs. |
 
-### G1–G3: build and load checks
+### G1–G3: installation and load checks
 
-After building the release packages, verify the installed components:
+Use the platform's image and device-mount settings. Inside the container, keep preinstalled components whose versions match the test configuration. To update the plugin, use its target version checkout and follow the [README installation steps](https://github.com/flagos-ai/vllm-plugin-FL#quick-start).
+
+For the Python-only installation:
 
 ```bash
-python -c "import vllm, vllm_fl, flag_gems, triton; print(vllm.__version__, vllm_fl.__file__, flag_gems.__version__, triton.__version__)"
+VLLM_VENDOR= python -m pip install --no-build-isolation --no-deps -e .
 ```
 
-**Expected:** Imports succeed and the versions and module paths match the target release. Check the service startup log for FL plugin activation and the selected device backend.
+For configurations requiring `vllm_fl._C`, use the native-extension installation instead:
+
+```bash
+VLLM_VENDOR=cuda python -m pip install --no-build-isolation --no-deps -e .
+python -c "import vllm_fl._C"
+```
+
+Verify the installed components:
+
+```bash
+python - <<'PY'
+from importlib.metadata import version
+import vllm, vllm_fl, flag_gems, triton
+print("vLLM:", vllm.__version__)
+print("Plugin:", version("vllm-plugin-fl"), vllm_fl.__file__)
+print("FlagGems:", flag_gems.__version__)
+print("Triton:", triton.__version__, triton.__file__)
+PY
+```
+
+**Expected:** Installation and imports succeed; the versions and module paths match the test configuration. Native-extension configurations also import `vllm_fl._C` successfully. Check the service startup log for FL plugin activation and the selected device backend.
 
 ### G1–G3: basic functionality
 
@@ -136,7 +162,7 @@ vllm bench serve --host 127.0.0.1 --port 8000 \
 
 Run once for warmup and three times for measurement. Repeat with input length 16384, then for the other model and supported execution modes. Keep the input/output lengths, model weights, precision and card count fixed when comparing releases. Repeat with the previous compatible FlagGems/FlagTree versions to check the effect of dependency upgrades.
 
-For load testing, repeat with `--max-concurrency` set to 1, 8, 32 and 64. For stability testing, repeat the workload continuously for 24 hours and collect device memory and utilization with the vendor's monitoring tool.
+For load testing, vary `--max-concurrency` within the target device's workload range. For stability testing, repeat the workload continuously for 24 hours and collect device memory and utilization with the vendor's monitoring tool.
 
 **Expected:** Each benchmark round completes all 640 requests. Save throughput, mean/P99 TTFT and TPOT, and the 24-hour service and resource logs. Investigate performance regressions before release.
 
