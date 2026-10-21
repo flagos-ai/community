@@ -2,6 +2,8 @@
 
 <div align="center">
 
+[![Slack](https://img.shields.io/badge/Slack-Join%20FlagOS%20Community-4A154B?logo=slack)](https://join.slack.com/t/flagos-ai/shared_invite/zt-4ds384e45-jIGDL1aScD_KY45wlnAoDg)
+
 [![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1%20FEPs&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
 [![FlagOS 2.3](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/3?label=FlagOS%202.3%20FEPs&color=blue)](https://github.com/flagos-ai/community/milestone/3)
 [![版本追踪](https://img.shields.io/badge/🚩_版本追踪-fep%2FREADME__CN-orange)](fep/README_CN.md#-版本追踪-release-tracker)
@@ -152,11 +154,14 @@ SIG（特别兴趣小组）是技术工作的核心组织。每个 SIG 覆盖一
 
 | 渠道 | 目的 | 联系方式 |
 |------|------|--------|
+| 💬 **Slack** | 中英文开发者日常交流与协作 | [加入 FlagOS Community — #community](https://join.slack.com/t/flagos-ai/shared_invite/zt-4ds384e45-jIGDL1aScD_KY45wlnAoDg) |
 | 📧 **邮箱** | 一般咨询和沟通 | contact@flagos.io |
 | 📱 **微信公众号** | 更新和新闻 | 智源FlagOpen |
 | 📺 **微信视频号** | 视频更新和公告 | 智源FlagOpen |
 | 💬 **GitHub Discussions** | 技术讨论和问答 | [flagos-ai/community/discussions](https://github.com/flagos-ai/community/discussions) |
 | 📋 **邮件列表** | 公告和社区更新 | [即将推出] |
+
+首次加入 Slack 请使用上方邀请链接并完成 Slack 登录/邮箱验证，无需 GitHub 组织权限或管理员审批。欢迎在 **#community** 介绍项目、硬件和正在解决的问题；Bug、设计提案与代码审查仍请留在 GitHub。
 
 ## 行为准则
 
