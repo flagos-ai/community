@@ -1,10 +1,10 @@
 # FEP-0140: Multi-version Platform Compatibility and Operator Profiling for vLLM-Plugin-FL
 
-**Status:** `Provisional`
+**Status:** `Implementable`
 
 **Created:** 2026-10-14
 
-**Owner:** TODO: @github-username
+**Owner:** @ceci3
 
 **SIG:** sig-framework
 
