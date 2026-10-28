@@ -4,7 +4,7 @@
 
 **Created:** 2026-10-14
 
-**Owner:** Zhou You (周游)
+**Owner:** @yixiaodapeng
 
 **SIG:** sig-framework
 
