@@ -34,7 +34,7 @@ Build the plugin wheel from the selected source revision with `python -m build -
 
 ## Test Plan
 
-Record the hardware, source/image revisions, dependency versions, model weights, precision and TP/PP settings. Run G1 on 0.5.18 and G2 on the selected Empty baseline, using the actual Qwen model weights.
+Record the hardware, source/image revisions, dependency versions, model weights, precision and TP/PP settings. Run G1 on 0.5.18 and G2 on the selected Empty baseline, using the actual Qwen model weights. Before acceptance, record the accuracy datasets, reference results, metrics and tolerances in issue #152.
 
 ### G1–G2: regression and model tests
 
