@@ -1,4 +1,4 @@
-# FEP-0140: Multi-version Platform Compatibility for vLLM-Plugin-FL
+# FEP-0140: Multi-version Platform Compatibility and Operator Profiling for vLLM-Plugin-FL
 
 **Status:** `Provisional`
 
@@ -14,7 +14,7 @@
 
 ## Summary
 
-Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across upstream versions: complete the remaining 0.24 adaptations and deliver 0.32 as the main release version on all supported chips, adding AMD to the vendor roster. The 0.28 version is skipped. Provide matching deployment instructions, dependency versions and model configurations.
+Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across upstream versions: complete the remaining 0.24 adaptations and deliver 0.32 as the main release version on all supported chips, adding AMD to the vendor roster. The 0.28 version is skipped. Provide matching deployment instructions, dependency versions and model configurations. Include the [operator profiling tool](https://github.com/flagos-ai/vllm-plugin-FL/blob/main/tools/operator_profile/README.md) to identify operators and input shapes exercised during model execution and guide operator adaptation and optimization.
 
 ## Motivation
 
@@ -26,6 +26,7 @@ Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across upst
 |---|---|---|
 | G1 — Complete 0.24 | Complete the FlagOS 2.3 adaptations for Huawei Ascend, Kunlunxin, Enflame, Tsingmicro and Sunrise. | Mid-October |
 | G2 — Release 0.32 on all chips | Support the full vendor matrix below — the ten 2.2-cycle vendors plus NVIDIA and AMD — on 0.32 as the main release version. | Start mid-November; finish before mid-December |
+| G3 — Operator profiling | Export operators/kernels, available input shapes and dtypes, call counts and kernel durations for a model-serving workload. | RC validation |
 
 ## Design Details
 
@@ -51,6 +52,14 @@ The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 co
 | Sunrise | 2.3 Adapting; Merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Planned |
 | NVIDIA (additional) | Existing support | Adaptation in draft ([#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615)) |
 | AMD (new in 2.3) | — | Planned |
+
+### G3: operator profiling
+
+Collect runtime traces through vLLM's native `/start_profile` and `/stop_profile` endpoints, then export operator/kernel inventories, shape/dtype mappings and timing reports. vLLM profiles all ranks normally; the reports default to rank 0. CUDA Graph replay may lack input metadata: preserve missing values as `null` with mapping status, and mark any eager-reference metadata separately.
+
+## Packaging
+
+For G3, deliver `tools/operator_profile/` with the matching plugin source checkout. These scripts are not included in the plugin wheel.
 
 ## Test Plan
 
@@ -138,6 +147,48 @@ For load testing, vary `--max-concurrency` within the target device's workload r
 
 **Expected:** Each benchmark round completes all 640 requests. Save throughput, mean/P99 TTFT and TPOT, and the 24-hour service and resource logs. Investigate performance regressions before release.
 
+### G3: operator profiling tests
+
+Run from the plugin repository root in a Linux test environment with the repository's test dependencies, `curl` and `flock`.
+
+**1. Automated regression tests**
+
+```bash
+python -m pytest -q \
+  tests/unit_tests/test_operator_profile_rules.py \
+  tests/unit_tests/test_operator_profile_tools.py
+```
+
+**Expected:** Both suites pass, covering trace parsing, stale-trace rejection, operator mapping, eager-reference handling and preservation of kernel counts and durations.
+
+**2. Model profiling**
+
+Use Qwen3.6-35B-A3B on the [documented NVIDIA/CUDA setup](https://github.com/flagos-ai/vllm-plugin-FL/blob/main/tools/operator_profile/README.md#start-a-server). Record the device, runtime versions and model revision. Start the plugin graph scenario:
+
+```bash
+RUN_DIR=/workspace/op_profile/qwen3.6_35b_a3b_plugin_graph_4096_256
+VLLM_PLUGINS=fl USE_FLAGTUNE=0 bash tools/operator_profile/serve.sh \
+  /models/Qwen3.6-35B-A3B qwen "$RUN_DIR" \
+  --tensor-parallel-size 2 --max-model-len 32768 --max-num-seqs 64 \
+  --no-enable-prefix-caching --trust-remote-code \
+  --compilation-config '{"cudagraph_capture_sizes":[1,2,4,8,16,32,64]}'
+```
+
+In another terminal:
+
+```bash
+bash tools/operator_profile/profile.sh qwen \
+  /workspace/op_profile/qwen3.6_35b_a3b_plugin_graph_4096_256
+```
+
+Repeat for native/plugin × eager/graph in separate run directories, keeping the other settings fixed. Use `VLLM_PLUGINS=""` for native vLLM and add `--enforce-eager` for eager mode.
+
+**Acceptance criteria:**
+
+- `warmup_metrics.json` and `profiled_metrics.json` each report 64 completed requests with 4096 input and 256 output tokens per request. Only the second batch is profiled.
+- `operator_list.csv`, `kernel_time.csv` and `kernel_shape_dtype.csv` are nonempty. Spot-check mapped operators and shapes/dtypes against the source trace; missing metadata remains explicit.
+- `summary.json` records rank 0 and `runtime_only`; every Boolean check under `conservation` is `true`, confirming kernel-count and duration consistency. Save traces, reports and test configuration in the FEP tracking issue as release-validation evidence.
+
 ## Related PRs
 
 ### vLLM 0.24 adaptations for FlagOS 2.3
@@ -152,3 +203,9 @@ For load testing, vary `--max-concurrency` within the target device's workload r
 ### vLLM 0.32
 
 - [ ] [#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615) — NVIDIA Empty runtime and CI adaptation.
+
+### Operator profiling
+
+- [x] [#422](https://github.com/flagos-ai/vllm-plugin-FL/pull/422) — Initial operator profiling workflow.
+- [x] [#593](https://github.com/flagos-ai/vllm-plugin-FL/pull/593) — Eager-reference support and regression tests.
+- [x] [#617](https://github.com/flagos-ai/vllm-plugin-FL/pull/617) — Operator profiling integration and NVIDIA test commands.
