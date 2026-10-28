@@ -4,7 +4,7 @@
 
 **Created:** 2026-10-14
 
-**Owner:** TODO: @github-username
+**Owner:** Zhou You (周游)
 
 **SIG:** sig-framework
 
@@ -14,7 +14,7 @@
 
 ## Summary
 
-Upgrade [SGLang-Plugin-FL](https://github.com/flagos-ai/sglang-plugin-FL) to SGLang 0.5.18 on ten vendors, extend Empty mode on 0.5.11/0.5.12, and adapt and optimize DeepSeek-V4-Flash and DeepSeek-V4-Pro W8A8 inference on 0.5.18.
+Prioritize [SGLang-Plugin-FL](https://github.com/flagos-ai/sglang-plugin-FL) support for SGLang 0.5.18, complete the remaining 0.5.11 Empty-mode integrations, and close the basic-functionality gaps on MetaX and Tsingmicro. The model scope also includes DeepSeek-V4-Flash and DeepSeek-V4-Pro W8A8 inference on 0.5.18.
 
 ## Motivation
 
@@ -24,8 +24,8 @@ Upgrade [SGLang-Plugin-FL](https://github.com/flagos-ai/sglang-plugin-FL) to SGL
 
 | Goal | Scope | Planned milestone in 2026 |
 |---|---|---|
-| G1 — Platform upgrade | SGLang 0.5.18 on the ten vendors in the matrix below. | Before mid-December |
-| G2 — Empty mode | Complete the remaining seven vendors, including Hygon, Iluvatar and Enflame, on 0.5.11/0.5.12. Support Qwen3.6-27B and Qwen3.6-35B-A3B with full operator coverage and aligned accuracy. | Integration follows operator delivery and accuracy validation. |
+| G1 — Platform upgrade | SGLang 0.5.18 on the ten vendors below; track MetaX and Tsingmicro basic-functionality acceptance explicitly. | Implementation by November 30 Feature Freeze; acceptance during the RC window |
+| G2 — Empty mode | Complete the remaining 0.5.11 Empty integrations, including operator coverage and accuracy for Qwen3.6-27B and Qwen3.6-35B-A3B. Track each vendor's remaining work in issue #152. | Integration follows operator delivery and accuracy validation, within the 2.3 release schedule. |
 | G3 — W8A8 models | DeepSeek-V4-Flash and DeepSeek-V4-Pro on 0.5.18. Target a 10% throughput improvement on NVIDIA and extend optimization to at least one additional vendor. | Model adaptation in early/mid-November; optimization by end-December |
 
 ## Design Details
@@ -36,22 +36,30 @@ Update platform detection, attention and fused-operator interfaces, graph execut
 
 ### Vendor matrix
 
-| Vendor / device | 2.2 SGLang base | 0.5.18 integration | PR target branch |
+Implementation status checked on 2026-10-28. A merged adaptation still requires the release tests below; record current blockers and acceptance results in [tracking issue #152](https://github.com/flagos-ai/community/issues/152).
+
+| Vendor / device | Earlier baseline and follow-ups | 0.5.18 integration | PR target branch |
 |---|---|---|---|
 | NVIDIA H100/H800 | 0.5.11 | Merged ([#89](https://github.com/flagos-ai/sglang-plugin-FL/pull/89)) | `dev/0.5.18` |
-| Huawei Ascend 910C | 0.5.11 | In review ([#131](https://github.com/flagos-ai/sglang-plugin-FL/pull/131)) | `dev/0.5.18` |
+| Huawei Ascend 910C | 0.5.11 | Merged ([#131](https://github.com/flagos-ai/sglang-plugin-FL/pull/131)); mixed-VL and graph fixes merged ([#153](https://github.com/flagos-ai/sglang-plugin-FL/pull/153)) | `dev/0.5.18` |
 | Moore Threads S5000 | 0.5.11 | Merged ([#95](https://github.com/flagos-ai/sglang-plugin-FL/pull/95)) | `dev/0.5.18` |
 | T-Head PPU-ZW810E | 0.5.12 | Pending | — |
-| MetaX C550 | 0.5.11 | In review ([#86](https://github.com/flagos-ai/sglang-plugin-FL/pull/86)) | `exp/0.5.18` |
-| Hygon BW1000 | 0.5.11 | In review ([#138](https://github.com/flagos-ai/sglang-plugin-FL/pull/138)) | `dev/0.5.18` |
-| Iluvatar BI-V150 | 0.5.11 | Fused operators: Merged ([#132](https://github.com/flagos-ai/sglang-plugin-FL/pull/132)); Empty runtime: In review ([#139](https://github.com/flagos-ai/sglang-plugin-FL/pull/139)) | `dev/0.5.18` |
-| Enflame S60 | 0.5.11 | In review ([#91](https://github.com/flagos-ai/sglang-plugin-FL/pull/91)) | `exp/0.5.18` |
-| Kunlunxin P800 | 0.5.12 | In review ([#104](https://github.com/flagos-ai/sglang-plugin-FL/pull/104)) | `exp/0.5.18` |
-| Tsingmicro TX8110 | 0.5.11 | Pending | — |
+| MetaX C550 | 0.5.11 backend merged ([#50](https://github.com/flagos-ai/sglang-plugin-FL/pull/50)); functionality acceptance pending | Experimental guards open ([#86](https://github.com/flagos-ai/sglang-plugin-FL/pull/86)); end-to-end validation pending | `exp/0.5.18` |
+| Hygon BW1000 | 0.5.11 | Merged ([#138](https://github.com/flagos-ai/sglang-plugin-FL/pull/138)) | `dev/0.5.18` |
+| Iluvatar BI-V150 | 0.5.11 | Fused operators: Merged ([#132](https://github.com/flagos-ai/sglang-plugin-FL/pull/132)); Empty runtime: Open ([#139](https://github.com/flagos-ai/sglang-plugin-FL/pull/139)) | `dev/0.5.18` |
+| Enflame S60 | 0.5.11 | Open ([#91](https://github.com/flagos-ai/sglang-plugin-FL/pull/91)) | `exp/0.5.18` |
+| Kunlunxin P800 | 0.5.12 | Upgrade open ([#155](https://github.com/flagos-ai/sglang-plugin-FL/pull/155)); model tests pending | `dev/0.5.18` |
+| Tsingmicro TX8110 | 0.5.11 backend merged ([#33](https://github.com/flagos-ai/sglang-plugin-FL/pull/33)); compatibility/KV-cache fixes open ([#133](https://github.com/flagos-ai/sglang-plugin-FL/pull/133)) | Integration PR to be linked in issue #152 | — |
+
+### Basic functionality: MetaX and Tsingmicro
+
+For MetaX, confirm resolution of the outstanding vendor-runtime blocker and complete the basic model tests with the merged backend. Track the 0.5.18 experimental guards separately. For Tsingmicro, finish the 0.5.11 compatibility and KV-cache fixes, then validate the 0.5.18 integration. Record the affected version, reproducible failure, dependency fix, owner and verification result in issue #152.
 
 ### Empty mode
 
-Use SGLang's `srt_empty` installation on 0.5.11/0.5.12, retaining the platform's PyTorch, device runtime and communication libraries. Integrate FlagGems and FlagGems-sglang implementations for the attention, FLA/GDN, MoE and other operators used by both Qwen models.
+Use SGLang's `srt_empty` installation on 0.5.11, retaining the platform's PyTorch, device runtime and communication libraries. Integrate FlagGems and FlagGems-sglang implementations for the attention, FLA/GDN, MoE and other operators used by both Qwen models.
+
+The 0.5.12 entries above describe the 2.2 baseline; record any retained 0.5.12 configuration explicitly in the tracking issue. Keep 0.5.11 Empty acceptance and 0.5.18 upgrade acceptance separate.
 
 Empty installation avoids pulling in CUDA-specific dependencies. Completing G2 also requires replacing the remaining vendor compute paths and checking accuracy. Vendor and reference fallbacks can support integration while operator coverage is incomplete.
 
@@ -61,7 +69,7 @@ Adapt checkpoint loading, quantization scales, attention/MoE kernels and tensor 
 
 ## Test Plan
 
-Follow the FlagOS 2.2 SGLang test workflow for G1 and G2, changing the upstream version and chip configuration. Use real Qwen3.6-27B and Qwen3.6-35B-A3B weights. Run G1 on 0.5.18 and G2 on each platform's selected 0.5.11/0.5.12 Empty environment.
+Follow the FlagOS 2.2 SGLang test workflow for G1 and G2, changing the upstream version and chip configuration. Use real Qwen3.6-27B and Qwen3.6-35B-A3B weights. Run G1 on 0.5.18 and G2 on each platform's 0.5.11 Empty environment.
 
 | Test | Method | Expected result |
 |---|---|---|
@@ -70,6 +78,8 @@ Follow the FlagOS 2.2 SGLang test workflow for G1 and G2, changing the upstream 
 | Graph and communication | Run the platform's supported eager/graph configurations and single-node TP plus multi-node TP/PP cases. | Graph capture and inference succeed; communication completes without hangs or corrupted output. |
 | Performance and load | Test 1K/4K/16K input with 1K output, 64 prompts and concurrency 64; vary concurrency for load testing. | Requests complete; record throughput, TTFT and TPOT and compare with the previous release on the same chip. |
 | 12-hour stability | Repeat requests while monitoring service health, host/device memory and device utilization. | No service crash, hang or sustained memory growth; throughput remains stable after warmup. |
+
+For MetaX and Tsingmicro, first establish a passing baseline for both Qwen models: installation, offline text/image inference, 16-way text/vision/mixed requests and supported TP configurations. Retain a regression case for each resolved blocker. For the Tsingmicro KV-cache issue, repeat multi-chunk prefill and verify that KV-pool availability does not progressively decline or lead to OOM. Validate graph support where declared, then complete the performance and stability matrix above.
 
 ### G1–G2: installation and load checks
 
@@ -181,19 +191,28 @@ Repeat for Pro and for the baseline and optimized configurations, using the same
 - [x] [#99](https://github.com/flagos-ai/sglang-plugin-FL/pull/99) — NVIDIA CI.
 - [x] [#123](https://github.com/flagos-ai/sglang-plugin-FL/pull/123) — CUDA multi-node stability.
 - [x] [#132](https://github.com/flagos-ai/sglang-plugin-FL/pull/132) — Iluvatar fused operators.
-- [ ] [#131](https://github.com/flagos-ai/sglang-plugin-FL/pull/131) — Ascend upgrade.
-- [ ] [#138](https://github.com/flagos-ai/sglang-plugin-FL/pull/138) — Hygon Empty upgrade.
+- [x] [#131](https://github.com/flagos-ai/sglang-plugin-FL/pull/131) — Ascend upgrade.
+- [x] [#153](https://github.com/flagos-ai/sglang-plugin-FL/pull/153) — Ascend mixed-VL batching, vision graphs and reductions.
+- [x] [#138](https://github.com/flagos-ai/sglang-plugin-FL/pull/138) — Hygon Empty upgrade.
 - [ ] [#139](https://github.com/flagos-ai/sglang-plugin-FL/pull/139) — Iluvatar Empty upgrade.
-- [ ] [#86](https://github.com/flagos-ai/sglang-plugin-FL/pull/86), [#91](https://github.com/flagos-ai/sglang-plugin-FL/pull/91), [#104](https://github.com/flagos-ai/sglang-plugin-FL/pull/104) — MetaX, Enflame and Kunlunxin adaptations on `exp/0.5.18`.
+- [ ] [#155](https://github.com/flagos-ai/sglang-plugin-FL/pull/155) — Kunlunxin upgrade on `dev/0.5.18`.
+- [ ] [#86](https://github.com/flagos-ai/sglang-plugin-FL/pull/86), [#91](https://github.com/flagos-ai/sglang-plugin-FL/pull/91) — MetaX and Enflame adaptations on `exp/0.5.18`.
+- [ ] [#104](https://github.com/flagos-ai/sglang-plugin-FL/pull/104) — Earlier Kunlunxin experiment on `exp/0.5.18`.
+
+### Basic functionality on main
+
+- [x] [#50](https://github.com/flagos-ai/sglang-plugin-FL/pull/50) — MetaX backend; release functionality acceptance pending.
+- [x] [#33](https://github.com/flagos-ai/sglang-plugin-FL/pull/33) — Tsingmicro TXDA backend.
+- [ ] [#133](https://github.com/flagos-ai/sglang-plugin-FL/pull/133) — Tsingmicro config compatibility and multi-chunk prefill KV-cache fix.
 
 ### Empty operators and dispatch on main
 
 - [ ] [#74](https://github.com/flagos-ai/sglang-plugin-FL/pull/74) — Ascend Empty support.
 - [ ] [#120](https://github.com/flagos-ai/sglang-plugin-FL/pull/120) — FlagGems FLA and fused MoE operators.
-- [ ] [#124](https://github.com/flagos-ai/sglang-plugin-FL/pull/124) — Hygon integration with reference fallbacks.
+- [ ] [#124](https://github.com/flagos-ai/sglang-plugin-FL/pull/124) — Hygon integration with reference fallbacks (draft).
 - [ ] [#125](https://github.com/flagos-ai/sglang-plugin-FL/pull/125) — MUSA Qwen3.6 release and performance paths.
 - [ ] [#129](https://github.com/flagos-ai/sglang-plugin-FL/pull/129) — Successful dispatch and fallback logging.
-- [ ] [#136](https://github.com/flagos-ai/sglang-plugin-FL/pull/136) — Kunlunxin Empty support.
+- [ ] [#136](https://github.com/flagos-ai/sglang-plugin-FL/pull/136) — Kunlunxin Empty support (draft).
 - [ ] [#145](https://github.com/flagos-ai/sglang-plugin-FL/pull/145) — T-Head PPU Empty support.
 
 Operator-library scope: [FlagGems-sglang FEP, community #106](https://github.com/flagos-ai/community/pull/106).
