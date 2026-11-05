@@ -16,7 +16,7 @@ Expand [FlagTree](https://github.com/flagos-ai/FlagTree) compiler optimization c
 
 ## Motivation
 
-Compiler improvements need to transfer from isolated examples to the critical operators used by models. A coverage ledger links each optimization to the operator, chip, input cases and measured effect, and prevents multiple passes on the same operator/device from inflating coverage.
+Compiler improvements need to transfer from isolated examples to the critical operators used by models. An operator/device test list identifies where each optimization is used and how its effect is measured.
 
 ### Goals
 
@@ -30,7 +30,7 @@ Twenty new operators on every chip, a common speedup guarantee for all passes, F
 
 ## Proposal
 
-Select optimization cases from model/operator profiles and partner work already planned for the release. Use shared compiler passes where possible and keep hardware-dependent legality/cost decisions in backend hooks. For each combination, capture the pre-change compiler/reference and candidate, then measure with identical operator inputs.
+Select optimization cases from model/operator profiles and partner work already planned for the release. Use shared compiler passes where possible and keep hardware-dependent legality/cost decisions in backend hooks. For each combination, identify the affected compiler feature and operator implementation, then select the appropriate reference and measure identical inputs.
 
 ## Design Details
 
@@ -44,17 +44,17 @@ Select optimization cases from model/operator profiles and partner work already 
 | Synchronization | Remove redundant barriers in supported warp-specialized/TMA-store paths | Ordering tests and barrier count |
 | Pipelining | Fine-grained load latency assignment and load/MMA coordination | Pipeline schedule, correctness and performance |
 
-### Coverage ledger
+### Operator/device test list
 
-The release ledger records `operator`, `model/use`, `vendor/SKU`, `shape/dtype`, `optimization`, `baseline/candidate`, `command`, `correctness`, `performance` and `baseline-or-new`. Operator/device pairs are counted once even when several passes or shapes apply.
+The test list records `operator`, `model/use`, `vendor/SKU`, `shape/dtype`, `optimization`, `baseline/candidate`, `command`, `correctness`, `performance` and `baseline-or-new`. Operator/device pairs are counted once even when several passes or shapes apply.
 
-Candidate operators from previous work include `mul`, `mm`, `w8a8_block_fp8_matmul`, `flashmla_with_kvcache`, FlashAttention, `fused_marlin_moe`, `fused_inv_rope_fp8_quant` and GDN. Their inclusion in the twenty-pair release list is TBD; previous results are not automatically counted as new 2.3 work. Publish the full selected list before acceptance.
+The twenty-pair list is TBD. It must identify the operators affected by each compiler change, including whether the operator source changes. Existing coverage counts toward the cumulative target but must be distinguished from new 2.3 work.
 
 ## Packaging
 
 **Supported vendors:** selected domestic backends plus applicable NVIDIA regression coverage; final per-track matrix TBD.
 
-**Wheel:** compiler passes and the FlagTune runtime ship in FlagTree. Predictor assets require a versioned model manifest and checksum; distribution mode TBD.
+**Wheel:** compiler passes and the FlagTune runtime ship in FlagTree. Predictor-asset distribution and dependencies: TBD.
 
 Build a backend-specific FlagTree wheel from the selected release tag, using its documented SDK/LLVM/Python environment and `FLAGTREE_BACKEND` selector where required:
 
@@ -73,28 +73,32 @@ python3 -m pytest -q python/test/flagtune
 python3 -m pytest -q python/test/unit/runtime/test_autotuner.py
 ```
 
-Expected: runtime, model/config identity, cache and error-handling tests pass. For each new operator/backend, compare selected latency with the same search space's reference and report tuning cost. Missing predictor assets follow the documented fallback or error policy.
+Expected: applicable tuning tests pass. For each selected operator/backend, record search time and the latency of the chosen configuration. Use the same search space and device configuration for tuning comparisons.
 
 ### G1/G3: optimization validation
 
-Use each selected operator's existing correctness/benchmark command, plus the affected pass's IR regression tests. Store the exact commands in the twenty-pair ledger; remaining entries TBD.
+Use each selected operator's existing correctness/benchmark command, plus the affected pass's IR regression tests. Store the exact commands in the twenty-pair test list; remaining entries TBD.
+
+| Comparison | Method | Expected result |
+|---|---|---|
+| Compiler-only upgrade | Hold FlagGems/operator sources and other dependencies fixed; compare the 2.2 compiler with the 2.3 candidate on the same chip | Correctness preserved; measured latency changes, including regressions, attributed to the compiler upgrade |
+| New or rewritten TLE operator | Compare with the vendor-native implementation or agreed reference at the same precision and inputs | Correctness and measured relative performance; per-case target TBD |
+| Existing equivalent implementation | Add a before/after comparison when both versions support the same operation | Comparable outputs and timing; no new legacy implementation required |
+
+Per-case reference and performance targets: TBD.
 
 - Correctness: reference outputs, tail/masked shapes, non-contiguous layouts where supported and dtype-appropriate tolerances.
 - Pass effect: retain before/after IR or generated code proving the intended layout, barrier, register or schedule change.
 - Performance: same hardware and input cases, warm-up and repeated measurements; report regressions as well as gains.
 - Coverage: at least twenty unique operator/device pairs have completed correctness and measurement records. List baseline and new pairs separately.
 
-For mixed precision, freeze accuracy/error criteria before performance comparison. For scheduling/synchronization changes, include repeated execution and producer/consumer stress cases. Per-track performance thresholds and final operator commands: TBD.
+For mixed precision, compare equivalent precision and accuracy requirements; FP4 versus FP8 alone cannot establish compiler speedup. Freeze accuracy/error criteria before performance comparison. For scheduling/synchronization changes, include repeated execution and producer/consumer stress cases. Per-track performance thresholds and final operator commands: TBD.
 
-Use identical hardware, model/operator inputs, dtype, compiler/runtime dependencies and device topology for baseline and candidate. Warm up, synchronize device work, retain at least three measured runs and report per-case results. Kernel speedup is baseline latency divided by candidate latency; decode speedup is candidate output tokens/s divided by baseline output tokens/s. Record failed and skipped cases separately. Dataset, tolerances and performance-case aggregation: TBD.
+Use the same hardware, inputs, precision and runtime dependencies for each comparison. Record correctness, latency, failed cases and skips. Kernel speedup = reference latency / candidate latency. Tolerances and performance aggregation: TBD.
 
 ## Related PRs
 
 - Baseline: [FEP-0097](https://github.com/flagos-ai/community/blob/main/fep/sig-compiler/0097-flagtree-compiler-optimization.md).
-- [ ] Twenty-pair operator/device ledger — TBD.
+- [ ] Twenty-pair operator/device test list — TBD.
 - [ ] FlagOSTune coverage and predictor assets — TBD.
 - [ ] Pass implementations and regression/benchmark evidence — TBD.
-
-## Implementation History
-
-- 2026-11-05: Initial FlagOS 2.3 proposal.
