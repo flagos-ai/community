@@ -18,20 +18,20 @@ Repository dependencies: [FlagTree](https://github.com/flagos-ai/FlagTree) and [
 
 ## Motivation
 
-A common low-level programming model needs backend-specific lowering and measurable performance, not only a shared frontend. FLIR should let developers express memory views, data movement and computation while retaining optimization control on both DSA and GPGPU hardware.
+FLIR gives operator developers explicit control over memory views, data movement and computation on DSA and GPGPU hardware. This proposal extends the shared programming model and its backend lowering paths.
 
 ### Goals
 
 | Goal | Scope | Acceptance |
 |---|---|---|
-| G1 — Ascend optimization | Tensor View dialect, L1 reuse, on-chip memory management and instruction vectorization | Selected key operators exceed the matched current FlagGems baseline by >1.30x. |
+| G1 — Ascend optimization | Tensor View dialect, L1 reuse, on-chip memory management and instruction vectorization | Selected key operators achieve >1.30x speedup over the matched current FlagGems baseline. |
 | G2 — Ascend communication | Communication-library integration and tile-granularity compute/communication overlap | Correct fused execution, visible overlap and no synchronization error. Library/API and operator list: TBD. |
 | G3 — Domestic GPGPU | At least one backend; layout inference/cost model; Tile Op → Warp Op → TTGIR | Functional coverage and >1.30x speedup on selected key operators. MetaX CommonIR integration is in review (#1471); acceptance SKU and baseline revision: TBD. |
 | G4 — Optimization knowledge | Ascend/GPGPU optimization templates and skills; instruction-level benchmark knowledge for one domestic GPGPU | Reproducible measurements, documented applicability and examples usable by AI-for-FlagOS tooling. |
 
 ### Non-Goals
 
-Replacing Triton for all operators, universal DSA/GPGPU binary portability and automatic generation of all model operators.
+Replacing Triton for all operators, universal DSA/GPGPU binary portability and automatic generation of all model operators. General compiler-pass coverage is tracked in FEP-0167; the same operator may be used there with a separate record of the optimization being measured.
 
 ## Proposal
 
@@ -51,7 +51,7 @@ Evaluate candidate layouts using swizzle requirements, layout conversions and me
 
 ### Current implementation paths
 
-Ascend Tensor View examples in PR #1483 cover 17 operators: embedding, index_select, index_copy, index_put, index_add, cp_gather_indexer, concat_and_cache_mla, reshape_and_cache_flash, apply_rotary_pos_emb, fused_add_rms_norm, rms_norm, skip_layernorm, combine_topk_swa_indices, compute_global_topk_indices_and_lens, pack_seq, unpack_seq and paged_kv_block_gather. They depend on bounds checks (#1480, FLIR #87) and statically shaped view stores (#1482). Use these as the functional starting set; select the GLM5.3 performance subset explicitly.
+Ascend Tensor View examples in PR #1483 cover 17 operators: embedding, index_select, index_copy, index_put, index_add, cp_gather_indexer, concat_and_cache_mla, reshape_and_cache_flash, apply_rotary_pos_emb, fused_add_rms_norm, rms_norm, skip_layernorm, combine_topk_swa_indices, compute_global_topk_indices_and_lens, pack_seq, unpack_seq and paged_kv_block_gather. They depend on bounds checks (#1480, FLIR #87) and statically shaped view stores (#1482). These are implementation examples, not the confirmed release acceptance list. GLM5.3 performance cases and reference revisions: TBD.
 
 MetaX PR #1471 adds explicit `tle.gpu.set_layout` and opt-in `@triton.jit(autolayout=True)` with candidate benchmarking and winner caching. It depends on FLIR #79; statistical pruning uses SciPy >=1.12. Treat these as integration dependencies, not completed release acceptance.
 
@@ -77,14 +77,12 @@ Record the source tag, Triton line, Python ABI, toolkit versions and wheel check
 
 ### G1–G3: compiler and operator validation
 
-Run the Common IR tests on the appropriate release line:
+Run the GPGPU semantic and bridge tests on the matching integration revision:
 
 ```bash
-# Ascend line containing the Common IR integration
-python3 -m pytest -q python/test/CommonIR
-
-# GPGPU semantic and bridge tests on the matching main/release revision
-python3 -m pytest -q   test/CommonIR/test_gpu_semantics.py   test/CommonIR/test_gpu_wgmma_bridge.py
+python3 -m pytest -q \
+  test/CommonIR/test_gpu_semantics.py \
+  test/CommonIR/test_gpu_wgmma_bridge.py
 ```
 
 On the integration revision containing PR #1483 and its dependencies, run the standalone Ascend Tensor View cases:
@@ -111,9 +109,9 @@ Maintain separate Ascend and GPGPU operator tables with model path, operator, sh
 
 ### G4: knowledge validation
 
-Re-run the instruction benchmark from its published command and apply at least one template on each target architecture. Keep the generated code, numerical checks and before/after measurements. Benchmark and skill commands: TBD.
+Re-run the published instruction benchmarks and optimization examples on their documented hardware. Retain generated code, numerical checks and measurements. Benchmark and skill commands: TBD.
 
-Use identical hardware, model/operator inputs, dtype, compiler/runtime dependencies and device topology for baseline and candidate. Warm up, synchronize device work, retain at least three measured runs and report per-case results. Kernel speedup is baseline latency divided by candidate latency; decode speedup is candidate output tokens/s divided by baseline output tokens/s. Record failed and skipped cases separately. Dataset, tolerances and performance-case aggregation: TBD.
+Use the same hardware, inputs, precision and runtime dependencies for each comparison. Record correctness, latency, failed cases and skips. Kernel speedup = reference latency / candidate latency. Tolerances and performance aggregation: TBD.
 
 ## Related PRs
 
@@ -123,7 +121,3 @@ Use identical hardware, model/operator inputs, dtype, compiler/runtime dependenc
 - [ ] L1/vectorization and communication integration — TBD.
 - [ ] GPGPU layout, Warp lowering and backend validation — TBD.
 - [ ] Benchmarks and optimization knowledge assets — TBD.
-
-## Implementation History
-
-- 2026-11-05: Initial FlagOS 2.3 proposal.
