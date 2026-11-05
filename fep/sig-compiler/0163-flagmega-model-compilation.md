@@ -31,18 +31,17 @@ Small-batch decode can spend substantial time launching kernels and transferring
 
 ### Non-Goals
 
-llama.cpp integration, eight-device release acceptance, multi-node serving, training and universal model coverage.
+Concurrent multi-user serving, llama.cpp integration, eight-device release acceptance, multi-node serving and training.
 
 ## Proposal
 
-Compile supported model regions into MegaKernel fragments, schedule their data dependencies and execute them through the vLLM adapter. Keep model loading, sampling and request handling integrated with the serving runtime. Identify unsupported operations and fallback paths explicitly. Cache compiled artifacts by model revision, precision, compiler revision, backend and execution configuration.
+Use the model compiler and agent-driven optimization workflow in FlagTree to generate and refine MegaKernel implementations for a fixed model and hardware configuration. Validate the generated implementation with the model tutorial's correctness and benchmark scripts. Deliver the workflow instructions and associated skill with the matching FlagTree revision. vLLM integration design: TBD.
 
 ## Design Details
 
-- **Model frontend:** map supported layers and tensor shapes to kernel fragments; validate weight formats and cache layouts before execution.
-- **Execution:** preserve buffer lifetimes, producer/consumer ordering and rank synchronization. Support single-node tensor parallelism for G4.
-- **vLLM adapter:** integrate request state and KV-cache ownership with the supported vLLM execution interfaces; coordinate the adapter with the vLLM-Plugin-FL maintainers.
-- **Backend lowering:** reuse TLE capabilities supported by each target backend. Device-specific fallbacks must appear in the support matrix.
+- **Optimization workflow:** run model generation and iterative optimization on the target hardware. Record the model revision, device configuration, optimization budget and generated artifact. A larger search budget is not a guaranteed speedup.
+- **Backend environments:** align SDK/driver versions with the framework release tests; Iluvatar targets CoreX 5.0. Record memory requirements per model and precision.
+- **vLLM integration:** validate separately from the standalone tutorial and native-vLLM performance comparison. Adapter interfaces and request-state handling: TBD.
 - **Dependencies:** consume only the required TLE distributed and FlagCX capabilities. The four-H800 milestone does not depend on completion of all domestic backends in the distributed-primitives FEP.
 
 The earlier model-level work is tracked in [FEP-0096](https://github.com/flagos-ai/community/blob/main/fep/sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md). This release adds the named model/backend scope and the v0.1 deliverable.
@@ -118,17 +117,17 @@ python3 "$GLM_TUTORIAL/render_results.py" --results "$GLM_OUTPUT-two-orders"
 
 The recipe generates eight tokens per request, runs both N/F/F/N and F/N/N/F orders, and retains all formal requests after its fixed warm-up. Decode TPOT excludes prefill and the first generated token; FlagMega uses the slowest rank. Report each context separately. G4 requires candidate decode tokens/s / baseline decode tokens/s >1.05 for the agreed contexts, with identical model precision and hardware. Report full-request throughput separately. Paired runs must use the same source/artifact identities and device UUIDs; old artifact results do not validate a new build.
 
-Additional 20% optimization objective: model/backend configuration and baseline TBD.
+For Qwen3.8, also compare the FlagMega path with native execution using the matching tutorial. The approximately 20% gain discussed for this path is an estimate; configuration and acceptance threshold: TBD. It does not replace G4's four-H800 >5% target.
+
+### Workflow documentation
+
+From the published instructions and matching source revision, reproduce model compilation, correctness checks and one optimization run on the target hardware. Include the skill location, dependencies, model/backend limits and expected outputs. Skill path and optimization-budget settings: TBD.
 
 ## Related PRs
 
 - [x] [FlagTree #1364](https://github.com/flagos-ai/FlagTree/pull/1364) — AMD targets and cooperative Qwen3 decode on `feature/flagmega`.
 - [x] [FlagTree #1439](https://github.com/flagos-ai/FlagTree/pull/1439) — AMD decode optimization and correctness fixes.
 - [ ] [FlagTree #1498](https://github.com/flagos-ai/FlagTree/pull/1498) — Qwen3.8-27B IQ4_XS AMD tutorial and fixes.
-- [ ] v0.1 release packaging/tag — TBD.
+- [ ] v0.1 release packaging/tag and optimization workflow documentation/skill — TBD.
 - [ ] vLLM adapter — TBD.
 - [ ] AMD/Iluvatar support and four-H800 validation — TBD.
-
-## Implementation History
-
-- 2026-11-05: Initial FlagOS 2.3 proposal.
