@@ -1,4 +1,4 @@
-# FEP-0163: FlagMega v0.1 Model Compilation and Multi-GPU Decode
+# FEP-0163: FlagMega v0.1 Model Compilation, vLLM Integration and Multi-GPU Decode
 
 **Status:** `Provisional`
 
@@ -12,122 +12,196 @@
 
 ## Summary
 
-Deliver FlagMega v0.1 for model-to-MegaKernel compilation of Qwen3.8 and GLM5.3 Flash, with batch-size-one decode and vLLM integration. Support NVIDIA, AMD and Iluvatar CoreX 5.0. On four H800 GPUs, improve GLM5.3 Flash decode throughput by more than 5% over the matched vLLM baseline.
+Release FlagMega v0.1 with end-to-end model-to-MegaKernel compilation for Qwen3.8 and GLM5.3 Flash, batch-size-one decode and vLLM integration. Support NVIDIA, AMD and Iluvatar with CoreX 5.0. Support single-node multi-GPU execution and validate GLM5.3 Flash on four H800 GPUs, targeting more than 5% higher decode throughput than vLLM.
 
-Repository: [FlagTree, feature/flagmega](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega); package: `triton.flagmega`.
+Repository: [FlagTree, feature/flagmega](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega). Package: `triton.flagmega`.
 
 ## Motivation
 
-Small-batch decode can spend substantial time launching kernels and transferring intermediate results. Compiling compatible operations into a coordinated MegaKernel execution schedule reduces these costs while preserving model, cache and tensor-parallel semantics.
+Batch-size-one decode is sensitive to kernel-launch and memory-access costs. FlagMega compiles a supported model into an executable MegaKernel program and allows model-specific optimization before deployment.
 
 ### Goals
 
 | Goal | Deliverable | Acceptance |
 |---|---|---|
-| G1 — Model compilation | Qwen3.8 and GLM5.3 Flash import, compilation and decode execution | Both model families pass numerical and KV-cache checks. Reference variants: Qwen3.8-27B IQ4_XS and GLM5.3 Flash FP8; final release checkpoint matrix: TBD. |
-| G2 — Runtime integration | vLLM bs=1 decode adapter | Real-weight requests complete with correct state reset across requests. vLLM version: TBD. |
-| G3 — Backend support | NVIDIA, AMD, Iluvatar with CoreX 5.0 | Compile/run validation on each platform. AMD reference devices: R9700/gfx1201 and W7900/gfx1100; Iluvatar reference: BI-V150. Per-model release matrix: TBD. |
-| G4 — Multi-GPU performance | Single-node, four-H800 GLM5.3 Flash | Decode output tokens/s exceeds the equivalent vLLM baseline by more than 5%. |
+| G1 — Release | FlagMega v0.1 | Versioned compiler package, matching source and usage instructions. Release revision: TBD. |
+| G2 — Model compilation | End-to-end model-to-MegaKernel compilation for Qwen3.8 and GLM5.3 Flash | Start from the selected original checkpoint, generate the complete model artifact and validate decode correctness. Model variants, precision and checkpoint revisions recorded per case. |
+| G3 — Decode and integration | BS=1 decode; integration into vLLM | Real vLLM requests execute the compiled decode path, with correct prefill-to-decode state transfer and repeated requests. Release model/backend/vLLM matrix: TBD. |
+| G4 — Backends | NVIDIA, AMD and Iluvatar CoreX 5.0 | Compile and execute the selected model cases on each backend; record SDK/driver and compiler versions. |
+| G5 — Multi-GPU performance | Single-node, four-H800 GLM5.3 Flash | Correct BS=1 decode; FlagMega/vLLM decode-throughput ratio >1.05 on the agreed input cases. |
 
 ### Non-Goals
 
-Concurrent multi-user serving, llama.cpp integration, eight-device release acceptance, multi-node serving and training.
+Concurrent multi-user serving, training and multi-node execution. No additional performance threshold is proposed for Qwen3.8 or the other backends.
 
 ## Proposal
 
-Use the model compiler and agent-driven optimization workflow in FlagTree to generate and refine MegaKernel implementations for a fixed model and hardware configuration. Validate the generated implementation with the model tutorial's correctness and benchmark scripts. Deliver the workflow instructions and associated skill with the matching FlagTree revision. vLLM integration design: TBD.
+Import the model into FlagMega IR, apply model/target-specific compilation and optimization, and package generated code with weights and runtime state metadata. Use the [FlagMega developer workflow](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega/skills/flagmega-developer) for supported IR and compiler optimizations.
 
-## Design Details
+In the existing vLLM adapters, vLLM retains prefill, scheduling and sampling while FlagMega executes decode and shares the required KV state. Extend and validate this integration for the release matrix. A standalone FlagMega benchmark against native vLLM does not establish vLLM integration.
 
-- **Optimization workflow:** run model generation and iterative optimization on the target hardware. Record the model revision, device configuration, optimization budget and generated artifact. A larger search budget is not a guaranteed speedup.
-- **Backend environments:** align SDK/driver versions with the framework release tests; Iluvatar targets CoreX 5.0. Record memory requirements per model and precision.
-- **vLLM integration:** validate separately from the standalone tutorial and native-vLLM performance comparison. Adapter interfaces and request-state handling: TBD.
-- **Dependencies:** consume only the required TLE distributed and FlagCX capabilities. The four-H800 milestone does not depend on completion of all domestic backends in the distributed-primitives FEP.
+### Implementation baseline
 
-The earlier model-level work is tracked in [FEP-0096](https://github.com/flagos-ai/community/blob/main/fep/sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md). This release adds the named model/backend scope and the v0.1 deliverable.
+Code reviewed at FlagTree `45e17f38d68cbd344b668e37c041520f8bcbf3e4`:
+
+| Area | Existing code and evidence | Remaining release work |
+|---|---|---|
+| Qwen3.8 | [NVIDIA IQ4_XS tutorial](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega/python/tutorials/flagmega/03-qwen3.8-27b-iq4/nvidia-rtx5060ti) compiles all 64 decoder layers from GGUF. [AMD PR #1498](https://github.com/flagos-ai/FlagTree/pull/1498) adds R9700/W7900 support and is open. | Select release model/precision cases; integrate AMD changes and rerun acceptance on the release revision. |
+| GLM5.3 Flash | [H800 tutorial](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega/python/tutorials/flagmega/04-glm5.3-flash-fp8/nvidia-h800) implements the full 45-layer FP8 model at TP=4, BS=1. | Complete checkpoint-to-artifact reproduction and performance acceptance on the release revision. |
+| vLLM | Qwen3-1.7B has a [NVIDIA adapter](https://github.com/flagos-ai/FlagTree/blob/feature/flagmega/python/tutorials/flagmega/01-qwen3-1.7b-bf16/nvidia-h800/vllm_adapter.py) using a pinned vLLM `nncase` branch, and an [Iluvatar FlagOS adapter](https://github.com/flagos-ai/FlagTree/blob/feature/flagmega/python/tutorials/flagmega/01-qwen3-1.7b-bf16/iluvator-bi-v150/flagos_adapter.py) using the worker-extension API. | Validate the selected Qwen3.8/GLM5.3 integration cases. Existing adapters have single-device/model-specific constraints. |
+| AMD | Qwen3-1.7B has `amd-gfx1201` and `amd-gfx1100` targets and decode examples. | Qwen3.8 depends on #1498; final model coverage and vLLM integration cases TBD. |
+| Iluvatar | BI-V150 Qwen3-1.7B compilation and vLLM-Plugin-FL integration are documented with CoreX **4.5.0.20260509**, vLLM **0.24.0**. | Validate **CoreX 5.0** and the release model cases; the 4.5 result does not satisfy this target. |
+
+The Qwen3.8 IQ4 examples use llama.cpp as a numerical/performance reference. This does not add llama.cpp integration to the release scope. Model coverage is recorded per backend; existing examples do not establish every model/precision/backend combination.
+
+The GLM [2026-11-03 report](https://github.com/flagos-ai/FlagTree/blob/feature/flagmega/python/tutorials/flagmega/04-glm5.3-flash-fp8/nvidia-h800/main-c8cc-optimization-20261103-zh.md) records TPOT reductions of 6.09%–8.73% against that run's vLLM baseline. It uses explicitly supplied final IR, and notes earlier faster native samples and slower complete requests including prefill. It is evidence for that configuration, not final v0.1 acceptance.
 
 ## Packaging
 
-**Supported vendors:** NVIDIA, AMD, Iluvatar (CoreX 5.0).
+**Target backends:** NVIDIA, AMD and Iluvatar CoreX 5.0.
 
-**Wheel:** `triton.flagmega` and its `flagmega` CLI ship in the FlagTree wheel from `feature/flagmega`. `FLAGTREE_FLAGMEGA=0` disables the optional CLI and extra installation dependencies. Core extraction requires `ortools==9.10.4067`; template generation uses Jinja2. Pin a tested feature-branch revision for the 2.3 release. vLLM adapter packaging/version: TBD.
+**Wheel:** `triton.flagmega` and the `flagmega` CLI are included in the FlagTree wheel. `FLAGTREE_FLAGMEGA=0` disables the optional CLI and its extra dependencies. Current dependencies include `ortools==9.10.4067` and `jinja2>=3.1`.
 
-Build a backend-specific FlagTree wheel from the selected release tag, using its documented SDK/LLVM/Python environment and `FLAGTREE_BACKEND` selector where required:
+From the selected FlagTree revision, in the backend's documented build environment:
 
 ```bash
 python3 -m pip wheel . --no-deps --no-build-isolation --wheel-dir dist
 ```
 
-Record the source tag, Triton line, Python ABI, toolkit versions and wheel checksum. Release tag and dependency pins: TBD.
+Publish the v0.1 source revision, wheel, backend dependencies and matching tutorials. The developer skill and tutorial adapters are source assets; their distribution is recorded with the release. Final vLLM versions and CoreX 5.0 dependency pins: TBD.
 
 ## Test Plan
 
-### G1: compiler and artifact verification
+### G1: package verification
 
-From the selected `feature/flagmega` checkout in the matching backend environment:
+In an environment containing the candidate wheel:
+
+```bash
+python3 -m triton.flagmega --help
+python3 - <<'PYTEST'
+from importlib.metadata import version
+from triton import flagmega
+print(version('flagtree'))
+print(flagmega.__file__)
+PYTEST
+```
+
+Expected: the CLI and module load from the intended release package. Check the release record for the corresponding source revision and backend dependencies.
+
+### G2: full-model compilation and correctness
+
+From the selected checkout, run compiler regressions and import the complete model. Set `FEP_MODEL_PATH` to the selected original checkpoint:
 
 ```bash
 python3 -m pytest -q --import-mode=importlib python/test/flagmega
-python3 -m triton.flagmega --help
-python3 -m triton.flagmega import --model "$FEP_MODEL_PATH" --output imported.py
+python3 -m triton.flagmega import --model "$FEP_MODEL_PATH" --full-model \
+  --output imported.py
 python3 -m triton.flagmega verify imported.py
 python3 -m triton.flagmega inspect imported.py --json
-python3 -m triton.flagmega compile --input imported.py --checkpoint "$FEP_MODEL_PATH" \
-  --target nvidia-sm90 --output ./artifact --emit-executable \
-  --work-dir ./compile-dumps --dump-flags all
-python3 -m triton.flagmega artifact verify ./artifact
 ```
 
-Expected: supported imports verify, compilation produces a valid artifact and hashes/source identity validate. Record existing test failures and hardware skips; the release must resolve failures affecting the accepted paths. Use the model-specific recipe below for GLM's specialized multi-GPU compilation.
+Expected: the imported IR contains the complete supported decoder, output head and required state. The default import without `--full-model` selects one layer and is insufficient for G2. Record failed/skipped regressions.
 
-### G2–G3: runtime and backend validation
-
-Validate real-weight decode, KV/state updates, request reset and repeated execution on each model/backend row. Reuse the [AMD tutorial](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega/python/tutorials/flagmega/01-qwen3-1.7b-bf16/amd-rdna) and [Iluvatar tutorial](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega/python/tutorials/flagmega/01-qwen3-1.7b-bf16/iluvator-bi-v150) for backend regression; Qwen3-1.7B success does not complete the new Qwen3.8/GLM matrix. Qwen3.8 AMD implementation is tracked in PR #1498. vLLM adapter startup/test command: TBD.
-
-### G4: GLM four-H800 correctness and performance
-
-Use the [GLM H800 recipe](https://github.com/flagos-ai/FlagTree/tree/feature/flagmega/python/tutorials/flagmega/04-glm5.3-flash-fp8/nvidia-h800), checkpoint revision `eb9eb208eb0d988989d07a6a12d0fdeb5f52574a`, TP=4, batch=1 and four available H800 devices. The reference artifact needs approximately 324 GB of readonly storage; verify device-memory capacity before launch. From the repository root, set checkpoint/cache paths and use fresh output directories:
+Use each model's compilation recipe to generate and run its artifact. For the existing Qwen3.8 NVIDIA baseline, set `FEP_QWEN_CHECKPOINT` to the documented IQ4_XS GGUF, `FEP_QWEN_TRIAL` to a fresh output path and `FEP_QWEN_REFERENCE` to the reference generated by the tutorial's `llama_golden.py`:
 
 ```bash
-export GLM_TUTORIAL="$PWD/python/tutorials/flagmega/04-glm5.3-flash-fp8/nvidia-h800"
-export GLM_CHECKPOINT=/models/GLM-5.3-Flash-FP8
-export GLM_OUTPUT="$PWD/artifacts/glm-fep23"
-python3 "$GLM_TUTORIAL/local_optimizations/sdk.py" --output "$GLM_OUTPUT-sdk"
-export FLAGCX_MODULE_PATH="$GLM_OUTPUT-sdk/runtime"
-python3 "$GLM_TUTORIAL/optimize.py" --output "$GLM_OUTPUT" \
-  --checkpoint "$GLM_CHECKPOINT" --readonly-cache /models/readonly-cache
-python3 "$GLM_TUTORIAL/accuracy.py" --trial "$GLM_OUTPUT" \
-  --output "$GLM_OUTPUT-validation" --sdk "$FLAGCX_MODULE_PATH" --jit-device 1
+export FEP_QWEN_TUTORIAL="$PWD/python/tutorials/flagmega/03-qwen3.8-27b-iq4/nvidia-rtx5060ti"
+python3 "$FEP_QWEN_TUTORIAL/compile.py" --checkpoint "$FEP_QWEN_CHECKPOINT" \
+  --trial "$FEP_QWEN_TRIAL"
+python3 -m triton.flagmega artifact verify "$FEP_QWEN_TRIAL/artifact"
+python3 "$FEP_QWEN_TUTORIAL/benchmark.py" --artifact "$FEP_QWEN_TRIAL/artifact" \
+  --llama-reference "$FEP_QWEN_REFERENCE" --independent-generation \
+  --golden-token-prefix 8 --steps 64 --repeats 3 --measurement host-token \
+  --output "$FEP_QWEN_TRIAL/correctness.json"
 ```
 
-Expected: complete artifact generation, reference-token checks and state/cache checks pass. Preserve the recipe's resource and spill checks. Device selection must match the available test configuration.
+Expected: a full 64-layer artifact is produced and the tutorial's independent-generation checks pass. Repeat its Synthetic32 case. Record the checked token range and numerical tolerance; do not equate a prefix check with equality of every generated token. The AMD recipe in #1498 also permits a documented near-tie rule; release accuracy criteria must specify whether that rule is accepted.
 
-Then run the paired reference/candidate benchmark; `FEP_NATIVE_PYTHON` points to the pinned vLLM 0.31 reference environment:
+For GLM, the existing `optimize.py` resumes bundled intermediate IR and checks a saved source/semantic contract. `emit_verified_candidate.py` instead takes an explicit final IR and records `fresh_original_IR_rebuilt=False`. Neither entry alone proves reproduction from the original model checkpoint. Complete the original-checkpoint-to-artifact command sequence for G2: TBD.
+
+### G3: vLLM decode integration
+
+Reuse the existing adapters as integration regressions. On NVIDIA, use the Qwen3-1.7B tutorial environment with vLLM `nncase` commit `493bd8323b64ad778f802b41ddd3109740910bc8`:
 
 ```bash
-python3 "$GLM_TUTORIAL/reproduce.py" \
-  --trial "$GLM_OUTPUT" --validation "$GLM_OUTPUT-validation/numerics" \
-  --output "$GLM_OUTPUT-two-orders" --checkpoint "$GLM_CHECKPOINT" \
-  --sdk "$FLAGCX_MODULE_PATH" --native-python "$FEP_NATIVE_PYTHON" \
-  --native-triton-cache /models/native-triton-cache \
-  --native-inductor-cache /models/native-inductor-cache \
+export FEP_VLLM_TUTORIAL="$PWD/python/tutorials/flagmega/01-qwen3-1.7b-bf16/nvidia-h800"
+export PYTHONPATH="$PWD/python:$FEP_VLLM_TUTORIAL${PYTHONPATH:+:$PYTHONPATH}"
+python3 "$FEP_VLLM_TUTORIAL/reproduce.py" \
+  --checkpoint "$FEP_QWEN3_CHECKPOINT" --work-dir "$FEP_VLLM_WORK" --compile \
+  --residual-layout sharded-casts --norm-layout replicated-residual \
+  --residual-kernel staged --glu-reduction-group 32 \
+  --results "$FEP_VLLM_RESULTS" --rounds 3 --repeats 5
+```
+
+Expected: native vLLM and integrated FlagMega generate matching complete greedy sequences for the tutorial cases; adapter statistics confirm FlagMega decode calls. Check prefill-to-decode KV sharing, page-boundary transitions and state reset between requests. Use fresh work/results paths.
+
+This is a Qwen3-1.7B regression, not acceptance of Qwen3.8/GLM5.3 integration. Commands and compatible vLLM versions for the release model/backend matrix: TBD. The GLM `benchmark_vllm.py` invokes native vLLM as a reference and does not install a FlagMega adapter.
+
+### G4: backend validation
+
+Run the selected full-model and integration cases on NVIDIA, AMD and Iluvatar; retain separate results and dependency versions. For AMD, use #1498's Qwen3.8 `compile.py`, `run.py` and `benchmark.py` after its integration. Its R9700/W7900 results do not establish GLM support on AMD.
+
+For the existing Iluvatar integration regression, follow the BI-V150 tutorial's pinned environment and use a fresh output path:
+
+```bash
+export FEP_ILUVATAR_TUTORIAL="$PWD/python/tutorials/flagmega/01-qwen3-1.7b-bf16/iluvator-bi-v150"
+export PYTHONPATH="$FEP_ILUVATAR_TUTORIAL${PYTHONPATH:+:$PYTHONPATH}"
+python3 "$FEP_ILUVATAR_TUTORIAL/reproduce_flagos.py" \
+  --checkpoint "$FEP_QWEN3_CHECKPOINT" --work-dir "$FEP_ILUVATAR_WORK" \
+  --results "$FEP_ILUVATAR_RESULTS" --rounds 3 --repeats 3
+```
+
+Expected: complete model compilation and native/FlagMega request correctness pass. Repeat acceptance with CoreX 5.0 and the selected release model cases; required compatibility changes and commands: TBD.
+
+### G5: four-H800 GLM5.3 Flash
+
+Use the GLM tutorial's FP8 checkpoint revision `eb9eb208eb0d988989d07a6a12d0fdeb5f52574a`, four H800 devices on one host, TP=4 and BS=1. The existing comparison uses vLLM 0.31.0, prompt lengths 32/128/1024/2048 and eight generated tokens. Record both software stacks and the exact precision, device and clock settings.
+
+For a candidate built in the tutorial's complete trial format, run its numerical checks and paired benchmark. Set `FEP_GLM_TRIAL`, `FEP_GLM_VALIDATION`, `FEP_GLM_RESULTS`, checkpoint, SDK and native-environment paths to the prepared test inputs and fresh output directories:
+
+```bash
+export FEP_GLM_TUTORIAL="$PWD/python/tutorials/flagmega/04-glm5.3-flash-fp8/nvidia-h800"
+python3 "$FEP_GLM_TUTORIAL/accuracy.py" --trial "$FEP_GLM_TRIAL" \
+  --output "$FEP_GLM_VALIDATION" --sdk "$FLAGCX_MODULE_PATH" \
+  --jit-device "$FEP_GLM_JIT_DEVICE"
+python3 "$FEP_GLM_TUTORIAL/reproduce.py" --trial "$FEP_GLM_TRIAL" \
+  --validation "$FEP_GLM_VALIDATION/numerics" --output "$FEP_GLM_RESULTS" \
+  --checkpoint "$FEP_GLM_CHECKPOINT" --sdk "$FLAGCX_MODULE_PATH" \
+  --native-python "$FEP_NATIVE_PYTHON" \
+  --native-triton-cache "$FEP_NATIVE_TRITON_CACHE" \
+  --native-inductor-cache "$FEP_NATIVE_INDUCTOR_CACHE" \
   --prompt-lengths 32 128 1024 2048
-python3 "$GLM_TUTORIAL/render_results.py" --results "$GLM_OUTPUT-two-orders"
 ```
 
-The recipe generates eight tokens per request, runs both N/F/F/N and F/N/N/F orders, and retains all formal requests after its fixed warm-up. Decode TPOT excludes prefill and the first generated token; FlagMega uses the slowest rank. Report each context separately. G4 requires candidate decode tokens/s / baseline decode tokens/s >1.05 for the agreed contexts, with identical model precision and hardware. Report full-request throughput separately. Paired runs must use the same source/artifact identities and device UUIDs; old artifact results do not validate a new build.
+Expected: full-state and token checks pass; both N/F/F/N and F/N/N/F orders complete on the same four devices and verified artifact. Preserve warmup, all formal samples and per-context results. Report complete-request latency separately.
 
-For Qwen3.8, also compare the FlagMega path with native execution using the matching tutorial. The approximately 20% gain discussed for this path is an estimate; configuration and acceptance threshold: TBD. It does not replace G4's four-H800 >5% target.
+The existing runner checks a stable win, not the release's >5% threshold. Check that threshold explicitly from its formal samples:
 
-### Workflow documentation
+```bash
+python3 - "$FEP_GLM_RESULTS/joint-acceptance.json" <<'PYTEST'
+import json, statistics, sys
+with open(sys.argv[1]) as f:
+    report = json.load(f)
+assert report['performance_acceptance']
+assert {s['prompt_length'] for s in report['scenarios']} == {32, 128, 1024, 2048}
+for case in report['scenarios']:
+    samples = case['all_formal_samples_ms']
+    assert all(len(samples[k]) == 40 for k in ('flagmega', 'vllm'))
+    rates = {k: statistics.median(1000 / t for t in samples[k]) for k in samples}
+    ratio = rates['flagmega'] / rates['vllm']
+    print(case['prompt_length'], ratio)
+    assert ratio > 1.05
+PYTEST
+```
 
-From the published instructions and matching source revision, reproduce model compilation, correctness checks and one optimization run on the target hardware. Include the skill location, dependencies, model/backend limits and expected outputs. Skill path and optimization-budget settings: TBD.
+Decode TPOT excludes prefill and the first generated token. FlagMega measurements include state/token handoff and use the slowest rank. Decode throughput is the median per-request `1000 / TPOT`; throughput gain and TPOT reduction are different percentages. The release result must use the candidate produced by the completed G2 build path, not only a historical optimized artifact.
 
 ## Related PRs
 
-- [x] [FlagTree #1364](https://github.com/flagos-ai/FlagTree/pull/1364) — AMD targets and cooperative Qwen3 decode on `feature/flagmega`.
+- Prior proposal: [FEP-0096](https://github.com/flagos-ai/community/blob/main/fep/sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md).
+- [x] [FlagTree #1364](https://github.com/flagos-ai/FlagTree/pull/1364) — AMD targets and Qwen3 decode.
 - [x] [FlagTree #1439](https://github.com/flagos-ai/FlagTree/pull/1439) — AMD decode optimization and correctness fixes.
-- [ ] [FlagTree #1498](https://github.com/flagos-ai/FlagTree/pull/1498) — Qwen3.8-27B IQ4_XS AMD tutorial and fixes.
-- [ ] v0.1 release packaging/tag and optimization workflow documentation/skill — TBD.
-- [ ] vLLM adapter — TBD.
-- [ ] AMD/Iluvatar support and four-H800 validation — TBD.
+- [ ] [FlagTree #1498](https://github.com/flagos-ai/FlagTree/pull/1498) — AMD Qwen3.8 IQ4_XS support and regression fixes.
+- [ ] v0.1 release packaging and checkpoint-to-artifact reproduction — TBD.
+- [ ] Qwen3.8/GLM5.3 vLLM integration and CoreX 5.0 validation — TBD.
+- [ ] Four-H800 release correctness and >5% decode-throughput acceptance — TBD.
