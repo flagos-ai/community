@@ -22,11 +22,11 @@ Communication-computation fusion needs device-side data transfer, synchronizatio
 
 - **G1:** Support at least four domestic backends with an agreed chip-priority list and FlagCX dependency matrix. Vendors/SKUs: TBD.
 - **G2:** Validate at least three distinct fused operators per backend, selected from critical paths in GLM and other priority models. Target >1.20x speedup over the matched reference. Operator list, reference and case aggregation: TBD.
-- **G3:** Autotune distributed kernels with rank-consistent configurations, legal synchronization and topology-aware result caching.
+- **G3:** Add autotuning for TLE distributed kernels and validate the selected configurations across participating ranks.
 
 ### Non-Goals
 
-Full-model MegaKernel acceptance, arbitrary multi-node topologies and independent development of vendor communication transports.
+Full-model FlagMega acceptance, TLE Raw native-code integration, arbitrary multi-node topologies and development of vendor communication transports.
 
 ## Proposal
 
@@ -40,7 +40,7 @@ Preserve peer addressing, memory visibility and acquire/release ordering. Specif
 
 ### Autotuning
 
-All ranks must evaluate compatible candidates. Filter configurations that violate memory limits, collective participation or synchronization constraints. Include backend/SKU, device count/topology, shape, dtype, compiler and communication-library versions in cache identity. On failure or timeout, clean up all participating ranks and use a validated fallback configuration.
+Extend the tuning path to distributed kernels. Validate correctness across ranks before benchmarking a candidate. Candidate coordination, search space and cache design: TBD.
 
 ### Acceptance matrix
 
@@ -51,7 +51,7 @@ All ranks must evaluate compatible candidates. Filter configurations that violat
 | Domestic backend 3 | TBD | TBD | TBD | TBD | TBD |
 | Domestic backend 4 | TBD | TBD | TBD | TBD | TBD |
 
-Candidate patterns include AllGather+GEMM, GEMM+AllReduce and fused reduction/normalization. Select the final operators from model profiles. Count unique backend/operator pairs; different shapes of one operator do not increase coverage. Review the FlagCX ABI and communication lowering with sig-network.
+Select the final operators from priority-model profiles with the FlagCX maintainers. Count distinct fused operators on each backend; additional shapes do not increase the operator count. Backend names and operators remain TBD.
 
 ## Packaging
 
@@ -81,7 +81,10 @@ python3 -m pytest -q python/test/tle/integration/test_tle_distributed.py
 Run applicable backend-specific suites as well. On Iluvatar:
 
 ```bash
-python3 -m pytest -q   third_party/iluvatar/python/test/unit/tle/test_tle_distributed.py   third_party/iluvatar/python/test/unit/tle/test_tle_distributed_barrier.py   third_party/iluvatar/python/test/unit/tle/test_tle_distributed_barrier_multi_gpu.py
+python3 -m pytest -q \
+  third_party/iluvatar/python/test/unit/tle/test_tle_distributed.py \
+  third_party/iluvatar/python/test/unit/tle/test_tle_distributed_barrier.py \
+  third_party/iluvatar/python/test/unit/tle/test_tle_distributed_barrier_multi_gpu.py
 ```
 
 Expected: all required ranks participate; results and visibility checks pass; no hang or leaked process occurs. Record test collection, device count and skips. A backend is accepted only after its required tests run on hardware.
@@ -92,16 +95,12 @@ For every matrix row, compare outputs with the unfused reference, then benchmark
 
 ### G3: distributed tuning
 
-Verify identical compatible candidate choices across ranks, rejection of illegal candidates, timeout cleanup, cache invalidation after topology changes and fallback correctness. Measure tuning cost and resulting kernel latency against the untuned reference. Distributed-autotune commands: TBD.
+Run correctness checks for the selected configuration on all ranks, then compare its kernel latency with the untuned configuration on the same devices and inputs. Record tuning time. Distributed-autotune commands: TBD.
 
-Use identical hardware, model/operator inputs, dtype, compiler/runtime dependencies and device topology for baseline and candidate. Warm up, synchronize device work, retain at least three measured runs and report per-case results. Kernel speedup is baseline latency divided by candidate latency; decode speedup is candidate output tokens/s divided by baseline output tokens/s. Record failed and skipped cases separately. Dataset, tolerances and performance-case aggregation: TBD.
+Use the same hardware, inputs, precision and runtime dependencies for each comparison. Record correctness, latency, failed cases and skips. Kernel speedup = reference latency / candidate latency. Tolerances and performance aggregation: TBD.
 
 ## Related PRs
 
 - Prior scope: [FEP-0096](https://github.com/flagos-ai/community/blob/main/fep/sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md).
 - [ ] Four-backend matrix and fused-operator implementations — TBD.
 - [ ] Distributed autotuning — TBD.
-
-## Implementation History
-
-- 2026-11-05: Initial FlagOS 2.3 proposal.
