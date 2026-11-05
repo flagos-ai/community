@@ -25,7 +25,7 @@ Cross-chip kernel development needs a consistent way to connect source and IR op
 - **G1:** Deliver the v0.2 capability checklist on the five named backends, distinguishing completed v0.1 support from new work.
 - **G2:** Preserve source/operation IDs and collect numerical/memory summaries, optional full values, execution context and timing through the current FlagPrism interfaces.
 - **G3:** Build FlagTree with FlagPrism enabled or disabled, preserving ordinary kernel execution in both configurations.
-- **G4:** Export structured reports for AI-assisted optimization with explicit units, provenance and missing-field semantics.
+- **G4:** Provide usage documentation and example outputs for the supported debugging/profiling workflows. AI-facing data requirements: TBD.
 
 ### Non-Goals
 
@@ -42,9 +42,9 @@ import flagtree.debugger as debugger
 import flagtree.profiler as profiler
 ```
 
-Debugger instrumentation associates stable scope/operation IDs with collected records. Preserve level-1 summaries, level-2 full-value collection and the supported collection boundaries. Backend launch adapters append hidden debug arguments only for instrumented kernels and preserve the ordinary launch path otherwise.
+The existing integration collects operation-level summaries and optional full values. Extend backend instrumentation and launch adapters while preserving ordinary, uninstrumented kernel execution. The v0.2 per-backend capability checklist remains TBD.
 
-Profiler sessions collect execution scopes, timing and available vendor metrics. Preserve and restore launch hooks on session start/stop. Include instrumentation configuration and buffer capacity in cache identity. Identify host-timing fallback explicitly; it is not a hardware-counter measurement.
+Profiler reports expose execution scopes, timing and available vendor metrics. Document which fields each backend can collect and distinguish host timing from device measurements.
 
 ### Backend matrix
 
@@ -58,7 +58,7 @@ Profiler sessions collect execution scopes, timing and available vendor metrics.
 
 For each backend, freeze the device/SDK and mark each checklist entry supported, unavailable or pending: summary collection, full-value collection, source/IR mapping, timing, hardware counters and export. A pending mandatory entry prevents that backend's acceptance. Counter lists and mandatory per-backend subset: TBD.
 
-### Report contract
+### Reports and documentation
 
 Debugger exports numerical/memory summaries, operation logs and optional full-value artifacts. Profiler exports `profile.hatchet`, `profile.timeline.json`, `profile.meta.json` and `profile.vendor.json` on paths supporting these formats. Retain kernel/source identifiers, device identity, collection options, timing units and metric availability. AI-facing schema and consumer validation requirements: TBD.
 
@@ -121,17 +121,15 @@ Use the existing `abs` and `softmax` workload pattern at summary/full-value leve
 
 Retain the established Ascend regression example and the agreed v0.1 device matrix. MetaX build/launch registration alone does not complete real-device collection acceptance.
 
-### G4: export and overhead
+### G4: documentation and report validation
 
-Parse each report, validate source/kernel associations and timing units, then pass it to the selected AI optimization consumer. Compare collection overhead and memory use with an uninstrumented run. Export/consumer commands and overhead budget: TBD.
+Follow the published instructions to run a debugging example and a profiling example on each supported backend. Check that the documented output files can be read and match the example's operation identifiers and timing units. Document the supported devices, dependencies, collection limits and how to interpret the reports. Example commands and the AI-facing data requirements: TBD.
+
+Measure instrumentation overhead against the same uninstrumented workload; overhead threshold: TBD.
 
 ## Related PRs
 
 - [x] [FlagTree #916](https://github.com/flagos-ai/FlagTree/pull/916) — Ascend FlagPrism integration and build/API baseline.
 - [ ] [FlagTree #1496](https://github.com/flagos-ai/FlagTree/pull/1496) — MetaX minimal integration.
 - [ ] Remaining backend adapters and capability checklist — TBD.
-- [ ] v0.2 data-export and release-validation evidence — TBD.
-
-## Implementation History
-
-- 2026-11-05: Initial FlagOS 2.3 proposal.
+- [ ] v0.2 user documentation, examples and release-validation evidence — TBD.
