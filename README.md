@@ -2,6 +2,8 @@
 
 <div align="center">
 
+[![Slack](https://img.shields.io/badge/Slack-Join%20FlagOS%20Community-4A154B?logo=slack)](https://join.slack.com/t/flagos-ai/shared_invite/zt-4ds384e45-jIGDL1aScD_KY45wlnAoDg)
+
 [![FlagOS 2.1](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/1?label=FlagOS%202.1%20FEPs&color=brightgreen)](https://github.com/flagos-ai/community/milestone/1)
 [![FlagOS 2.3](https://img.shields.io/github/milestones/progress-percent/flagos-ai/community/3?label=FlagOS%202.3%20FEPs&color=blue)](https://github.com/flagos-ai/community/milestone/3)
 [![Release Tracker](https://img.shields.io/badge/🚩_Release_Tracker-fep%2FREADME-orange)](fep/README.md#-release-tracker)
@@ -152,10 +154,13 @@ Stay connected and engage with the FlagOS community:
 
 | Channel | Purpose | Contact |
 |---------|---------|---------|
+| 💬 **Slack** | Day-to-day developer collaboration in English and Chinese | [Join FlagOS Community — #community](https://join.slack.com/t/flagos-ai/shared_invite/zt-4ds384e45-jIGDL1aScD_KY45wlnAoDg) |
 | 📧 **Email** | General inquiries and communication | contact@flagos.io |
 | 📱 **WeChat Official Account** | Updates and news | 智源FlagOpen |
 | 💬 **GitHub Discussions** | Technical discussions and Q&A | [flagos-ai/community/discussions](https://github.com/flagos-ai/community/discussions) |
 | 📋 **Mailing List** | Announcements and community updates | [Coming Soon] |
+
+New to Slack? Use the invitation link above and complete Slack sign-in/email verification; no GitHub organization membership or administrator approval is required. Introduce your project, hardware, and one question in **#community**. Keep bug reports, design proposals, and code reviews on GitHub.
 
 ## Code of Conduct
 
