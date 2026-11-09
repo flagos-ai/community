@@ -869,7 +869,12 @@ people:
     emails: ["yuxinan@perfxlab.com"]
     affiliations: [{ org: perfxlab }]
 
-  - id: xingxingjiang
+  - id: xingxing.li
+    name: Xingxing Li
+    emails: ["xingxing.li@enflame-tech.com"]
+    affiliations: [{ org: enflame }]
+
+  - id: xingxing588
     name: xingxingjiang
     emails: ["xingxingjiang@compiler-dev.com"]
     affiliations: [{ org: kmcompiler }]
