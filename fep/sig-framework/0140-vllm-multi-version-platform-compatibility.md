@@ -20,40 +20,36 @@ Extend [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) across upst
 
 [FEP-0089](https://github.com/flagos-ai/community/blob/main/fep/sig-framework/0089-vllm-plugin-fl-flagos-2.2-features.md) covers vLLM 0.20.2 and the initial 0.24 Empty-mode scope. FlagOS 2.3 completes the remaining platform work and follows newer upstream releases to support Day-0 model adaptation.
 
-### Goals
+## Goals
 
-| Goal | Scope | Planned milestone in 2026 |
-|---|---|---|
-| G1 — Complete 0.24 | Complete the FlagOS 2.3 adaptations for Huawei Ascend, Kunlunxin, Enflame, Tsingmicro and Sunrise. | Mid-October |
-| G2 — Release 0.32 on all chips | Support the full vendor matrix below — the ten 2.2-cycle vendors plus NVIDIA and AMD — on 0.32 as the main release version. | Start mid-November; finish before mid-December |
-| G3 — Operator profiling | Export operators/kernels, available input shapes and dtypes, call counts and kernel durations for a model-serving workload. | RC validation |
+| Goal | Scope |
+|---|---|
+| G1 — Complete 0.24 | Complete the FlagOS 2.3 adaptations for Huawei Ascend, Kunlunxin, Enflame, Tsingmicro and Sunrise. |
+| G2 — Release 0.32 on all chips | Support the full vendor matrix below — the ten 2.2-cycle vendors plus NVIDIA and AMD — on 0.32 as the main release version. |
+| G3 — Operator profiling | Export operators/kernels, available input shapes and dtypes, call counts and kernel durations for a model-serving workload. |
 
-## Design Details
+Complete implementation and cut rc0 by November 30, 2026; complete acceptance by December 25, per the [2.3 release schedule](https://github.com/flagos-ai/community/blob/main/release/2.3/schedule.md).
 
-Maintain the 0.24 and 0.32 version lines separately. Reconcile the remaining 0.24 work with the 2.2 release matrix, update platform adapters for 0.32 API changes, and run regression tests on each target device.
-
-Each compatibility entry records the vendor/device, upstream patch, plugin version, Python/PyTorch, SDK/driver, FlagGems, applicable FlagTree and communication libraries, plus the model revision, precision, TP/PP and graph settings. Agree dependency versions with the component maintainers and quality team.
-
-### Vendor matrix
+## Vendor matrix
 
 The 0.24 baseline covers Moore Threads, T-Head, Hygon, MetaX and Iluvatar. G1 completes coverage of the same ten-vendor roster. G2 releases 0.32 on the full matrix — the ten vendors plus NVIDIA and AMD.
 
-| Vendor | 0.24 scope and integration | 0.32 (release version) |
+| Vendor | 0.24 scope and integration | 0.32 integration (release version) |
 |---|---|---|
-| Huawei Ascend | 2.3 Adapting; In review ([#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606)) | Planned |
-| T-Head | 2.2 baseline | Planned |
-| Hygon | 2.2 baseline | Planned |
-| Moore Threads | 2.2 baseline | Planned |
-| MetaX | 2.2 baseline | Planned |
-| Kunlunxin | 2.3 Adapting; Merged ([#516](https://github.com/flagos-ai/vllm-plugin-FL/pull/516), [#561](https://github.com/flagos-ai/vllm-plugin-FL/pull/561)) | Planned |
-| Iluvatar | 2.2 baseline | Planned |
-| Enflame | 2.3 Adapting; Merged ([#464](https://github.com/flagos-ai/vllm-plugin-FL/pull/464)) | Planned |
-| Tsingmicro | 2.3 Adapting; Merged ([#447](https://github.com/flagos-ai/vllm-plugin-FL/pull/447)) | Planned |
-| Sunrise | 2.3 Adapting; Merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Planned |
-| NVIDIA (additional) | Existing support | Adaptation in draft ([#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615)) |
-| AMD (new in 2.3) | — | Planned |
+| Huawei Ascend | Merged ([#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606)) | Adapting ([#703](https://github.com/flagos-ai/vllm-plugin-FL/pull/703), [#700](https://github.com/flagos-ai/vllm-plugin-FL/pull/700)) |
+| T-Head | 2.2 baseline | Adapting ([#706](https://github.com/flagos-ai/vllm-plugin-FL/pull/706)) |
+| Hygon | 2.2 baseline | Adapting ([#711](https://github.com/flagos-ai/vllm-plugin-FL/pull/711)) |
+| Moore Threads | 2.2 baseline | Adapting ([#715](https://github.com/flagos-ai/vllm-plugin-FL/pull/715)) |
+| MetaX | 2.2 baseline | Adapting ([#693](https://github.com/flagos-ai/vllm-plugin-FL/pull/693)) |
+| Kunlunxin | Merged ([#516](https://github.com/flagos-ai/vllm-plugin-FL/pull/516), [#561](https://github.com/flagos-ai/vllm-plugin-FL/pull/561)) | Adapting ([#726](https://github.com/flagos-ai/vllm-plugin-FL/pull/726)) |
+| Iluvatar | 2.2 baseline | Adapting ([#674](https://github.com/flagos-ai/vllm-plugin-FL/pull/674)) |
+| Enflame | Merged ([#464](https://github.com/flagos-ai/vllm-plugin-FL/pull/464)) | Adapting ([#675](https://github.com/flagos-ai/vllm-plugin-FL/pull/675), [#667](https://github.com/flagos-ai/vllm-plugin-FL/pull/667)) |
+| Tsingmicro | Merged ([#447](https://github.com/flagos-ai/vllm-plugin-FL/pull/447)) | Adapting ([#696](https://github.com/flagos-ai/vllm-plugin-FL/pull/696)) |
+| Sunrise | Merged ([#391](https://github.com/flagos-ai/vllm-plugin-FL/pull/391)) | Adapting ([#697](https://github.com/flagos-ai/vllm-plugin-FL/pull/697)) |
+| NVIDIA (additional) | Existing support | Merged ([#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615)) |
+| AMD (new in 2.3) | — | Adapting ([#659](https://github.com/flagos-ai/vllm-plugin-FL/pull/659)) |
 
-### G3: operator profiling
+## G3: operator profiling
 
 Collect runtime traces through vLLM's native `/start_profile` and `/stop_profile` endpoints, then export operator/kernel inventories, shape/dtype mappings and timing reports. vLLM profiles all ranks normally; the reports default to rank 0. CUDA Graph replay may lack input metadata: preserve missing values as `null` with mapping status, and mark any eager-reference metadata separately.
 
@@ -63,7 +59,11 @@ For G3, deliver `tools/operator_profile/` with the matching plugin source checko
 
 ## Test Plan
 
-Use the FlagOS 2.2 release-test workflow for G1–G2. The 2.2 tests documented in the platform manuals use vendor or FlagOS images, with source installation or updates to the plugin and dependencies as needed. Follow this deployment method for each target vLLM version and chip, with matching plugin, driver, SDK, FlagGems and FlagTree versions. Record any component changes made after starting the container.
+Build each vendor/version's candidate application image from the agreed FlagOS Runtime and dependency versions. Use the same image digest and plugin revision for development tests and QA acceptance. CI images may add test tools while retaining the same runtime dependencies.
+
+Record the server and accelerator models, card count and memory, SDK/driver, vLLM build and upstream revision, plugin, Python/PyTorch, FlagGems, FlagGems-vllm, FlagTree and communication-library versions in [issue #151](https://github.com/flagos-ai/community/issues/151). Include the base Runtime and application-image digests, model revision, precision, TP/PP, runner and eager/graph settings. Bind each report to the tested environment; include container-side changes and validate the final image.
+
+Before acceptance, record the accuracy datasets, reference results, metrics and tolerances, plus performance baselines and regression limits, in issue #151.
 
 Keep Qwen3.6-27B (Dense) and Qwen3.6-35B-A3B (MoE) as the baseline models, using real weights. Add model-specific cases for Day-0 adaptations.
 
@@ -77,9 +77,11 @@ Keep Qwen3.6-27B (Dense) and Qwen3.6-35B-A3B (MoE) as the baseline models, using
 
 ### G1–G2: installation and load checks
 
-Use the platform's image and device-mount settings. Inside the container, keep preinstalled components whose versions match the test configuration. To update the plugin, use its target version checkout and follow the [README installation steps](https://github.com/flagos-ai/vllm-plugin-FL#quick-start).
+Use the candidate image and the platform's device-mount settings. Keep its pinned runtime dependencies when installing the selected plugin revision.
 
-For the Python-only installation:
+NVIDIA on 0.32 uses native CUDA vLLM with its upstream extensions and a Python-only FL plugin. Record the native or Empty build used by each other vendor/version.
+
+For the Python-only plugin installation:
 
 ```bash
 VLLM_VENDOR= python -m pip install --no-build-isolation --no-deps -e .
@@ -198,11 +200,11 @@ Repeat for native/plugin × eager/graph in separate run directories, keeping the
 - [x] [#464](https://github.com/flagos-ai/vllm-plugin-FL/pull/464) — Enflame S60 adaptation.
 - [x] [#516](https://github.com/flagos-ai/vllm-plugin-FL/pull/516) — Kunlunxin adaptation.
 - [x] [#561](https://github.com/flagos-ai/vllm-plugin-FL/pull/561) — Kunlunxin P800 CI.
-- [ ] [#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606) — Ascend Qwen3.6 and full-decode graphs.
+- [x] [#606](https://github.com/flagos-ai/vllm-plugin-FL/pull/606) — Ascend Qwen3.6 and full-decode graphs.
 
 ### vLLM 0.32
 
-- [ ] [#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615) — NVIDIA Empty runtime and CI adaptation.
+- [x] [#615](https://github.com/flagos-ai/vllm-plugin-FL/pull/615) — NVIDIA native CUDA runtime and CI adaptation.
 
 ### Operator profiling
 
