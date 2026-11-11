@@ -12,24 +12,22 @@
 
 ## Summary
 
-Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primitives through [FlagCX](https://github.com/flagos-ai/FlagCX) to Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. Deliver communication-compute fused operators from priority models such as GLM, targeting more than 20% speedup over equivalent PyTorch implementations. Distributed autotuning targets eager and graph execution; graph integration and multi-rank validation remain to be implemented.
+Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primitives through [FlagCX](https://github.com/flagos-ai/FlagCX) to Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. Deliver two communication-compute fused operators per backend from priority models such as GLM, targeting more than 20% speedup over equivalent PyTorch implementations. Distributed autotuning targets eager and graph execution; graph integration and multi-rank validation remain to be implemented.
 
 ## Goals
 
 | Goal | Deliverable |
 |---|---|
 | G1 — Backends | Device communication and synchronization through TLE/FlagCX on Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. |
-| G2 — Fused operators | Communication-compute fused operators from priority-model workloads on each backend, with a >20% performance improvement target over PyTorch. |
+| G2 — Fused operators | Deliver two communication-compute fused operators per backend from priority-model workloads by December 7, targeting >20% performance improvement over PyTorch. |
 | G3 — Autotuning | Coordinate candidate evaluation, configuration selection and cache reuse across ranks for eager and graph workflows. Graph integration and multi-rank validation remain to be implemented. |
-
-**Operator count:** The Roadmap specifies at least three per backend; the November 9 comment specifies two per backend by December 7. The owner must reconcile the acceptance count.
 
 | Backend | Integration and test requirements |
 |---|---|
 | Iluvatar | FlagCX device runtime, peer-memory access and multi-device barrier tests. |
 | Hygon | Integrate [FlagTree #1441](https://github.com/flagos-ai/FlagTree/pull/1441): TLE/FlagCX primitives, HCU device-library linking and a two-device test workflow. Complete fused-operator validation. |
 | Kunlunxin | Integrate [FlagTree #1436](https://github.com/flagos-ai/FlagTree/pull/1436) with matching FlagCX host libraries, XPU device bitcode and XSHMEM; complete the remote-write and synchronization paths. |
-| DAMO ACADEMY (`third_party/thrive`) | Complete the TLE/FlagCX device path. Hardware validation is blocked: no test machine is available. |
+| DAMO ACADEMY (`third_party/thrive`) | Complete the TLE/FlagCX device path. Awaiting test hardware. |
 
 ## Packaging
 
