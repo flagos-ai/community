@@ -2,9 +2,11 @@
 
 **Status:** `Provisional`
 
+**Implementation Status:** `In Progress`
+
 **Created:** 2026-11-05
 
-**Owner:** TBD
+**Owner:** @i3wanna2
 
 **SIG:** sig-compiler
 
