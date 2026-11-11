@@ -2,6 +2,10 @@
 
 **Status:** `Provisional`
 
+**Implementation Status:** `In Progress`
+
+**Tracking Issue:** [#173](https://github.com/flagos-ai/community/issues/173)
+
 **Created:** 2026-11-05
 
 **Owner:** @sunnycase
