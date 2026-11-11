@@ -28,7 +28,7 @@ Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primiti
 |---|---|
 | Iluvatar | FlagCX device runtime, peer-memory access and multi-device barrier tests. |
 | Hygon | Complete the TLE/FlagCX device path and multi-device operator tests. |
-| Kunlunxin | Integrate [FlagTree #1436](https://github.com/flagos-ai/FlagTree/pull/1436) with compatible FlagCX host libraries, XPU device bitcode and vendor communication libraries. |
+| Kunlunxin | Integrate [FlagTree #1436](https://github.com/flagos-ai/FlagTree/pull/1436) with matching FlagCX host libraries, XPU device bitcode and XSHMEM; complete the remote-write and synchronization paths. |
 | T-Head | Complete the TLE/FlagCX device path. Test hardware access is pending. |
 
 ## Packaging
@@ -46,7 +46,7 @@ Publish the matching source, distributed-operator tutorials and autotuning docum
 
 Use the same candidate images and source revisions for development and QA on each backend. Record device model, card count, interconnect, SDK/driver, Python/PyTorch/FlagTree, FlagCX and vendor communication-library versions. Each operator case records its model path, shape, input/output and accumulation dtypes, reference revision, accuracy tolerance and execution mode.
 
-Run the following commands from the matching FlagTree checkout. Confirm each backend's operator list and benchmark cases before acceptance, and retain results for every backend/operator pair.
+Run the following commands from the matching FlagTree checkout. Before runtime tests, check that generated FlagCX device calls resolve against the selected bitcode and vendor device libraries. Confirm each backend's operator list and benchmark cases before acceptance, and retain results for every backend/operator pair.
 
 ### G1: distributed primitives
 
@@ -72,7 +72,7 @@ torchrun --standalone --nproc-per-node=2 \
 
 **Expected:** Each rank reads the expected peer data. Iluvatar barrier, arrive/wait and ordering checks pass across repeated executions. Retain per-rank results and exit codes.
 
-For Kunlunxin, integrate #1436 and configure its XPU SDK, XCCL and FlagCX device-library dependencies. Run its two-device signal tests:
+For Kunlunxin, complete the device-init and signal/wait linkage required by #1436, and configure its XPU SDK, XCCL and FlagCX device libraries. Then run its two-device signal tests:
 
 ```bash
 NPROC_PER_NODE=2 NNODES=1 NODE_RANK=0 \
@@ -81,15 +81,15 @@ NPROC_PER_NODE=2 NNODES=1 NODE_RANK=0 \
   bash third_party/xpu/test/test_tle_signal_wait.sh
 ```
 
-**Expected:** Signal and wait tests complete on both devices. Complete on-device remote-access and barrier-ordering tests for Kunlunxin, Hygon and T-Head before acceptance.
+**Expected:** Signal/wait smoke tests complete on both devices. Add nonzero waits for signals from another rank and repeated barrier-ordering checks. For Kunlunxin P800, verify remote-write visibility through receiver-side reads. Complete remote-access and synchronization tests for Hygon and T-Head before acceptance.
 
 ### G2: fused-operator correctness and performance
 
-The initial workload in [#1599](https://github.com/flagos-ai/FlagTree/pull/1599) contains two operator families:
+The single-node eager tutorial in [#1599](https://github.com/flagos-ai/FlagTree/pull/1599) contains two operator families:
 
-| Fused operator | PyTorch performance reference |
+| Fused operator | Required PyTorch performance reference |
 |---|---|
-| Reduce-scatter + residual add + RMSNorm + all-gather | `torch.distributed.all_reduce` + residual add + RMSNorm. |
+| Reduce-scatter + residual add + RMSNorm + all-gather | `torch.distributed.all_reduce` + residual add + RMSNorm, including the same local residual update. |
 | Q/KV RMSNorm + all-gather | `torch.distributed.all_gather_into_tensor` + Q/KV RMSNorm. |
 
 After integrating #1599, run it on backends with the required TLE/FlagCX path. Set `FEP_NPROC` to the selected card count, at least two, and `FEP_RESULTS` to an existing output directory:
@@ -102,13 +102,13 @@ PEER=tle NPROC_PER_NODE="$FEP_NPROC" DTYPE=bf16 \
 
 **Expected:** The run reports `peer=tle`; output and residual checks pass on all ranks, including uneven row counts and repeated calls with changing shapes. Signal waits complete without timeouts.
 
-For release benchmarks, reset mutable inputs and residuals between iterations. Compare equivalent outputs on the same devices, with matching shapes, input/output dtypes and execution modes. Measure the complete fused operation and its PyTorch reference, including communication, and use the slowest rank. Retain the accuracy checks and per-shape latency samples.
+For release benchmarks, validate both timed implementations against the same correctness reference, including updated residuals. Reset mutable inputs and residuals between iterations and account for reset costs consistently. Compare equivalent outputs on the same devices, with matching shapes, input/output dtypes and execution modes. Measure the complete fused operation and its PyTorch reference, including communication, and use the slowest rank. Retain the accuracy checks and per-shape latency samples.
 
 Report speedup as `PyTorch latency / TLE latency` and improvement as `(speedup - 1) × 100%`, against the >20% target. Define the acceptance workloads and aggregation before testing. Complete the release operator list and backend-specific commands to cover G2; shape variants of one operator do not increase the operator count.
 
 ### G3: distributed autotuning
 
-Integrate [#1446](https://github.com/flagos-ai/FlagTree/pull/1446). Run its local autotuner regressions:
+Integrate [#1446](https://github.com/flagos-ai/FlagTree/pull/1446) for rank coordination and caching, and add graph-workflow support. Run its local autotuner regressions:
 
 ```bash
 python3 -m unittest discover -s python/test/unit -p test_function_autotune.py
@@ -116,13 +116,14 @@ python3 -m unittest discover -s python/test/unit -p test_function_autotune.py
 
 **Expected:** Candidate selection, pruning, cache reuse and argument checks pass. This suite uses mocked device interfaces by default.
 
-Add executable multi-rank cases using the G2 operators and `autotune_pg` for all participating ranks:
+Add executable multi-rank cases using the G2 operators and `autotune_pg` for all participating ranks. Verify each candidate's correctness with restored inputs and residuals before comparing timings:
 
 | Case | Expected result |
 |---|---|
 | Eager, empty tuning cache | All ranks evaluate the common candidates in the same order, select the same configuration and produce correct outputs. |
-| Graph workflow, empty tuning cache | Tuning is triggered through the graph workflow; the selected configuration captures and replays correctly across all ranks. |
+| Graph workflow, empty tuning cache | The graph workflow triggers tuning before capture. The selected configuration replays correctly with new inputs; communication signals and buffer state remain correct across repeated replays. |
 | Cached execution | All ranks reuse the same selected configuration; repeated calls and a restarted run remain correct. |
+| Inconsistent rank settings or no common candidate | All ranks report the error without hanging. |
 
 Compare tuned execution with `autotune=False` on identical workloads. Record the selected configuration, tuning time, per-rank latency and cache state. The distributed comparison uses the maximum latency across ranks. Complete the multi-rank eager/graph test commands before acceptance.
 
@@ -130,7 +131,7 @@ Compare tuned execution with `autotune=False` on identical workloads. Record the
 
 - Prior FEP: [FEP-0096](https://github.com/flagos-ai/community/blob/main/fep/sig-compiler/0096-flagtree-tle-megakernel-and-distributed.md).
 - [x] [FlagCX #667](https://github.com/flagos-ai/FlagCX/pull/667) — Hygon device bitcode and unified Device IR packaging.
-- [x] [FlagCX #678](https://github.com/flagos-ai/FlagCX/pull/678) — Kunlunxin XPU device-IR entry points for FlagTree.
+- [x] [FlagCX #678](https://github.com/flagos-ai/FlagCX/pull/678) — Six Kunlunxin XPU device-IR entry points for rank queries, peer pointers and barriers.
 - [ ] [FlagTree #1436](https://github.com/flagos-ai/FlagTree/pull/1436) — Kunlunxin TLE distributed backend.
 - [ ] [FlagTree #1446](https://github.com/flagos-ai/FlagTree/pull/1446) — Function-level local and distributed autotuning.
 - [ ] [FlagTree #1599](https://github.com/flagos-ai/FlagTree/pull/1599) — Fused RS/RMSNorm/AG and Q/KV RMSNorm/AG tutorials.
