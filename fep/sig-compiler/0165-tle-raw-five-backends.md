@@ -6,7 +6,7 @@
 
 **Created:** 2026-11-05
 
-**Owner:** @i3wanna2
+**Owner:** @i3wanna2 ([Q3–Q4 adaptation plan](https://jwolpxeehx.feishu.cn/wiki/U5ybwsIxXiPvI3krKyPcwfrgnrb))
 
 **SIG:** sig-compiler
 
