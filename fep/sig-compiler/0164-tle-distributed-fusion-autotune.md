@@ -2,8 +2,6 @@
 
 **Status:** `Provisional`
 
-**Implementation Status:** `In Progress`
-
 **Created:** 2026-11-05
 
 **Owner:** @Galaxy1458
