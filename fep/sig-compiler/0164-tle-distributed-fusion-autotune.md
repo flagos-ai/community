@@ -12,7 +12,7 @@
 
 ## Summary
 
-Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primitives through [FlagCX](https://github.com/flagos-ai/FlagCX) to Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. Deliver communication-compute fused operators from priority models such as GLM, targeting more than 20% speedup over equivalent PyTorch implementations. Add distributed autotuning for eager and graph execution.
+Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primitives through [FlagCX](https://github.com/flagos-ai/FlagCX) to Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. Deliver communication-compute fused operators from priority models such as GLM, targeting more than 20% speedup over equivalent PyTorch implementations. Distributed autotuning targets eager and graph execution; graph integration and multi-rank validation remain to be implemented.
 
 ## Goals
 
@@ -20,14 +20,14 @@ Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primiti
 |---|---|
 | G1 — Backends | Device communication and synchronization through TLE/FlagCX on Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. |
 | G2 — Fused operators | Communication-compute fused operators from priority-model workloads on each backend, with a >20% performance improvement target over PyTorch. |
-| G3 — Autotuning | Tune distributed kernels in eager and graph workflows; coordinate candidate evaluation, configuration selection and cache reuse across participating ranks. |
+| G3 — Autotuning | Coordinate candidate evaluation, configuration selection and cache reuse across ranks for eager and graph workflows. Graph integration and multi-rank validation remain to be implemented. |
 
 **Operator count:** The Roadmap specifies at least three per backend; the November 9 comment specifies two per backend by December 7. The owner must reconcile the acceptance count.
 
 | Backend | Integration and test requirements |
 |---|---|
 | Iluvatar | FlagCX device runtime, peer-memory access and multi-device barrier tests. |
-| Hygon | Complete the TLE/FlagCX device path and multi-device operator tests. |
+| Hygon | Integrate [FlagTree #1441](https://github.com/flagos-ai/FlagTree/pull/1441): TLE/FlagCX primitives, HCU device-library linking and a two-device test workflow. Complete fused-operator validation. |
 | Kunlunxin | Integrate [FlagTree #1436](https://github.com/flagos-ai/FlagTree/pull/1436) with matching FlagCX host libraries, XPU device bitcode and XSHMEM; complete the remote-write and synchronization paths. |
 | DAMO ACADEMY (`third_party/thrive`) | Complete the TLE/FlagCX device path. Hardware validation is blocked: no test machine is available. |
 
@@ -50,7 +50,7 @@ Run the following commands from the matching FlagTree checkout. Before runtime t
 
 ### G1: distributed primitives
 
-Run the common mesh and sharding regressions:
+Run the common mesh and sharding front-end regressions. These tests do not execute device kernels or cross-rank communication:
 
 ```bash
 python3 -m pytest -q python/test/tle/unit/test_tle_distributed.py
@@ -70,6 +70,8 @@ torchrun --standalone --nproc-per-node=2 \
   third_party/iluvatar/python/test/unit/tle/test_tle_distributed_barrier_multi_gpu.py
 ```
 
+For Hygon, integrate #1441 and run the `TLE-FlagCX Distributed Unit Tests (2 GPUs)` step in `.github/workflows/hcu3.6-dist-test.yml`. It requires HIP PyTorch, two visible HCU devices and a matching FlagCX host/device build with `USE_FLAGCX=ON`.
+
 **Expected:** Each rank reads the expected peer data. Iluvatar barrier, arrive/wait and ordering checks pass across repeated executions. Retain per-rank results and exit codes.
 
 For Kunlunxin, complete the device-init and signal/wait linkage required by #1436, and configure its XPU SDK, XCCL and FlagCX device libraries. Then run its two-device signal tests:
@@ -82,7 +84,7 @@ NPROC_PER_NODE=2 NNODES=1 NODE_RANK=0 \
   bash third_party/xpu/test/test_tle_signal_wait.sh
 ```
 
-**Expected:** Signal/wait smoke tests complete on both devices. Add nonzero waits for signals from another rank and repeated barrier-ordering checks. For Kunlunxin P800, verify remote-write visibility through receiver-side reads. Complete remote-access and synchronization tests for Hygon and DAMO ACADEMY before acceptance.
+**Expected:** Signal/wait smoke tests complete on both devices. Hygon and Kunlunxin must also pass nonzero waits for signals from another rank and repeated barrier-ordering checks. For Kunlunxin P800, verify remote-write visibility through receiver-side reads. Complete remote-access and synchronization tests for DAMO ACADEMY before acceptance.
 
 ### G2: fused-operator correctness and performance
 
@@ -138,5 +140,6 @@ Compare tuned execution with `autotune=False` on identical workloads. Record the
 - [x] [FlagCX #667](https://github.com/flagos-ai/FlagCX/pull/667) — Hygon device bitcode and unified Device IR packaging.
 - [x] [FlagCX #678](https://github.com/flagos-ai/FlagCX/pull/678) — Six Kunlunxin XPU device-IR entry points for rank queries, peer pointers and barriers.
 - [ ] [FlagTree #1436](https://github.com/flagos-ai/FlagTree/pull/1436) — Kunlunxin TLE distributed backend.
+- [ ] [FlagTree #1441](https://github.com/flagos-ai/FlagTree/pull/1441) — Hygon TLE/FlagCX backend and two-device test workflow.
 - [ ] [FlagTree #1446](https://github.com/flagos-ai/FlagTree/pull/1446) — Function-level local and distributed autotuning.
 - [ ] [FlagTree #1599](https://github.com/flagos-ai/FlagTree/pull/1599) — Fused RS/RMSNorm/AG and Q/KV RMSNorm/AG tutorials.
