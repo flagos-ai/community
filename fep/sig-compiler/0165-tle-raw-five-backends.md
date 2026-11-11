@@ -14,48 +14,37 @@
 
 ## Summary
 
-Complete [FlagTree](https://github.com/flagos-ai/FlagTree) TLE Raw integration on Enflame S60, Iluvatar BI150, Huawei Ascend 910B, Hygon BW1000 and Kunlunxin P800. Allow Triton/TLE operators to call vendor device code for capabilities missing from the language. Validate the integration through Raw-using operator workloads, prioritizing Hygon.
+Complete [FlagTree](https://github.com/flagos-ai/FlagTree) TLE Raw integration on Enflame S60, Iluvatar BI150, Huawei Ascend 910B, Hygon BW1000 and Kunlunxin P800. Enable Triton/TLE kernels to call vendor device code and exchange data with it. Use these calls to supplement TLE in operator workloads, prioritizing Hygon.
 
 ## Goals
 
 | Goal | Deliverable |
 |---|---|
-| G1 — Backend integration | Compile and link vendor device code into Triton/TLE kernels on all five target SKUs. |
-| G2 — Interoperability | Validate argument passing, output aliasing and the buffer interfaces supported by each backend, including eager/deferred compilation where implemented. |
-| G3 — Operator workloads | Validate correctness and measure performance of Raw-using operators on each target SKU. The release workload list and performance thresholds remain to be agreed with the operator teams. |
+| G1 — Backend integration | Compile and link vendor device code into Triton/TLE kernels, pass arguments and return or write results through the backend interfaces below. Run the resulting kernels on all five target SKUs. |
+| G2 — Operator use | Validate Raw in operator-team workloads that need it to supplement TLE, prioritizing Hygon. Check correctness and compare performance with a vendor-native or agreed reference. The workload list is pending confirmation with the operator teams. |
 
-| Backend / SKU | Source branch | Integration and test requirements |
+| Backend / SKU | Source branch | Raw functionality |
 |---|---|---|
-| Enflame S60 | `main` | TOPS device code through deferred Raw calls; scalar/pointer and tensor arguments. Select the GCU300 target. |
-| Iluvatar BI150 | `main` | CoreX device code; `call`/`call_smem`, tensor results and eager/deferred compilation. |
-| Huawei Ascend 910B | `triton_v3.5.x` | AscendC source/bitcode through `@dialect(name="cann")` and `tle_raw.call`; UB buffers and explicit output operands. `call_smem` is unsupported. |
-| Hygon BW1000 | `main` | HIP/MLIR through `call`/`call_smem`, eager/deferred compilation and DUSHMEM library calls. |
-| Kunlunxin P800 | `main` | XPU3 native source and object payloads; pointer/scalar arguments, deferred linking and device execution. |
+| Enflame S60 | `main` | TOPS device functions with pointer/scalar and tensor arguments; deferred compilation targeting GCU300. |
+| Iluvatar BI150 | `main` | CoreX device functions through `call`/`call_smem`; tensor results, shared-memory buffers and eager/deferred compilation. |
+| Huawei Ascend 910B | `triton_v3.5.x` | AscendC device functions through the `cann` dialect and `tle_raw.call`; UB buffers and explicit output operands. |
+| Hygon BW1000 | `main` | HIP/MLIR device code through `call`/`call_smem`; shared-memory buffers and eager/deferred compilation. |
+| Kunlunxin P800 | `main` | XPU3 device code with pointer/scalar arguments and deferred linking. |
 
 ## Packaging
 
-Ship Raw frontends, backend adapters and compiler passes in the corresponding FlagTree wheel. Use the backend's documented SDK environment and `FLAGTREE_BACKEND` setting; leave it unset for NVIDIA/AMD builds.
+Include TLE Raw in the corresponding FlagTree wheel and publish its examples with the source. Build in the backend's documented SDK environment with its `FLAGTREE_BACKEND` setting:
 
 ```bash
 python3 -m pip wheel . \
   --no-deps --no-build-isolation --wheel-dir dist
 ```
 
-Publish the matching source and backend examples. Record the source revision, Triton version, Python ABI, vendor compiler/runtime versions and required device libraries or object payloads.
-
 ## Test Plan
 
-Use the same image and source revisions for development and QA on each backend. Record the device model, card count, SDK/driver, PyTorch/FlagTree versions and external-code dependencies. Run commands from the branch listed above with its backend-specific FlagTree installation. Record executed cases and skips. Required device cases must execute on the named SKU; skipped or compile-only cases do not establish device support.
+Run the repository tests below from the listed branch with its backend-specific FlagTree installation. Record the device model, source revision, SDK/driver and PyTorch/FlagTree versions. Each target SKU requires numerical device-test results; report compiler-only checks and skips separately.
 
-### G1–G2: compilation and device interoperability
-
-Run the shared source-cache regression in the Iluvatar environment with MLIR Python bindings:
-
-```bash
-python3 -m pytest -q python/test/tle/unit/test_tle_raw_cache_key.py
-```
-
-**Expected:** Source and dialect-metadata changes update the cache key. These are host-side checks. For each backend, also verify that changing its native source or payload rebuilds the kernel.
+### G1: backend integration
 
 **Enflame S60:** Run the TOPS examples with the GCU300 target:
 
@@ -64,7 +53,7 @@ GCU_ARCH=gcu300 python3 -m pytest -q \
   third_party/enflame/python/test/tle/raw/tops/test_tops_scripts.py
 ```
 
-**Expected:** Vector addition, tensor-argument addition, softmax and matrix multiplication pass their numerical checks after deferred TOPS compilation.
+**Check:** Compile and execute the TOPS functions. Verify vector addition, tensor-argument addition, softmax and matrix multiplication using the scripts' numerical assertions.
 
 **Iluvatar BI150:** Run IR/ABI regressions and device cases:
 
@@ -74,7 +63,7 @@ python3 -m pytest -q \
   third_party/iluvatar/python/test/unit/tle/test_tle_raw_deferred_tutorial.py
 ```
 
-**Expected:** Pointer address spaces, tensor returns and shared-buffer descriptors lower correctly. Device cases verify vector addition, shared-buffer updates, CoreX-native SME loads and eager/deferred matrix multiplication against their references.
+**Check:** Verify pointer address spaces, tensor results and shared-buffer lowering. Run the device assertions for vector addition, shared-buffer updates, CoreX SME loads and matrix multiplication under eager/deferred compilation.
 
 **Huawei Ascend 910B:** In the `triton_v3.5.x` checkout, configure CANN, `ccec`, `llvm-link` and `torch_npu`, then run:
 
@@ -83,7 +72,7 @@ python3 python/tutorials/tle/custom/test_dialect_custom_ops.py
 python3 python/tutorials/tle/custom/test_custom_ops.py
 ```
 
-**Expected:** Source-JIT addition passes for int32 and FP16, including UB staging and output aliasing. Built-in Raw operations pass the gather, sort, reduction and related checks. Add a corresponding precompiled-bitcode case before accepting that input format.
+**Check:** Verify int32/FP16 addition through the CANN source-compilation path, including UB staging and output aliasing. Run the built-in Raw operation checks for gather, sort and reduction.
 
 **Hygon BW1000:** In the DTK/HIP environment, run:
 
@@ -94,19 +83,7 @@ python3 third_party/hcu/python/tutorials/tle/raw/mlir/01-vector-add-defered.py
 python3 third_party/hcu/python/tutorials/tle/raw/mlir/03-matrix-multiplication-smem.py
 ```
 
-**Expected:** HIP/MLIR vector addition and shared-memory matrix multiplication match their references. The HIP deferred-matmul and MLIR deferred-vector-add scripts each exercise both eager and deferred compilation.
-
-For DUSHMEM interoperability, provide matching host/device libraries, device bitcode for the target architecture and two visible BW1000 devices:
-
-```bash
-source /opt/dtk/env.sh
-export LD_LIBRARY_PATH="/opt/dtk/lib/dushmem:${LD_LIBRARY_PATH:-}"
-unset DUSHMEM_BOOTSTRAP
-torchrun --standalone --nproc-per-node=2 \
-  third_party/hcu/python/tutorials/tle/raw/dushmem/01-simple-shift/simple-shift.py
-```
-
-**Expected:** Both ranks pass the ring-shift check through a Raw device-library call. The existing distributed CI uses BW1100; BW1000 results are required here.
+**Check:** Compare HIP/MLIR vector addition and shared-memory matrix multiplication with the scripts' references. The HIP deferred-matmul and MLIR deferred-vector-add scripts each exercise eager and deferred compilation.
 
 **Kunlunxin P800:** Run compiler regressions and the XPU3 device test separately:
 
@@ -119,19 +96,13 @@ TRITON_XPU_ARCH=3 python3 -m pytest -q \
   third_party/xpu/test/tle_raw/vector_add/test_tle_raw_vector_add.py
 ```
 
-**Expected:** Compiler tests check payload registration, cache keys, signatures and linking. Device vector addition matches a PyTorch CPU reference and the equivalent Triton kernel, including partial tiles. Add device coverage for the object-payload path using a Raw-using operator.
+**Check:** The first two files check Raw registration, signatures and linking without device execution. Use the vector-add device test to check pointer/scalar arguments and output values against PyTorch CPU and Triton references, including partial tiles.
 
-### G3: operator correctness and performance
+### G2: operator use
 
-Agree release workloads and performance thresholds with the operator teams, prioritizing Hygon and vendor-provided Iluvatar/Enflame scenarios. For each backend/operator pair, provide the source revision, Raw call site, external function or payload, shapes/dtypes, reference, accuracy tolerance and test command.
+Select workloads with the operator teams, prioritizing Hygon and the vendor-provided Iluvatar/Enflame scenarios. For each selected workload, identify the Raw call site and inputs that exercise it, and provide the existing correctness and benchmark commands.
 
-Kunlunxin's FlagGems `reflection_pad1d` is an existing object-payload candidate. Use valid nonzero reflection padding and at least 262,144 output elements; retain a device trace showing `pad1d_raw_edges_kernel` executes. Its fallback paths must not count as Raw coverage. Confirm workload coverage for the other backends before acceptance.
-
-Compare with the vendor-native implementation or an agreed equivalent reference on the same device, inputs, precision and runtime environment. Reuse operator-team correctness and benchmark cases. Where an equivalent pre-Raw implementation exists, also compare against it.
-
-For Hygon, reproduce the deferred-mode HIP SGEMM comparison reported in #1508's review against [#1345](https://github.com/flagos-ai/FlagTree/pull/1345) (closed, unmerged). Obtain and pin the original benchmark script, shapes, dtype and toolchain first; these are not specified in the review.
-
-**Expected:** Numerical checks pass at the agreed tolerances, and the selected Raw path executes. Record warmed-up operator latency for both implementations and report `reference latency / Raw-using operator latency` per workload. Record compilation time separately.
+Check results using the operator tests' reference and accuracy tolerances. Compare operator latency with the vendor-native implementation or an agreed reference on the same device, inputs, dtype and runtime environment. Report both latencies.
 
 ## Related PRs
 
