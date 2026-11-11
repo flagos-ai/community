@@ -2,6 +2,8 @@
 
 **Status:** `Provisional`
 
+**Implementation Status:** `In Progress`
+
 **Created:** 2026-11-05
 
 **Owner:** @Galaxy1458
@@ -12,7 +14,7 @@
 
 ## Summary
 
-Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primitives through [FlagCX](https://github.com/flagos-ai/FlagCX) to Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. Deliver two communication-compute fused operators per backend from priority models such as GLM, targeting more than 20% speedup over equivalent PyTorch implementations. Distributed autotuning targets eager and graph execution; graph integration and multi-rank validation remain to be implemented.
+Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primitives through [FlagCX](https://github.com/flagos-ai/FlagCX) to Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. Deliver two fused operators per backend from priority models such as GLM, targeting >20% speedup over equivalent PyTorch implementations. Autotuning targets eager and graph execution; graph integration and multi-rank validation are pending.
 
 ## Goals
 
@@ -20,12 +22,12 @@ Extend [FlagTree](https://github.com/flagos-ai/FlagTree) TLE distributed primiti
 |---|---|
 | G1 — Backends | Device communication and synchronization through TLE/FlagCX on Iluvatar, Hygon, Kunlunxin and DAMO ACADEMY. |
 | G2 — Fused operators | Deliver two communication-compute fused operators per backend from priority-model workloads by December 7, targeting >20% performance improvement over PyTorch. |
-| G3 — Autotuning | Coordinate candidate evaluation, configuration selection and cache reuse across ranks for eager and graph workflows. Graph integration and multi-rank validation remain to be implemented. |
+| G3 — Autotuning | Coordinate candidate evaluation, selection and cache reuse across ranks in eager and graph workflows. Graph integration and multi-rank validation are pending. |
 
 | Backend | Integration and test requirements |
 |---|---|
 | Iluvatar | FlagCX device runtime, peer-memory access and multi-device barrier tests. |
-| Hygon | Integrate [FlagTree #1441](https://github.com/flagos-ai/FlagTree/pull/1441): TLE/FlagCX primitives, HCU device-library linking and a two-device test workflow. Complete fused-operator validation. |
+| Hygon | Integrate [FlagTree #1441](https://github.com/flagos-ai/FlagTree/pull/1441): TLE/FlagCX primitives, HCU device-library linking and a two-device test workflow. |
 | Kunlunxin | Integrate [FlagTree #1436](https://github.com/flagos-ai/FlagTree/pull/1436) with matching FlagCX host libraries, XPU device bitcode and XSHMEM; complete the remote-write and synchronization paths. |
 | DAMO ACADEMY (`third_party/thrive`) | Complete the TLE/FlagCX device path. Awaiting test hardware. |
 
@@ -42,26 +44,26 @@ Publish the matching source, distributed-operator tutorials and autotuning docum
 
 ## Test Plan
 
-Use the same candidate images and source revisions for development and QA on each backend. Record device model, card count, interconnect, SDK/driver, Python/PyTorch/FlagTree, FlagCX and vendor communication-library versions. Each operator case records its model path, shape, input/output and accumulation dtypes, reference revision, accuracy tolerance and execution mode.
+Use identical development and QA images and source revisions per backend. Record device model, card count, interconnect, SDK/driver, Python/PyTorch/FlagTree, FlagCX and vendor communication-library versions. Each case records its model path, shape, input/output and accumulation dtypes, reference revision, accuracy tolerance and execution mode.
 
-Run the following commands from the matching FlagTree checkout. Before runtime tests, check that generated FlagCX device calls resolve against the selected bitcode and vendor device libraries. Confirm each backend's operator list and benchmark cases before acceptance, and retain results for every backend/operator pair.
+Run commands from the matching FlagTree checkout. Before device tests, verify that generated FlagCX calls link against the selected bitcode and vendor device libraries.
 
 ### G1: distributed primitives
 
-Run the common mesh and sharding front-end regressions. These tests do not execute device kernels or cross-rank communication:
+Front-end mesh/sharding regression; no device kernels or cross-rank communication:
 
 ```bash
 python3 -m pytest -q python/test/tle/unit/test_tle_distributed.py
 ```
 
-On NVIDIA reference and Iluvatar environments, configure the backend's FlagCX runtime and select two visible devices. Run the peer-memory test:
+On NVIDIA and Iluvatar, configure FlagCX and select two visible devices for the peer-memory test:
 
 ```bash
 torchrun --standalone --nproc-per-node=2 \
   python/test/tle/unit/test_tle_distributed_d2d.py
 ```
 
-On Iluvatar, also run the device-barrier test:
+Iluvatar device-barrier test:
 
 ```bash
 torchrun --standalone --nproc-per-node=2 \
@@ -72,7 +74,7 @@ For Hygon, integrate #1441 and run the `TLE-FlagCX Distributed Unit Tests (2 GPU
 
 **Expected:** Each rank reads the expected peer data. Iluvatar barrier, arrive/wait and ordering checks pass across repeated executions. Retain per-rank results and exit codes.
 
-For Kunlunxin, complete the device-init and signal/wait linkage required by #1436, and configure its XPU SDK, XCCL and FlagCX device libraries. Then run its two-device signal tests:
+For Kunlunxin, complete #1436's device-init and signal/wait linkage, configure XPU SDK/XCCL/FlagCX dependencies, and run the two-device signal tests:
 
 ```bash
 # Requires FlagTree PR #1436 (not yet merged).
@@ -88,14 +90,14 @@ NPROC_PER_NODE=2 NNODES=1 NODE_RANK=0 \
 
 For 2.3, use PyTorch as the performance baseline; FEP-0096 used Triton-distributed.
 
-The single-node eager tutorial in [#1599](https://github.com/flagos-ai/FlagTree/pull/1599) contains two operator families:
+Single-node eager workloads from [#1599](https://github.com/flagos-ai/FlagTree/pull/1599):
 
 | Fused operator | Required PyTorch performance reference |
 |---|---|
 | Reduce-scatter + residual add + RMSNorm + all-gather | `torch.distributed.all_reduce` + residual add + RMSNorm, including the same local residual update. |
 | Q/KV RMSNorm + all-gather | `torch.distributed.all_gather_into_tensor` + Q/KV RMSNorm. |
 
-After integrating #1599, run it on backends with the required TLE/FlagCX path. Set `FEP_NPROC` to the selected card count, at least two, and `FEP_RESULTS` to an existing output directory:
+After integrating #1599 on a backend with the TLE/FlagCX path, set `FEP_NPROC` to the card count (at least two) and `FEP_RESULTS` to an existing output directory:
 
 ```bash
 # Requires FlagTree PR #1599 (not yet merged).
@@ -106,22 +108,22 @@ PEER=tle NPROC_PER_NODE="$FEP_NPROC" DTYPE=bf16 \
 
 **Expected:** The run reports `peer=tle`; output and residual checks pass on all ranks, including uneven row counts and repeated calls with changing shapes. Signal waits complete without timeouts.
 
-For release benchmarks, validate both timed implementations against the same correctness reference, including updated residuals. Reset mutable inputs and residuals between iterations and account for reset costs consistently. Compare equivalent outputs on the same devices, with matching shapes, input/output dtypes and execution modes. Measure the complete fused operation and its PyTorch reference, including communication, and use the slowest rank. Retain the accuracy checks and per-shape latency samples.
+Validate both timed implementations against the same reference, including residual updates. Reset mutable inputs and residuals between iterations; account for reset costs consistently. Match hardware, shapes, input/output dtypes and execution modes. Measure complete-operation latency, including communication, using the slowest rank. Retain correctness results and per-shape timing samples.
 
-Report speedup as `PyTorch latency / TLE latency` and improvement as `(speedup - 1) × 100%`, against the >20% target. Define the acceptance workloads and aggregation before testing. Complete the release operator list and backend-specific commands to cover G2; shape variants of one operator do not increase the operator count.
+Report speedup as `PyTorch latency / TLE latency` and improvement as `(speedup - 1) × 100%`. Set each backend's operator list, workloads and aggregation before testing. Provide commands and results for each backend/operator pair. Shape variants do not increase the operator count.
 
 ### G3: distributed autotuning
 
-Integrate [#1446](https://github.com/flagos-ai/FlagTree/pull/1446) for rank coordination and caching. That PR does not provide distributed graph integration or multi-rank tests. Run its local autotuner regressions:
+Run [#1446](https://github.com/flagos-ai/FlagTree/pull/1446)'s local autotuner regressions, which use mocked device interfaces by default:
 
 ```bash
 # Requires FlagTree PR #1446 (not yet merged).
 python3 -m unittest discover -s python/test/unit -p test_function_autotune.py
 ```
 
-**Expected:** Candidate selection, pruning, cache reuse and argument checks pass. This suite uses mocked device interfaces by default.
+**Expected:** Candidate selection, pruning, cache reuse and argument checks pass.
 
-Add executable multi-rank cases using the G2 operators and `autotune_pg` for all participating ranks. Verify each candidate's correctness with restored inputs and residuals before comparing timings:
+Add executable multi-rank eager/graph cases using G2 operators and `autotune_pg` for all participating ranks. Restore inputs and residuals and verify each candidate's correctness before timing:
 
 | Case | Expected result |
 |---|---|
@@ -130,7 +132,7 @@ Add executable multi-rank cases using the G2 operators and `autotune_pg` for all
 | Cached execution | All ranks reuse the same selected configuration; repeated calls and a restarted run remain correct. |
 | Inconsistent rank settings or no common candidate | All ranks report the error without hanging. |
 
-Compare tuned execution with `autotune=False` on identical workloads. Record the selected configuration, tuning time, per-rank latency and cache state. The distributed comparison uses the maximum latency across ranks. Complete the multi-rank eager/graph test commands before acceptance.
+Compare tuned execution with `autotune=False` on identical workloads, using the maximum latency across ranks. Record the selected configuration, tuning time, per-rank latency and cache state.
 
 ## Related PRs
 
