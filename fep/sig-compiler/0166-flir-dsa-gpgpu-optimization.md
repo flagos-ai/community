@@ -44,21 +44,54 @@ FLAGTREE_BACKEND=metax FLAGTREE_COMMON_IR=1 python3 -m pip wheel . \
 
 ## Test Plan
 
-The Owner supplies cases and commands for each feature, including numerical references and tolerances where applicable. Record the device model, SDK/driver and software revisions, and report failures and skips.
+Run the tests from the matching FlagTree checkout with its backend-specific installation. Record the device model, SDK/driver, PyTorch version and FlagTree/FLIR revisions. Each case records its shape, dtype, numerical reference and tolerance. Report failures and skips separately.
 
-| Goal | Feature | Validation |
-|---|---|---|
-| G1 | Tensor View | Compile and run irregular-memory-access cases on Ascend; compare outputs with their references. |
-| G1 | L1 reuse and on-chip memory management | Run cases that use L1 data reuse and on-chip buffers; compare outputs with their references. |
-| G1 | Instruction vectorization | Run vectorized operator cases on Ascend; compare outputs with their references. |
-| G2 | CommonIR adaptation and layout optimization | Compile and run CommonIR cases covering layout inference, optimization and evaluation on MetaX; compare operator outputs with their references. |
-| G2 | Warp lowering | Compile and run MetaX cases through Tile Op → Warp Op → TTGIR; compare outputs with their references. |
-| G3 | Optimization templates and Skills | Run the accompanying Ascend and MetaX examples and check their outputs. |
-| G3 | Instruction-level benchmark knowledge base | Run the MetaX instruction benchmarks and record their results with the hardware and software versions. |
+### G1: Ascend
 
-For key-operator performance, compare the baseline and optimized implementations on the same device, inputs, dtype, runtime environment and timing method. Record the actual implementations and both latencies. Assess the 30% target using the operator list and evaluation criteria confirmed by the Owner.
+**Tensor View:** In the integration checkout for [#1483](https://github.com/flagos-ai/FlagTree/pull/1483) (not yet merged), with its listed FlagTree/FLIR dependencies, run:
 
-Before acceptance, the Owner confirms the key-operator lists, shapes/dtypes, device configurations, MetaX baseline and how the performance target is assessed across cases, and supplies missing feature tests.
+```bash
+python3 test/CommonIR/Ascend/success_case/tensor_view/index_select.py
+python3 test/CommonIR/Ascend/success_case/tensor_view/paged_kv_block_gather.py
+```
+
+**Check:** Compare index selection and paged-KV block gathering with the scripts' PyTorch references. The index-selection cases include partial tail blocks and non-power-of-two row widths.
+
+**Instruction vectorization:** Run the MHC regression included in [#1306](https://github.com/flagos-ai/FlagTree/pull/1306) on the Ascend build:
+
+```bash
+python3 test/CommonIR/Ascend/mhc/test_mhc_pre_clamp_sinkhorn.py \
+  --device npu --check
+```
+
+**Check:** Verify `y`, `post_out` and `comb_frag` against the script's reference using its numerical tolerances.
+
+**L1 reuse and on-chip memory management:** Supply the missing operator case and command with the implementation. Identify the L1 reuse path exercised by the case and compare the operator output with its reference.
+
+### G2: MetaX
+
+**CommonIR and layout optimization:** Use an integration build containing [#1471](https://github.com/flagos-ai/FlagTree/pull/1471) and [FLIR #79](https://github.com/flagos-ai/flir/pull/79), both under review. Build with `FLAGTREE_COMMON_IR=1` and install SciPy >= 1.12, then run:
+
+```bash
+python3 -m pytest -q test/CommonIR/tle/09-maca-matmul_tn_1.py
+python3 test/CommonIR/tle/11-kda_sigmoid_gate_update.py
+```
+
+**Check:** Compare the FP16 matrix-multiplication cases using layout autotuning with PyTorch. Check the explicit-layout KDA example against its reference; any reported `False` or `ERR` is a failure even if the process exits successfully. Add cases covering the layout-evaluation model and resulting operator outputs with that implementation.
+
+**Warp lowering:** Complete the MetaX integration case and command for [FLIR #81](https://github.com/flagos-ai/flir/pull/81). Verify that the case compiles through Tile Op → Warp Op → TTGIR and that its device output matches the reference. The integrated case is still pending.
+
+### G1–G2: key-operator performance
+
+Confirm the operator lists, shapes/dtypes, device configurations and performance assessment criteria with the Owner before testing. Pin the current FlagGems baseline for Ascend and the agreed reference for MetaX, recording the implementations actually executed.
+
+Run correctness and benchmark commands supplied with the selected operators. Match the device, inputs, dtype, runtime environment and timing method. Report both latencies and speedup as `reference latency / optimized latency` per case. Assess the 30% target using the agreed criteria across cases.
+
+### G3: optimization knowledge
+
+Run the examples accompanying the Ascend and MetaX optimization templates and Skills, and the MetaX instruction benchmarks, using their documented commands and environments. Supply these artifacts and commands before acceptance.
+
+**Check:** Verify example outputs against their supplied references. Record instruction-benchmark measurements with the source revision and hardware/software versions for the knowledge base.
 
 ## Related PRs
 
