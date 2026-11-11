@@ -6,7 +6,7 @@
 
 **Created:** 2026-11-05
 
-**Owner:** @i3wanna2 ([Q3–Q4 adaptation plan](https://jwolpxeehx.feishu.cn/wiki/U5ybwsIxXiPvI3krKyPcwfrgnrb))
+**Owner:** @i3wanna2
 
 **SIG:** sig-compiler
 
@@ -30,6 +30,8 @@ Complete [FlagTree](https://github.com/flagos-ai/FlagTree) TLE Raw integration o
 | Huawei Ascend 910B | `triton_v3.5.x` | AscendC device functions through the `cann` dialect and `tle_raw.call`; UB buffers and explicit output operands. |
 | Hygon BW1000 | `main` | HIP/MLIR device code through `call`/`call_smem`; shared-memory buffers and eager/deferred compilation. |
 | Kunlunxin P800 | `main` | XPU3 device code with pointer/scalar arguments and deferred linking. |
+
+[TLE Raw vendor integration examples](https://jwolpxeehx.feishu.cn/wiki/Ipvbwa1WYintOwkmNzUchJJun0c)
 
 ## Packaging
 
