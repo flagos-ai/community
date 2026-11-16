@@ -72,9 +72,9 @@ Release packages and dependency versions: TBD.
 
 ## Test Plan
 
-Use the agreed release dependencies for development and acceptance. Fix the device, software versions and required cases for each configuration, and retain test results. Hardware or configuration gaps remain pending.
+Use the agreed release dependencies and platform-specific operator/framework scope. Fix the hardware, software versions, inputs and reference checks for each configuration, and retain results. Unconfirmed configurations remain pending.
 
-### T1 — Install and use the correct compiler (G1, G3, G4)
+### T1 — Install FlagTree and run the first computation (G1, G3, G4)
 
 Test both a clean installation and an upgrade from an existing supported FlagOS environment. After installing all application dependencies, run the following outside the source checkout with the application's Python executable. Add any required vendor runtime-extension import before probing the driver:
 
@@ -94,73 +94,63 @@ print("Target:", driver.active.get_current_target())
 PYTEST
 ```
 
-**Pass:** the installed package and loaded module match the selected release, the backend targets the correct device, and a supported operator executes correctly. Check for dependency conflicts with `python3 -m pip check`. Repeat in a fresh process, and test editable installation separately where offered. Installation must work through the documented steps without manual `site-packages` patches.
+Then run `python3 -m pip check` and the applicable T2 operator example. Test editable installation separately where offered.
+
+**Pass:** dependency checks succeed, the loaded compiler is the selected release after application dependencies are installed, the backend selects the intended device, and the operator's numerical assertions pass. Repeat in a fresh process. The documented installation must work without manual `site-packages` patches.
 
 ### T2 — Run existing Triton operators on the target chip (G1, G2)
 
-On NVIDIA, compare upstream Triton 3.6 and the candidate FlagTree on the same device using identical operator sources and inputs. On other backends, use their supported operator lists and reference implementations. Cover these workloads where supported:
+On NVIDIA, run identical operator sources and inputs in separate upstream Triton 3.6 and candidate FlagTree environments on the same device. Start with the existing [fused-softmax example](https://github.com/flagos-ai/FlagTree/blob/20e0d0880518c9c77e445a579446337cdcacf4d7/python/tutorials/02-fused-softmax.py), which checks an irregular `(1823, 781)` FP32 input against PyTorch with `torch.allclose`. Set `FEP_TREE_ROOT` to the absolute path of the pinned source checkout:
 
-| Workload | Cases | Expected result |
-|---|---|---|
-| Elementwise computation and data movement | Small/large inputs, partial blocks/masks, supported non-contiguous layouts | Correct values, shape and dtype; masked writes preserve surrounding data. |
-| Reductions and normalization | Supported softmax/RMSNorm/reduction workloads with different reduction lengths | Results meet existing dtype-specific tolerances. |
-| Matrix multiplication and attention | Supported model-derived shapes/dtypes; low precision only on declared configurations | Compilation and device execution succeed; numerical results meet reference checks. |
-| Repeated application use | First compilation, repeated execution and a fresh process with the supported cache configuration | Correct results throughout; record first-use and steady-state behavior separately. |
-| Earlier device generation | Previously passing cases on the same vendor's supported earlier device | No correctness regression after the compiler upgrade. |
+```bash
+python3 "$FEP_TREE_ROOT/python/tutorials/02-fused-softmax.py" --only_unit_test
+```
 
-Keep operator implementations unchanged during compatibility testing.
-
-For Intellifusion, configure the IFWA environment and run from the 3.8 checkout:
+For Intellifusion, configure the IFWA environment and run the existing [vector-add and masked load/store cases](https://github.com/flagos-ai/FlagTree/blob/b6775869b99df358d7afbba3e15d4bf7afdfd1b0/third_party/intellifusion/examples/test_vector_add.py) from the 3.8 checkout:
 
 ```bash
 python3 third_party/intellifusion/ci/check_install.py --torch-ifwa
 python3 -m pytest -q third_party/intellifusion/examples/test_vector_add.py
 ```
 
-`check_install.py` checks installation only. Run the operator cases on physical hardware for device acceptance; keep CModel results separate.
+**Pass:** the unchanged operators compile and execute on the intended device, and their existing reference assertions pass. Intellifusion's cases check exact vector-add results and that masked stores preserve surrounding data; `check_install.py` alone checks installation only. Physical-device acceptance requires hardware runs, with CModel results recorded separately.
 
-### T3 — Keep FlagGems applications correct after the upgrade (G1, G2, G3)
+Extend these starting cases to the agreed native-operator inventory for each backend, including supported shapes, dtypes and layouts, reductions, matrix multiplication and attention. Repeat execution in the same process and a fresh process using the documented cache configuration. Do not change operator implementations or relax existing tolerances to pass compatibility testing. Final per-platform case lists remain TBD.
 
-Run a representative application and confirm that it executes the intended FlagGems kernels. Then compare baseline and candidate compilers using the same FlagGems revision and the platform's required operator list.
+### T3 — Run a PyTorch application through FlagGems (G1, G2, G3)
 
-Reuse the [FlagTree test action](https://github.com/flagos-ai/FlagTree/tree/main/.github/actions/run-flaggems-test). Set absolute paths for `FEP_GEMS_PATH` (a disposable checkout), `FEP_OPERATOR_LIST` (one operator ID per line), `FEP_SKIP_FILE` (reviewed exclusions) and `FEP_RESULT_DIR` (a new directory for this run). Set `FEP_GEMS_TAG` to the matching tag and `FEP_DEVICE_IDS` to comma-separated device IDs. From the pinned FlagTree checkout:
+On configurations declaring FP32 softmax support, run the same application with the baseline and candidate compilers, keeping the FlagGems revision fixed. Use separate working directories to retain both logs. Use the public [`use_gems` interface](https://github.com/flagos-ai/FlagGems/blob/4d584c59fc5cff365473695663c7b0ca64e46868/docs/content/en/usage/selective.md) around ordinary PyTorch calls:
 
-```bash
-export FEP_TREE_ROOT="$PWD"
-FEP_FIXTURE="$FEP_TREE_ROOT/.github/actions/run-flaggems-test/assets/gems/$FEP_GEMS_TAG/conftest.py"
-if [ -f "$FEP_FIXTURE" ]; then
-  cp "$FEP_FIXTURE" "$FEP_GEMS_PATH/tests/conftest.py"
-fi
-export PYTHONPATH="$FEP_GEMS_PATH/src${PYTHONPATH:+:$PYTHONPATH}"
-python3 "$FEP_TREE_ROOT/.github/actions/run-flaggems-test/assets/ci/ci_run_tests.py" \
-  --repo-kind flaggems --flaggems-path "$FEP_GEMS_PATH" \
-  --gpus "$FEP_DEVICE_IDS" --op-list-file "$FEP_OPERATOR_LIST" \
-  --skip-file "$FEP_SKIP_FILE" --output-dir "$FEP_RESULT_DIR"
+```python
+import torch
+import flag_gems
+from flag_gems.testing import assert_close
+
+torch.manual_seed(0)
+host_inputs = [
+    torch.randn(shape, dtype=torch.float32, device="cpu")
+    for shape in [(1, 256), (4096, 256), (200, 2560, 3)]
+]
+references = [torch.softmax(x.to(torch.float64), dim=1) for x in host_inputs]
+inputs = [x.to(flag_gems.device) for x in host_inputs]
+
+with flag_gems.use_gems(
+    include=["softmax"], record=True, path="./flaggems-softmax.log"
+):
+    outputs = [torch.softmax(x, dim=1) for x in inputs]
+
+for x, output, reference in zip(inputs, outputs, references):
+    assert output.device == x.device
+    assert_close(output.cpu(), reference, torch.float32)
 ```
 
-If the tag has no fixture override, its own `conftest.py` must support collection and JSON reporting. For FlagGems-vllm, use `--repo-kind flaggems-vllm`, its separate checkout and the required `assets/gems-vllm/<tag>/conftest.py`. Fix the test-runner revision for both baseline and candidate runs.
+The shapes come from the existing [softmax tests](https://github.com/flagos-ai/FlagGems/blob/4d584c59fc5cff365473695663c7b0ca64e46868/tests/test_softmax.py); numerical checks reuse [FlagGems' dtype-specific tolerances](https://github.com/flagos-ai/FlagGems/blob/4d584c59fc5cff365473695663c7b0ca64e46868/src/flag_gems/testing/__init__.py). Compute CPU references before enabling FlagGems.
 
-**Pass criteria:**
-
-- All required operators and parameterized cases execute and pass; exclusions cannot remove required cases. Check raw results against the case list for failures, missing cases, skips, collection errors and timeouts.
-- `marks_collection_ok` is true; `failed`, `errors` and `not_found` are zero for required cases. Verify actual passing-case counts: the runner may return zero with failures or label an all-skipped operator `Passed`.
-- Run the full agreed parameter set for acceptance. Reserve `--quick` and `--first-parameter-only` for smoke tests.
-
-Compare results with the matching baseline, using `FEP_BASELINE_RESULT_DIR` for its report directory:
-
-```bash
-python3 "$FEP_TREE_ROOT/.github/actions/compare-flaggems-test/scripts/compare_test_result.py" \
-  --baseline "$FEP_BASELINE_RESULT_DIR/summary.json" \
-  --candidate "$FEP_RESULT_DIR/summary.json" --exit-code
-```
-
-Use matching hardware, sources and cases for both reports. New backends require all required-case checks even when no historical baseline exists.
+**Pass:** ordinary PyTorch calls produce the expected shape, dtype and values on the target device without application or operator changes between compiler versions. Operator-call logs or a device trace must identify the invoked FlagGems kernels; registration alone is insufficient. Run the full supported operator suite as described below, beyond this application example.
 
 ### T4 — Upgrade the framework and serve real requests (G3)
 
-Test required APIs through their framework callers in the target release environment, including vLLM 0.32 configurations from FEP-0140. Where PyTorch Inductor is supported, compare a compiled workload with eager execution.
-
-For supported vLLM platforms, use real Qwen3.6-27B and Qwen3.6-35B-A3B weights with platform-appropriate TP/memory settings. From the matching plugin checkout:
+For supported vLLM platforms, use FEP-0140's vLLM 0.32 configuration and real Qwen3.6-27B and Qwen3.6-35B-A3B weights. Run the existing [adaptation gate cases](https://github.com/flagos-ai/vllm-plugin-FL/tree/d6d83803980fb78d84dcc1b3bc5b915b1fddb237/tools/adaptation-gate-cases) from the matching plugin checkout, adjusting TP and `MAX_MODEL_LEN` to the accepted device configuration:
 
 ```bash
 cd tools/adaptation-gate-cases
@@ -177,19 +167,32 @@ MODEL_PATH=/models/Qwen3.6-27B PORT=8000 \
 
 Repeat for the MoE model. Where graph mode is supported, stop the eager service, start `run_serve_graph.sh` on port 8001 and repeat the requests. Save results separately for each model/mode and confirm graph capture/execution in the logs.
 
-**Pass:** the FL plugin and candidate compiler are active, and all five scenarios pass: single text, single image, concurrent text, concurrent image and mixed requests (26 requests total). No API, JIT, device-launch or graph-capture errors occur. Task accuracy meets the framework's agreed dataset metrics and tolerances.
+| User task | Requests | Existing output checks |
+|---|---|---|
+| Ask for a detailed text response | 1 | Minimum response length and required terms. |
+| Read text from an image | 1 | Expected words appear in the required order. |
+| Submit concurrent text questions | 8 | Each response contains its expected answer terms. |
+| Submit concurrent image questions | 8 | Expected terms for colors, shapes, counts and visible text, in the required order. |
+| Submit text and image questions together | 8 | Each of four text and four image requests passes its checks. |
 
-Reuse FEP-0140/FEP-0141 performance, load and stability tests on the same candidate image, recording throughput, TTFT/TPOT and resource behavior. SGLang uses FEP-0141's applicable cases; these tests apply only to platforms with framework support.
+**Pass:** the FL plugin and candidate compiler are active; all 26 request results have `passed: true`, including the existing checks for empty, malformed or repetitive output. No API, JIT, device-launch or applicable graph-capture errors occur. These basic request checks must be supplemented by the framework's agreed task-accuracy datasets and tolerances; unconfirmed metrics remain TBD.
 
-### T5 — Upgrade, regress and reproduce the release (G1–G4)
+For each required Triton API, identify a framework caller and a request that exercises it. Add a focused compiled case for APIs not reached by these requests; successful imports or server startup alone do not establish compatibility. Where PyTorch Inductor is supported, compare the compiled workload with eager execution. SGLang uses FEP-0141's applicable cases.
 
-Rerun applicable T1–T4 workflows on existing platforms, comparing the previous supported compiler with the candidate while keeping other dependencies, inputs and hardware fixed. Record first-use compilation time and steady-state performance separately. Report comparisons requiring dependency changes as full-stack upgrades.
+### T5 — Assess an upgrade and restore the previous environment (G1–G4)
 
-Investigate regressions against the agreed workload baselines. Verify rollback by restoring the previous working image and rerunning a representative workload.
+Rerun applicable T1–T4 workflows on existing platforms, including supported earlier device generations. Compare the previous supported compiler with the candidate while keeping other dependencies, inputs and hardware fixed. Report comparisons requiring dependency changes as full-stack upgrades.
 
-For G4, verify normal/editable installations and the required CI jobs. Count successful executions against the coverage checklist; retain skipped jobs and hardware gaps as exceptions.
+Measure first-use compilation and steady-state performance separately, with diagnostic operator logging disabled for performance runs. For supported model deployments, reuse FEP-0140/FEP-0141 performance, load and stability tests on the candidate image, including throughput, TTFT/TPOT and resource behavior. Restore the previous working image and repeat the same representative operator or model workload.
 
-Before acceptance, confirm the platform/operator/API scope, release dependencies, reference tolerances and coverage checklists.
+**Pass:** required correctness cases still pass, performance and stability meet the agreed workload-specific acceptance limits, and rollback restores the baseline workload's expected behavior. Investigate regressions before acceptance; limits not yet agreed remain TBD.
+
+### Supporting operator regression and CI checks (G2, G4)
+
+- Use the [FlagTree test action](https://github.com/flagos-ai/FlagTree/tree/20e0d0880518c9c77e445a579446337cdcacf4d7/.github/actions/run-flaggems-test) with the platform's required operator list and full parameter set. Pin the same runner and operator-library revisions for baseline and candidate. Apply the matching `assets/gems/<tag>/conftest.py` override where provided; otherwise verify the checkout's collection/reporting support. FlagGems-vllm requires its separate `assets/gems-vllm/<tag>/conftest.py` and `--repo-kind flaggems-vllm`.
+- Every required case must execute and pass. Check raw results and case counts for failures, skips, missing cases, collection errors and timeouts; exclusions cannot remove required cases. Require `marks_collection_ok: true` and zero `failed`, `errors` and `not_found` for required cases. The runner can return zero with failures or label an all-skipped operator `Passed`.
+- Use the [result comparator](https://github.com/flagos-ai/FlagTree/blob/20e0d0880518c9c77e445a579446337cdcacf4d7/.github/actions/compare-flaggems-test/scripts/compare_test_result.py) with `--exit-code` for baseline regressions, alongside the required-case checks. New backends still need complete required-case results without a historical baseline. `--quick` and `--first-parameter-only` are smoke-test options, not release acceptance.
+- Verify specialization items and count successful CI executions against G4's agreed checklists. Skipped jobs and unavailable hardware remain gaps, not passing coverage.
 
 ## Related PRs
 
