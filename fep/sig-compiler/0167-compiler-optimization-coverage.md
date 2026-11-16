@@ -12,7 +12,7 @@
 
 ## Summary
 
-Extend [FlagTree](https://github.com/flagos-ai/FlagTree) optimization coverage through FlagOSTune, layout optimization, task and instruction scheduling, mixed precision and synchronization optimization. Apply these techniques to a cumulative twenty operator/device combinations across NVIDIA, T-Head PPU, Hygon, MetaX and Moore Threads, focusing on key operators used by Qwen and DeepSeek.
+Optimize key Qwen and DeepSeek operators in [FlagTree](https://github.com/flagos-ai/FlagTree) through FlagOSTune, layout optimization, task and instruction scheduling, mixed precision and synchronization optimization. Cover a cumulative twenty operator/device combinations across NVIDIA, T-Head PPU, Hygon, MetaX and Moore Threads.
 
 ## Goals
 
@@ -24,7 +24,7 @@ Extend [FlagTree](https://github.com/flagos-ai/FlagTree) optimization coverage t
 | G4 — Mixed precision | Support low-precision floating-point and integer formats on the selected backends, and reuse accumulators across operand precisions to reduce register usage. |
 | G5 — Synchronization | Remove redundant synchronization in warp-specialized and TMA-store paths while preserving required memory ordering. |
 
-Count each operator/device pair once, regardless of the number of shapes or optimizations. Separate existing coverage from additions in 2.3. The Owner will provide the twenty-pair list, per-feature backend coverage and performance criteria.
+Count each operator/device pair once, regardless of the number of shapes or optimizations. Separate existing coverage from additions in 2.3. The twenty-pair list and per-feature backend coverage remain for the Owner to confirm.
 
 ## Packaging
 
@@ -36,28 +36,29 @@ Compiler passes and the FlagTune runtime ship in the FlagTree wheel. Build from 
 python3 -m pip wheel . --no-deps --no-build-isolation --wheel-dir dist
 ```
 
-FlagTune's optional Python dependencies are declared in the `flagtune` extra. Predictor packages are loaded separately through its manifest and model-cache mechanism; record the matching manifest and model-package versions.
+FlagTune's optional Python dependencies are declared in the `flagtune` extra. Predictor packages are distributed separately; record the matching manifest and model-package versions.
 
 ## Test Plan
 
-Run the tests from the matching FlagTree checkout and backend installation. Record the device model, SDK/driver, PyTorch, FlagTree and operator-source revisions. Each operator case records its shape, input/output and accumulation dtypes, reference and accuracy tolerance. Report compiler-only checks, device results, failures and skips separately. The IR commands require matching `triton-opt` and LLVM `FileCheck` binaries on `PATH`.
+Run from the matching FlagTree checkout and backend installation. Record the device model, SDK/driver, PyTorch, FlagTree and operator-source revisions. Each operator case records its shape, input/output and accumulation dtypes, reference and accuracy tolerance. Report compiler checks, device results, failures and skips separately. IR checks use matching `triton-opt` and LLVM `FileCheck` binaries.
 
 ### G1: FlagOSTune
 
-Run the runtime and configuration-contract regressions:
+Run the runtime, configuration and benchmark-protocol regressions:
 
 ```bash
 python3 -m pytest -q python/test/flagtune/test_autotuner.py \
-  python/test/flagtune/test_config_registry.py
+  python/test/flagtune/test_config_registry.py \
+  python/test/flagtune/test_benchmark_protocol.py
 ```
 
-**Check:** Verify dtype identity, candidate-configuration constraints, model-version compatibility and error reporting. These tests do not measure device tuning speed.
+**Check:** Verify dtype identity, candidate constraints, model-version compatibility, error reporting and event/replay timing settings.
 
-For each selected operator/backend, compare model-guided tuning with the agreed autotuning baseline using the same candidate space, inputs and timing method. Record search time, configurations measured, the selected configuration and its latency. Check the selected configuration's numerical output using the operator's reference.
+For operators using `triton.flagtune.flagtune`, run their correctness and benchmark commands in separate processes with `FLAGTUNE_ENABLE=0` and `FLAGTUNE_ENABLE=1`. Use matching predictor packages, the same candidate space, inputs and timing mode, and fresh tuning caches. Confirm that the enabled run uses model predictions. Record search time, configurations measured, the selected configuration and its latency; verify its numerical output. Supply the operator commands with the coverage list.
 
 ### G2: layout optimization
 
-Run the enhanced layout-conversion regressions from [#1333](https://github.com/flagos-ai/FlagTree/pull/1333):
+**NVIDIA layout conversion:** Run the IR regressions from [#1333](https://github.com/flagos-ai/FlagTree/pull/1333):
 
 ```bash
 triton-opt test/TritonGPU/remove-layout-conversions-enhance.mlir \
@@ -68,7 +69,15 @@ triton-opt third_party/tle/test/GPU/test_tle_set_layout_remove_layout_conversion
   | FileCheck third_party/tle/test/GPU/test_tle_set_layout_remove_layout_conversions.mlir
 ```
 
-**Check:** Verify the expected conversion placement and preservation of explicit layouts. These are IR checks; the enhancement is currently enabled by default on NVIDIA. Validate other selected backend/operator combinations with their own correctness and performance cases.
+**Check:** Verify conversion placement and preservation of explicit layouts.
+
+**Moore Threads shared KV layouts:** Run the compiler and device regressions from [#1450](https://github.com/flagos-ai/FlagTree/pull/1450):
+
+```bash
+python3 -m pytest -q third_party/mthreads/python/test/unit/tle/test_tle_sqmma_kv_root.py --device musa
+```
+
+**Check:** Compatible K/V consumers share one physical allocation and produce the reference QK/PV results. Incompatible physical layouts are rejected.
 
 ### G3: task and instruction scheduling
 
@@ -90,7 +99,7 @@ triton-opt test/TritonGPU/reorder-instructions.mlir \
 
 **Check:** Verify the expected instruction order and operand dependencies.
 
-For the Moore Threads scheduling and fusion changes in [#1612](https://github.com/flagos-ai/FlagTree/pull/1612), run the compiler regressions with that PR's matching backend build:
+For Moore Threads [#1612](https://github.com/flagos-ai/FlagTree/pull/1612), run the compiler regressions with the matching backend build:
 
 ```bash
 # Requires FlagTree PR #1612 (not yet merged).
@@ -99,7 +108,7 @@ python3 -m pytest -q \
   third_party/mthreads/python/test/unit/tle/test_sqmma_overlap_add_order.py
 ```
 
-**Check:** Verify FP8 packing/add fusion and ADD placement around SQMMA, preserving required waits. These are compiler checks; device correctness and performance cases remain to be supplied before acceptance.
+**Check:** Verify FP8 packing/add fusion and ADD placement around SQMMA, preserving required waits. The transforms are disabled by default. Operator tests must record the enabled scheduling options and provide device correctness and performance results.
 
 ### G4: mixed precision
 
@@ -112,7 +121,7 @@ python3 python/tutorials/mixed_precision/03-int8.py
 python3 python/tutorials/mixed_precision/04-int4.py
 ```
 
-**Check:** Verify the supported floating-point conversions and matrix products using the scripts' assertions. Check integer matrix products and INT4 packing/unpacking for exact results. Record native, emulated and unsupported paths separately.
+**Check:** Verify supported floating-point conversions and matrix products using the scripts' assertions. Check integer matrix products and INT4 packing/unpacking for exact results. Record native, emulated and unsupported paths separately; unsupported paths do not count as validated coverage.
 
 On Moore Threads, run the cross-precision accumulator tests from [#1401](https://github.com/flagos-ai/FlagTree/pull/1401):
 
@@ -125,25 +134,25 @@ python3 -m pytest -q third_party/mthreads/python/test/unit/tle/test_tle_sqmma_ac
 
 ### G5: synchronization optimization
 
-On NVIDIA Hopper, use an integration build containing [#1166](https://github.com/flagos-ai/FlagTree/pull/1166), which is still under review:
+On NVIDIA Hopper, use an integration build containing [#1166](https://github.com/flagos-ai/FlagTree/pull/1166):
 
 ```bash
 # Requires FlagTree PR #1166 (not yet merged).
+triton-opt third_party/tle/test/Analysis/test-membar-static-views.mlir \
+  -split-input-file --allocate-shared-memory -test-print-membar \
+  | FileCheck third_party/tle/test/Analysis/test-membar-static-views.mlir
 python3 -m pytest -q python/test/tle/integration/test_tle_tma_store_dataflow.py
 ```
 
-**Check:** Verify TMA-store results across branches, nested loops and source-buffer reuse, including the test's pending-store wait checks. Add device cases for the selected warp-specialized barrier-removal paths and compare operator latency using the criteria below.
+**Check:** The IR tests preserve barriers for conflicting shared-memory accesses and avoid barriers between disjoint slots. Device tests verify TMA-store results across branches, nested loops and source-buffer reuse, including pending-store waits. Supply device cases for the selected warp-specialized barrier-removal paths.
 
 ### Operator performance and coverage
 
-For every selected pair, identify the optimization and whether the operator source changes. Use the operator's correctness and benchmark commands:
+For each selected pair, record its model use, optimization, source revisions, correctness and benchmark commands, and whether the operator source changes. Verify that the case exercises the stated optimization through its runtime configuration or generated IR/instructions.
 
-- **Compiler-only changes:** Keep operator sources and other dependencies fixed; compare the agreed compiler baseline with the 2.3 candidate.
-- **New or rewritten operators:** Compare with the vendor-native implementation or another agreed reference using equivalent inputs, precision and accuracy requirements.
+Compare with the vendor-native implementation or an agreed reference on the same device, inputs, precision and timing method. When operator sources are unchanged, also compare the baseline and 2.3 compiler builds with other dependencies fixed.
 
-Use the same device and timing method, and record both latencies and speedup as `reference latency / candidate latency`. Report regressions alongside gains. For mixed precision, specify operand and accumulation formats so that a format change is not reported as compiler-only speedup.
-
-Complete correctness and performance records for twenty distinct operator/device pairs. Record the model use, device, optimization, reference, source revisions and commands for each pair, separating existing coverage from 2.3 additions. The Owner confirms the pair list, performance thresholds and aggregation before acceptance.
+Report both latencies and speedup as `reference latency / candidate latency`, including regressions. For mixed precision, record operand and accumulation formats. Confirm per-case thresholds and aggregation with the Owner before testing, and retain correctness and performance results for all twenty pairs.
 
 ## Related PRs
 
