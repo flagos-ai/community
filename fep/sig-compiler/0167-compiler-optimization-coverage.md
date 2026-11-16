@@ -44,7 +44,7 @@ FlagTune's optional Python dependencies are declared in the `flagtune` extra. Pr
 
 Test the installed FlagTree wheel on each selected device. Record the device model, SDK/driver, PyTorch, FlagTree and operator-source revisions, compiler options and predictor-package versions.
 
-For each of the twenty operator/device pairs, supply a runnable case from its Qwen or DeepSeek workload: model and operator, applicable prefill/decode stage, shapes, strides, operand/output/accumulation dtypes, optimization exercised, reference, accuracy tolerance and test commands. Use the model's actual batch and sequence configurations. Add missing model shapes to the operator's correctness tests and benchmarks. Each command must identify the case and produce numerical assertions or a benchmark record.
+For each of the twenty operator/device pairs, supply a runnable case from its Qwen or DeepSeek workload: model and operator, applicable prefill/decode stage, shapes, strides, operand/output/accumulation dtypes, optimization exercised, reference, accuracy tolerance and test commands. Use the model's actual batch and sequence configurations. Add missing model shapes to the operator's correctness tests and benchmarks. Pair each benchmark case with a correctness check using the same operator entry point and input configuration. Repeated-call cases must specify their iteration count and timeout.
 
 ### 1. Upgrade FlagTree and rerun existing operators
 
@@ -54,19 +54,21 @@ Exercise the layouts used by the model, including transposed weights or shared K
 
 **Check:** Outputs satisfy the reference tolerance on every selected shape, repeated calls complete without stale results or hangs, and steady-state latency is recorded after warmup. Confirm that the intended kernel and optimization execute.
 
-An existing FlagGems regression reproduces a vLLM-style matrix multiplication with a transposed BF16 weight and an explicit output buffer. From the matching FlagGems checkout, run:
+An existing FlagGems regression checks one fixed-shape `mm_out` call with a transposed BF16 weight and an explicit output buffer, following a vLLM invocation pattern. From the matching FlagGems checkout, run:
 
 ```bash
 python3 -m pytest -q tests/test_mm.py::test_mm_out_vllm_tma_column_major_weight
 ```
 
-For selected FlagGems matrix multiplications, use `benchmark/test_mm.py::test_mm` with a versioned `--shape_file` containing the model dimensions. Enumerate workloads with `--list-cases`, select the required dimensions and weight layout with `--case-id`, and save that case manifest. Keep the FlagGems revision, shape file, dtype, level and timing options identical across runs; case IDs depend on enumeration order. Record benchmark results with `--record json` and a named `--output` file.
+Add model-shape and repeated-call cases with the selected operators. For performance, use `benchmark/test_mm.py::test_mm_out` for `mm_out`, or `benchmark/test_mm.py::test_mm` for `mm`. These benchmarks measure latency; they do not check numerical correctness.
+
+Provide model dimensions in a versioned `--shape_file`. Enumerate workloads with `--list-cases`, select the required dimensions and weight layout with `--case-id`, and save that case manifest. Keep the FlagGems revision, shape file, dtype, level and timing options identical across runs; case IDs depend on enumeration order. Record benchmark results with `--record json` and a named `--output` file.
 
 ### 2. Enable tuning and process subsequent inputs
 
 Run the same adapted operator with prediction disabled and enabled in separate processes, using matching predictor packages, inputs and timing modes. Match the legal candidate space when measuring the effect of prediction. Record the operator identity, variant and effective tuning policy; confirm that the enabled run uses predictions rather than fallback.
 
-For `triton.flagtune.flagtune`, the switch is `FLAGTUNE_ENABLE=0/1`. Adapted FlagGems LibTuner paths use `USE_FLAGTUNE=1` with `USE_FLAGTUNE_COST_MODEL=0/1`; verify their effective candidate spaces before comparing them.
+For `triton.flagtune.flagtune`, the switch is `FLAGTUNE_ENABLE=0/1`. Adapted FlagGems LibTuner paths use `USE_FLAGTUNE=1` with `USE_FLAGTUNE_COST_MODEL=0/1`; verify their effective candidate spaces before comparing them. If those spaces differ, report the comparison as a combined tuning-policy change.
 
 1. Start each run with isolated, empty compilation and tuning caches. Record first-call elapsed time through device completion, the reported tuning time, configurations measured and selected configuration.
 2. Repeat the same shape/dtype/layout with new data, then run an input with a different tuning key and return to the original workload. Check configuration reuse and numerical outputs throughout.
@@ -86,7 +88,7 @@ For cross-precision accumulator reuse, exercise the operand-precision sequence a
 
 ### 4. Run an integrated model
 
-For selected operators already integrated into a runnable Qwen or DeepSeek deployment, rerun its existing model regression with fixed weights, inputs and framework configuration.
+For selected operators already integrated into a runnable Qwen or DeepSeek deployment, rerun its existing model regression with fixed weights, inputs and framework configuration. Supply the deployment/test command and existing model acceptance criteria with that integration.
 
 **Check:** Confirm that the optimized operators are invoked, check outputs against the existing acceptance criteria, and record model latency or throughput separately from operator timings.
 
@@ -112,7 +114,7 @@ python3 python/tutorials/mixed_precision/03-int8.py
 python3 python/tutorials/mixed_precision/04-int4.py
 ```
 
-Hygon and MetaX low-precision tests depend on [#1587](https://github.com/flagos-ai/FlagTree/pull/1587) and [#1493](https://github.com/flagos-ai/FlagTree/pull/1493), both under review. Add the selected warp-specialized barrier-removal device cases with their implementation. Retain the affected layout, instruction-order and barrier IR regressions as compiler checks. Report failures and skips separately; a successful exit from an unsupported example is not a device pass.
+Hygon and MetaX low-precision tests depend on [#1587](https://github.com/flagos-ai/FlagTree/pull/1587) and [#1493](https://github.com/flagos-ai/FlagTree/pull/1493), both under review. Add the selected warp-specialized barrier-removal device cases with their implementation. Retain the affected layout, instruction-order and barrier IR regressions as compiler checks. Record device results separately from compiler checks and mocks, including failures and skips; a successful exit from an unsupported example is not a device pass.
 
 ### Results and coverage
 
