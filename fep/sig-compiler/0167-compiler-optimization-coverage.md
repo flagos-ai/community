@@ -42,7 +42,7 @@ FlagTune's optional Python dependencies are declared in the `flagtune` extra. Pr
 
 Test the installed FlagTree wheel on each selected device. Record the device model, SDK/driver, PyTorch, FlagTree and operator-source revisions, compiler options and predictor-package versions.
 
-For each of the twenty operator/device pairs, supply a runnable case from its Qwen or DeepSeek workload: model and operator, applicable prefill/decode stage, shapes, strides, operand/output/accumulation dtypes, optimization exercised, reference, accuracy tolerance and test commands. Use the model's actual batch and sequence configurations. Add missing model shapes to the operator's correctness tests and benchmarks.
+For each of the twenty operator/device pairs, supply a runnable case from its Qwen or DeepSeek workload: model and operator, applicable prefill/decode stage, shapes, strides, operand/output/accumulation dtypes, optimization exercised, reference, accuracy tolerance and test commands. Use the model's actual batch and sequence configurations. Add missing model shapes to the operator's correctness tests and benchmarks. Each command must identify the case and produce numerical assertions or a benchmark record.
 
 ### G2/G3/G5: run model operators after a compiler upgrade
 
@@ -58,11 +58,11 @@ An existing FlagGems regression reproduces a vLLM-style matrix multiplication wi
 python3 -m pytest -q tests/test_mm.py::test_mm_out_vllm_tma_column_major_weight
 ```
 
-For selected FlagGems matrix multiplications, use `benchmark/test_mm.py::test_mm` with a versioned `--shape_file` containing the model dimensions. Use the same dtype, layout and timing options for both builds.
+For selected FlagGems matrix multiplications, use `benchmark/test_mm.py::test_mm` with a versioned `--shape_file` containing the model dimensions. Enumerate workloads with `--list-cases`, select the required dimensions and weight layout with `--case-id`, and save that case manifest. Keep the FlagGems revision, shape file, dtype, level and timing options identical across runs; case IDs depend on enumeration order. Record benchmark results with `--record json` and a named `--output` file.
 
 ### G1: tune an operator for first use and subsequent inputs
 
-Run the same adapted operator with prediction disabled and enabled in separate processes, using matching predictor packages, inputs and timing modes. Match the legal candidate space when measuring the effect of prediction. Record the effective tuning policy and confirm that the enabled run uses predictions rather than fallback.
+Run the same adapted operator with prediction disabled and enabled in separate processes, using matching predictor packages, inputs and timing modes. Match the legal candidate space when measuring the effect of prediction. Record the operator identity, variant and effective tuning policy; confirm that the enabled run uses predictions rather than fallback.
 
 For `triton.flagtune.flagtune`, the switch is `FLAGTUNE_ENABLE=0/1`. Adapted FlagGems LibTuner paths use `USE_FLAGTUNE=1` with `USE_FLAGTUNE_COST_MODEL=0/1`; verify their effective candidate spaces before comparing them.
 
@@ -70,7 +70,7 @@ For `triton.flagtune.flagtune`, the switch is `FLAGTUNE_ENABLE=0/1`. Adapted Fla
 2. Repeat the same shape/dtype/layout with new data, then run an input with a different tuning key and return to the original workload. Check configuration reuse and numerical outputs throughout.
 3. Measure steady-state operator latency after warmup. For integrations with persistent tuning caches, also check reuse after a process restart.
 
-**Check:** Report tuning cost and the selected configuration's execution latency separately, with correctness results. Supply these calls and timing commands with each selected operator case.
+**Check:** Report tuning cost and the selected configuration's execution latency separately, with correctness results. The cold-start and cache-reuse runner is still to be supplied with the selected operator cases; the runtime/unit tests below do not execute this workflow.
 
 ### G4: run low-precision model operators
 
@@ -86,7 +86,7 @@ Run the relevant existing tests from the matching FlagTree checkout in addition 
 
 | Goal | Entry point | Device or dependency | Check |
 |---|---|---|---|
-| G1 | `python3 -m pytest -q python/test/flagtune/test_autotuner.py python/test/flagtune/test_config_registry.py python/test/flagtune/test_benchmark_protocol.py` | Runtime/unit tests; device-dependent cases may skip | Configuration contracts and timing protocol. |
+| G1 | `python3 -m pytest -q python/test/flagtune/test_autotuner.py python/test/flagtune/test_config_registry.py python/test/flagtune/test_benchmark_protocol.py` | Installed FlagTree and PyTorch; CUDA timing cases require a compatible device | Configuration contracts and timing protocol. |
 | G2 | `python3 -m pytest -q third_party/mthreads/python/test/unit/tle/test_tle_sqmma_kv_root.py --device musa` | Moore Threads | QK/PV reference results with shared KV layouts and repeated stage reuse. |
 | G3 | `python3 -m pytest -q python/test/tle/integration/test_tle_warp_specialize_helpers.py` | NVIDIA Hopper | Outputs from worker/default partitions and nested helper calls. |
 | G4 | `python3 -m pytest -q python/test/tle/integration/test_tle_wgmma_accumulator.py --device musa` | Moore Threads | Cross-precision accumulation across loop boundaries. |
@@ -108,7 +108,7 @@ Hygon and MetaX low-precision tests depend on [#1587](https://github.com/flagos-
 
 For selected operators already integrated into a runnable Qwen or DeepSeek deployment, rerun its existing model regression with fixed weights, inputs and framework configuration. Confirm that the optimized operators are invoked, check outputs against the existing acceptance criteria, and record model latency or throughput separately from operator timings.
 
-For every selected pair, retain the commands, numerical results, first-use/tuning measurements where applicable, and steady-state latencies. Compare with the vendor-native or agreed reference on the same device, inputs, precision and timing method; add compiler-version comparisons when operator sources are unchanged. Report both latencies and speedup as `reference latency / candidate latency`, including regressions. Confirm per-case thresholds and aggregation with the Owner before testing. Count only pairs with completed device correctness and performance results toward the twenty-pair coverage.
+For every selected pair, retain the commands, numerical results, first-use/tuning measurements where applicable, and steady-state latencies. Compare with the vendor-native or agreed reference; add compiler-version comparisons when operator sources are unchanged. Before calculating speedups, check that the saved records match in device, shapes/strides, input/output/accumulation dtypes, quantization settings and timing method. Exclude mismatched, missing, failed or skipped results from speedup calculations. Report both latencies and speedup as `reference latency / candidate latency`, including regressions. Confirm per-case thresholds and aggregation with the Owner before testing. Count only pairs with completed device correctness and performance results toward the twenty-pair coverage.
 
 ## Related PRs
 
