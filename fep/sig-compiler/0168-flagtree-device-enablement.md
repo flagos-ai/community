@@ -33,10 +33,17 @@ Full upstream Triton 3.7 feature parity, migration of every vendor to a new 3.7 
 
 ### User scenarios
 
-- **First use on a newly integrated backend (G1):** An operator developer receives an Intellifusion, D-Robotics S600 or EVAS Intelligence device, prepares the vendor SDK/driver environment and installs the matching FlagTree package. The developer can compile and execute the backend's supported Triton operators on that device.
-- **Move an existing workload to a newer chip (G2):** A developer already using FlagTree moves an operator workload to a listed newer device from the same vendor. With the matching FlagTree package and toolchain, the developer can run the operators within that device's supported scope through the existing vendor backend.
-- **Maintain backend-specific code while sharing compiler changes (G3):** A backend maintainer updates vendor-specific code or incorporates changes to shared Triton code on `main`. The maintainer keeps the differences in the backend directory and uses the common specialization mechanisms to select the intended Python and C++ implementations in the resulting package.
-- **Upgrade a model-serving deployment to vLLM 0.32.0 (G4):** A framework integrator upgrades a vLLM-Plugin-FL deployment on a supported platform. The matching FlagTree provides the Triton interfaces exercised by the deployment, so supported model requests can run and FlagGems operators need no implementation changes for API compatibility. Existing NVIDIA Triton 3.6 operator cases must continue to work.
+#### Use existing operators on an additional device (G1–G2)
+
+When an operator developer needs to use existing Triton operators on an additional device, the first task is to determine which implementations can be reused and which inputs the target backend supports. The developer installs the matching FlagTree package and vendor SDK/driver, compiles and runs the operators within that scope, and checks their behavior against existing inputs and reference results. This establishes the usable operator scope for subsequent application integration. Either a new vendor backend or an additional chip supported by an existing backend can create this need.
+
+#### Upgrade the serving framework while retaining existing operators (G4)
+
+A framework integrator needs to upgrade a vLLM-Plugin-FL deployment that uses FlagGems to vLLM 0.32.0. The upgrade must satisfy the framework's Triton Python API dependencies, while some FlagTree backends remain based on Triton 3.6. The integrator wants to use a matching FlagTree version to complete the upgrade on a supported platform and continue serving supported model requests, without changing existing FlagGems operator implementations solely for API compatibility.
+
+#### Incorporate shared compiler changes while retaining backend adaptations (G3)
+
+When incorporating fixes or upgrades to shared code on `main`, a backend maintainer needs to retain the backend's Python and C++ adaptations. Direct edits to shared files or copies of the entire source tree intertwine those adaptations with shared changes. The maintainer wants to keep the differences in the backend directory and reuse shared code that is not overridden. Changes affecting an overridden component still require reviewing its backend implementation and updating it where necessary. The built and installed package should select the intended backend implementations and preserve existing operator behavior.
 
 ### Functional scope
 
