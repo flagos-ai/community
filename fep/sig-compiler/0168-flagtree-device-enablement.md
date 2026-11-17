@@ -21,7 +21,7 @@ Backend adaptations that directly modify shared code or duplicate the source tre
 ### Goals
 
 - **G1 — Add three backends:** Integrate Intellifusion, D-Robotics S600 and EVAS Intelligence. Each delivered backend must provide an installable FlagTree package that compiles and executes its supported Triton operators on the target device.
-- **G2 — Support five new-generation chips:** Enable NVIDIA B200, Iluvatar BI300, T-Head 890, Hygon BW1100 and Huawei Ascend 950 through their vendor backends and matching toolchains, with each backend's supported operators compiling and executing on the corresponding delivered device.
+- **G2 — Extend existing backends to five new-generation chips:** Enable NVIDIA B200, Iluvatar BI300, T-Head 890, Hygon BW1100 and Huawei Ascend 950 through existing vendor backends and matching toolchains, with each backend's supported operators compiling and executing on the corresponding delivered device.
 - **G3 — Complete unified Python/C++ backend specialization:** Complete 100% of the planned migration items on `main` for `hcu`, `iluvatar`, `metax`, `mthreads`, `ppu`, `xpu`, `enflame`, `rpu`, `spacemit` and `sunrise`. Reuse shared code and keep backend-specific implementations in backend directories, preserving documented exceptions and existing operator behavior.
 - **G4 — Provide Triton API compatibility for vLLM-Plugin-FL with vLLM 0.32.0:** Identify and implement the Triton 3.7 Python APIs used by this deployment while retaining existing 3.6 interfaces. The existing native Triton 3.6 operator cases on NVIDIA and supported FlagGems operators must continue to run without implementation changes for API compatibility.
 
@@ -50,7 +50,7 @@ When incorporating fixes or upgrades to shared code on `main`, a backend maintai
 #### G1–G2 — Backend integration and device enablement
 
 - **G1 adds compiler and runtime support for each new backend:** connect device detection and target selection, Triton kernel compilation, and kernel loading/execution through the vendor runtime; integrate these components into an installable FlagTree package. Vendor SDKs and drivers provide the underlying device environment.
-- **G2 extends an existing vendor backend to the listed device:** provide the device/compilation-target configuration and matching toolchain/runtime integration needed to compile and execute that backend's supported operators on the new device. Existing supported device generations remain in regression coverage.
+- **G2 extends existing backends to the listed chips:** address the gaps in device identification, architecture-specific compilation and toolchain/runtime adaptation required by each target chip, so the backend's supported operators compile and execute on that chip. Existing supported device generations remain in regression coverage.
 
 | ID | Target platform | Integration path |
 |---|---|---|
@@ -86,7 +86,8 @@ The migration scope is the planned Python/C++ items for the `main` backends list
 
 ### Implementation approach
 
-- **G1–G2:** Connect each backend's compiler and runtime to FlagTree's build and packaging configuration. New device generations use their vendor backend with the corresponding SDK/toolchain. Device-specific changes and acceptance remain separate from the presence of a backend.
+- **G1:** Register each new compiler/runtime backend with FlagTree and integrate it into the build and packaging configuration, connecting Triton kernel compilation with loading and execution through the vendor runtime.
+- **G2:** Reuse the corresponding existing backend. Use the target device's architecture to select the applicable compilation pipeline, code generation and toolchain, adding the adaptations required by that chip and its runtime. Validate each target chip's supported operators on hardware; the presence of a backend alone does not establish support for the chip.
 - **G3.1:** Use the existing [Python specialization mechanism](https://github.com/flagos-ai/FlagTree/blob/20e0d0880518c9c77e445a579446337cdcacf4d7/python/triton/_flagtree_spec.py) for backend-specific module paths and function overrides while reusing common code.
 - **G3.2:** Use the existing [CMake specialization mechanism](https://github.com/flagos-ai/FlagTree/blob/20e0d0880518c9c77e445a579446337cdcacf4d7/cmake/FlagTreeBackendSpec.cmake) to select backend source overrides under `spec_cpp/lib`. Preserve documented backend exceptions and validate both build and execution after migration.
 - **G4.1–G4.3:** Keep supported operator implementations unchanged. Identify the framework callers and Python API differences, then provide the required compatibility on the applicable FlagTree lines. Confirm signatures and runtime behavior as well as imports. The API inventory and per-platform version combinations remain TBD.
@@ -272,7 +273,7 @@ Baseline: [FEP-0098](https://github.com/flagos-ai/community/blob/main/fep/sig-co
 | G2.2 | Vendor adaptation and implementation PRs TBD. | T1/T2: SDK, package and hardware acceptance pending. |
 | G2.3 | Existing PPU backend and Qwen benchmark infrastructure; 890-specific PRs TBD. | T1/T2: exact SKU, SDK/driver and device acceptance pending. |
 | G2.4 | [#1514](https://github.com/flagos-ai/FlagTree/pull/1514) and [#1597](https://github.com/flagos-ai/FlagTree/pull/1597), merged: BW1100 build, FlagGems and Qwen CI configurations. | T1–T4 where supported: release-environment acceptance pending. |
-| G2.5 | [#1637](https://github.com/flagos-ai/FlagTree/pull/1637), merged: Ascend 3.6 backend port; 950-specific implementation scope TBD. | T1/T2: 950 toolchain, hardware and device acceptance pending. |
+| G2.5 | [#1637](https://github.com/flagos-ai/FlagTree/pull/1637), merged: Ascend 3.6 backend port, including 950 architecture detection and related compilation handling; complete 950 support scope remains to be confirmed. | T1/T2: 950 toolchain, hardware and device acceptance pending. |
 | G3.1 | [#1422](https://github.com/flagos-ai/FlagTree/pull/1422), open: XPU Python specialization. Remaining backend items TBD. | T1–T3/T5 where applicable and specialization checklist pending. |
 | G3.2 | [#985](https://github.com/flagos-ai/FlagTree/pull/985), Draft: MThreads C++ specialization. Remaining backend items TBD. | T1–T3/T5 where applicable and specialization checklist pending. |
 | G4.1 | Required API implementation PRs TBD. Related [#1507](https://github.com/flagos-ai/FlagTree/pull/1507) is open and restores `triton_key` on Ascend 3.5 only. | T4: required API inventory and caller coverage pending; #1507 does not establish 3.7 API coverage. |
