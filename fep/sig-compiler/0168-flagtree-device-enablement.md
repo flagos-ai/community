@@ -12,11 +12,11 @@
 
 ## Summary
 
-Extend [FlagTree](https://github.com/flagos-ai/FlagTree) to new backends and accelerator generations, and provide the Triton interfaces required by the target FL framework releases. Support installation and application upgrades without changing supported operator implementations.
+For FlagOS 2.3, extend [FlagTree](https://github.com/flagos-ai/FlagTree) to new backends and accelerator generations, complete the planned unified Python/C++ backend specialization, and prioritize the Triton 3.7 Python APIs required by [vLLM-Plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) for vLLM 0.32.0. Preserve existing Triton 3.6 interfaces so FlagGems operators do not need implementation changes for API compatibility.
 
 ## Motivation
 
-Differences in vendor SDKs, compiler interfaces and framework dependencies complicate deployment across AI chips. This proposal brings device support and API compatibility into one release scope, validated through installation, operator execution and model serving.
+Backend adaptations that directly modify shared code or duplicate the source tree make it harder to reuse common functionality and follow Triton upgrades. FlagTree needs a common specialization mechanism that keeps backend-specific implementations in backend directories while reusing shared code, supporting both new backend integration and device-generation upgrades. In parallel, vLLM-Plugin-FL's move to vLLM 0.32.0 requires identifying and providing the Triton Python APIs used by that stack while preserving existing 3.6 interfaces, so API differences do not force changes to FlagGems operator implementations.
 
 ### Goals
 
