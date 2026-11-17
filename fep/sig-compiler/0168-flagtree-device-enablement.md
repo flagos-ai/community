@@ -33,32 +33,47 @@ Full upstream Triton 3.7 feature parity, migration of every vendor to a new 3.7 
 
 ### User scenarios
 
-- An operator developer installs the compiler for a target chip and runs existing supported Triton or FlagGems operators without rewriting them for API compatibility.
-- A framework user upgrades the FL deployment and continues to serve supported models with the required Triton interfaces available.
-- A backend maintainer integrates vendor-specific code through the shared specialization mechanisms and checks changes through the platform's CI jobs.
+- **First use on a newly integrated backend (G1):** An operator developer receives an Intellifusion, D-Robotics S600 or EVAS Intelligence device, prepares the vendor SDK/driver environment and installs the matching FlagTree package. The developer can compile and execute the backend's supported Triton operators on that device.
+- **Move an existing workload to a newer chip (G2):** A developer already using FlagTree moves an operator workload to a listed newer device from the same vendor. With the matching FlagTree package and toolchain, the developer can run the operators within that device's supported scope through the existing vendor backend.
+- **Maintain backend-specific code while sharing compiler changes (G3):** A backend maintainer updates vendor-specific code or incorporates changes to shared Triton code on `main`. The maintainer keeps the differences in the backend directory and uses the common specialization mechanisms to select the intended Python and C++ implementations in the resulting package.
+- **Upgrade a model-serving deployment to vLLM 0.32.0 (G4):** A framework integrator upgrades a vLLM-Plugin-FL deployment on a supported platform. The matching FlagTree provides the Triton interfaces exercised by the deployment, so supported model requests can run and FlagGems operators need no implementation changes for API compatibility. Existing NVIDIA Triton 3.6 operator cases must continue to work.
 
 ### Functional scope
 
-| ID | Platform | Planned capability |
-|---|---|---|
-| G1.1 | Intellifusion / 云天励飞 | New compiler/runtime backend for `ifwa:100`. |
-| G1.2 | D-Robotics S600 | New backend. |
-| G1.3 | EVAS Intelligence | New backend. |
-| G2.1 | NVIDIA B200 | Support the new device generation through the NVIDIA backend. |
-| G2.2 | Iluvatar BI300 | Support the new device generation. |
-| G2.3 | T-Head 890 | Support the new device generation through the PPU backend. |
-| G2.4 | Hygon BW1100 | Support the new device generation through the HCU backend. |
-| G2.5 | Huawei Ascend 950 | Support the new device generation with the applicable Ascend toolchain. |
+#### G1–G2 — Backend integration and device enablement
 
-Each delivered platform needs its own compiler, operator and applicable framework support scope. Existing supported platforms remain in regression coverage.
+- **G1 adds compiler and runtime support for each new backend:** connect device detection and target selection, Triton kernel compilation, and kernel loading/execution through the vendor runtime; integrate these components into an installable FlagTree package. Vendor SDKs and drivers provide the underlying device environment.
+- **G2 extends an existing vendor backend to the listed device:** provide the device/compilation-target configuration and matching toolchain/runtime integration needed to compile and execute that backend's supported operators on the new device. Existing supported device generations remain in regression coverage.
 
-| ID | Function | Scope |
+| ID | Target platform | Integration path |
 |---|---|---|
-| G3.1 | Python backend specialization | Integrate remaining backend overrides with shared Python code. |
-| G3.2 | C++ backend specialization | Integrate remaining backend overrides with shared C++ code. |
-| G4.1 | Required Triton API compatibility | Python symbols, signatures and behavior used by vLLM-Plugin-FL with vLLM 0.32.0. |
-| G4.2 | Native Triton operator compatibility | Identical operator sources on upstream Triton 3.6 and FlagTree on NVIDIA; supported native examples on other backends. |
-| G4.3 | FlagGems application compatibility | Ordinary PyTorch calls using FlagGems and the platform's required operator suite. |
+| G1.1 | Intellifusion / 云天励飞 | New compiler/runtime backend for `ifwa:100` on `triton_v3.8.x`. |
+| G1.2 | D-Robotics S600 | Add compiler and runtime integration for S600. |
+| G1.3 | EVAS Intelligence | Add compiler and runtime integration for EVAS Intelligence. |
+| G2.1 | NVIDIA B200 | Extend the NVIDIA backend on `main` / Triton 3.6 to the target device. |
+| G2.2 | Iluvatar BI300 | Enable the target device through the Iluvatar backend and matching vendor toolchain. |
+| G2.3 | T-Head 890 | Enable the target device through the PPU backend and matching vendor toolchain. |
+| G2.4 | Hygon BW1100 | Enable the target device through the HCU backend and matching vendor toolchain. |
+| G2.5 | Huawei Ascend 950 | Enable the target device through the Ascend backend and matching Ascend toolchain. |
+
+Each platform must define its supported operator list, shapes, dtypes and layouts. Model-serving scope depends on the framework support for that platform and configuration. Dependency combinations and pending decisions are described in Design Details.
+
+#### G3 — Unified backend specialization
+
+The migration scope is the planned Python/C++ items for the `main` backends listed in G3.
+
+| ID | Function | Required behavior |
+|---|---|---|
+| G3.1 | Python specialization | Load backend-specific modules and function overrides through the shared specialization mechanism while reusing common Python code. Installed packages must select the intended backend implementations. |
+| G3.2 | C++ specialization | Keep backend source overrides under `spec_cpp/lib`; select those overrides for the corresponding build targets and reuse the remaining shared sources. The resulting package must preserve the backend's existing operator behavior. Documented backend exceptions remain applicable. |
+
+#### G4 — Framework API and operator compatibility
+
+| ID | Function | Required behavior and boundary |
+|---|---|---|
+| G4.1 | Required Triton 3.7 APIs | Provide the Python symbols, signatures and runtime behavior used by vLLM-Plugin-FL with vLLM 0.32.0 on applicable FlagTree lines, while retaining existing 3.6 interfaces. The concrete API inventory must be identified from framework callers; full upstream 3.7 parity is outside scope. |
+| G4.2 | Existing native Triton operators | Existing NVIDIA Triton 3.6 operator cases must compile and execute from unchanged source on FlagTree, preserving their computational behavior. Other backends cover their supported native examples. |
+| G4.3 | FlagGems application calls | Within each backend's declared operator scope, existing FlagGems implementations must remain usable through its public PyTorch integration interfaces. Triton API compatibility must not require rewriting those operator implementations. |
 
 ## Design Details
 
