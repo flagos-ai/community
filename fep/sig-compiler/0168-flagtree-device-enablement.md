@@ -20,10 +20,10 @@ Backend adaptations that directly modify shared code or duplicate the source tre
 
 ### Goals
 
-- **G1 — Add three backends:** Integrate Intellifusion, D-Robotics S600 (Beijing acceleration plan; high risk) and EVAS Intelligence (high risk). Each delivered backend must provide an installable compiler/runtime and execute its supported Triton operators on the target device.
-- **G2 — Support five accelerator generations:** Enable NVIDIA B200, Iluvatar BI300 (high risk), T-Head 890, Hygon BW1100 and Huawei Ascend 950 through their vendor backends and matching toolchains, with supported operators compiling and executing on each delivered device.
-- **G3 — Complete unified Python/C++ backend specialization:** Complete 100% of the planned migration items for `hcu`, `iluvatar`, `metax`, `mthreads`, `ppu`, `xpu`, `enflame`, `rpu`, `spacemit` and `sunrise`. Reuse shared code and keep backend-specific implementations in backend directories, preserving documented exceptions and existing operator behavior.
-- **G4 — Provide Triton API compatibility for vLLM-Plugin-FL with vLLM 0.32.0:** Identify and implement the Triton 3.7 Python APIs used by this deployment while retaining existing 3.6 interfaces. Native operators that run with upstream Triton 3.6 on NVIDIA and supported FlagGems operators must continue to run without implementation changes for API compatibility.
+- **G1 — Add three backends:** Integrate Intellifusion, D-Robotics S600 and EVAS Intelligence. Each delivered backend must provide an installable FlagTree package that compiles and executes its supported Triton operators on the target device.
+- **G2 — Support five new-generation chips:** Enable NVIDIA B200, Iluvatar BI300, T-Head 890, Hygon BW1100 and Huawei Ascend 950 through their vendor backends and matching toolchains, with each backend's supported operators compiling and executing on the corresponding delivered device.
+- **G3 — Complete unified Python/C++ backend specialization:** Complete 100% of the planned migration items on `main` for `hcu`, `iluvatar`, `metax`, `mthreads`, `ppu`, `xpu`, `enflame`, `rpu`, `spacemit` and `sunrise`. Reuse shared code and keep backend-specific implementations in backend directories, preserving documented exceptions and existing operator behavior.
+- **G4 — Provide Triton API compatibility for vLLM-Plugin-FL with vLLM 0.32.0:** Identify and implement the Triton 3.7 Python APIs used by this deployment while retaining existing 3.6 interfaces. The existing native Triton 3.6 operator cases on NVIDIA and supported FlagGems operators must continue to run without implementation changes for API compatibility.
 
 ### Non-Goals
 
