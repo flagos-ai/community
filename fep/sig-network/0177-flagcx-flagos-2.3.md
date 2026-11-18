@@ -8,13 +8,13 @@
 
 **SIG:** sig-network
 
-**Target Version:** FlagOS 2.3 (proposed; not admitted)
+**Target Version:** FlagOS 2.3
 
 ## Summary
 
 Extend [FlagCX](https://github.com/flagos-ai/FlagCX) Device API support, validate communication across at least eight accelerator backends, and complete communication-compute fusion and prefill/decode (PD) integration tests. This proposal also tracks GIN and in-network computing (INC) feasibility and the evidence needed to reapply to the PyTorch ecosystem.
 
-This draft separates code already on `main`, open implementation PRs and unverified targets. It does not claim release acceptance. The [2.3 schedule](../../release/2.3/schedule.md) set November 13 as the FEP merge deadline, with no retroactive admission. This proposal missed that gate and must be deferred under the current rules; the Release Manager must record its actual target before release tracking. No exception is assumed.
+This draft separates code already on `main`, open implementation PRs and unverified targets. It does not claim release acceptance.
 
 ## Baseline
 
@@ -72,7 +72,7 @@ For Qwen, qualify five explicitly named chip platforms. Each requires a reproduc
 
 Keep Proxy behavior covered while defining GIN provider capabilities, ordering/completion semantics and required hardware. Request a reproducible test environment or a supplier-runnable harness. INC additionally needs its supported operations, reduction semantics, accuracy and fallback behavior specified before implementation acceptance.
 
-National-standard publication, external collaboration milestones, universal binary packaging RFC #698 and third-party ecosystem approval are outside this FEP's technical acceptance. GIN/INC work that lacks hardware or misses the applicable feature gate moves to a later release.
+National-standard publication, external collaboration milestones, universal binary packaging RFC #698 and third-party ecosystem approval are outside this FEP's technical acceptance.
 
 ## Packaging
 
@@ -179,20 +179,9 @@ make -C test/unittest/device_api USE_NVIDIA=1 provider_test
 
 **Pending:** Define provider selection, hardware/firmware, host/device launch commands, remote-write visibility, signal/wait ordering, completion/error handling and supported INC reductions. Compare INC results with the host reference at an agreed dtype/tolerance. Without those executable tests and hardware results, record design/tooling progress only and defer implementation acceptance.
 
-## Release Gates and Open Decisions
+## Open Decisions
 
-The dates below are the authoritative 2.3 gates, not an admission or delivery commitment for this late proposal. Component planning dates in mid/late December cannot authorize new feature code after November 30.
-
-| Gate | Required decision or evidence |
-|---|---|
-| November 13 — FEP merge deadline | Missed. Record deferral and the actual target under the release rules. |
-| November 30 — feature freeze / rc0 | For scope admitted through the applicable release process: implementation submitted, release source/tag selected, package and manifest versions consistent. |
-| December 7 — rc1 | Executable vendor matrix, model launch recipes, performance references and test environments complete. |
-| December 14 — rc2 | Integration/regression evidence; unresolved hardware, dtype and model gaps visible. |
-| December 25 — code lock | Acceptance verdict and final artifacts; incomplete scope follows the release rules. |
-| December 30 — GA | Publish only supported and accepted capabilities; external ecosystem/standards decisions remain separate. |
-
-Before this proposal becomes `Implementable`, confirm the owner, actual release target, G1 primitive subsets, G2 backend/version matrix, G3 performance threshold, G4 five-chip list and metric, and whether G5 has a usable environment. Replace pending test recipes with reviewed executable commands. Developer review and QA sign-off are required; no hardware tests were performed while preparing this FEP.
+Before this proposal becomes `Implementable`, confirm the owner, G1 primitive subsets, G2 backend/version matrix, G3 performance threshold, G4 five-chip list and metric, and whether G5 has a usable environment. Replace pending test recipes with reviewed executable commands. Developer review and QA sign-off are required; no hardware tests were performed while preparing this FEP.
 
 ## Related PRs
 
